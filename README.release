@@ -13,7 +13,7 @@ Things to do for a new release:
 - update Debian-related packaging files in debian/custom,
   including commits
 
-- `make patch`
+- `make patch && make docs`
 
 - do outstanding commits due to patching
 
