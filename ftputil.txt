@@ -1283,7 +1283,7 @@ Use a wrapper class for ``ftplib.FTP``, as described in section
 Use this class as the ``session_factory`` argument in ``FTPHost``'s
 constructor.
 
-When iterating over directories, ``ftputil`` becomes unbearable slow
+When iterating over directories, ``ftputil`` becomes unbearably slow
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You probably iterate over a directory with more than 1000 items
