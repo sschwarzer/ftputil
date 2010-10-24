@@ -1,4 +1,4 @@
-ftputil 2.5b is now available from
+ftputil 2.5 is now available from
 http://ftputil.sschwarzer.net/download .
 
 Changes since version 2.4.2
