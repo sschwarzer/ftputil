@@ -1196,8 +1196,9 @@ through these mails.
 I found a bug! What now?
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Before reporting a bug, make sure that you already tried the `latest
-version`_ of ``ftputil``. There the bug might have already been fixed.
+Before reporting a bug, make sure that you already read this manual
+and tried the `latest version`_ of ``ftputil``. There the bug might
+have already been fixed.
 
 .. _`latest version`: http://ftputil.sschwarzer.net/download
 
@@ -1241,11 +1242,11 @@ factory" in ``ftputil.FTPHost``'s constructor::
                            session_factory=SSLFTPSession)
     # Use `host` as usual.
 
-If you work with Python 2.7, you can use a similar recipe with the new
-class ``FTP_TLS`` in the ``ftplib`` module. Note that you need to call
-``prot_p`` on the ``FTP_TLS`` instance to actually use a secure
-transfer. This makes it still necessary to define a session class
-similar to the one above.
+If you work with Python 2.7 or the upcoming 3.2 release, you can use a
+similar recipe with the new class ``FTP_TLS`` in the ``ftplib``
+module. Note that you need to call ``prot_p`` on the ``FTP_TLS``
+instance to actually use a secure transfer. This makes it still
+necessary to define a session class similar to the one above.
 
 .. _M2Crypto: http://wiki.osafoundation.org/bin/view/Projects/MeTooCrypto#Downloads
 
@@ -1281,6 +1282,33 @@ Use a wrapper class for ``ftplib.FTP``, as described in section
 
 Use this class as the ``session_factory`` argument in ``FTPHost``'s
 constructor.
+
+When iterating over directories, ``ftputil`` becomes unbearable slow
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You probably iterate over a directory with more than 1000 items
+(directories and files) in it and use methods like `lstat` or `isdir`
+for that.
+
+Even though ``ftputil`` uses a cache to store stat information used by
+these methods, the cache's default size is 1000 entries. If your
+directory contains more items, the first entries will have been
+flushed from the cache by the time the iteration over the items
+starts.
+
+To avoid this problem, increase the cache size to the size of the
+largest directory you expect::
+
+    ftp_host = ftputil.FTPHost(host, userid, password)
+    # Increase cache size to hold at most 10000 entries.
+    ftp_host.stat_cache.resize(10000)
+
+For details on caching read `Local caching of file system
+information`_.
+
+Support for an auto-resize feature is planned for *future* versions
+of ``ftputil``. This won't be fool-proof either, but will most likely
+work for the case described above.
 
 Conditional upload/download to/from a server in a different time zone
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
