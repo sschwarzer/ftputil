@@ -700,42 +700,26 @@ class TestUnicodePaths(RealFTPTest):
         # Fail early if string can't be encoded to ASCII.
         self.assert_unicode_error(host.chdir, u"ä")
 
-    def test_mkdir(self):
-        self.assert_unicode_error(self.host.mkdir, u"ä")
-
-    def test_makedirs(self):
-        self.assert_unicode_error(self.host.makedirs, u"b/ä")
-
-    def test_rmdir(self):
-        self.assert_unicode_error(self.host.rmdir, u"ä")
-
-    def test_remove(self):
-        self.assert_unicode_error(self.host.remove, u"ä")
-
-    def test_rmtree(self):
-        self.assert_unicode_error(self.host.rmtree, u"ä")
-
     def test_rename(self):
         self.assert_unicode_error(self.host.rename, u"ä", "b")
         self.assert_unicode_error(self.host.rename, "b", u"ä")
 
-    def test_listdir(self):
-        self.assert_unicode_error(self.host.listdir, u"ä")
-
-    def test_lstat(self):
-        self.assert_unicode_error(self.host.lstat, u"ä")
-
-    def test_stat(self):
-        self.assert_unicode_error(self.host.stat, u"ä")
-
     def test_walk(self):
-        generator = self.host.walk(u"ä")
         # The string test is only executed when the first item is
         #  requested from the generator.
-        self.assert_unicode_error(generator.next)
+        iterator = self.host.walk(u"ä")
+        self.assert_unicode_error(iterator.next)
 
     def test_chmod(self):
         self.assert_unicode_error(self.host.chmod, u"ä", 0644)
+
+    def test_single_path_methods(self):
+        # Collective test for similar tests which use just a single
+        #  path as argument.
+        for method_name in \
+          "mkdir makedirs rmdir remove rmtree listdir lstat stat".split():
+            method = getattr(self.host, method_name)
+            self.assert_unicode_error(method, u"ä")
 
     def test_path(self):
         for method_name in \
