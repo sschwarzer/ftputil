@@ -816,7 +816,7 @@ class FTPHost(object):
         """
         # Fail early if we get a unicode path which can't be encoded.
         path = str(path)
-        return self._stat.listdir(path)
+        return self._stat._listdir(path)
 
     def lstat(self, path, _exception_for_missing_path=True):
         """
@@ -832,7 +832,7 @@ class FTPHost(object):
         """
         # Fail early if we get a unicode path which can't be encoded.
         path = str(path)
-        return self._stat.lstat(path, _exception_for_missing_path)
+        return self._stat._lstat(path, _exception_for_missing_path)
 
     def stat(self, path, _exception_for_missing_path=True):
         """
@@ -849,7 +849,7 @@ class FTPHost(object):
         """
         # Fail early if we get a unicode path which can't be encoded.
         path = str(path)
-        return self._stat.stat(path, _exception_for_missing_path)
+        return self._stat._stat(path, _exception_for_missing_path)
 
     def walk(self, top, topdown=True, onerror=None):
         """

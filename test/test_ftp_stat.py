@@ -244,9 +244,9 @@ class TestLstatAndStat(unittest.TestCase):
 
     def test_failing_lstat(self):
         """Test whether lstat fails for a nonexistent path."""
-        self.assertRaises(ftp_error.PermanentError, self.stat.lstat,
+        self.assertRaises(ftp_error.PermanentError, self.stat._lstat,
                           '/home/sschw/notthere')
-        self.assertRaises(ftp_error.PermanentError, self.stat.lstat,
+        self.assertRaises(ftp_error.PermanentError, self.stat._lstat,
                           '/home/sschwarzer/notthere')
 
     def test_lstat_for_root(self):
@@ -255,27 +255,27 @@ class TestLstatAndStat(unittest.TestCase):
         the output of an FTP `DIR` command. Unfortunately, it's not
         possible to do this for the root directory `/`.
         """
-        self.assertRaises(ftp_error.RootDirError, self.stat.lstat, '/')
+        self.assertRaises(ftp_error.RootDirError, self.stat._lstat, '/')
         try:
-            self.stat.lstat('/')
+            self.stat._lstat('/')
         except ftp_error.RootDirError, exc_obj:
             self.failIf(isinstance(exc_obj, ftp_error.FTPOSError))
 
     def test_lstat_one_unix_file(self):
         """Test `lstat` for a file described in Unix-style format."""
-        stat_result = self.stat.lstat('/home/sschwarzer/index.html')
+        stat_result = self.stat._lstat('/home/sschwarzer/index.html')
         self.assertEqual(oct(stat_result.st_mode), '0100644')
         self.assertEqual(stat_result.st_size, 4604)
         self.assertEqual(stat_result._st_mtime_precision, 60)
 
     def test_lstat_one_ms_file(self):
         """Test `lstat` for a file described in DOS-style format."""
-        stat_result = self.stat.lstat('/home/msformat/abcd.exe')
+        stat_result = self.stat._lstat('/home/msformat/abcd.exe')
         self.assertEqual(stat_result._st_mtime_precision, 60)
 
     def test_lstat_one_unix_dir(self):
         """Test `lstat` for a directory described in Unix-style format."""
-        stat_result = self.stat.lstat('/home/sschwarzer/scios2')
+        stat_result = self.stat._lstat('/home/sschwarzer/scios2')
         self.assertEqual(oct(stat_result.st_mode), '042755')
         self.assertEqual(stat_result.st_ino, None)
         self.assertEqual(stat_result.st_dev, None)
@@ -294,28 +294,28 @@ class TestLstatAndStat(unittest.TestCase):
 
     def test_lstat_one_ms_dir(self):
         """Test `lstat` for a directory described in DOS-style format."""
-        stat_result = self.stat.lstat('/home/msformat/WindowsXP')
+        stat_result = self.stat._lstat('/home/msformat/WindowsXP')
         self.assertEqual(stat_result._st_mtime_precision, 60)
 
     def test_lstat_via_stat_module(self):
         """Test `lstat` indirectly via `stat` module."""
-        stat_result = self.stat.lstat('/home/sschwarzer/')
+        stat_result = self.stat._lstat('/home/sschwarzer/')
         self.failUnless(stat.S_ISDIR(stat_result.st_mode))
 
     def test_stat_following_link(self):
         """Test `stat` when invoked on a link."""
         # Simple link
-        stat_result = self.stat.stat('/home/link')
+        stat_result = self.stat._stat('/home/link')
         self.assertEqual(stat_result.st_size, 4604)
         # Link pointing to a link
-        stat_result = self.stat.stat('/home/python/link_link')
+        stat_result = self.stat._stat('/home/python/link_link')
         self.assertEqual(stat_result.st_size, 4604)
-        stat_result = self.stat.stat('../python/link_link')
+        stat_result = self.stat._stat('../python/link_link')
         self.assertEqual(stat_result.st_size, 4604)
         # Recursive link structures
-        self.assertRaises(ftp_error.PermanentError, self.stat.stat,
+        self.assertRaises(ftp_error.PermanentError, self.stat._stat,
                           '../python/bad_link')
-        self.assertRaises(ftp_error.PermanentError, self.stat.stat,
+        self.assertRaises(ftp_error.PermanentError, self.stat._stat,
                           '/home/bad_link')
 
     #
@@ -328,7 +328,7 @@ class TestLstatAndStat(unittest.TestCase):
         #  the Unix parser, so `_allow_parser_switching` can be
         #  switched off no matter whether we got a `PermanentError`
         #  or not.
-        self.assertRaises(ftp_error.PermanentError, self.stat.lstat,
+        self.assertRaises(ftp_error.PermanentError, self.stat._lstat,
                           "/home/msformat/nonexistent")
         self.assertEqual(self.stat._allow_parser_switching, False)
 
@@ -336,7 +336,7 @@ class TestLstatAndStat(unittest.TestCase):
         """Test non-switching of parser format; stay with Unix."""
         self.assertEqual(self.stat._allow_parser_switching, True)
         self.failUnless(isinstance(self.stat._parser, ftp_stat.UnixParser))
-        stat_result = self.stat.lstat("/home/sschwarzer/index.html")
+        stat_result = self.stat._lstat("/home/sschwarzer/index.html")
         self.failUnless(isinstance(self.stat._parser, ftp_stat.UnixParser))
         self.assertEqual(self.stat._allow_parser_switching, False)
 
@@ -344,7 +344,7 @@ class TestLstatAndStat(unittest.TestCase):
         """Test switching of parser from Unix to MS format."""
         self.assertEqual(self.stat._allow_parser_switching, True)
         self.failUnless(isinstance(self.stat._parser, ftp_stat.UnixParser))
-        stat_result = self.stat.lstat("/home/msformat/abcd.exe")
+        stat_result = self.stat._lstat("/home/msformat/abcd.exe")
         self.failUnless(isinstance(self.stat._parser, ftp_stat.MSParser))
         self.assertEqual(self.stat._allow_parser_switching, False)
         self.assertEqual(stat_result._st_name, "abcd.exe")
@@ -353,7 +353,7 @@ class TestLstatAndStat(unittest.TestCase):
     def test_parser_switching_regarding_empty_dir(self):
         """Test switching of parser if a directory is empty."""
         self.assertEqual(self.stat._allow_parser_switching, True)
-        result = self.stat.listdir("/home/msformat/XPLaunch/empty")
+        result = self.stat._listdir("/home/msformat/XPLaunch/empty")
         self.assertEqual(result, [])
         self.assertEqual(self.stat._allow_parser_switching, True)
         self.failUnless(isinstance(self.stat._parser, ftp_stat.UnixParser))
@@ -367,16 +367,16 @@ class TestListdir(unittest.TestCase):
     def test_failing_listdir(self):
         """Test failing `FTPHost.listdir`."""
         self.assertRaises(ftp_error.PermanentError,
-                          self.stat.listdir, 'notthere')
+                          self.stat._listdir, 'notthere')
 
     def test_succeeding_listdir(self):
         """Test succeeding `FTPHost.listdir`."""
         # Do we have all expected "files"?
-        self.assertEqual(len(self.stat.listdir('.')), 9)
+        self.assertEqual(len(self.stat._listdir('.')), 9)
         # Have they the expected names?
         expected = ('chemeng download image index.html os2 '
                     'osup publications python scios2').split()
-        remote_file_list = self.stat.listdir('.')
+        remote_file_list = self.stat._listdir('.')
         for file in expected:
             self.failUnless(file in remote_file_list)
 

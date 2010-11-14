@@ -576,7 +576,9 @@ class _Stat(object):
             else:
                 raise
 
-    def listdir(self, path):
+    # Don't use these methods, but instead the corresponding methods
+    #  in the `FTPHost` class.
+    def _listdir(self, path):
         """
         Return a list of items in `path`.
 
@@ -586,7 +588,7 @@ class _Stat(object):
         """
         return self.__call_with_parser_retry(self._real_listdir, path)
 
-    def lstat(self, path, _exception_for_missing_path=True):
+    def _lstat(self, path, _exception_for_missing_path=True):
         """
         Return a `StatResult` without following links.
 
@@ -597,7 +599,7 @@ class _Stat(object):
         return self.__call_with_parser_retry(self._real_lstat, path,
                                              _exception_for_missing_path)
 
-    def stat(self, path, _exception_for_missing_path=True):
+    def _stat(self, path, _exception_for_missing_path=True):
         """
         Return a `StatResult` with following links.
 
