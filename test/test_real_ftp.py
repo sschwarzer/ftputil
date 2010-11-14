@@ -737,6 +737,17 @@ class TestUnicodePaths(RealFTPTest):
     def test_chmod(self):
         self.assert_unicode_error(self.host.chmod, u"ä", 0644)
 
+    def test_path(self):
+        for method_name in \
+          "abspath exists getmtime getsize isfile isdir islink".split():
+            method = getattr(self.host.path, method_name)
+            self.assert_unicode_error(method, u"ä")
+
+    def test_path_walk(self):
+        def noop():
+            pass
+        self.assert_unicode_error(self.host.path.walk, u"ä", noop, None)
+
 
 class TestOther(RealFTPTest):
 
