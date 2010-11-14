@@ -42,12 +42,16 @@ class _Path(object):
 
     def abspath(self, path):
         """Return an absolute path."""
+        # Fail early if we get a unicode path which can't be encoded.
+        path = str(path)
         if not self.isabs(path):
             path = self.join(self._host.getcwd(), path)
         return self.normpath(path)
 
     def exists(self, path):
         """Return true if the path exists."""
+        # Fail early if we get a unicode path which can't be encoded.
+        path = str(path)
         try:
             lstat_result = self._host.lstat(
                            path, _exception_for_missing_path=False)
@@ -64,6 +68,8 @@ class _Path(object):
         but maybe other exceptions depending on the state of the
         server (e. g. timeout).
         """
+        # Fail early if we get a unicode path which can't be encoded.
+        path = str(path)
         return self._host.stat(path).st_mtime
 
     def getsize(self, path):
@@ -74,6 +80,8 @@ class _Path(object):
         but maybe raise other exceptions depending on the state of the
         server (e. g. timeout).
         """
+        # Fail early if we get a unicode path which can't be encoded.
+        path = str(path)
         return self._host.stat(path).st_size
 
     # Check whether a path is a regular file/dir/link. For the first
@@ -93,6 +101,8 @@ class _Path(object):
 
         A non-existing path does _not_ cause a `PermanentError`.
         """
+        # Fail early if we get a unicode path which can't be encoded.
+        path = str(path)
         # Workaround if we can't go up from the current directory
         if path == self._host.getcwd():
             return False
@@ -113,6 +123,8 @@ class _Path(object):
 
         A non-existing path does _not_ cause a `PermanentError`.
         """
+        # Fail early if we get a unicode path which can't be encoded.
+        path = str(path)
         # Workaround if we can't go up from the current directory
         if path == self._host.getcwd():
             return True
@@ -132,6 +144,8 @@ class _Path(object):
 
         A non-existing path does _not_ cause a `PermanentError`.
         """
+        # Fail early if we get a unicode path which can't be encoded.
+        path = str(path)
         try:
             lstat_result = self._host.lstat(
                            path, _exception_for_missing_path=False)
@@ -160,6 +174,8 @@ class _Path(object):
         e.g., to pass a filename pattern, or a mutable object designed
         to accumulate statistics.  Passing None for arg is common.
         """
+        # Fail early if we get a unicode path which can't be encoded.
+        top = str(top)
         # This code (and the above documentation) is taken from
         #  posixpath.py, with slight modifications.
         try:
