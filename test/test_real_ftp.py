@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 # Copyright (C) 2003-2010, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
@@ -638,6 +640,104 @@ class TestChmod(RealFTPTest):
         self.assert_mode(file_name, 0646)
 
 
+class TestUnicodePaths(RealFTPTest):
+    """Test if using unicode paths fails if they contain non-ASCII
+    characters (see ticket #53).
+    """
+
+    # Actually, all of these methods will raise a `UnicodeEncodeError`
+    #  at some point, at the latest when a unicode string is tried to
+    #  be sent over a socket. However, it can be rather confusing to
+    #  get an encoding error from deep inside of ftputil or even
+    #  modules used by it (see ticket #53). Therefore, I added tests
+    #  to fail as early as possible if a path is a unicode path that
+    #  can't be converted to ASCII. Moreover, the code won't try to
+    #  use unicode strings which come into existence intermediately.
+ 
+    def assert_non_unicode(self, s):
+        self.assertFalse(isinstance(s, unicode))
+
+    def assert_unicode_error(self, function, *args):
+        self.assertRaises(UnicodeEncodeError, function, *args)
+
+    def test_open(self):
+        host = self.host
+        # Check if the name attribute is a bytestring, no matter if we
+        #  passed in a bytestring or not beforehand.
+        fobj = host.file("CONTENTS")
+        try:
+            self.assert_non_unicode(fobj.name)
+        finally:
+            fobj.close()
+        fobj = host.file(u"CONTENTS")
+        try:
+            self.assert_non_unicode(fobj.name)
+        finally:
+            fobj.close()
+        # Check if non-encodable unicode strings are refused.
+        self.assert_unicode_error(host.file, u"ä")
+
+    def test_upload(self):
+        self.assert_unicode_error(self.host.upload, "ftputil.py", u"ä")
+
+    def test_upload_if_newer(self):
+        self.assert_unicode_error(self.host.upload_if_newer,
+                                  "ftputil.py", u"ä")
+
+    def test_download(self):
+        self.assert_unicode_error(self.host.download, u"ä", "ok")
+
+    def test_download_if_newer(self):
+        self.assert_unicode_error(self.host.download_if_newer, u"ä", "ok")
+
+    def test_chdir(self):
+        # Unicode strings are ok if they can be encoded to ASCII.
+        host = self.host
+        host.chdir(".")
+        self.assert_non_unicode(host.getcwd())
+        host.chdir(u".")
+        self.assert_non_unicode(host.getcwd())
+        # Fail early if string can't be encoded to ASCII.
+        self.assert_unicode_error(host.chdir, u"ä")
+
+    def test_mkdir(self):
+        self.assert_unicode_error(self.host.mkdir, u"ä")
+
+    def test_makedirs(self):
+        self.assert_unicode_error(self.host.makedirs, u"b/ä")
+
+    def test_rmdir(self):
+        self.assert_unicode_error(self.host.rmdir, u"ä")
+
+    def test_remove(self):
+        self.assert_unicode_error(self.host.remove, u"ä")
+
+    def test_rmtree(self):
+        self.assert_unicode_error(self.host.rmtree, u"ä")
+
+    def test_rename(self):
+        self.assert_unicode_error(self.host.rename, u"ä", "b")
+        self.assert_unicode_error(self.host.rename, "b", u"ä")
+
+    def test_listdir(self):
+        self.assert_unicode_error(self.host.listdir, u"ä")
+
+    def test_lstat(self):
+        self.assert_unicode_error(self.host.lstat, u"ä")
+
+    def test_stat(self):
+        self.assert_unicode_error(self.host.stat, u"ä")
+
+    def test_walk(self):
+        generator = self.host.walk(u"ä")
+        # The string test is only executed when the first item is
+        #  requested from the generator.
+        self.assert_unicode_error(generator.next)
+
+    def test_chmod(self):
+        self.assert_unicode_error(self.host.chmod, u"ä", 0644)
+
+
 class TestOther(RealFTPTest):
 
     def test_open_for_reading(self):
@@ -700,6 +800,5 @@ minutes because it has to wait to test the timezone calculation.
     server, user, password = get_login_data()
     unittest.main()
     import __main__
-    #unittest.main(__main__,
-    #              "TestFTPFiles.test_no_timed_out_children")
+    #unittest.main(__main__, "TestUnicodePaths")
 
