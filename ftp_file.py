@@ -211,6 +211,9 @@ class _FTPFile(object):
         raise AttributeError(
               "'FTPFile' object has no attribute '%s'" % attr_name)
 
+    # TODO: Implement `__dir__`? (See
+    #  http://docs.python.org/py3k/whatsnew/2.6.html#other-language-changes )
+
     def close(self):
         """Close the `FTPFile`."""
         if self.closed:
