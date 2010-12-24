@@ -420,9 +420,9 @@ class _Stat(object):
             raise ftp_error.PermanentError(
                   "550 %s: no such directory or wrong directory parser used" %
                   path)
-        # Set up for `for` loop
+        # Set up for `for` loop.
         lines = self._host_dir(path)
-        # Exit the method now if there aren't any files
+        # Exit the method now if there aren't any files.
         if lines == ['']:
             return []
         names = []
@@ -487,12 +487,12 @@ class _Stat(object):
                           self._host.time_shift())
             loop_path = self._path.join(dirname, stat_result._st_name)
             self._lstat_cache[loop_path] = stat_result
-            # Needed to work without cache or with disabled cache
+            # Needed to work without cache or with disabled cache.
             if stat_result._st_name == basename:
                 lstat_result_for_path = stat_result
         if lstat_result_for_path is not None:
             return lstat_result_for_path
-        # Path was not found during the loop
+        # Path was not found during the loop.
         if _exception_for_missing_path:
             #TODO Use FTP DIR command on the file to implicitly use
             #  the usual status code of the server for missing files
