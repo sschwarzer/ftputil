@@ -66,7 +66,7 @@ class StatCache(object):
     def resize(self, new_size):
         """
         Set number of cache entries to the integer `new_size`.
-        If the new size is greater than the current cache size,
+        If the new size is smaller than the current cache size,
         relatively long-unused elements will be removed.
         """
         self._cache.size = new_size
