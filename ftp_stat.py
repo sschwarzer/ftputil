@@ -74,6 +74,10 @@ class Parser(object):
         If the line should be used to extract stat data from it,
         return a false value.
         """
+        # Ignore empty lines stemming from only a line break.
+        if not line.strip():
+            # Yes, ignore the line if it's empty.
+            return True
         # Either a `_SRE_Match` instance or `None`
         match = self._total_regex.search(line)
         return bool(match)
@@ -405,6 +409,27 @@ class _Stat(object):
         """
         return self._host._dir(path)
 
+    def _stat_results_from_dir(self, path):
+        """
+        Yield stat results extracted from the directory listing `path`.
+        Omit the special entries for the directory itself and its parent
+        directory.
+        """
+        lines = self._host_dir(path)
+        for line in lines:
+            if self._parser.ignores_line(line):
+                continue
+            # For `listdir`, we are interested in just the names,
+            #  but we use the `time_shift` parameter to have the
+            #  correct timestamp values in the cache.
+            stat_result = self._parser.parse_line(line,
+                                                  self._host.time_shift())
+            if stat_result._st_name in [self._host.curdir, self._host.pardir]:
+                continue
+            loop_path = self._path.join(path, stat_result._st_name)
+            self._lstat_cache[loop_path] = stat_result
+            yield stat_result
+
     def _real_listdir(self, path):
         """
         Return a list of directories, files etc. in the directory
@@ -421,24 +446,10 @@ class _Stat(object):
                   "550 %s: no such directory or wrong directory parser used" %
                   path)
         # Set up for `for` loop.
-        lines = self._host_dir(path)
-        # Exit the method now if there aren't any files.
-        if lines == ['']:
-            return []
         names = []
-        for line in lines:
-            if self._parser.ignores_line(line):
-                continue
-            # For `listdir`, we are interested in just the names,
-            #  but we use the `time_shift` parameter to have the
-            #  correct timestamp values in the cache.
-            stat_result = self._parser.parse_line(line,
-                                                  self._host.time_shift())
-            loop_path = self._path.join(path, stat_result._st_name)
-            self._lstat_cache[loop_path] = stat_result
+        for stat_result in self._stat_results_from_dir(path):
             st_name = stat_result._st_name
-            if st_name not in (self._host.curdir, self._host.pardir):
-                names.append(st_name)
+            names.append(st_name)
         return names
 
     def _real_lstat(self, path, _exception_for_missing_path=True):
@@ -479,14 +490,7 @@ class _Stat(object):
         #  we want to collect as many stat results in the cache as
         #  possible.
         lstat_result_for_path = None
-        lines = self._host_dir(dirname)
-        for line in lines:
-            if self._parser.ignores_line(line):
-                continue
-            stat_result = self._parser.parse_line(line,
-                          self._host.time_shift())
-            loop_path = self._path.join(dirname, stat_result._st_name)
-            self._lstat_cache[loop_path] = stat_result
+        for stat_result in self._stat_results_from_dir(dirname):
             # Needed to work without cache or with disabled cache.
             if stat_result._st_name == basename:
                 lstat_result_for_path = stat_result
