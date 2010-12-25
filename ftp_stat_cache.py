@@ -135,9 +135,10 @@ class StatCache(object):
 
     def __setitem__(self, path, stat_result):
         """
-        Put the stat data for `path` into the cache, unless it's
-        disabled.
+        Put the stat data for the absolute `path` into the cache,
+        unless it's disabled.
         """
+        assert path.startswith("/")
         if not self._enabled:
             return
         self._cache[path] = stat_result

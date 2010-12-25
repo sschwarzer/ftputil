@@ -1,4 +1,4 @@
-# Copyright (C) 2006, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2006-2010, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 import time
@@ -16,9 +16,9 @@ class TestStatCache(unittest.TestCase):
 
     def test_get_set(self):
         self.assertRaises(ftp_error.CacheMissError,
-                          self.cache.__getitem__, "path")
-        self.cache["path"] = "test"
-        self.assertEqual(self.cache["path"], "test")
+                          self.cache.__getitem__, "/path")
+        self.cache["/path"] = "test"
+        self.assertEqual(self.cache["/path"], "test")
 
     def test_invalidate(self):
         # Don't raise a `CacheMissError` for missing paths
@@ -28,20 +28,20 @@ class TestStatCache(unittest.TestCase):
         self.assertEqual(len(self.cache), 0)
 
     def test_clear(self):
-        self.cache["path1"] = "test1"
-        self.cache["path2"] = "test2"
+        self.cache["/path1"] = "test1"
+        self.cache["/path2"] = "test2"
         self.cache.clear()
         self.assertEqual(len(self.cache), 0)
 
     def test_contains(self):
-        self.cache["path1"] = "test1"
-        self.assertEqual("path1" in self.cache, True)
-        self.assertEqual("path2" in self.cache, False)
+        self.cache["/path1"] = "test1"
+        self.assertEqual("/path1" in self.cache, True)
+        self.assertEqual("/path2" in self.cache, False)
 
     def test_len(self):
         self.assertEqual(len(self.cache), 0)
-        self.cache["path1"] = "test1"
-        self.cache["path2"] = "test2"
+        self.cache["/path1"] = "test1"
+        self.cache["/path2"] = "test2"
         self.assertEqual(len(self.cache), 2)
 
     def test_resize(self):
