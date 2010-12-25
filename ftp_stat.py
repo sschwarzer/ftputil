@@ -416,6 +416,14 @@ class _Stat(object):
         directory.
         """
         lines = self._host_dir(path)
+        # `cache` is the "high-level" `StatCache` object whereas
+        #  `cache._cache` is the "low-level" `LRUCache` object.
+        cache = self._lstat_cache
+        # Auto-resize cache if the cache up to now can't hold as many
+        #  entries as there are in the directory `path`.
+        if cache._enabled and len(lines) >= cache._cache.size:
+            cache.resize(2 * len(lines))
+        # Yield stat results from lines.
         for line in lines:
             if self._parser.ignores_line(line):
                 continue
@@ -477,7 +485,6 @@ class _Stat(object):
             raise ftp_error.RootDirError(
                   "can't stat remote root directory")
         dirname, basename = self._path.split(path)
-
         # If even the directory doesn't exist and we don't want the
         #  exception, treat it the same as if the path wasn't found in
         #  the directory's contents (compare below). The use of `isdir`
