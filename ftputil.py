@@ -58,6 +58,7 @@ import ftp_error
 import ftp_file
 import ftp_path
 import ftp_stat
+import ftp_stat_cache
 import ftputil_version
 
 

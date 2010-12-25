@@ -18,6 +18,7 @@ import ftputil
 from ftputil import file_transfer
 from ftputil import ftp_error
 from ftputil import ftp_stat
+from ftputil import ftp_stat_cache
 
 
 def get_login_data():
@@ -443,6 +444,23 @@ class TestStat(RealFTPTest):
         host1.stat_cache.invalidate(absolute_path)
         self.assertRaises(ftp_error.PermanentError, host1.stat, "_testfile_")
 
+    def test_cache_auto_resizing(self):
+        """Test if the cache is resized appropriately."""
+        host = self.host
+        cache = host.stat_cache._cache
+        # Make sure the cache size isn't adjusted towards smaller values.
+        entries = host.listdir("walk_test")
+        self.assertEqual(cache.size,
+                         ftp_stat_cache.StatCache._DEFAULT_CACHE_SIZE)
+        # Make the cache very small initially and see if it gets resized.
+        cache.size = 2
+        entries = host.listdir("walk_test")
+        # Actually, the cache is going to be 18 because `listdir`
+        #  implicitly calls `path.isdir` on the directory argument
+        #  which in turn reads the parent directory of `walk_test`
+        #  which happens to have 9 entries.
+        self.assertEqual(cache.size, 18)
+
 
 class TestUploadAndDownload(RealFTPTest):
     """Test upload and download (including time shift test)."""
@@ -795,5 +813,5 @@ minutes because it has to wait to test the timezone calculation.
     server, user, password = get_login_data()
     unittest.main()
     import __main__
-    #unittest.main(__main__, "TestUnicodePaths")
+    #unittest.main(__main__, "TestStat.test_cache_auto_resizing")
 
