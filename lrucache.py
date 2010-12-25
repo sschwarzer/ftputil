@@ -44,7 +44,7 @@ from heapq import heappush, heappop, heapify
 
 # the suffix after the hyphen denotes modifications by the
 #  ftputil project with respect to the original version
-__version__ = "0.2-2"
+__version__ = "0.2-3"
 __all__ = ['CacheKeyError', 'LRUCache', 'DEFAULT_SIZE']
 __docformat__ = 'reStructuredText en'
 
@@ -109,6 +109,12 @@ class LRUCache(object):
             self.atime = timestamp
             self.mtime = self.atime
             self._sort_key = sort_key
+
+        def __lt__(self, other):
+            # Seems to be preferred over `__cmp__`, at least in newer
+            #  Python versions. Uses only around 60 % of the time
+            #  with respect to `__cmp__`.
+            return self._sort_key < other._sort_key
 
         def __cmp__(self, other):
             return cmp(self._sort_key, other._sort_key)
