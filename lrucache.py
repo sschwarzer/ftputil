@@ -45,22 +45,25 @@ from __future__ import generators
 import time
 from heapq import heappop, heapify
 
-# the suffix after the hyphen denotes modifications by the
-#  ftputil project with respect to the original version
-__version__ = "0.2-6"
+# The suffix after the hyphen denotes modifications by the
+#  ftputil project with respect to the original version.
+__version__ = "0.2-7"
 __all__ = ['CacheKeyError', 'LRUCache', 'DEFAULT_SIZE']
 __docformat__ = 'reStructuredText en'
 
 DEFAULT_SIZE = 16
 """Default size of a new LRUCache object, if no 'size' argument is given."""
 
+
 class CacheKeyError(KeyError):
     """Error raised when cache requests fail
 
     When a cache record is accessed which no longer exists (or never did),
     this error is raised. To avoid it, you may want to check for the existence
-    of a cache record before reading or deleting it."""
+    of a cache record before reading or deleting it.
+    """
     pass
+
 
 class LRUCache(object):
     """Least-Recently-Used (LRU) cache.
@@ -127,13 +130,18 @@ class LRUCache(object):
                    (self.__class__, self.key, self.obj, \
                     time.asctime(time.localtime(self.atime)))
 
+
     def __init__(self, size=DEFAULT_SIZE):
+        """Init the `LRUCache` object. `size` is the initial
+        _maximum_ size of the cache. The size can be changed by
+        setting the `size` attribute.
+        """
         object.__init__(self)
         self.clear()
-        """Maximum size of the cache.
-        If more than 'size' elements are added to the cache,
-        the least-recently-used ones will be discarded."""
-        # Implicitly check size value.
+        # Maximum size of the cache.
+        # If more than 'size' elements are added to the cache,
+        #  the least-recently-used ones will be discarded.
+        # This assignment implicitly check the size value.
         self.size = size
         self.__counter = 0
 
@@ -150,34 +158,48 @@ class LRUCache(object):
         """Return a new integer value upon every call.
 
         Cache nodes need a monotonically increasing time indicator.
-        time.time() and time.clock() don't guarantee this in a
+        `time.time()` and `time.clock()` don't guarantee this in a
         platform-independent way.
+
+        See http://ftputil.sschwarzer.net/trac/ticket/32 for details.
         """
         self.__counter += 1
         return self.__counter
 
     def __len__(self):
+        """Return _current_ number of cache entries.
+
+        This may be different from the value of the `size`
+        attribute.
+        """
         return len(self.__heap)
 
     def __contains__(self, key):
+        """Return `True` if the item denoted by `key` is in the cache."""
         return self.__dict.has_key(key)
 
     def __setitem__(self, key, obj):
+        """Store item `obj` in the cache under the key `key`.
+        
+        If the number of elements after the addition of a new key
+        would exceed the maximum cache size, the least recently
+        used item in the cache is "forgotten".
+        """
         if self.size == 0:
-            # can't store anything
+            # Can't store anything.
             return
         if self.__dict.has_key(key):
             node = self.__dict[key]
-            # update node object in-place
+            # Update node object in-place.
             node.obj = obj
             node.atime = time.time()
             node.mtime = node.atime
             node._sort_key = self._sort_key()
         else:
-            # size of the heap can be at most the value of
-            #  self.size because __setattr__ decreases the cache
+            # The size of the heap can be at most the value of
+            #  `self.size` because `__setattr__` decreases the cache
             #  size if the new size value is smaller; so we don't
-            #  need a loop _here_
+            #  need a loop _here_.
             if len(self.__heap) == self.size:
                 heapify(self.__heap)
                 lru = heappop(self.__heap)
@@ -187,16 +209,26 @@ class LRUCache(object):
             self.__heap.append(node)
 
     def __getitem__(self, key):
+        """Return the item stored under `key` key.
+
+        If no such key is present in the cache, raise a
+        `CacheKeyError`.
+        """
         if not self.__dict.has_key(key):
             raise CacheKeyError(key)
         else:
             node = self.__dict[key]
-            # update node object in-place
+            # Update node object in-place.
             node.atime = time.time()
             node._sort_key = self._sort_key()
             return node.obj
 
     def __delitem__(self, key):
+        """Delete the item stored under `key` key.
+
+        If no such key is present in the cache, raise a
+        `CacheKeyError`.
+        """
         if not self.__dict.has_key(key):
             raise CacheKeyError(key)
         else:
@@ -206,6 +238,9 @@ class LRUCache(object):
             return node.obj
 
     def __iter__(self):
+        """Iterate over the cache, from the least to the most
+        recently accessed item.
+        """
         heapify(self.__heap)
         copy = self.__heap[:]
         while len(copy) > 0:
@@ -214,8 +249,11 @@ class LRUCache(object):
         raise StopIteration
 
     def __setattr__(self, name, value):
+        """If the name of the attribute is "size", set the
+        _maximum_ size of the cache to the supplied value.
+        """
         object.__setattr__(self, name, value)
-        # automagically shrink heap on resize
+        # Automagically shrink heap on resize.
         if name == 'size':
             size = value
             if not isinstance(size, (int, long)):
@@ -232,13 +270,16 @@ class LRUCache(object):
 
     def mtime(self, key):
         """Return the last modification time for the cache record with key.
+
         May be useful for cache instances where the stored values can get
-        'stale', such as caching file or network resource contents."""
+        "stale", such as caching file or network resource contents.
+        """
         if not self.__dict.has_key(key):
             raise CacheKeyError(key)
         else:
             node = self.__dict[key]
             return node.mtime
+
 
 if __name__ == "__main__":
     cache = LRUCache(25)
