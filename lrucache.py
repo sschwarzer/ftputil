@@ -44,7 +44,7 @@ from heapq import heappush, heappop, heapify
 
 # the suffix after the hyphen denotes modifications by the
 #  ftputil project with respect to the original version
-__version__ = "0.2-3"
+__version__ = "0.2-4"
 __all__ = ['CacheKeyError', 'LRUCache', 'DEFAULT_SIZE']
 __docformat__ = 'reStructuredText en'
 
@@ -126,8 +126,10 @@ class LRUCache(object):
 
     def __init__(self, size=DEFAULT_SIZE):
         # Check arguments
-        if size < 0:
-            raise ValueError("cache size (%d) mustn't be negative" % size)
+        if not isinstance(size, (int, long)):
+            raise TypeError("cache size (%r) must be an integer" % size)
+        if size <= 0:
+            raise ValueError("cache size (%d) must be positive" % size)
         object.__init__(self)
         self.__heap = []
         self.__dict = {}
