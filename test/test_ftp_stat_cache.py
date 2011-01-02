@@ -90,7 +90,7 @@ class TestStatCache(unittest.TestCase):
 
     def test_cache_size_zero(self):
         host = test_base.ftp_host_factory()
-        host.stat_cache.resize(0)
+        self.assertRaises(ValueError, host.stat_cache.resize, 0)
         # If bug #38 is present, this raises an `IndexError`
         items = host.listdir(host.curdir)
         self.assertEqual(items[:3], ['chemeng', 'download', 'image'])
