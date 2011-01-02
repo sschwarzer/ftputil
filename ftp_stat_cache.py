@@ -84,12 +84,7 @@ class StatCache(object):
 
     def clear(self):
         """Clear (invalidate) all cache entries."""
-        old_size = self._cache.size
-        try:
-            # Implicitly clear the cache by setting the size to zero
-            self.resize(0)
-        finally:
-            self.resize(old_size)
+        self._cache.clear()
 
     def invalidate(self, path):
         """

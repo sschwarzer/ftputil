@@ -44,7 +44,7 @@ from heapq import heappush, heappop, heapify
 
 # the suffix after the hyphen denotes modifications by the
 #  ftputil project with respect to the original version
-__version__ = "0.2-4"
+__version__ = "0.2-5"
 __all__ = ['CacheKeyError', 'LRUCache', 'DEFAULT_SIZE']
 __docformat__ = 'reStructuredText en'
 
@@ -125,19 +125,22 @@ class LRUCache(object):
                     time.asctime(time.localtime(self.atime)))
 
     def __init__(self, size=DEFAULT_SIZE):
-        # Check arguments
-        if not isinstance(size, (int, long)):
-            raise TypeError("cache size (%r) must be an integer" % size)
-        if size <= 0:
-            raise ValueError("cache size (%d) must be positive" % size)
         object.__init__(self)
-        self.__heap = []
-        self.__dict = {}
+        self.clear()
         """Maximum size of the cache.
         If more than 'size' elements are added to the cache,
         the least-recently-used ones will be discarded."""
+        # Implicitly check size value.
         self.size = size
         self.__counter = 0
+
+    def clear(self):
+        """Clear the cache, removing all elements.
+        
+        The `size` attribute of the cache isn't modified.
+        """
+        self.__heap = []
+        self.__dict = {}
 
     def _sort_key(self):
         """Return a new integer value upon every call.
@@ -211,8 +214,11 @@ class LRUCache(object):
         object.__setattr__(self, name, value)
         # automagically shrink heap on resize
         if name == 'size':
-            if value < 0:
-                raise ValueError("cache size (%d) mustn't be negative" % size)
+            size = value
+            if not isinstance(size, (int, long)):
+                raise TypeError("cache size (%r) must be an integer" % size)
+            if size <= 0:
+                raise ValueError("cache size (%d) must be positive" % size)
             while len(self.__heap) > value:
                 lru = heappop(self.__heap)
                 del self.__dict[lru.key]
