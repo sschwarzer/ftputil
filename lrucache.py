@@ -1,6 +1,9 @@
 # lrucache.py -- a simple LRU (Least-Recently-Used) cache class
 
 # Copyright 2004 Evan Prodromou <evan@bad.dynu.ca>
+# Copyright 2009-2011 Stefan Schwarzer <sschwarzer@sschwarzer.net>
+#  (some changes to the original version)
+
 # Licensed under the Academic Free License 2.1
 
 # Licensed for ftputil under the revised BSD license
@@ -40,11 +43,11 @@ discarded. [1]_
 
 from __future__ import generators
 import time
-from heapq import heappush, heappop, heapify
+from heapq import heappop, heapify
 
 # the suffix after the hyphen denotes modifications by the
 #  ftputil project with respect to the original version
-__version__ = "0.2-5"
+__version__ = "0.2-6"
 __all__ = ['CacheKeyError', 'LRUCache', 'DEFAULT_SIZE']
 __docformat__ = 'reStructuredText en'
 
@@ -139,6 +142,7 @@ class LRUCache(object):
         
         The `size` attribute of the cache isn't modified.
         """
+        # pylint: disable=W0201
         self.__heap = []
         self.__dict = {}
 
@@ -169,18 +173,18 @@ class LRUCache(object):
             node.atime = time.time()
             node.mtime = node.atime
             node._sort_key = self._sort_key()
-            heapify(self.__heap)
         else:
             # size of the heap can be at most the value of
             #  self.size because __setattr__ decreases the cache
             #  size if the new size value is smaller; so we don't
             #  need a loop _here_
             if len(self.__heap) == self.size:
+                heapify(self.__heap)
                 lru = heappop(self.__heap)
                 del self.__dict[lru.key]
             node = self.__Node(key, obj, time.time(), self._sort_key())
             self.__dict[key] = node
-            heappush(self.__heap, node)
+            self.__heap.append(node)
 
     def __getitem__(self, key):
         if not self.__dict.has_key(key):
@@ -190,7 +194,6 @@ class LRUCache(object):
             # update node object in-place
             node.atime = time.time()
             node._sort_key = self._sort_key()
-            heapify(self.__heap)
             return node.obj
 
     def __delitem__(self, key):
@@ -200,10 +203,10 @@ class LRUCache(object):
             node = self.__dict[key]
             del self.__dict[key]
             self.__heap.remove(node)
-            heapify(self.__heap)
             return node.obj
 
     def __iter__(self):
+        heapify(self.__heap)
         copy = self.__heap[:]
         while len(copy) > 0:
             node = heappop(copy)
@@ -219,6 +222,7 @@ class LRUCache(object):
                 raise TypeError("cache size (%r) must be an integer" % size)
             if size <= 0:
                 raise ValueError("cache size (%d) must be positive" % size)
+            heapify(self.__heap)
             while len(self.__heap) > value:
                 lru = heappop(self.__heap)
                 del self.__dict[lru.key]
