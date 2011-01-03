@@ -47,7 +47,7 @@ from heapq import heappop, heapify
 
 # The suffix after the hyphen denotes modifications by the
 #  ftputil project with respect to the original version.
-__version__ = "0.2-7"
+__version__ = "0.2-8"
 __all__ = ['CacheKeyError', 'LRUCache', 'DEFAULT_SIZE']
 __docformat__ = 'reStructuredText en'
 
@@ -136,14 +136,12 @@ class LRUCache(object):
         _maximum_ size of the cache. The size can be changed by
         setting the `size` attribute.
         """
-        object.__init__(self)
         self.clear()
         # Maximum size of the cache.
         # If more than 'size' elements are added to the cache,
         #  the least-recently-used ones will be discarded.
         # This assignment implicitly check the size value.
         self.size = size
-        self.__counter = 0
 
     def clear(self):
         """Clear the cache, removing all elements.
@@ -153,6 +151,7 @@ class LRUCache(object):
         # pylint: disable=W0201
         self.__heap = []
         self.__dict = {}
+        self.__counter = 0
 
     def _sort_key(self):
         """Return a new integer value upon every call.
@@ -185,9 +184,6 @@ class LRUCache(object):
         would exceed the maximum cache size, the least recently
         used item in the cache is "forgotten".
         """
-        if self.size == 0:
-            # Can't store anything.
-            return
         if self.__dict.has_key(key):
             node = self.__dict[key]
             # Update node object in-place.
