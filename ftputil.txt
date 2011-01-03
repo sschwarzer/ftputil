@@ -8,7 +8,7 @@
 :Author:    Stefan Schwarzer <sschwarzer@sschwarzer.net>
 :`Russian translation`__: Anton Stepanov <antymail@mail.ru>
 
-.. __: http://ftputil.sschwarzer.net/trac/wiki/RussianDocumentation
+.. __: ftputil_ru.html
 
 .. contents::
 
