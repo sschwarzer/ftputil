@@ -1364,7 +1364,7 @@ Please send an email with your problem report or question to the
 Bugs and limitations
 --------------------
 
-- ``ftputil`` needs at least Python 2.3 to work.
+- ``ftputil`` needs at least Python 2.4 to work.
 
 - Due to the implementation of ``lstat`` it can not return a sensible
   value for the root directory ``/`` though stat'ing entries *in* the
