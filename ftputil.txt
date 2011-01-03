@@ -6,7 +6,7 @@
 :Summary:   high-level FTP client library for Python
 :Keywords:  FTP, ``ftplib`` substitute, virtual filesystem, pure Python
 :Author:    Stefan Schwarzer <sschwarzer@sschwarzer.net>
-:`Russian translation`__: Anton Stepanov <antymail@mail.ru>
+:`Russian translation`__ (for ftputil 2.1): Anton Stepanov <antymail@mail.ru>
 
 .. __: ftputil_ru.html
 
@@ -632,10 +632,10 @@ correction`_).
   Currently, ``ftputil`` recognizes the common Unix-style and
   Microsoft/DOS-style directory formats. If you need to parse output
   from another server type, please write to the `ftputil mailing
-  list`_. You may consider to `write your own parser`_.
+  list`_. You may consider `writing your own parser`_.
 
 .. _`ftputil mailing list`: http://ftputil.sschwarzer.net/mailinglist
-.. _`write your own parser`: `Writing directory parsers`_
+.. _`writing your own parser`: `Writing directory parsers`_
 
 .. _`FTPHost.stat`:
 
