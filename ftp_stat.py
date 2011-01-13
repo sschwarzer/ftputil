@@ -197,7 +197,7 @@ class Parser(object):
             #  may cause that datetime to be recognized as the current
             #  datetime, but after all the datetime from the server
             #  can only be exact up to a minute.
-            if st_mtime > time.time() + time_shift + 60.0:
+            if st_mtime > time.time() + time_shift + st_mtime_precision:
                 # If it's in the future, use previous year
                 st_mtime = time.mktime( (year-1, month, day,
                                          hour, minute, 0, 0, 0, -1) )
