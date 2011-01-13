@@ -701,8 +701,7 @@ after calling
 
 ::
 
-    host = ftputil.FTPHost(host, user, password, account,
-                           session_factory=ftplib.FTP)
+    host = ftputil.FTPHost(host, user, password)
 
 the cache can be accessed as ``host.stat_cache``.
 
