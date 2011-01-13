@@ -414,7 +414,22 @@ class FTPHost(object):
             raise ftp_error.TimeShiftError(
                   "could write helper file but not unlink it")
         # Calculate the difference between server and client.
-        time_shift = server_time - time.time()
+        now = time.time()
+        time_shift = server_time - now
+        # As the time shift for this host instance isn't set yet, the
+        #  directory parser will calculate times one year in the past if
+        #  the time zone of the server is east from ours. Thus the time
+        #  shift will be off by a year as well (see ticket #55).
+        if time_shift < -360 * 24 * 60 * 60:
+            # Re-add one year and re-calculate the time shift. We don't
+            #  know how many days made up that year (it might have been
+            #  a leap year), so go the route via `time.localtime` and
+            #  `time.mktime`.
+            server_time_struct = time.localtime(server_time)
+            server_time_struct = (server_time_struct.tm_year+1,) + \
+                                 server_time_struct[1:]
+            server_time = time.mktime(server_time_struct)
+            time_shift = server_time - now
         # Do some sanity checks.
         self.__assert_valid_time_shift(time_shift)
         # If tests passed, store the time difference as time shift value.
