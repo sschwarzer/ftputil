@@ -393,10 +393,36 @@ class TestTimeShift(unittest.TestCase):
         host.path.set_mtime(time.time() + 3600+10*60)
         self.assertRaises(ftp_error.TimeShiftError, host.synchronize_times)
 
+    def test_synchronize_times_for_gmt_server(self):
+        """Test for timestamp correction (see ticket #55)."""
+        host = test_base.ftp_host_factory(ftp_host_class=TimeShiftFTPHost,
+               session_factory=TimeShiftMockSession)
+        # Set this explicitly to emphasize the problem.
+        host.set_time_shift(0.0)
+        # Set `mtime` to simulate a server east of us.
+        hour = 60 * 60
+        # This could be any negative time shift.
+        presumed_time_shift = -6 * hour
+        # In case the `time_shift` value for this host instance is 0.0
+        #  (as is to be expected before the time shift is determined),
+        #  the directory parser (more specifically
+        #  `ftp_stat.Parser.parse_unix_time`) will return a time which
+        #  is a year too much in the past. The `synchronize_times`
+        #  method needs to deal with this and add the year "back".
+        #  I don't think it's a bug in `parse_unix_time` because the
+        #  method should work once the time shift is set correctly.
+        local_time = time.localtime()
+        local_time_with_wrong_year = (local_time.tm_year-1,) + local_time[1:]
+        presumed_server_time = \
+          time.mktime(local_time_with_wrong_year) + presumed_time_shift
+        host.path.set_mtime(presumed_server_time)
+        host.synchronize_times()
+        self.assertEqual(host.time_shift(), presumed_time_shift)
+
 
 if __name__ == '__main__':
     unittest.main()
     import __main__
     # unittest.main(__main__,
-    #   "TestTimestampComparison.test_source_is_newer_than_target")
+    #   "TestTimeShift.test_synchronize_times_for_gmt_server")
 
