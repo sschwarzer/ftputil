@@ -56,7 +56,7 @@ class Parser(object):
     directory formats inherit from this class.
     """
 
-    # Map month abbreviations to month numbers
+    # Map month abbreviations to month numbers.
     _month_numbers = {
       'jan':  1, 'feb':  2, 'mar':  3, 'apr':  4,
       'may':  5, 'jun':  6, 'jul':  7, 'aug':  8,
@@ -112,7 +112,7 @@ class Parser(object):
             raise ftp_error.ParserError("invalid mode string '%s'" %
                                         mode_string)
         st_mode = 0
-        #TODO Add support for "S" and sticky bit ("t", "T")
+        #TODO Add support for "S" and sticky bit ("t", "T").
         for bit in mode_string[1:10]:
             bit = (bit != '-')
             st_mode = (st_mode << 1) + bit
@@ -170,21 +170,21 @@ class Parser(object):
             raise ftp_error.ParserError("invalid month name '%s'" % month)
         day = int(day)
         if ":" not in year_or_time:
-            # `year_or_time` is really a year
+            # `year_or_time` is really a year.
             year, hour, minute = int(year_or_time), 0, 0
             st_mtime = time.mktime( (year, month, day,
                                      hour, minute, 0, 0, 0, -1) )
-            # Precise up to a day
+            # Precise up to a day.
             st_mtime_precision = 24 * 60 * 60
         else:
-            # `year_or_time` is a time hh:mm
+            # `year_or_time` is a time hh:mm.
             hour, minute = year_or_time.split(':')
             year, hour, minute = None, int(hour), int(minute)
             # Try the current year
             year = time.localtime()[0]
             st_mtime = time.mktime( (year, month, day,
                                      hour, minute, 0, 0, 0, -1) )
-            # Precise up to a minute
+            # Times are precise up to a minute.
             st_mtime_precision = 60
             # Rhs of comparison: Transform client time to server time
             #  (as on the lhs), so both can be compared with respect
@@ -198,7 +198,7 @@ class Parser(object):
             #  datetime, but after all the datetime from the server
             #  can only be exact up to a minute.
             if st_mtime > time.time() + time_shift + st_mtime_precision:
-                # If it's in the future, use previous year
+                # If it's in the future, use previous year.
                 st_mtime = time.mktime( (year-1, month, day,
                                          hour, minute, 0, 0, 0, -1) )
         if with_precision:
@@ -394,7 +394,7 @@ class _Stat(object):
     def __init__(self, host):
         self._host = host
         self._path = host.path
-        # Use the Unix directory parser by default
+        # Use the Unix directory parser by default.
         self._parser = UnixParser()
         # Allow one chance to switch to another parser if the default
         #  doesn't work.
@@ -531,7 +531,7 @@ class _Stat(object):
         (`_exception_for_missing_path` is an implementation aid and
         _not_ intended for use by ftputil clients.)
         """
-        # Save for error message
+        # Save for error message.
         original_path = path
         # Most code in this method is used to detect recursive
         #  link structures.
