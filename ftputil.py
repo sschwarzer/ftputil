@@ -356,7 +356,7 @@ class FTPHost(object):
         #  a full day (24 hours).
         if absolute_rounded_time_shift > 24 * hour:
             raise ftp_error.TimeShiftError(
-                  "time shift (%.2f s) > 1 day" % time_shift)
+                  "time shift abs(%.2f s) > 1 day" % time_shift)
         # Test 2: Fail if the deviation between given time shift and
         #  full hours is greater than a certain limit.
         maximum_deviation = 5 * minute
