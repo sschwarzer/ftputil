@@ -95,27 +95,27 @@ class FTPHost(object):
 
     def __init__(self, *args, **kwargs):
         """Abstract initialization of `FTPHost` object."""
-        # Store arguments for later operations
+        # Store arguments for later operations.
         self._args = args
         self._kwargs = kwargs
         #XXX Maybe put the following in a `reset` method.
         #  The time shift setting shouldn't be reset though.
-        # Make a session according to these arguments
+        # Make a session according to these arguments.
         self._session = self._make_session()
-        # Simulate os.path
+        # Simulate `os.path`.
         self.path = ftp_path._Path(self)
-        # lstat, stat, listdir services
+        # lstat, stat, listdir services.
         self._stat = ftp_stat._Stat(self)
         self.stat_cache = self._stat._lstat_cache
         self.stat_cache.enable()
         self._cached_current_dir = \
           ftp_error._try_with_oserror(self._session.pwd)
-        # Associated `FTPHost` objects for data transfer
+        # Associated `FTPHost` objects for data transfer.
         self._children = []
         # This is only set to something else than `None` if this instance
         #  represents an `_FTPFile`.
         self._file = None
-        # Now opened
+        # Now opened.
         self.closed = False
         # Set curdir, pardir etc. for the remote host. RFC 959 states
         #  that this is, strictly speaking, dependent on the server OS
@@ -148,7 +148,7 @@ class FTPHost(object):
         Return a new session object according to the current state of
         this `FTPHost` instance.
         """
-        # Use copies of the arguments
+        # Use copies of the arguments.
         args = self._args[:]
         kwargs = self._kwargs.copy()
         # If a session factory had been given on the instantiation of
@@ -237,12 +237,12 @@ class FTPHost(object):
         """Close host connection."""
         if self.closed:
             return
-        # Close associated children
+        # Close associated children.
         for host in self._children:
             # Children have a `_file` attribute which is an `_FTPFile` object.
             host._file.close()
             host.close()
-        # Now deal with ourself
+        # Now deal with ourself.
         try:
             ftp_error._try_with_oserror(self._session.close)
         finally:
@@ -392,7 +392,7 @@ class FTPHost(object):
         # Open a dummy file for writing in the current directory
         #  on the FTP host, then close it.
         try:
-            # May raise `FTPIOError` if directory isn't writable
+            # May raise `FTPIOError` if directory isn't writable.
             file_ = self.file(helper_file_name, 'w')
             file_.close()
         except ftp_error.FTPIOError:
