@@ -37,5 +37,5 @@ def main(max_size, new_entries):
 
 
 if __name__ == '__main__':
-    main(10000, 10000)
-    #main(int(sys.argv[1]), int(sys.argv[2]))
+    test_size = 10000
+    main(max_size=test_size, new_entries=test_size)
