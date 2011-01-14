@@ -46,7 +46,7 @@ import time
 
 # The suffix after the hyphen denotes modifications by the
 #  ftputil project with respect to the original version.
-__version__ = "0.2-9"
+__version__ = "0.2-10"
 __all__ = ['CacheKeyError', 'LRUCache', 'DEFAULT_SIZE']
 __docformat__ = 'reStructuredText en'
 
@@ -238,7 +238,8 @@ class LRUCache(object):
         """Iterate over the cache, from the least to the most
         recently accessed item.
         """
-        for node in sorted(self.__heap):
+        self.__heap.sort()
+        for node in self.__heap:
             yield node.key
 
     def __setattr__(self, name, value):
