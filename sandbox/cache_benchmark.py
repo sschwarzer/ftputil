@@ -21,17 +21,17 @@ def main(max_size, new_entries):
     # Populate cache until it's full.
     t1 = time.time()
     for i in xrange(max_size):
-        index = random.randint(1, max_size)
+        rand = random.randint(1, max_size)
         # The cache checks if entries start with "/".
-        cache["/%d" % index] = index
+        cache["/%d" % rand] = rand
     t2 = time.time()
     print_statistics("Filling cache with %d entries" % max_size, t1, t2)
     # Now that the cache is full, try to add 100 more entries,
     # implicitly replacing old entries.
     for i in xrange(new_entries):
-        index = random.randint(1, new_entries)
+        rand = random.randint(1, new_entries)
         # Make sure to add entries, not replace them.
-        cache["/%d" % (max_size+index)] = index
+        cache["/%d" % (max_size+rand)] = rand
     t3 = time.time()
     print_statistics("Replacing %d entries" % new_entries, t2, t3)
 
