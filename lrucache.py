@@ -41,22 +41,21 @@ discarded. [1]_
 
 """
 
-from __future__ import generators
 import time
-from heapq import heappop, heapify
+
 
 # The suffix after the hyphen denotes modifications by the
 #  ftputil project with respect to the original version.
-__version__ = "0.2-8"
+__version__ = "0.2-9"
 __all__ = ['CacheKeyError', 'LRUCache', 'DEFAULT_SIZE']
 __docformat__ = 'reStructuredText en'
 
+# Default size of a new LRUCache object, if no 'size' argument is given.
 DEFAULT_SIZE = 16
-"""Default size of a new LRUCache object, if no 'size' argument is given."""
 
 
 class CacheKeyError(KeyError):
-    """Error raised when cache requests fail
+    """Error raised when cache requests fail.
 
     When a cache record is accessed which no longer exists (or never did),
     this error is raised. To avoid it, you may want to check for the existence
@@ -175,7 +174,7 @@ class LRUCache(object):
 
     def __contains__(self, key):
         """Return `True` if the item denoted by `key` is in the cache."""
-        return self.__dict.has_key(key)
+        return key in self.__dict
 
     def __setitem__(self, key, obj):
         """Store item `obj` in the cache under the key `key`.
@@ -184,8 +183,10 @@ class LRUCache(object):
         would exceed the maximum cache size, the least recently
         used item in the cache is "forgotten".
         """
-        if self.__dict.has_key(key):
-            node = self.__dict[key]
+        heap = self.__heap
+        dict_ = self.__dict
+        if key in dict_:
+            node = dict_[key]
             # Update node object in-place.
             node.obj = obj
             node.atime = time.time()
@@ -196,13 +197,13 @@ class LRUCache(object):
             #  `self.size` because `__setattr__` decreases the cache
             #  size if the new size value is smaller; so we don't
             #  need a loop _here_.
-            if len(self.__heap) == self.size:
-                heapify(self.__heap)
-                lru = heappop(self.__heap)
-                del self.__dict[lru.key]
+            if len(heap) == self.size:
+                lru_node = min(heap)
+                heap.remove(lru_node)
+                del dict_[lru_node.key]
             node = self.__Node(key, obj, time.time(), self._sort_key())
-            self.__dict[key] = node
-            self.__heap.append(node)
+            dict_[key] = node
+            heap.append(node)
 
     def __getitem__(self, key):
         """Return the item stored under `key` key.
@@ -210,7 +211,7 @@ class LRUCache(object):
         If no such key is present in the cache, raise a
         `CacheKeyError`.
         """
-        if not self.__dict.has_key(key):
+        if not key in self.__dict:
             raise CacheKeyError(key)
         else:
             node = self.__dict[key]
@@ -225,24 +226,20 @@ class LRUCache(object):
         If no such key is present in the cache, raise a
         `CacheKeyError`.
         """
-        if not self.__dict.has_key(key):
+        if not key in self.__dict:
             raise CacheKeyError(key)
         else:
             node = self.__dict[key]
-            del self.__dict[key]
             self.__heap.remove(node)
+            del self.__dict[key]
             return node.obj
 
     def __iter__(self):
         """Iterate over the cache, from the least to the most
         recently accessed item.
         """
-        heapify(self.__heap)
-        copy = self.__heap[:]
-        while len(copy) > 0:
-            node = heappop(copy)
+        for node in sorted(self.__heap):
             yield node.key
-        raise StopIteration
 
     def __setattr__(self, name, value):
         """If the name of the attribute is "size", set the
@@ -256,10 +253,17 @@ class LRUCache(object):
                 raise TypeError("cache size (%r) must be an integer" % size)
             if size <= 0:
                 raise ValueError("cache size (%d) must be positive" % size)
-            heapify(self.__heap)
-            while len(self.__heap) > value:
-                lru = heappop(self.__heap)
-                del self.__dict[lru.key]
+            heap = self.__heap
+            dict_ = self.__dict
+            # Do we need to remove anything at all?
+            if len(heap) <= self.size:
+                return
+            # Remove enough nodes to reach the new size.
+            heap.sort()
+            node_count_to_remove = len(heap) - self.size
+            for node in heap[:node_count_to_remove]:
+                del dict_[node.key]
+            del heap[:node_count_to_remove]
 
     def __repr__(self):
         return "<%s (%d elements)>" % (str(self.__class__), len(self.__heap))
@@ -270,7 +274,7 @@ class LRUCache(object):
         May be useful for cache instances where the stored values can get
         "stale", such as caching file or network resource contents.
         """
-        if not self.__dict.has_key(key):
+        if not key in self.__dict:
             raise CacheKeyError(key)
         else:
             node = self.__dict[key]
