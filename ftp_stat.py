@@ -5,6 +5,7 @@
 ftp_stat.py - stat result, parsers, and FTP stat'ing for `ftputil`
 """
 
+import math
 import re
 import stat
 import time
@@ -419,10 +420,11 @@ class _Stat(object):
         # `cache` is the "high-level" `StatCache` object whereas
         #  `cache._cache` is the "low-level" `LRUCache` object.
         cache = self._lstat_cache
-        # Auto-resize cache if the cache up to now can't hold as many
+        # Auto-grow cache if the cache up to now can't hold as many
         #  entries as there are in the directory `path`.
         if cache._enabled and len(lines) >= cache._cache.size:
-            cache.resize(2 * len(lines))
+            new_size = int(math.ceil(1.1 * len(lines)))
+            cache.resize(new_size)
         # Yield stat results from lines.
         for line in lines:
             if self._parser.ignores_line(line):
