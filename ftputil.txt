@@ -707,32 +707,41 @@ the cache can be accessed as ``host.stat_cache``.
 
 While ``ftputil`` usually manages the cache quite well, there are two
 possible reasons that may suggest modifying cache parameters.
-The first is when the number of possible entries is too low. You may
-notice that when you are processing very large directories, e. g.
-containing more than 1000 directories or files, and the program
-becomes much slower than before. It's common for code to read a
-directory with ``listdir`` and then process the found directories and
-files. For this application, it's a good rule of thumb to set the
-cache size to somewhat more than the number of directory entries
-fetched with ``listdir``. This is done by the ``resize`` method::
 
-    host.stat_cache.resize(2000)
+The first is when the number of possible entries is too low. You may
+notice that when you are processing very large directories and the
+program becomes much slower than before. It's common for code to read
+a directory with ``listdir`` and then process the found directories
+and files. This can also happen implicitly by a call to
+``FTPHost.walk``. Since version 2.6 ``ftputil`` automatically
+increases the cache size if directories with more entries than the
+current maximum cache size are to be scanned. Most of the time, this
+works fine.
+
+However, if you need access to stat data for several directories at
+the same time, you may need to increase the cache explicitly. This is
+done by the ``resize`` method::
+
+    host.stat_cache.resize(20000)
 
 where the argument is the maximum number of ``lstat`` results to store
-(the default is 1000). Note that each path on the server, e. g.
-"/home/schwa/some_dir", corresponds to a single cache entry. Methods
-like ``exists`` or ``getmtime`` all derive their results from a
-previously fetched ``lstat`` result.
+(the default is 10000, in versions before 2.6 it was 1000). Note that
+each path on the server, e. g. "/home/schwa/some_dir", corresponds to
+a single cache entry. Methods like ``exists`` or ``getmtime`` all
+derive their results from a previously fetched ``lstat`` result.
 
-The value 2000 above means that the cache will hold at most 2000
-entries. If more are about to be stored, the entries which haven't
-been used for the longest time will be deleted to make place for newer
-entries.
+The value 10000 above means that the cache will hold *at most* 10000
+entries (unless increased automatically by an explicit or implicit
+``listdir`` call, see above). If more are about to be stored, the
+entries which haven't been used for the longest time will be deleted
+to make place for newer entries.
 
-Caching is so effective because it reduces network accesses. This can
-also be a disadvantage if the file system data on the remote server
-changes after a stat result has been retrieved; the client, when
-looking at the cached stat data, will use obsolete information.
+The second possible reason to change the cache parameters is to avoid
+stale cache data. Caching is so effective because it reduces network
+accesses. This can also be a disadvantage if the file system data on
+the remote server changes after a stat result has been retrieved; the
+client, when looking at the cached stat data, will use obsolete
+information.
 
 There are two ways to get such out-of-date stat data. The first
 happens when an ``FTPHost`` instance modifies a file path for which it
