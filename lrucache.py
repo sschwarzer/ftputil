@@ -144,7 +144,7 @@ class LRUCache(object):
 
     def clear(self):
         """Clear the cache, removing all elements.
-        
+ 
         The `size` attribute of the cache isn't modified.
         """
         # pylint: disable=W0201
@@ -178,7 +178,7 @@ class LRUCache(object):
 
     def __setitem__(self, key, obj):
         """Store item `obj` in the cache under the key `key`.
-        
+ 
         If the number of elements after the addition of a new key
         would exceed the maximum cache size, the least recently
         used item in the cache is "forgotten".
