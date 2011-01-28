@@ -1343,11 +1343,6 @@ server is in a different time zone than the client on which
 ``ftputil`` runs. Please see the section on `time zone correction`_.
 It may even be sufficient to call `synchronize_times`_.
 
-Wrong dates or times when stat'ing on a server
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Please see the previous tip.
-
 I tried to upload or download a file and it's corrupt
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
