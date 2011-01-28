@@ -1291,6 +1291,22 @@ Use a wrapper class for ``ftplib.FTP``, as described in section
 Use this class as the ``session_factory`` argument in ``FTPHost``'s
 constructor.
 
+How can I debug an FTP connection problem?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Similarly to the tip above, write a session factory which calls
+`ftplib.FTP.set_debuglevel`_ before the actual login.
+
+.. _`ftplib.FTP.set_debuglevel`: http://docs.python.org/library/ftplib.html#ftplib.FTP.set_debuglevel
+
+If you want to change the debug level only temporarily after the
+connection is established, you can reach the `session object`_ as the
+``_session`` attribute of the ``FTPHost`` instance. Note that this
+interface should *only* be used for debugging. Calling arbitrary
+``ftplib.FTP`` methods on the session object may *cause* bugs!
+
+.. _`session object`: #session-factories
+
 When iterating over directories, ``ftputil`` becomes unbearably slow
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
