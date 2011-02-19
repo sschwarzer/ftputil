@@ -224,6 +224,7 @@ class _FTPFile(object):
         old_timeout = self._session.sock.gettimeout()
         try:
             self._fo.close()
+            self._fo = None
             ftp_error._try_with_ioerror(self._conn.close)
             # Set a timeout to prevent waiting until server timeout
             #  if we have a server blocking here like in ticket #51.

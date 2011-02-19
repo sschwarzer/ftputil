@@ -6,6 +6,7 @@
 # Execute a test on a real FTP server (other tests use a mock server)
 
 import ftplib
+import gc
 import getpass
 import operator
 import os
@@ -791,6 +792,23 @@ class TestOther(RealFTPTest):
         host.chdir("rootdir1")
         self.assertRaises(ftp_error.TimeShiftError, host.synchronize_times)
 
+    def _make_objects_to_be_garbage_collected(self):
+        for i in xrange(10):
+            with ftputil.FTPHost(server, user, password) as host:
+                for j in xrange(10):
+                    stat_result = host.stat("CONTENTS")
+                    with host.file("CONTENTS") as fobj:
+                        data = fobj.read()
+            
+    def test_garbage_collection(self):
+        """Test whether there are cycles which prevent garbage collection."""
+        gc.collect()
+        objects_before_test = len(gc.garbage)
+        self._make_objects_to_be_garbage_collected()
+        gc.collect()
+        objects_after_test = len(gc.garbage)
+        self.failIf(objects_after_test - objects_before_test)
+
 
 if __name__ == '__main__':
     print """\
@@ -813,5 +831,5 @@ minutes because it has to wait to test the timezone calculation.
     server, user, password = get_login_data()
     unittest.main()
     import __main__
-    #unittest.main(__main__, "TestStat.test_cache_auto_resizing")
+    #unittest.main(__main__, "TestOther.test_garbage_collection")
 
