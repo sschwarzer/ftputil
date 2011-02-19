@@ -254,15 +254,6 @@ class FTPHost(object):
             self._children = []
             self.closed = True
 
-    def __del__(self):
-        # Don't complain about lazy except clause
-        # pylint: disable=W0702, W0704
-        try:
-            self.close()
-        except:
-            # We don't want warnings if the constructor failed.
-            pass
-
     #
     # Setting a custom directory parser
     #
