@@ -455,11 +455,11 @@ class TestStat(RealFTPTest):
         # Make the cache very small initially and see if it gets resized.
         cache.size = 2
         entries = host.listdir("walk_test")
-        # Actually, the cache is going to be 18 because `listdir`
+        # Actually, the cache is going to be 10 because `listdir`
         #  implicitly calls `path.isdir` on the directory argument
         #  which in turn reads the parent directory of `walk_test`
         #  which happens to have 9 entries.
-        self.assertEqual(cache.size, 18)
+        self.assertEqual(cache.size, 10)
 
 
 class TestUploadAndDownload(RealFTPTest):
