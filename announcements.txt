@@ -1,10 +1,10 @@
-ftputil 2.6b is now available from
+ftputil 2.6 is now available from
 http://ftputil.sschwarzer.net/download .
 
 Changes since version 2.5
 -------------------------
 
-- The stat caching has been improved. I've added an "auto-grow"
+- The stat caching has been improved. There's now an "auto-grow"
   feature for `FTPHost.listdir` which in turn applies to
   `FTPHost.walk`. Moreover, there were several performance
   optimizations.
