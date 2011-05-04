@@ -38,9 +38,9 @@ class FTPError(Exception):
     """General ftputil error class."""
 
     def __init__(self, *args):
-        # `ftplib.Error` doesn't have a `__subclasses__` _method_ but a
-        #  static method, so my use of `ftplib.Error.__subclasses__` in
-        #  my opinion is valid.
+        # `ftplib.Error` doesn't have a `__subclasses__` _instance_
+        #  method but a static method, so my use of
+        #  `ftplib.Error.__subclasses__` in my opinion is valid.
         # pylint: disable = e1101
         # Contrary to what `ftplib`'s documentation says, `all_errors`
         #  does _not_ contain the subclasses, so I explicitly add them.
@@ -50,7 +50,8 @@ class FTPError(Exception):
               "constructor is deprecated and will be disabled in ftputil 2.6"),
               DeprecationWarning, stacklevel=2)
         try:
-            # Works only for new style-classes (Python 2.5+).
+            # Works only for new style-classes (Python 2.5+). Before,
+            # `Exception` was a classic class.
             super(FTPError, self).__init__(*args)
         except TypeError:
             # Fallback to old approach.
