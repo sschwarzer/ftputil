@@ -75,12 +75,6 @@ test:
 pylint:
 	pylint --rcfile=pylintrc ${PYLINT_OPTS} ${CHECK_FILES} | less
 
-# Check how the directory differs from the MANIFEST file.
-manifestdiff: MANIFEST
-	@ls -1 | grep -v .pyc | grep -v ${TMP_LS_FILE} > ${TMP_LS_FILE}
-	-diff -u MANIFEST ${TMP_LS_FILE}
-	@rm ${TMP_LS_FILE}
-
 # Prepare everything for making a distribution tarball.
 dist: clean patch test pylint docs
 	python setup.py sdist
