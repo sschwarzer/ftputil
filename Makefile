@@ -33,7 +33,6 @@ TEST_FILES=$(shell ls -1 ${TEST_DIR}/test_*.py | \
 		   ${TEST_DIR}/test_public_servers.py
 
 .PHONY: dist extdist test pylint docs clean register patch debdistclean debdist
-.SUFFIXES: .txt .html
 
 test:
 	@echo "=== Running tests for ftputil ${VERSION} ===\n"
