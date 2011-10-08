@@ -2,15 +2,23 @@
 # See the file LICENSE for licensing terms.
 
 SHELL=/bin/sh
-PROJECT_DIR=/home/schwa/sd/python/ftputil
-TEST_DIR=${PROJECT_DIR}/test
+PROJECT_DIR=$(shell pwd)
 VERSION=$(shell cat VERSION)
+
+TEST_DIR=${PROJECT_DIR}/test
 DEBIAN_DIR=${PROJECT_DIR}/debian
-DOC_FILES=README.html ftputil.html ftputil_ru.html
+
+DOC_DIR=${PROJECT_DIR}/doc
+STYLESHEET_PATH=${DOC_DIR}/default.css
+DOC_SOURCES=$(subst d/,${DOC_DIR}/, d/README.txt d/ftputil.txt)
+DOC_TARGETS=$(subst d/,${DOC_DIR}/, \
+			  d/README.html d/ftputil.html d/ftputil_ru.html)
+
 TMP_LS_FILE=tmp_ls.out
-STYLESHEET_PATH=default.css
 SED=sed -i'' -r -e
+
 PYTHONPATH=${PROJECT_DIR}:${TEST_DIR}
+
 #TODO some platforms call that script rst2html.py - allow both
 RST2HTML=rst2html
 CHECK_FILES=ftp_error.py ftp_file.py ftp_path.py ftp_stat_cache.py \
@@ -43,11 +51,12 @@ test:
 pylint:
 	pylint --rcfile=pylintrc ${PYLINT_OPTS} ${CHECK_FILES} | less
 
-ftputil_ru.html: ftputil_ru_utf8.txt
+${DOC_DIR}/ftputil_ru.html: ${DOC_DIR}/ftputil_ru_utf8.txt
 	${RST2HTML} --stylesheet-path=${STYLESHEET_PATH} --embed-stylesheet \
 		--input-encoding=utf-8 $< $@
 
-.txt.html:
+vpath %.txt ${DOC_DIR}
+%.html: %.txt
 	${RST2HTML} --stylesheet-path=${STYLESHEET_PATH} --embed-stylesheet $< $@
 
 patch:
@@ -61,7 +70,7 @@ patch:
 	${SED} "s/(\/wiki\/Download\/ftputil-).*(\.tar\.gz)/\1${VERSION}\2/" \
 		PKG-INFO
 
-docs: ${DOC_FILES} README.txt ftputil.txt ftputil_ru_utf8.txt
+docs: ${DOC_SOURCES} ${DOC_TARGETS}
 
 manifestdiff: MANIFEST
 	@ls -1 | grep -v .pyc | grep -v ${TMP_LS_FILE} > ${TMP_LS_FILE}
@@ -101,7 +110,7 @@ cleanorig:
 	find ${PROJECT_DIR} -name '*.orig' -exec rm {} \;
 
 clean:
-	rm -f ${DOC_FILES}
+	rm -f ${DOC_TARGETS}
 # use absolute path to ensure we delete the right directory
 	rm -rf ${PROJECT_DIR}/build
 
