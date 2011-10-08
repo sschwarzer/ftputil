@@ -34,6 +34,31 @@ TEST_FILES=$(shell ls -1 ${TEST_DIR}/test_*.py | \
 
 .PHONY: dist extdist test pylint docs clean register patch debdistclean debdist
 
+# Patch various files to refer to a new version.
+patch:
+	@echo "Patching files"
+	${SED} "s/^__version__ = '.*'/__version__ = \'`cat VERSION`\'/" \
+		ftputil_version.py
+	${SED} "s/^:Version:   .*/:Version:   ${VERSION}/" ftputil.txt
+	${SED} "s/^:Date:      .*/:Date:      `date +"%Y-%m-%d"`/" ftputil.txt
+	#TODO Add rules for Russian translation.
+	${SED} "s/^Version: .*/Version: ${VERSION}/" PKG-INFO
+	${SED} "s/(\/wiki\/Download\/ftputil-).*(\.tar\.gz)/\1${VERSION}\2/" \
+		PKG-INFO
+
+# Documentation
+vpath %.txt ${DOC_DIR}
+
+docs: ${DOC_SOURCES} ${DOC_TARGETS}
+
+${DOC_DIR}/ftputil_ru.html: ${DOC_DIR}/ftputil_ru_utf8.txt
+	${RST2HTML} --stylesheet-path=${STYLESHEET_PATH} --embed-stylesheet \
+		--input-encoding=utf-8 $< $@
+
+%.html: %.txt
+	${RST2HTML} --stylesheet-path=${STYLESHEET_PATH} --embed-stylesheet $< $@
+
+# Quality assurance
 test:
 	@echo "=== Running tests for ftputil ${VERSION} ===\n"
 	if which python2.4; then \
@@ -50,35 +75,35 @@ test:
 pylint:
 	pylint --rcfile=pylintrc ${PYLINT_OPTS} ${CHECK_FILES} | less
 
-${DOC_DIR}/ftputil_ru.html: ${DOC_DIR}/ftputil_ru_utf8.txt
-	${RST2HTML} --stylesheet-path=${STYLESHEET_PATH} --embed-stylesheet \
-		--input-encoding=utf-8 $< $@
-
-vpath %.txt ${DOC_DIR}
-%.html: %.txt
-	${RST2HTML} --stylesheet-path=${STYLESHEET_PATH} --embed-stylesheet $< $@
-
-patch:
-	@echo "Patching files"
-	${SED} "s/^__version__ = '.*'/__version__ = \'`cat VERSION`\'/" \
-		ftputil_version.py
-	${SED} "s/^:Version:   .*/:Version:   ${VERSION}/" ftputil.txt
-	${SED} "s/^:Date:      .*/:Date:      `date +"%Y-%m-%d"`/" ftputil.txt
-	#TODO Add rules for Russian translation.
-	${SED} "s/^Version: .*/Version: ${VERSION}/" PKG-INFO
-	${SED} "s/(\/wiki\/Download\/ftputil-).*(\.tar\.gz)/\1${VERSION}\2/" \
-		PKG-INFO
-
-docs: ${DOC_SOURCES} ${DOC_TARGETS}
-
+# Check how the directory differs from the MANIFEST file.
 manifestdiff: MANIFEST
 	@ls -1 | grep -v .pyc | grep -v ${TMP_LS_FILE} > ${TMP_LS_FILE}
 	-diff -u MANIFEST ${TMP_LS_FILE}
 	@rm ${TMP_LS_FILE}
 
+# Prepare everything for making a distribution tarball.
 dist: clean patch test pylint docs
 	python setup.py sdist
 
+extdist: test dist debdist register
+
+# Register package on PyPI.
+register:
+	@echo "Registering new version with PyPI"
+	python setup.py register
+
+# Remove files with `orig` suffix (caused by `hg revert`).
+cleanorig:
+	find ${PROJECT_DIR} -name '*.orig' -exec rm {} \;
+
+# Remove generated files (but no distribution packages).
+clean:
+	rm -f ${DOC_TARGETS}
+	# Use absolute path to ensure we delete the right directory.
+	rm -rf ${PROJECT_DIR}/build
+
+
+# Debian packaging.
 debdistclean:
 	cd ${DEBIAN_DIR} && rm -rf `ls -1 | grep -v "^custom$$"`
 
@@ -98,18 +123,4 @@ debdist: debdistclean
 	cp ${DEBIAN_DIR}/python-ftputil_${VERSION}_all.deb dist
 	# Final check (better than nothing)
 	lintian --info ${DEBIAN_DIR}/python-ftputil_${VERSION}_all.deb
-
-register:
-	@echo "Registering new version with PyPI"
-	python setup.py register
-
-extdist: test dist debdist register
-
-cleanorig:
-	find ${PROJECT_DIR} -name '*.orig' -exec rm {} \;
-
-clean:
-	rm -f ${DOC_TARGETS}
-	# Use absolute path to ensure we delete the right directory.
-	rm -rf ${PROJECT_DIR}/build
 
