@@ -19,13 +19,13 @@ SED=sed -i'' -r -e
 
 PYTHONPATH=${PROJECT_DIR}:${TEST_DIR}
 
-#TODO some platforms call that script rst2html.py - allow both
+#TODO Some platforms call that script rst2html.py - allow both.
 RST2HTML=rst2html
 CHECK_FILES=ftp_error.py ftp_file.py ftp_path.py ftp_stat_cache.py \
 			ftp_stat.py ftputil.py ftputil_version.py __init__.py \
 			file_transfer.py ftp_sync.py find_deprecated_code.py \
 			lrucache.py
-# name test files; make sure the long-running tests come last
+# Name test files. Make sure the long-running tests come last.
 TEST_FILES=$(shell ls -1 ${TEST_DIR}/test_*.py | \
 			 grep -v "test_real_ftp.py" | \
 			 grep -v "test_public_servers.py" ) \
@@ -65,7 +65,7 @@ patch:
 		ftputil_version.py
 	${SED} "s/^:Version:   .*/:Version:   ${VERSION}/" ftputil.txt
 	${SED} "s/^:Date:      .*/:Date:      `date +"%Y-%m-%d"`/" ftputil.txt
-	#TODO add rules for Russian translation
+	#TODO Add rules for Russian translation.
 	${SED} "s/^Version: .*/Version: ${VERSION}/" PKG-INFO
 	${SED} "s/(\/wiki\/Download\/ftputil-).*(\.tar\.gz)/\1${VERSION}\2/" \
 		PKG-INFO
@@ -91,13 +91,13 @@ debdist: debdistclean
 	  echo "\n" | dh_make --copyright bsd --single --cdbs && \
 	  cd debian && \
 	  rm *.ex *.EX README.Debian
-	# copy custom files (control, rules, copyright, changelog, maybe others)
+	# Copy custom files (control, rules, copyright, changelog, maybe others)
 	cp -r ${DEBIAN_DIR}/custom/* ${DEBIAN_DIR}/ftputil-${VERSION}/debian
 	cd ${DEBIAN_DIR}/ftputil-${VERSION} && \
 	  dpkg-buildpackage -us -uc
-	# put the Debian package beneath the .tar.gz files
+	# Put the Debian package beneath the .tar.gz files.
 	cp ${DEBIAN_DIR}/python-ftputil_${VERSION}_all.deb dist
-	# final check (better than nothing)
+	# Final check (better than nothing)
 	lintian --info ${DEBIAN_DIR}/python-ftputil_${VERSION}_all.deb
 
 register:
@@ -111,6 +111,6 @@ cleanorig:
 
 clean:
 	rm -f ${DOC_TARGETS}
-# use absolute path to ensure we delete the right directory
+	# Use absolute path to ensure we delete the right directory.
 	rm -rf ${PROJECT_DIR}/build
 
