@@ -96,6 +96,12 @@ clean:
 	# Use absolute path to ensure we delete the right directory.
 	rm -rf ${PROJECT_DIR}/build
 
+# Help testing test installations. Note that `pip uninstall`
+# doesn't work if the package wasn't installed with pip.
+remove_from_env:
+	rm -rf ${VIRTUAL_ENV}/doc/ftputil
+	rm -rf ${VIRTUAL_ENV}/lib/python2.7/site-packages/ftputil
+
 
 # Debian packaging.
 debdistclean:
