@@ -1,9 +1,9 @@
-# Copyright (C) 2003-2010, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 import ftputil
 
-import mock_ftplib
+from test import mock_ftplib
 
 
 # Factory to produce `FTPHost`-like classes from a given `FTPHost`
