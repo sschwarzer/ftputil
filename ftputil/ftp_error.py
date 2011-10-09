@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2010, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 """
@@ -12,7 +12,7 @@ import ftplib
 import sys
 import warnings
 
-import ftputil_version
+from ftputil import ftputil_version
 
 
 # You _can_ import these with `from ftp_error import *`, - but
