@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2010, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2007-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 import os
@@ -6,7 +6,7 @@ import shutil
 import sys
 import unittest
 
-import ftp_sync
+from ftputil import ftp_sync
 
 
 # Assume the test subdirectories are or will be in the current directory

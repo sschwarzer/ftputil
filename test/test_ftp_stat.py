@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2010, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 from __future__ import division
@@ -7,11 +7,11 @@ import stat
 import time
 import unittest
 
-import ftp_error
-import ftp_stat
 import ftputil
+from ftputil import ftp_error
+from ftputil import ftp_stat
 
-import test_base
+from test import test_base
 
 
 def test_stat():

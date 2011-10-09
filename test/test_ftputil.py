@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2010, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 import ftplib
@@ -8,13 +8,13 @@ import random
 import time
 import unittest
 
-import file_transfer
-import ftp_error
-import ftp_stat
 import ftputil
+from ftputil import file_transfer
+from ftputil import ftp_error
+from ftputil import ftp_stat
 
-import mock_ftplib
-import test_base
+from test import mock_ftplib
+from test import test_base
 
 
 #

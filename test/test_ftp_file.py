@@ -1,13 +1,13 @@
-# Copyright (C) 2002-2010, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 import ftplib
 import unittest
 
-import ftp_error
+from ftputil import ftp_error
 
-import mock_ftplib
-import test_base
+from test import mock_ftplib
+from test import test_base
 
 
 #

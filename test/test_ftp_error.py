@@ -1,11 +1,11 @@
 # encoding: utf-8
-# Copyright (C) 2002-2009, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 import ftplib
 import unittest
 
-import ftp_error
+from ftputil import ftp_error
 
 
 class TestFTPErrorArguments(unittest.TestCase):

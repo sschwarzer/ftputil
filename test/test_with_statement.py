@@ -1,16 +1,16 @@
 # Copyright (C) 2008, Roger Demetrescu <roger.demetrescu@gmail.com>
-# Copyright (C) 2008, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2008-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 from __future__ import with_statement
 
 import unittest
 
-import ftp_error
+from ftputil import ftp_error
 
-import test_base
-from test_ftputil import FailOnLoginSession
-from test_ftp_file import InaccessibleDirSession, ReadMockSession
+from test import test_base
+from test.test_ftputil import FailOnLoginSession
+from test.test_ftp_file import InaccessibleDirSession, ReadMockSession
 
 
 # Exception raised by client code, i. e. code using ftputil

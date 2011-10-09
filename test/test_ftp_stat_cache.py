@@ -1,13 +1,13 @@
-# Copyright (C) 2006-2010, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2006-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 import time
 import unittest
 
-import ftp_error
-import ftp_stat_cache
+from ftputil import ftp_error
+from ftputil import ftp_stat_cache
 
-import test_base
+from test import test_base
 
 
 class TestStatCache(unittest.TestCase):
