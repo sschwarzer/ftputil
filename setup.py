@@ -36,7 +36,7 @@ core.setup(
   name=_name,
   version=_version,
   packages=[_package],
-  package_dir={_package: ""},
+  package_dir={_package: _package},
   data_files=[("doc/ftputil", doc_files)],
   # Metadata
   author="Stefan Schwarzer",
