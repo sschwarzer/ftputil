@@ -569,7 +569,7 @@ class TestFTPFiles(RealFTPTest):
         #  closed but the second is.
         file_obj = host.open(REMOTE_FILENAME, 'rb')
         self.assertEqual(len(host._children), 2)
-        self.assert_(file_obj._host is host._children[1])
+        self.assertTrue(file_obj._host is host._children[1])
 
     def test_no_timed_out_children(self):
         REMOTE_FILENAME = "debian-keyring.tar.gz"
@@ -582,12 +582,12 @@ class TestFTPFiles(RealFTPTest):
         file_obj1._host._session.pwd = timed_out_pwd
         # Try to get a file - which shouldn't be the timed-out file.
         file_obj2 = host.open(REMOTE_FILENAME, 'rb')
-        self.assert_(file_obj1 is not file_obj2)
+        self.assertTrue(file_obj1 is not file_obj2)
         # Re-use closed and not timed-out child session.
         file_obj2.close()
         file_obj3 = host.open(REMOTE_FILENAME, 'rb')
         file_obj3.close()
-        self.assert_(file_obj2 is file_obj3)
+        self.assertTrue(file_obj2 is file_obj3)
 
 
 class TestChmod(RealFTPTest):
