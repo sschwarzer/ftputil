@@ -187,11 +187,11 @@ class TestParsers(unittest.TestCase):
         differ no more than one minute from each other.
 
         If the test fails, an exception is raised by the inherited
-        `failIf` method.
+        `assertFalse` method.
         """
         abs_difference = abs(time1 - time2)
         try:
-            self.failIf(abs_difference > 60.0)
+            self.assertFalse(abs_difference > 60.0)
         except AssertionError:
             print "Difference is", abs_difference, "seconds"
             raise
@@ -259,7 +259,7 @@ class TestLstatAndStat(unittest.TestCase):
         try:
             self.stat._lstat('/')
         except ftp_error.RootDirError, exc_obj:
-            self.failIf(isinstance(exc_obj, ftp_error.FTPOSError))
+            self.assertFalse(isinstance(exc_obj, ftp_error.FTPOSError))
 
     def test_lstat_one_unix_file(self):
         """Test `lstat` for a file described in Unix-style format."""
@@ -284,11 +284,11 @@ class TestLstatAndStat(unittest.TestCase):
         self.assertEqual(stat_result.st_gid, '200')
         self.assertEqual(stat_result.st_size, 512)
         self.assertEqual(stat_result.st_atime, None)
-        self.failUnless(stat_result.st_mtime ==
+        self.assertTrue(stat_result.st_mtime ==
                         stat_tuple_to_seconds((1999, 9, 20, 0, 0, 0)))
         self.assertEqual(stat_result.st_ctime, None)
         self.assertEqual(stat_result._st_mtime_precision, 24*60*60)
-        self.failUnless(stat_result ==
+        self.assertTrue(stat_result ==
           (17901, None, None, 6, '45854', '200', 512, None,
            stat_tuple_to_seconds((1999, 9, 20, 0, 0, 0)), None))
 
@@ -300,7 +300,7 @@ class TestLstatAndStat(unittest.TestCase):
     def test_lstat_via_stat_module(self):
         """Test `lstat` indirectly via `stat` module."""
         stat_result = self.stat._lstat('/home/sschwarzer/')
-        self.failUnless(stat.S_ISDIR(stat_result.st_mode))
+        self.assertTrue(stat.S_ISDIR(stat_result.st_mode))
 
     def test_stat_following_link(self):
         """Test `stat` when invoked on a link."""
@@ -335,17 +335,17 @@ class TestLstatAndStat(unittest.TestCase):
     def test_parser_switching_default_to_unix(self):
         """Test non-switching of parser format; stay with Unix."""
         self.assertEqual(self.stat._allow_parser_switching, True)
-        self.failUnless(isinstance(self.stat._parser, ftp_stat.UnixParser))
+        self.assertTrue(isinstance(self.stat._parser, ftp_stat.UnixParser))
         stat_result = self.stat._lstat("/home/sschwarzer/index.html")
-        self.failUnless(isinstance(self.stat._parser, ftp_stat.UnixParser))
+        self.assertTrue(isinstance(self.stat._parser, ftp_stat.UnixParser))
         self.assertEqual(self.stat._allow_parser_switching, False)
 
     def test_parser_switching_to_ms(self):
         """Test switching of parser from Unix to MS format."""
         self.assertEqual(self.stat._allow_parser_switching, True)
-        self.failUnless(isinstance(self.stat._parser, ftp_stat.UnixParser))
+        self.assertTrue(isinstance(self.stat._parser, ftp_stat.UnixParser))
         stat_result = self.stat._lstat("/home/msformat/abcd.exe")
-        self.failUnless(isinstance(self.stat._parser, ftp_stat.MSParser))
+        self.assertTrue(isinstance(self.stat._parser, ftp_stat.MSParser))
         self.assertEqual(self.stat._allow_parser_switching, False)
         self.assertEqual(stat_result._st_name, "abcd.exe")
         self.assertEqual(stat_result.st_size, 12266720)
@@ -356,7 +356,7 @@ class TestLstatAndStat(unittest.TestCase):
         result = self.stat._listdir("/home/msformat/XPLaunch/empty")
         self.assertEqual(result, [])
         self.assertEqual(self.stat._allow_parser_switching, True)
-        self.failUnless(isinstance(self.stat._parser, ftp_stat.UnixParser))
+        self.assertTrue(isinstance(self.stat._parser, ftp_stat.UnixParser))
 
 
 class TestListdir(unittest.TestCase):
@@ -378,7 +378,7 @@ class TestListdir(unittest.TestCase):
                     'osup publications python scios2').split()
         remote_file_list = self.stat._listdir('.')
         for file in expected:
-            self.failUnless(file in remote_file_list)
+            self.assertTrue(file in remote_file_list)
 
 
 if __name__ == '__main__':

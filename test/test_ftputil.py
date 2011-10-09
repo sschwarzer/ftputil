@@ -210,8 +210,8 @@ class TestRecursiveListingForDotAsPath(unittest.TestCase):
                  session_factory=RecursiveListingForDotAsPathSession)
         lines = host._dir(host.curdir)
         self.assertEqual(lines[0], "total 10")
-        self.failUnless(lines[1].startswith("lrwxrwxrwx   1 staff"))
-        self.failUnless(lines[2].startswith("d--x--x--x   2 staff"))
+        self.assertTrue(lines[1].startswith("lrwxrwxrwx   1 staff"))
+        self.assertTrue(lines[2].startswith("d--x--x--x   2 staff"))
         host.close()
 
     def test_plain_listing(self):
@@ -219,8 +219,8 @@ class TestRecursiveListingForDotAsPath(unittest.TestCase):
                  session_factory=RecursiveListingForDotAsPathSession)
         lines = host._dir("")
         self.assertEqual(lines[0], "total 10")
-        self.failUnless(lines[1].startswith("lrwxrwxrwx   1 staff"))
-        self.failUnless(lines[2].startswith("d--x--x--x   2 staff"))
+        self.assertTrue(lines[1].startswith("lrwxrwxrwx   1 staff"))
+        self.assertTrue(lines[2].startswith("d--x--x--x   2 staff"))
         host.close()
 
     def test_empty_string_instead_of_dot_workaround(self):
@@ -372,7 +372,7 @@ class TestTimeShift(unittest.TestCase):
         # Valid time shifts
         test_data = [23*3600, -23*3600, 3600+30, -3600+30]
         for time_shift in test_data:
-            self.failUnless(assert_time_shift(time_shift) is None)
+            self.assertTrue(assert_time_shift(time_shift) is None)
         # Invalid time shift (exceeds one day)
         self.assertRaises(ftp_error.TimeShiftError, assert_time_shift, 25*3600)
         self.assertRaises(ftp_error.TimeShiftError, assert_time_shift, -25*3600)

@@ -28,7 +28,7 @@ class TestTryWithFTPError(unittest.TestCase):
             ftp_error._try_with_oserror(self.callee)
         except ftp_error.FTPOSError, exc:
             pass
-        self.failIf(exc.args and isinstance(exc.args[0], ftplib.error_perm))
+        self.assertFalse(exc.args and isinstance(exc.args[0], ftplib.error_perm))
 
     def test_try_with_ioerror(self):
         "Ensure the `ftplib` exception isn't used as `FTPIOError` argument."
@@ -36,7 +36,7 @@ class TestTryWithFTPError(unittest.TestCase):
             ftp_error._try_with_ioerror(self.callee)
         except ftp_error.FTPIOError, exc:
             pass
-        self.failIf(exc.args and isinstance(exc.args[0], ftplib.error_perm))
+        self.assertFalse(exc.args and isinstance(exc.args[0], ftplib.error_perm))
 
 
 if __name__ == '__main__':

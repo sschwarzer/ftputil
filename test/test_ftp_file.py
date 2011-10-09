@@ -51,27 +51,27 @@ class TestFileOperations(unittest.TestCase):
         file1 = host.file(path1, 'w')
         child1 = host._children[0]
         self.assertEqual(len(host._children), 1)
-        self.failIf(child1._file.closed)
+        self.assertFalse(child1._file.closed)
         # Open another file
         file2 = host.file(path2, 'w')
         child2 = host._children[1]
         self.assertEqual(len(host._children), 2)
-        self.failIf(child2._file.closed)
+        self.assertFalse(child2._file.closed)
         # Close first file
         file1.close()
         self.assertEqual(len(host._children), 2)
-        self.failUnless(child1._file.closed)
-        self.failIf(child2._file.closed)
+        self.assertTrue(child1._file.closed)
+        self.assertFalse(child2._file.closed)
         # Re-open first child's file
         file1 = host.file(path1, 'w')
         child1_1 = file1._host
         # Check if it's reused
-        self.failUnless(child1 is child1_1)
-        self.failIf(child1._file.closed)
-        self.failIf(child2._file.closed)
+        self.assertTrue(child1 is child1_1)
+        self.assertFalse(child1._file.closed)
+        self.assertFalse(child2._file.closed)
         # Close second file
         file2.close()
-        self.failUnless(child2._file.closed)
+        self.assertTrue(child2._file.closed)
 
     def test_write_to_directory(self):
         """Test whether attempting to write to a directory fails."""

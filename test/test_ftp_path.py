@@ -31,23 +31,23 @@ class TestPath(unittest.TestCase):
         host = test_base.ftp_host_factory()
         host.chdir(testdir)
         # Test a path which isn't there
-        self.failIf(host.path.isdir('notthere'))
-        self.failIf(host.path.isfile('notthere'))
-        self.failIf(host.path.islink('notthere'))
+        self.assertFalse(host.path.isdir('notthere'))
+        self.assertFalse(host.path.isfile('notthere'))
+        self.assertFalse(host.path.islink('notthere'))
         # Test a directory
-        self.failUnless(host.path.isdir(testdir))
-        self.failIf(host.path.isfile(testdir))
-        self.failIf(host.path.islink(testdir))
+        self.assertTrue(host.path.isdir(testdir))
+        self.assertFalse(host.path.isfile(testdir))
+        self.assertFalse(host.path.islink(testdir))
         # Test a file
         testfile = '/home/sschwarzer/index.html'
-        self.failIf(host.path.isdir(testfile))
-        self.failUnless(host.path.isfile(testfile))
-        self.failIf(host.path.islink(testfile))
+        self.assertFalse(host.path.isdir(testfile))
+        self.assertTrue(host.path.isfile(testfile))
+        self.assertFalse(host.path.islink(testfile))
         # Test a link
         testlink = '/home/sschwarzer/osup'
-        self.failIf(host.path.isdir(testlink))
-        self.failIf(host.path.isfile(testlink))
-        self.failUnless(host.path.islink(testlink))
+        self.assertFalse(host.path.isdir(testlink))
+        self.assertFalse(host.path.isfile(testlink))
+        self.assertTrue(host.path.islink(testlink))
 
     def test_workaround_for_spaces(self):
         """Test whether the workaround for space-containing paths is used."""
@@ -56,9 +56,9 @@ class TestPath(unittest.TestCase):
         host.chdir(testdir)
         # Test a file name containing spaces
         testfile = '/home/dir with spaces/file with spaces'
-        self.failIf(host.path.isdir(testfile))
-        self.failUnless(host.path.isfile(testfile))
-        self.failIf(host.path.islink(testfile))
+        self.assertFalse(host.path.isdir(testfile))
+        self.assertTrue(host.path.isfile(testfile))
+        self.assertFalse(host.path.islink(testfile))
 
     def test_inaccessible_home_directory_and_whitespace_workaround(self):
         "Test combination of inaccessible home directory + whitespace in path."
