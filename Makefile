@@ -1,6 +1,8 @@
 # Copyright (C) 2003-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
+# This Makefile requires GNU Make.
+
 SHELL=/bin/sh
 PROJECT_DIR=$(shell pwd)
 VERSION=$(shell cat VERSION)
@@ -14,7 +16,6 @@ DOC_SOURCES=$(subst d/,${DOC_DIR}/, d/README.txt d/ftputil.txt)
 DOC_TARGETS=$(subst d/,${DOC_DIR}/, \
 			  d/README.html d/ftputil.html d/ftputil_ru.html)
 
-TMP_LS_FILE=tmp_ls.out
 SED=sed -i'' -r -e
 
 PYTHONPATH=${PROJECT_DIR}:${TEST_DIR}
