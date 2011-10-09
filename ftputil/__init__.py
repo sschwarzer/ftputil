@@ -926,5 +926,3 @@ class FTPHost(object):
         self.close()
         # Be explicit.
         return False
-
-
