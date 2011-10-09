@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2008, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 """
@@ -8,7 +8,7 @@ ftp_path.py - simulate `os.path` for FTP servers
 import posixpath
 import stat
 
-import ftp_error
+from ftputil import ftp_error
 
 
 # The `_Path` class shouldn't be used directly by clients of the

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2010, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # Copyright (C) 2008, Roger Demetrescu <roger.demetrescu@gmail.com>
 # See the file LICENSE for licensing terms.
 
@@ -53,13 +53,13 @@ import sys
 import time
 import warnings
 
-import file_transfer
-import ftp_error
-import ftp_file
-import ftp_path
-import ftp_stat
-import ftp_stat_cache
-import ftputil_version
+from ftputil import file_transfer
+from ftputil import ftp_error
+from ftputil import ftp_file
+from ftputil import ftp_path
+from ftputil import ftp_stat
+from ftputil import ftp_stat_cache
+from ftputil import ftputil_version
 
 
 __all__ = ['FTPHost']

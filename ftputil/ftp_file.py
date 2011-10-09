@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2010, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # Copyright (C) 2008, Roger Demetrescu <roger.demetrescu@gmail.com>
 # See the file LICENSE for licensing terms.
 
@@ -6,7 +6,7 @@
 ftp_file.py - support for file-like objects on FTP servers
 """
 
-import ftp_error
+from ftputil import ftp_error
 
 
 # This module shouldn't be used by clients of the ftputil library.

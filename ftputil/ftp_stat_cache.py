@@ -1,4 +1,4 @@
-# Copyright (C) 2006-2010, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2006-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 """
@@ -7,8 +7,8 @@ ftp_stat_cache.py - cache for (l)stat data
 
 import time
 
-import ftp_error
-import lrucache
+from ftputil import ftp_error
+from ftputil import lrucache
 
 
 # This module shouldn't be used by clients of the ftputil library.

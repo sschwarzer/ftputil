@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2010, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 """
@@ -10,8 +10,8 @@ import re
 import stat
 import time
 
-import ftp_error
-import ftp_stat_cache
+from ftputil import ftp_error
+from ftputil import ftp_stat_cache
 
 
 # These can be used to write custom parsers.
