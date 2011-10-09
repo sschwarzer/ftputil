@@ -8,7 +8,8 @@ PROJECT_DIR=$(shell pwd)
 VERSION=$(shell cat VERSION)
 
 TEST_DIR=${PROJECT_DIR}/test
-DEBIAN_DIR=${PROJECT_DIR}/debian
+
+SOURCE_DIR=${PROJECT_DIR}/ftputil
 
 DOC_DIR=${PROJECT_DIR}/doc
 STYLESHEET_PATH=${DOC_DIR}/default.css
@@ -39,9 +40,11 @@ TEST_FILES=$(shell ls -1 ${TEST_DIR}/test_*.py | \
 patch:
 	@echo "Patching files"
 	${SED} "s/^__version__ = '.*'/__version__ = \'`cat VERSION`\'/" \
-		ftputil_version.py
-	${SED} "s/^:Version:   .*/:Version:   ${VERSION}/" ftputil.txt
-	${SED} "s/^:Date:      .*/:Date:      `date +"%Y-%m-%d"`/" ftputil.txt
+		${SOURCE_DIR}/ftputil_version.py
+	${SED} "s/^:Version:   .*/:Version:   ${VERSION}/" \
+		${DOC_DIR}/ftputil.txt
+	${SED} "s/^:Date:      .*/:Date:      `date +"%Y-%m-%d"`/" \
+		${DOC_DIR}/ftputil.txt
 	#TODO Add rules for Russian translation.
 	${SED} "s/^Version: .*/Version: ${VERSION}/" PKG-INFO
 	${SED} "s/(\/wiki\/Download\/ftputil-).*(\.tar\.gz)/\1${VERSION}\2/" \
@@ -105,6 +108,8 @@ remove_from_env:
 
 
 # Debian packaging.
+DEBIAN_DIR=${PROJECT_DIR}/debian
+
 debdistclean:
 	cd ${DEBIAN_DIR} && rm -rf `ls -1 | grep -v "^custom$$"`
 
