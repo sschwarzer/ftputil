@@ -264,7 +264,8 @@ class TestLstatAndStat(unittest.TestCase):
     def test_lstat_one_unix_file(self):
         """Test `lstat` for a file described in Unix-style format."""
         stat_result = self.stat._lstat('/home/sschwarzer/index.html')
-        self.assertEqual(oct(stat_result.st_mode), '0100644')
+        # Second form needed for Python 3
+        self.assertTrue(oct(stat_result.st_mode) in ('0100644', '0o100644'))
         self.assertEqual(stat_result.st_size, 4604)
         self.assertEqual(stat_result._st_mtime_precision, 60)
 
@@ -276,7 +277,8 @@ class TestLstatAndStat(unittest.TestCase):
     def test_lstat_one_unix_dir(self):
         """Test `lstat` for a directory described in Unix-style format."""
         stat_result = self.stat._lstat('/home/sschwarzer/scios2')
-        self.assertEqual(oct(stat_result.st_mode), '042755')
+        # Second form needed for Python 3
+        self.assertTrue(oct(stat_result.st_mode) in ('042755', '0o42755'))
         self.assertEqual(stat_result.st_ino, None)
         self.assertEqual(stat_result.st_dev, None)
         self.assertEqual(stat_result.st_nlink, 6)
