@@ -1,5 +1,7 @@
 include VERSION
+include ftputil/*.py
+
 include doc/*.txt doc/*.html
 exclude doc/ftputil_ru_utf8.txt doc/ftputil_ru.html
-include ftputil/*.py
+
 include test/*.py
