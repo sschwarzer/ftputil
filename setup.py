@@ -17,8 +17,16 @@ _package = "ftputil"
 _version = open("VERSION").read().strip()
 
 
-if "install" in sys.argv[1:] and \
-  not (os.path.isfile("ftputil.html") and os.path.isfile("README.html")):
+doc_files = [os.path.join("doc", name)
+             for name in ["ftputil.txt", "ftputil.html",
+                          "README.txt", "README.html"]]
+
+doc_files_are_present = True
+for doc_file in doc_files:
+    if not os.path.exists(doc_file):
+        doc_files_are_present = False
+
+if "install" in sys.argv[1:] and not doc_files_are_present:
     print "One or more of the HTML documentation files are missing."
     print "Please generate them with `make docs`."
     sys.exit(1)
@@ -29,8 +37,7 @@ core.setup(
   version=_version,
   packages=[_package],
   package_dir={_package: ""},
-  data_files=[("doc/ftputil", ["ftputil.txt", "ftputil.html",
-                               "README.txt", "README.html"])],
+  data_files=[("doc/ftputil", doc_files)],
   # Metadata
   author="Stefan Schwarzer",
   author_email="sschwarzer@sschwarzer.net",
