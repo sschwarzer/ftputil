@@ -36,7 +36,7 @@ class TestHostContextManager(unittest.TestCase):
             # We arrived here, that's fine. Because the `FTPHost` object
             #  wasn't successfully constructed the assignment to `host`
             #  shouldn't have happened.
-            self.failIf('host' in locals())
+            self.assertFalse('host' in locals())
         else:
             raise self.failureException("ftp_error.FTPOSError not raised")
 
@@ -74,7 +74,7 @@ class TestFileContextManager(unittest.TestCase):
             except ftp_error.FTPIOError:
                 # The file construction didn't succeed, so `f` should
                 #  be absent from the namespace.
-                self.failIf('f' in locals())
+                self.assertFalse('f' in locals())
             else:
                 raise self.failureException("ftp_error.FTPIOError not raised")
 
