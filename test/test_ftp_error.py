@@ -27,16 +27,22 @@ class TestTryWithFTPError(unittest.TestCase):
         try:
             ftp_error._try_with_oserror(self.callee)
         except ftp_error.FTPOSError, exc:
-            pass
-        self.assertFalse(exc.args and isinstance(exc.args[0], ftplib.error_perm))
+            self.assertFalse(exc.args and
+                             isinstance(exc.args[0], ftplib.error_perm))
+        else:
+            # We shouldn't come here.
+            self.assertTrue(False)
 
     def test_try_with_ioerror(self):
         "Ensure the `ftplib` exception isn't used as `FTPIOError` argument."
         try:
             ftp_error._try_with_ioerror(self.callee)
         except ftp_error.FTPIOError, exc:
-            pass
-        self.assertFalse(exc.args and isinstance(exc.args[0], ftplib.error_perm))
+            self.assertFalse(exc.args and
+                             isinstance(exc.args[0], ftplib.error_perm))
+        else:
+            # We shouldn't come here.
+            self.assertTrue(False)
 
 
 if __name__ == '__main__':
