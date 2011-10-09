@@ -1,11 +1,11 @@
-# Copyright (C) 2010, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2010-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 import random
 import StringIO
 import unittest
 
-import file_transfer
+from ftputil import file_transfer
 
 
 class MockFile(object):

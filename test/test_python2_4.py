@@ -1,9 +1,9 @@
-# Copyright (C) 2003-2009, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 import unittest
 
-import ftp_error
+from ftputil import ftp_error
 
 
 class Python24(unittest.TestCase):
