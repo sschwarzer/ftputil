@@ -23,10 +23,7 @@ PYTHONPATH=${PROJECT_DIR}:${TEST_DIR}
 
 #TODO Some platforms call that script rst2html.py - allow both.
 RST2HTML=rst2html
-CHECK_FILES=ftp_error.py ftp_file.py ftp_path.py ftp_stat_cache.py \
-			ftp_stat.py ftputil.py ftputil_version.py __init__.py \
-			file_transfer.py ftp_sync.py find_deprecated_code.py \
-			lrucache.py
+
 # Name test files. Make sure the long-running tests come last.
 TEST_FILES=$(shell ls -1 ${TEST_DIR}/test_*.py | \
 			 grep -v "test_real_ftp.py" | \
@@ -77,7 +74,7 @@ test:
 	done
 
 pylint:
-	pylint --rcfile=pylintrc ${PYLINT_OPTS} ${CHECK_FILES} | less
+	pylint --rcfile=pylintrc ${PYLINT_OPTS} ${SOURCE_DIR}/*.py | less
 
 # Prepare everything for making a distribution tarball.
 dist: clean patch test pylint docs
