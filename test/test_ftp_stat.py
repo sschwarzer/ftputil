@@ -17,7 +17,7 @@ from test import test_base
 def test_stat():
     host = test_base.ftp_host_factory()
     stat = ftp_stat._Stat(host)
-    # use Unix format parser explicitly
+    # Use Unix format parser explicitly.
     stat._parser = ftp_stat.UnixParser()
     return stat
 
@@ -40,10 +40,10 @@ class TestParsers(unittest.TestCase):
             parse_result = parser.parse_line(line)
             stat_result = list(parse_result) + [parse_result._st_name,
                                                 parse_result._st_target]
-            # Convert time tuple to seconds
+            # Convert time tuple to seconds.
             expected_stat_result[8] = \
               stat_tuple_to_seconds(expected_stat_result[8])
-            # Compare both lists
+            # Compare both lists.
             self.assertEqual(stat_result, expected_stat_result)
 
     def _test_invalid_lines(self, parser_class, lines):
@@ -59,7 +59,7 @@ class TestParsers(unittest.TestCase):
         # If in this year it's after Dec 19, 23:11, use the current
         #  year, else use the previous year ...
         now = time.localtime()
-        # We need only month, day, hour and minute
+        # We need only month, day, hour and minute.
         current_time_parts = now[1:5]
         time_parts_in_listing = (12, 19, 23, 11)
         if current_time_parts > time_parts_in_listing:
@@ -204,7 +204,7 @@ class TestParsers(unittest.TestCase):
         to full hours.
         """
         host = test_base.ftp_host_factory()
-        # Explicitly use Unix format parser
+        # Explicitly use Unix format parser here.
         host._stat._parser = ftp_stat.UnixParser()
         host.set_time_shift(supposed_time_shift)
         server_time = time.time() + supposed_time_shift + deviation
