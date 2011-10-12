@@ -24,7 +24,7 @@ def content_of(path):
     return mock_files[path].getvalue()
 
 
-class MockFile(StringIO.StringIO):
+class MockFile(StringIO.StringIO, object):
     """
     Mock class for the file objects _contained in_ `_FTPFile` objects
     (not `_FTPFile` objects themselves!).
@@ -35,18 +35,18 @@ class MockFile(StringIO.StringIO):
     def __init__(self, path, content=''):
         global mock_files
         mock_files[path] = self
-        StringIO.StringIO.__init__(self, content)
+        super(MockFile, self).__init__(content)
 
     def getvalue(self):
         if not self.closed:
-            return StringIO.StringIO.getvalue(self)
+            return super(MockFile, self).getvalue()
         else:
             return self._value_after_close
 
     def close(self):
         if not self.closed:
-            self._value_after_close = StringIO.StringIO.getvalue(self)
-        StringIO.StringIO.close(self)
+            self._value_after_close = super(MockFile, self).getvalue()
+        super(MockFile, self).close()
 
 
 class MockSocket(object):
