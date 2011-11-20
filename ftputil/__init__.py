@@ -435,7 +435,10 @@ class FTPHost(object):
     def copyfileobj(self, source, target,
                     max_chunk_size=file_transfer.MAX_COPY_CHUNK_SIZE,
                     callback=None, **kwargs):
-        "Copy data from file-like object source to file-like object target."
+        """
+        Copy data from file-like object `source` to file-like object
+        `target`.
+        """
         if 'length' in kwargs:
             max_chunk_size = kwargs['length']
             warnings.warn(("Parameter name `length` will be removed in "
@@ -456,6 +459,9 @@ class FTPHost(object):
         """
         Return a `LocalFile` and `RemoteFile` as source and target,
         respectively.
+
+        The strings `source_path` and `target_path` are the (absolute
+        or relative) paths of the local and the remote file, respectively.
         """
         source_mode, target_mode = self.__get_modes(mode)
         source_file = file_transfer.LocalFile(source_path, source_mode)
@@ -484,8 +490,7 @@ class FTPHost(object):
         remote host or if the target file does not exist. See the
         method `upload` for the meaning of the parameters.
 
-        If an upload was necessary, return `True`, else return
-        `False`.
+        If an upload was necessary, return `True`, else return `False`.
         """
         # See comment in `upload`.
         target = str(target)
@@ -497,6 +502,9 @@ class FTPHost(object):
         """
         Return a `RemoteFile` and `LocalFile` as source and target,
         respectively.
+
+        The strings `source_path` and `target_path` are the (absolute
+        or relative) paths of the remote and the local file, respectively.
         """
         source_mode, target_mode = self.__get_modes(mode)
         source_file = file_transfer.RemoteFile(self, source_path, source_mode)
