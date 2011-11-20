@@ -58,7 +58,6 @@ from ftputil import ftp_error
 from ftputil import ftp_file
 from ftputil import ftp_path
 from ftputil import ftp_stat
-from ftputil import ftp_stat_cache
 from ftputil import ftputil_version
 
 
