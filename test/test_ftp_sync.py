@@ -9,11 +9,12 @@ import unittest
 from ftputil import ftp_sync
 
 
-# Assume the test subdirectories are or will be in the current directory
+# Assume the test subdirectories are or will be in the current directory.
 TEST_ROOT = os.getcwd()
 
 
 class TestLocalToLocal(unittest.TestCase):
+
     def setUp(self):
         if not os.path.exists("test_empty"):
             os.mkdir("test_empty")

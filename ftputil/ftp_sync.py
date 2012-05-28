@@ -1,4 +1,4 @@
-# Copyright (C) 2007, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2007-2012, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 """
@@ -23,10 +23,11 @@ __all__ = ['FTPHost', 'LocalHost', 'Syncer']
 
 
 # Used for copying file objects; value is 64 KB.
-CHUNK_SIZE = 64*1024
+CHUNK_SIZE = 64 * 1024
 
 
 class LocalHost(object):
+
     def open(self, path, mode):
         """
         Return a Python file object for file name `path`, opened in
@@ -48,6 +49,7 @@ class LocalHost(object):
 
 
 class Syncer(object):
+
     def __init__(self, source, target):
         """
         Init the `FTPSyncer` instance.
@@ -136,4 +138,3 @@ class Syncer(object):
             self._sync_file(source_path, target_path)
         else:
             self._sync_tree(source_path, target_path)
-
