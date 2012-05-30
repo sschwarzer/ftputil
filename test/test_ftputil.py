@@ -121,6 +121,8 @@ class TimeShiftFTPHost(ftputil.FTPHost):
             return posixpath.join(*args)
         def normpath(self, path):
             return posixpath.normpath(path)
+        def isabs(self, path):
+            return posixpath.isabs(path)
         def abspath(self, path):
             return "/home/sschwarzer/_ftputil_sync_"
         # Needed for `isdir` in `FTPHost.remove`
