@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2012, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # Copyright (C) 2008, Roger Demetrescu <roger.demetrescu@gmail.com>
 # See the file LICENSE for licensing terms.
 
@@ -160,7 +160,7 @@ class FTPHost(object):
         """Return a copy of this `FTPHost` object."""
         # The copy includes a new session factory return value (aka
         #  session) but doesn't copy the state of `self.getcwd()`.
-        return FTPHost(*self._args, **self._kwargs)
+        return self.__class__(*self._args, **self._kwargs)
 
     def _available_child(self):
         """
