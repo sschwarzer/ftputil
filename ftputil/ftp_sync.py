@@ -98,6 +98,13 @@ class Syncer(object):
         finally:
             source.close()
 
+    def _fix_sep_for_target(self, path):
+        """
+        Return the string `path` with appropriate path separators for
+        the target filesystem.
+        """
+        return path.replace(self._source.sep, self._target.sep)
+
     def _sync_tree(self, source_dir, target_dir):
         """
         Synchronize the source and the target directory tree by
@@ -117,10 +124,12 @@ class Syncer(object):
                 inner_source_dir = self._source.path.join(dirpath, dirname)
                 inner_target_dir = inner_source_dir.replace(source_dir,
                                                             target_dir, 1)
+                inner_target_dir = self._fix_sep_for_target(inner_target_dir)
                 self._mkdir(inner_target_dir)
             for filename in filenames:
                 source_file = self._source.path.join(dirpath, filename)
                 target_file = source_file.replace(source_dir, target_dir, 1)
+                target_file = self._fix_sep_for_target(target_file)
                 self._sync_file(source_file, target_file)
 
     def sync(self, source_path, target_path):
