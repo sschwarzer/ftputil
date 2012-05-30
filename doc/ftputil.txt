@@ -351,6 +351,17 @@ Attributes
   FTP server implementation, the Unix variants seem to work well in
   practice, even for non-Unix servers.
 
+  Nevertheless, it's recommended that you don't hardcode these values
+  for remote paths, but use `FTPHost.path`_ as you would use
+  ``os.path`` to write platform-independent Python code for local
+  filesystems. Keep in mind that most, *but not all*, arguments of
+  ``FTPHost`` methods refer to remote directories or files. For
+  example, in `FTPHost.upload`_, the first argument is a local
+  path and the second a remote path. Both of these should use their
+  respective path separators.
+
+.. _`FTPHost.upload`: `Uploading and downloading files`_
+
 Remote file system navigation
 `````````````````````````````
 
