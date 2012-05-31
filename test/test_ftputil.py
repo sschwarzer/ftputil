@@ -52,6 +52,10 @@ class FailOnLoginSession(mock_ftplib.MockSession):
         raise ftplib.error_perm
 
 class FailOnKeepAliveSession(mock_ftplib.MockSession):
+    def dir(self, *args):
+        # Implicitly called by `_check_list_a_option`, otherwise unused.
+        pass
+
     def pwd(self):
         # Raise exception on second call to let the constructor work.
         if not hasattr(self, "pwd_called"):

@@ -171,10 +171,17 @@ total 1
     def cwd(self, path):
         self.current_dir = self._transform_path(path)
 
-    def dir(self, path, callback=None):
+    def dir(self, *args):
         """Provide a callback function for processing each line of
         a directory listing. Return nothing.
         """
+        if callable(args[-1]):
+            callback = args[-1]
+            args = args[:-1]
+        else:
+            callback = None
+        # Everything before the path argument are options.
+        path = args[-1]
         if DEBUG:
             print 'dir: %s' % path
         path = self._transform_path(path)

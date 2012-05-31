@@ -456,11 +456,12 @@ class TestStat(RealFTPTest):
         # Make the cache very small initially and see if it gets resized.
         cache.size = 2
         entries = host.listdir("walk_test")
-        # Actually, the cache is going to be 10 because `listdir`
-        #  implicitly calls `path.isdir` on the directory argument
-        #  which in turn reads the parent directory of `walk_test`
-        #  which happens to have 9 entries.
-        self.assertEqual(cache.size, 10)
+        # The adjusted cache size should be larger or equal to than the
+        # number of items in `walk_test` and its parent directory. The
+        # latter is read implicitly upon `listdir`'s `isdir` call.
+        expected_min_cache_size = max(len(host.listdir(host.curdir)),
+                                      len(entries))
+        self.assertTrue(cache.size >= expected_min_cache_size)
 
 
 class TestUploadAndDownload(RealFTPTest):
@@ -791,6 +792,13 @@ class TestOther(RealFTPTest):
         # This isn't writable by the ftp account the tests are run under.
         host.chdir("rootdir1")
         self.assertRaises(ftp_error.TimeShiftError, host.synchronize_times)
+
+    def test_probing_of_list_a_option(self):
+        # Test probing of `LIST -a` option (ticket #63, comment 12).
+        host = self.host
+        self.assertTrue(host._has_list_a_option)
+        directory_entries = host.listdir(host.curdir)
+        self.assertTrue(".hidden" in directory_entries)
 
     def _make_objects_to_be_garbage_collected(self):
         for i in xrange(10):

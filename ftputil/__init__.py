@@ -124,6 +124,11 @@ class FTPHost(object):
         # Set default time shift (used in `upload_if_newer` and
         #  `download_if_newer`).
         self.set_time_shift(0.0)
+        # Check if the server accepts the `-a` option for the `LIST`
+        #  command. If yes, always use it to tell the server to show
+        #  directory and file names with a leading dot.
+        self._accepts_list_a_option = False
+        self._check_list_a_option()
 
     def keep_alive(self):
         """
@@ -797,6 +802,26 @@ class FTPHost(object):
             # Use straightforward command.
             ftp_error._try_with_oserror(self._session.rename, source, target)
 
+    def _check_list_a_option(self):
+        """Check for support of the `-a` option for the `LIST` command.
+        If the option is available, use it for all further directory
+        listing requests.
+        """
+        def callback(line):
+            """Directory listing callback."""
+            pass
+        # It seems that most servers just ignore unknown `LIST`
+        #  options instead of reacting with an error status.
+        #  In such a case, ftputil will subsequently use the `-a`
+        #  option even if it doesn't have any apparent effect.
+        try:
+            ftp_error._try_with_oserror(self._session.dir, u"-a", self.curdir,
+                                        callback)
+        except ftp_error.PermanentError:
+            pass
+        else:
+            self._accepts_list_a_option = True
+
     #XXX One could argue to put this method into the `_Stat` class, but
     #  I refrained from that because then `_Stat` would have to know
     #  about `FTPHost`'s `_session` attribute and in turn about
@@ -812,7 +837,11 @@ class FTPHost(object):
             def callback(line):
                 """Callback function."""
                 lines.append(line)
-            ftp_error._try_with_oserror(self._session.dir, path, callback)
+            if self._accepts_list_a_option:
+                args = (self._session.dir, u"-a", path, callback)
+            else:
+                args = (self._session.dir, path, callback)
+            ftp_error._try_with_oserror(*args)
             return lines
         lines = self._robust_ftp_command(_FTPHost_dir_command, path,
                                          descend_deeply=True)

@@ -88,6 +88,10 @@ class DummyFTPSession(object):
     def pwd(self):
         return u"/"
 
+    def dir(self, *args):
+        # Called by `_check_list_a_option`, otherwise not used.
+        pass
+
 
 class DummyFTPPath(object):
 
