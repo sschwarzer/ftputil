@@ -76,6 +76,9 @@ class Syncer(object):
         if self._target.path.isfile(target_dir):
             raise ftp_error.SyncError("target dir '%s' is actually a file" %
                                       target_dir)
+        # Deliberately use an `isdir` test instead of `try/except`. The
+        #  latter approach might mask other errors we want to see, e. g.
+        #  insufficient permissions.
         if not self._target.path.isdir(target_dir):
             self._target.mkdir(target_dir)
 
