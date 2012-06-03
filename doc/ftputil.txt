@@ -1418,10 +1418,6 @@ Bugs and limitations
   can do this, please let me know. The root directory is handled
   appropriately in ``FTPHost.path.exists/isfile/isdir/islink``, though.
 
-- Timeouts of individual child sessions currently are not handled.
-  This is only a problem if your ``FTPHost`` object or the generated
-  ``FTPFile`` objects are inactive for about ten minutes or longer.
-
 - Until now, I haven't paid attention to thread safety. In principle,
   at least, different ``FTPFile`` objects should be usable in different
   threads. If in doubt if your approach will work, ask on the mailing
