@@ -1,3 +1,56 @@
+The first beta version of ftputil 2.7 is available. You can download
+it from http://ftputil.sschwarzer.net/download .
+
+Changes since version 2.6
+-------------------------
+
+- ftputil now explicitly tries to get hidden directory and file
+  names (names starting with a dot) from the FTP server. [1]
+
+  Before, ftputil used a `LIST` command to get directory listings, now
+  it uses `LIST -a` if the server doesn't explicitly reject its usage
+  upon login. Note that the server is free to ignore the `-a` option,
+  so "hidden" directories and files may still not be visible. Please
+  see [2] for details.
+
+  If you have code that _relies_ on "hidden" directory or file names
+  _not_ being visible, please update the code as necessary. If that's
+  presumably not possible, please send feedback to the mailing list [3]
+  or in private mail [4].
+
+- A bug in the experimental synchronization code was fixed [5]. Thanks
+  to Zhuo Qiang for his help. :-)
+
+What is ftputil?
+----------------
+
+ftputil is a high-level FTP client library for the Python programming
+language. ftputil implements a virtual file system for accessing FTP
+servers, that is, it can generate file-like objects for remote files.
+The library supports many functions similar to those in the os,
+os.path and shutil modules. ftputil has convenience functions for
+conditional uploads and downloads, and handles FTP clients and servers
+in different timezones.
+
+Read the documentation at
+http://ftputil.sschwarzer.net/documentation .
+
+License
+-------
+
+ftputil is Open Source software, released under the revised BSD
+license (see http://www.opensource.org/licenses/bsd-license.php ).
+
+[1] http://ftputil.sschwarzer.net/trac/ticket/23
+[2] http://ftputil.sschwarzer.net/trac/ticket/23#comment:4
+[3] http://codespeak.net/mailman/listinfo/ftputil
+    (note that you need to subscribe to the list to be able to post there)
+[4] sschwarzer@sschwarzer.net
+[5] http://ftputil.sschwarzer.net/trac/ticket/62
+
+Stefan
+
+----------------------------------------------------------------------
 ftputil 2.6 is now available from
 http://ftputil.sschwarzer.net/download .
 
