@@ -818,7 +818,7 @@ class FTPHost(object):
             ftp_error._try_with_oserror(self._session.dir, u"-a", self.curdir,
                                         callback)
         except ftp_error.PermanentError:
-            pass
+            self._accepts_list_a_option = False
         else:
             self._accepts_list_a_option = True
 
