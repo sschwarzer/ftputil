@@ -660,6 +660,8 @@ correction`_).
   target of the last link in the chain doesn't exist, a
   ``PermanentError`` is raised.
 
+  The limitations of the ``lstat`` method also apply to ``stat``.
+
 .. _`FTPHost.path`:
 
 ``FTPHost`` objects contain an attribute named ``path``, similar to
@@ -1397,6 +1399,18 @@ Bugs and limitations
 --------------------
 
 - ``ftputil`` needs at least Python 2.4 to work.
+
+- Whether ``ftputil`` "sees" "hidden" directory and file names (i. e.
+  names starting with a dot) depends on the configuration of the FTP
+  server.
+  
+  Up to version 2.6, ftputil used a plain ``LIST`` command to retrieve
+  directory contents. Starting from version 2.7, ftputil uses ``LIST
+  -a`` if the server doesn't explicitly reject it with an error reply.
+  Hence, ftputil 2.7 *may* "see" more entries than previous versions.
+  Again, this depends on the server configuration. For example, the
+  server may be configured not to show "hidden" files regardless of
+  the use of the ``-a`` option.
 
 - Due to the implementation of ``lstat`` it can not return a sensible
   value for the root directory ``/`` though stat'ing entries *in* the
