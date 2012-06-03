@@ -22,6 +22,7 @@ similar to those of os_, `os.path`_ and `shutil`_.
 
 .. _ftplib: http://www.python.org/doc/current/lib/module-ftplib.html
 .. _os: http://www.python.org/doc/current/lib/module-os.html
+.. _`os.stat`: http://www.python.org/doc/current/lib/module-os.html#os.stat
 .. _`os.path`: http://www.python.org/doc/current/lib/module-os.path.html
 .. _`shutil`: http://www.python.org/doc/current/lib/module-shutil.html
 
@@ -46,9 +47,7 @@ Examples::
 
 Also, there are `FTPHost.lstat`_ and `FTPHost.stat`_ to request size and
 modification time of a file. The latter can also follow links, similar
-to `os.stat`_. Even `FTPHost.walk`_ and `FTPHost.path.walk`_ work.
-
-.. _`os.stat`: http://www.python.org/doc/2.5/lib/os-file-dir.html#l2h-2698
+to `os.stat`_. `FTPHost.walk`_ and `FTPHost.path.walk`_ work, too.
 
 
 ``ftputil`` features
@@ -863,7 +862,7 @@ Iteration over directories
   ``FTPHost.walk`` uses the code from Python with just the necessary
   modifications, so see the linked documentation.
 
-.. _`os.walk`: http://www.python.org/doc/2.5/lib/os-file-dir.html#l2h-2707
+.. _`os.walk`: http://www.python.org/doc/current/lib/module-os.html#os.walk
 
 .. _`FTPHost.path.walk`:
 
@@ -1476,4 +1475,3 @@ The ``lrucache`` module is written by Evan Prodromou
 <evan@prodromou.name>.
 
 Feedback is appreciated. :-)
-
