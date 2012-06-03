@@ -612,7 +612,7 @@ correction`_).
   "tuple" with additional attributes; see the documentation of the
   ``os`` module for details.
 
-  The result is derived by parsing the output of a ``DIR`` command on
+  The result is derived by parsing the output of a ``LIST`` command on
   the server. Therefore, the result from ``FTPHost.lstat`` can not
   contain more information than the received text. In particular:
 
@@ -628,7 +628,7 @@ correction`_).
     files, the information may be accurate to a minute.
 
   - Links can only be recognized on servers that provide this
-    information in the ``DIR`` output.
+    information in the ``LIST`` output.
 
   - Stat attributes that can't be determined at all are set to
   	``None``. For example, a line of a directory listing may not
