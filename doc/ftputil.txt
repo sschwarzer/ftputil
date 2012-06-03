@@ -1403,7 +1403,7 @@ Bugs and limitations
 - Whether ``ftputil`` "sees" "hidden" directory and file names (i. e.
   names starting with a dot) depends on the configuration of the FTP
   server.
-  
+
   Up to version 2.6, ftputil used a plain ``LIST`` command to retrieve
   directory contents. Starting from version 2.7, ftputil uses ``LIST
   -a`` if the server doesn't explicitly reject it with an error reply.
@@ -1418,10 +1418,9 @@ Bugs and limitations
   can do this, please let me know. The root directory is handled
   appropriately in ``FTPHost.path.exists/isfile/isdir/islink``, though.
 
-- Until now, I haven't paid attention to thread safety. In principle,
-  at least, different ``FTPFile`` objects should be usable in different
-  threads. If in doubt if your approach will work, ask on the mailing
-  list.
+- In multithreaded programs, you can have each thread use one or more
+  ``FTPHost`` instances as long as no instance is shared with other
+  threads.
 
 - ``FTPFile`` objects in text mode *may not* support charsets with
   more than one byte per character. Please e-mail your experiences to
