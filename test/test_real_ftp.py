@@ -796,7 +796,7 @@ class TestOther(RealFTPTest):
     def test_probing_of_list_a_option(self):
         # Test probing of `LIST -a` option (ticket #63, comment 12).
         host = self.host
-        self.assertTrue(host._has_list_a_option)
+        self.assertTrue(host._accepts_list_a_option)
         directory_entries = host.listdir(host.curdir)
         self.assertTrue(".hidden" in directory_entries)
 
