@@ -590,7 +590,7 @@ Retrieving information about directories, files and links
 - ``listdir(path)``
 
   returns a list containing the names of the files and directories
-  in the given path, similar to ``os.listdir``. The special names
+  in the given path, similar to `os.listdir`_. The special names
   ``.`` and ``..`` are not in the list.
 
 The methods ``lstat`` and ``stat`` (and some others) rely on the
@@ -608,7 +608,7 @@ correction`_).
 
 - ``lstat(path)``
 
-  returns an object similar to that from ``os.lstat``. This is a
+  returns an object similar to that from `os.lstat`_. This is a
   "tuple" with additional attributes; see the documentation of the
   ``os`` module for details.
 
@@ -645,6 +645,8 @@ correction`_).
   from another server type, please write to the `ftputil mailing
   list`_. You may consider `writing your own parser`_.
 
+.. _`os.listdir`: http://www.python.org/doc/current/lib/module-os.html#os.listdir
+.. _`os.lstat`: http://www.python.org/doc/current/lib/module-os.html#os.lstat
 .. _`ftputil mailing list`: http://ftputil.sschwarzer.net/mailinglist
 .. _`writing your own parser`: `Writing directory parsers`_
 
