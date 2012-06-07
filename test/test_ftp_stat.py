@@ -252,7 +252,7 @@ class TestLstatAndStat(unittest.TestCase):
     def test_lstat_for_root(self):
         """Test `lstat` for `/` .
         Note: `(l)stat` works by going one directory up and parsing
-        the output of an FTP `DIR` command. Unfortunately, it's not
+        the output of an FTP `LIST` command. Unfortunately, it's not
         possible to do this for the root directory `/`.
         """
         self.assertRaises(ftp_error.RootDirError, self.stat._lstat, '/')
