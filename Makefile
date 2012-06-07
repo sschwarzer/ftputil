@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2012, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 # This Makefile requires GNU Make.
@@ -13,9 +13,8 @@ SOURCE_DIR=${PROJECT_DIR}/ftputil
 
 DOC_DIR=${PROJECT_DIR}/doc
 STYLESHEET_PATH=${DOC_DIR}/default.css
-DOC_SOURCES=$(subst d/,${DOC_DIR}/, d/README.txt d/ftputil.txt)
-DOC_TARGETS=$(subst d/,${DOC_DIR}/, \
-			  d/README.html d/ftputil.html d/ftputil_ru.html)
+DOC_SOURCES=$(subst d/,${DOC_DIR}/, d/ftputil.txt)
+DOC_TARGETS=$(subst d/,${DOC_DIR}/, d/ftputil.html d/ftputil_ru.html)
 
 SED=sed -i'' -r -e
 
