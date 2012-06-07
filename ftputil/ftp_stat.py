@@ -405,7 +405,7 @@ class _Stat(object):
 
     def _host_dir(self, path):
         """
-        Return a list of lines, as fetched by FTP's `DIR` command,
+        Return a list of lines, as fetched by FTP's `LIST` command,
         when applied to `path`.
         """
         return self._host._dir(path)
@@ -481,7 +481,7 @@ class _Stat(object):
         if path in self._lstat_cache:
             return self._lstat_cache[path]
         # Note: (l)stat works by going one directory up and parsing
-        #  the output of an FTP `DIR` command. Unfortunately, it is
+        #  the output of an FTP `LIST` command. Unfortunately, it is
         #  not possible to do this for the root directory `/`.
         if path == '/':
             raise ftp_error.RootDirError(
@@ -507,7 +507,7 @@ class _Stat(object):
             return lstat_result_for_path
         # Path was not found during the loop.
         if _exception_for_missing_path:
-            #TODO Use FTP DIR command on the file to implicitly use
+            #TODO Use FTP `LIST` command on the file to implicitly use
             #  the usual status code of the server for missing files
             #  (450 vs. 550).
             raise ftp_error.PermanentError(
