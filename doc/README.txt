@@ -68,16 +68,20 @@ Installation
   If you want to customize the installation paths, please read
   http://docs.python.org/inst/inst.html .
 
-If you have easy_install installed, you can install the current
+If you have pip or easy_install installed, you can install the current
 version of ftputil directly from the Python Package Index (PyPI)
 without downloading the package explicitly.
 
 - Just type
 
+    pip install ftputil
+
+  or
+
     easy_install ftputil
 
-  on the command line. You'll probably need root/administrator
-  privileges to do that (see above).
+  on the command line, respectively. You'll probably need
+  root/administrator privileges to do that (see above).
 
 License
 -------
