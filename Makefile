@@ -101,28 +101,3 @@ clean:
 remove_from_env:
 	rm -rf ${VIRTUAL_ENV}/doc/ftputil
 	rm -rf ${VIRTUAL_ENV}/lib/python2.7/site-packages/ftputil
-
-
-# Debian packaging.
-DEBIAN_DIR=${PROJECT_DIR}/debian
-
-debdistclean:
-	cd ${DEBIAN_DIR} && rm -rf `ls -1 | grep -v "^custom$$"`
-
-debdist: debdistclean
-	cp dist/ftputil-${VERSION}.tar.gz \
-	   ${DEBIAN_DIR}/ftputil-${VERSION}.orig.tar.gz
-	tar -x -C ${DEBIAN_DIR} -zf ${DEBIAN_DIR}/ftputil-${VERSION}.orig.tar.gz
-	cd ${DEBIAN_DIR}/ftputil-${VERSION} && \
-	  echo "\n" | dh_make --copyright bsd --single --cdbs && \
-	  cd debian && \
-	  rm *.ex *.EX README.Debian
-	# Copy custom files (control, rules, copyright, changelog, maybe others)
-	cp -r ${DEBIAN_DIR}/custom/* ${DEBIAN_DIR}/ftputil-${VERSION}/debian
-	cd ${DEBIAN_DIR}/ftputil-${VERSION} && \
-	  dpkg-buildpackage -us -uc
-	# Put the Debian package beneath the .tar.gz files.
-	cp ${DEBIAN_DIR}/python-ftputil_${VERSION}_all.deb dist
-	# Final check (better than nothing)
-	lintian --info ${DEBIAN_DIR}/python-ftputil_${VERSION}_all.deb
-
