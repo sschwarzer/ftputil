@@ -64,7 +64,7 @@ Installation
   already. ;-)
 
 - Make the directory to where the files were unpacked your current
-  directory. Consider that after unpacking, you have a directory
+  directory. Assume that after unpacking, you have a directory
   ftputil-1.2. Make it the current directory with
 
     cd ftputil-1.2
