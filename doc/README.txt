@@ -18,11 +18,11 @@ What's new?
 Since version 2.5 the following changed:
 
 - The stat caching has been improved. I've added an "auto-grow"
-  feature for ``FTPHost.listdir`` which in turn applies to
-  ``FTPHost.walk``. Moreover, there were several performance
+  feature for `FTPHost.listdir` which in turn applies to
+  `FTPHost.walk`. Moreover, there were several performance
   optimizations.
 
-- A few bugs were fixed (`#53`_, `#55`_, `#56`_).
+- A few bugs were fixed [1-3].
 
 Documentation
 -------------
@@ -95,6 +95,7 @@ Evan Prodromou <evan@bad.dynu.ca> (lrucache module)
 
 Please provide feedback! It's certainly appreciated. :-)
 
-.. _`#53`: http://ftputil.sschwarzer.net/trac/ticket/53
-.. _`#55`: http://ftputil.sschwarzer.net/trac/ticket/55
-.. _`#56`: http://ftputil.sschwarzer.net/trac/ticket/56
+
+[1] http://ftputil.sschwarzer.net/trac/ticket/53
+[2] http://ftputil.sschwarzer.net/trac/ticket/55
+[3] http://ftputil.sschwarzer.net/trac/ticket/56
