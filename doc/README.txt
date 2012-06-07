@@ -28,8 +28,8 @@ Documentation
 -------------
 
 The documentation for ftputil can be found in the file ftputil.txt
-(reStructuredText format) or ftputil.html (recommended, generated
-from ftputil.txt).
+(reStructuredText format) or ftputil.html (recommended, generated from
+ftputil.txt).
 
 Prerequisites
 -------------
@@ -40,8 +40,9 @@ programming language, available from http://www.python.org for free.
 Installation
 ------------
 
-- *If you have an older version of ftputil installed, delete it or move
-  it somewhere else, so that it doesn't conflict with the new version!*
+- *If you have an older version of ftputil installed, delete it or
+  move it somewhere else, so that it doesn't conflict with the new
+  version!*
 
 - Unpack the archive file containing the distribution files. If you
   had an hypothetical ftputil version 1.2, you would type at the shell
@@ -49,11 +50,12 @@ Installation
 
     tar xzf ftputil-1.2.tar.gz
 
-  However, if you read this, you probably unpacked the archive already. ;-)
+  However, if you read this, you probably unpacked the archive
+  already. ;-)
 
-- Make the directory to where the files were unpacked your current directory.
-  Consider that after unpacking, you have a directory ftputil-1.2. Make it
-  the current directory with
+- Make the directory to where the files were unpacked your current
+  directory. Consider that after unpacking, you have a directory
+  ftputil-1.2. Make it the current directory with
 
     cd ftputil-1.2
 
@@ -61,9 +63,9 @@ Installation
 
     python setup.py install
 
-  at the shell prompt. On Unix/Linux, you have to be root to perform the
-  installation. Likewise, you have to be logged in as administrator if you
-  install on Windows.
+  at the shell prompt. On Unix/Linux, you have to be root to perform
+  the installation. Likewise, you have to be logged in as
+  administrator if you install on Windows.
 
   If you want to customize the installation paths, please read
   http://docs.python.org/inst/inst.html .
