@@ -1321,33 +1321,6 @@ interface should *only* be used for debugging. Calling arbitrary
 
 .. _`session object`: #session-factories
 
-When iterating over directories, ``ftputil`` becomes unbearably slow
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-You probably iterate over a directory with more than 1000 items
-(directories and files) in it and use methods like `lstat` or `isdir`
-for that.
-
-Even though ``ftputil`` uses a cache to store stat information used by
-these methods, the cache's default size is 1000 entries. If your
-directory contains more items, the first entries will have been
-flushed from the cache by the time the iteration over the items
-starts.
-
-To avoid this problem, increase the cache size to the size of the
-largest directory you expect::
-
-    ftp_host = ftputil.FTPHost(host, userid, password)
-    # Increase cache size to hold at most 10000 entries.
-    ftp_host.stat_cache.resize(10000)
-
-For details on caching read `Local caching of file system
-information`_.
-
-Support for an auto-resize feature is planned for *future* versions
-of ``ftputil``. This won't be fool-proof either, but will most likely
-work for the case described above.
-
 Conditional upload/download to/from a server in a different time zone
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
