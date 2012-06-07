@@ -79,7 +79,7 @@ pylint:
 dist: clean patch test pylint docs
 	python setup.py sdist
 
-extdist: test dist debdist register
+extdist: test dist register
 
 # Register package on PyPI.
 register:
