@@ -15,14 +15,24 @@ in different timezones.
 What's new?
 -----------
 
-Since version 2.5 the following changed:
+Since version 2.6 the following changed:
 
-- The stat caching has been improved. I've added an "auto-grow"
-  feature for `FTPHost.listdir` which in turn applies to
-  `FTPHost.walk`. Moreover, there were several performance
-  optimizations.
+- ftputil now explicitly tries to get hidden directory and file names
+  (names starting with a dot) from the FTP server. [1]
 
-- A few bugs were fixed [1-3].
+  Before, ftputil used a `LIST` command to get directory listings, now
+  it uses `LIST -a` if the server doesn't explicitly reject its usage
+  upon login. Note that the server is free to ignore the `-a` option,
+  so "hidden" directories and files may still not be visible. Please
+  see [2] for details.
+
+  If you have code that _relies_ on "hidden" directory or file names
+  _not_ being visible, please update the code as necessary. If that's
+  presumably not possible, please send feedback to the mailing list [3]
+  or in private mail [4].
+
+- A bug in the experimental synchronization code was fixed [5]. Thanks
+  to Zhuo Qiang for his help. :-)
 
 Documentation
 -------------
@@ -102,6 +112,9 @@ Evan Prodromou <evan@bad.dynu.ca> (lrucache module)
 Please provide feedback! It's certainly appreciated. :-)
 
 
-[1] http://ftputil.sschwarzer.net/trac/ticket/53
-[2] http://ftputil.sschwarzer.net/trac/ticket/55
-[3] http://ftputil.sschwarzer.net/trac/ticket/56
+[1] http://ftputil.sschwarzer.net/trac/ticket/23
+[2] http://ftputil.sschwarzer.net/trac/ticket/23#comment:4
+[3] http://codespeak.net/mailman/listinfo/ftputil
+    (note that you need to subscribe to the list to be able to post there)
+[4] sschwarzer@sschwarzer.net
+[5] http://ftputil.sschwarzer.net/trac/ticket/62
