@@ -30,7 +30,7 @@ TEST_FILES=$(shell ls -1 ${TEST_DIR}/test_*.py | \
 		   ${TEST_DIR}/test_real_ftp.py \
 		   ${TEST_DIR}/test_public_servers.py
 
-.PHONY: dist extdist test pylint docs clean register patch debdistclean debdist
+.PHONY: dist extdist test pylint docs clean register patch
 
 # Patch various files to refer to a new version.
 patch:
