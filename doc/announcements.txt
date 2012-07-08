@@ -1,5 +1,5 @@
-The first beta version of ftputil 2.7 is available. You can download
-it from http://ftputil.sschwarzer.net/download .
+ftputil 2.7 is now available from
+http://ftputil.sschwarzer.net/download .
 
 Changes since version 2.6
 -------------------------
