@@ -40,19 +40,18 @@ Installation
   version!*
 
 - Unpack the archive file containing the distribution files. If you
-  had an hypothetical ftputil version 1.2, you would type at the shell
-  prompt:
+  had an ftputil version 2.6, you would type at the shell prompt:
 
-    tar xzf ftputil-1.2.tar.gz
+    tar xzf ftputil-2.6.tar.gz
 
   However, if you read this, you probably unpacked the archive
   already. ;-)
 
 - Make the directory to where the files were unpacked your current
   directory. Assume that after unpacking, you have a directory
-  ftputil-1.2. Make it the current directory with
+  ftputil-2.6. Make it the current directory with
 
-    cd ftputil-1.2
+    cd ftputil-2.6
 
 - Type
 
