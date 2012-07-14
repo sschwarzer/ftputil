@@ -15,24 +15,9 @@ in different timezones.
 What's new?
 -----------
 
-Since version 2.6 the following changed:
+Since version 2.7.1 the following changed:
 
-- ftputil now explicitly tries to get hidden directory and file names
-  (names starting with a dot) from the FTP server. [1]
-
-  Before, ftputil used a `LIST` command to get directory listings, now
-  it uses `LIST -a` if the server doesn't explicitly reject its usage
-  upon login. Note that the server is free to ignore the `-a` option,
-  so "hidden" directories and files may still not be visible. Please
-  see [2] for details.
-
-  If you have code that _relies_ on "hidden" directory or file names
-  _not_ being visible, please update the code as necessary. If that's
-  presumably not possible, please send feedback to the mailing list [3]
-  or in private mail [4].
-
-- A bug in the experimental synchronization code was fixed [5]. Thanks
-  to Zhuo Qiang for his help. :-)
+- An installation problem was fixed.
 
 Documentation
 -------------
