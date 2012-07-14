@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-# Copyright (C) 2003-2010, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2012, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 # Execute a test on a real FTP server (other tests use a mock server)
@@ -820,7 +820,7 @@ class TestOther(RealFTPTest):
 
 if __name__ == '__main__':
     print """\
-Test for real FTP access.
+Test real FTP access.
 
 This test writes some files and directories on the local client and the
 remote server. Thus, you may want to skip this test by pressing [Ctrl-C].
