@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-# Copyright (C) 2003-2010, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2012, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 """
