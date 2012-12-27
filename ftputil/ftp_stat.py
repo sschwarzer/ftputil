@@ -237,7 +237,10 @@ class Parser(object):
         # send a mail (see ftputil.txt/html).
         try:
             month, day, year = [int(part) for part in date.split('-')]
-            if year >= 70:
+            if year >= 1000:
+                # We have a four-digit year, so no need for heuristics.
+                pass
+            elif year >= 70:
                 year = 1900 + year
             else:
                 year = 2000 + year

@@ -33,6 +33,9 @@ def stat_tuple_to_seconds(t):
 
 class TestParsers(unittest.TestCase):
 
+    #
+    # Helper methods
+    #
     def _test_valid_lines(self, parser_class, lines, expected_stat_results):
         parser = parser_class()
         for line, expected_stat_result in zip(lines, expected_stat_results):
@@ -67,6 +70,9 @@ class TestParsers(unittest.TestCase):
         else:
             return now[0] - 1
 
+    #
+    # Unix parser
+    #
     def test_valid_unix_lines(self):
         lines = [
           "drwxr-sr-x   2 45854    200           512 May  4  2000 "
@@ -127,7 +133,10 @@ class TestParsers(unittest.TestCase):
         self._test_valid_lines(ftp_stat.UnixParser, lines,
                                expected_stat_results)
 
-    def test_valid_ms_lines(self):
+    #
+    # Microsoft parser
+    #
+    def test_valid_ms_lines_two_digit_year(self):
         lines = [
           "07-27-01  11:16AM       <DIR>          Test",
           "10-23-95  03:25PM       <DIR>          WindowsXP",
@@ -146,6 +155,20 @@ class TestParsers(unittest.TestCase):
            (2009, 7, 17, 0, 8, 0), None, "test.exe", None],
           [33024, None, None, None, None, None, 12266720, None,
            (2009, 7, 17, 12, 8, 0), None, "test.exe", None]
+          ]
+        self._test_valid_lines(ftp_stat.MSParser, lines, expected_stat_results)
+
+    def test_valid_ms_lines_four_digit_year(self):
+        # See http://ftputil.sschwarzer.net/trac/ticket/67
+        lines = [
+          "10-19-2012  03:13PM       <DIR>          SYNCDEST",
+          "10-19-2012  03:13PM       <DIR>          SYNCSOURCE"
+          ]
+        expected_stat_results = [
+          [16640, None, None, None, None, None, None, None,
+           (2012, 10, 19, 15, 13, 0), None, "SYNCDEST", None],
+          [16640, None, None, None, None, None, None, None,
+           (2012, 10, 19, 15, 13, 0), None, "SYNCSOURCE", None],
           ]
         self._test_valid_lines(ftp_stat.MSParser, lines, expected_stat_results)
 
