@@ -53,7 +53,7 @@ def ftp_client_listing(server, directory):
     # Collect the directory/file names from the listing's text
     names = []
     for line in stdout.strip().split("\n"):
-        if line.startswith("total "):
+        if line.startswith("total ") or line.startswith("Trying "):
             continue
         parts = line.split()
         if parts[-2] == "->":
@@ -62,8 +62,10 @@ def ftp_client_listing(server, directory):
         else:
             name = parts[-1]
         names.append(name)
-    # Remove entries for current and parent directory
-    names = [name  for name in names  if name not in (".", "..")]
+    # Remove entries for current and parent directory since they
+    # aren't included in the result of `FTPHost.listdir` either.
+    names = [name for name in names
+                  if name not in (".", "..")]
     return names
 
 
@@ -93,12 +95,14 @@ class TestPublicServers(unittest.TestCase):
     # the root directory.
     servers = [# Posix format
                ("ftp.gnome.org", "pub"),
+               ("ftp.kde.org", "pub"),
                ("ftp.debian.org", "debian"),
-               ("ftp.sunfreeware.com", "pub"),
-               ("ftp.chello.nl", "pub"),
                ("ftp.heanet.ie", "pub"),
                # DOS/Microsoft format
-               ("ftp.microsoft.com", "deskapps")]
+               # ftp.microsoft.com sporadically refuses anonymous access
+               # ("530 User cannot log in, home directory inaccessible")
+               #("ftp.microsoft.com", "deskapps"),
+              ]
 
     # This data structure contains the initial directories "." and
     # "DIR" (which will be replaced by a valid directory name for
@@ -133,10 +137,20 @@ class TestPublicServers(unittest.TestCase):
                 # (shouldn't happen anyway with the current implementation).
                 host.stat_cache.clear()
                 names = host.listdir(path)
+                # Filter out "hidden" names since the FTP command line
+                # client won't include them in its listing either.
+                names = [name for name in names
+                              if not (
+                                name.startswith(".") or
+                                # The login directory of `ftp.microsoft.com`
+                                # contains this "hidden" entry that ftputil
+                                # finds but not the FTP command line client.
+                                name == "mscomtest"
+                              )]
                 failure_message = "For server %s, directory %s: %s != %s" % \
                                   (server, initial_directory, names,
                                    canonical_names)
-                self.assertEqual(names, canonical_names)
+                self.assertEqual(names, canonical_names, failure_message)
         finally:
             host.close()
 
