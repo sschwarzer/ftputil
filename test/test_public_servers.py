@@ -1,7 +1,8 @@
-# Copyright (C) 2009, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2009-2012, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 import os
+import socket
 import subprocess
 import unittest
 
@@ -17,11 +18,7 @@ def email_address():
     else try to use the content of the $EMAIL environment variable.
     If that doesn't exist, use a dummy address.
     """
-    try:
-        fobj = open("/etc/hostname")
-        hostname = fobj.read().strip()
-    finally:
-        fobj.close()
+    hostname = socket.gethostname()
     if hostname == "warpy":
         email = "sschwarzer@sschwarzer.net"
     else:
