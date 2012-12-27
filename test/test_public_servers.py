@@ -129,8 +129,8 @@ class TestPublicServers(unittest.TestCase):
             for path in paths:
                 path = path.replace("DIR", initial_directory)
                 # Make sure that we don't recycle directory entries, i. e.
-                #  really repeatedly retrieve the directory contents
-                #  (shouldn't happen anyway with the current implementation).
+                # really repeatedly retrieve the directory contents
+                # (shouldn't happen anyway with the current implementation).
                 host.stat_cache.clear()
                 names = host.listdir(path)
                 failure_message = "For server %s, directory %s: %s != %s" % \

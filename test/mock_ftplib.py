@@ -16,8 +16,8 @@ import StringIO
 DEBUG = 0
 
 # Use a global dictionary of the form `{path: mock_file, ...}` to
-#  make "volatile" mock files accessible. This is used for testing
-#  the contents of a file after an `FTPHost.upload` call.
+# make "volatile" mock files accessible. This is used for testing
+# the contents of a file after an `FTPHost.upload` call.
 mock_files = {}
 
 def content_of(path):
@@ -115,7 +115,7 @@ total 1
 -rw-r--r--   1 45854    200          4604 Jan 19 23:11 file with spaces""",
 
       # Fail when trying to write to this directory (the content isn't
-      #  relevant).
+      # relevant).
       'sschwarzer': "",
 
       '/home/msformat': """\
@@ -140,7 +140,7 @@ total 1
     def __init__(self, host='', user='', password=''):
         self.closed = 0
         # Count successful `transfercmd` invocations to ensure that
-        #  each has a corresponding `voidresp`.
+        # each has a corresponding `voidresp`.
         self._transfercmds = 0
         # Dummy, only for getting/setting timeout in `_FTPFile.close`
         self.sock = MockSocket("", "")
@@ -212,7 +212,7 @@ total 1
         if self.dir_contents.has_key(path):
             raise ftplib.error_perm
         # Fail if path isn't available (this name is hard-coded here
-        #  and has to be used for the corresponding tests).
+        # and has to be used for the corresponding tests).
         if (cmd, path) == ('RETR', 'notthere'):
             raise ftplib.error_perm
         assert self._transfercmds == 0

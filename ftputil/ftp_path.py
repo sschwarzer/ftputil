@@ -12,7 +12,7 @@ from ftputil import ftp_error
 
 
 # The `_Path` class shouldn't be used directly by clients of the
-#  ftputil library.
+# ftputil library.
 __all__ = []
 
 
@@ -85,7 +85,7 @@ class _Path(object):
         return self._host.stat(path).st_size
 
     # Check whether a path is a regular file/dir/link. For the first
-    #  two cases follow links (like in `os.path`).
+    # two cases follow links (like in `os.path`).
     #
     # Implementation note: The previous implementations simply called
     # `stat` or `lstat` and returned `False` if they ended with
@@ -177,7 +177,7 @@ class _Path(object):
         # Fail early if we get a unicode path which can't be encoded.
         top = str(top)
         # This code (and the above documentation) is taken from
-        #  posixpath.py, with slight modifications.
+        # posixpath.py, with slight modifications.
         try:
             names = self._host.listdir(top)
         except OSError:

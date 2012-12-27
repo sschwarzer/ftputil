@@ -71,7 +71,7 @@ class Syncer(object):
         it's actually a file, raise a `SyncError`.
         """
         #TODO Handle setting of target mtime according to source mtime
-        #  (beware of rootdir anomalies; try to handle them as well).
+        # (beware of rootdir anomalies; try to handle them as well).
         #print "Making", target_dir
         if self._target.path.isfile(target_dir):
             raise ftp_error.SyncError("target dir '%s' is actually a file" %
@@ -84,12 +84,12 @@ class Syncer(object):
 
     def _sync_file(self, source_file, target_file):
         #XXX This duplicates code from `FTPHost._copyfileobj`. Maybe
-        #  implement the upload and download methods in terms of
-        #  `_sync_file`, or maybe not?
+        # implement the upload and download methods in terms of
+        # `_sync_file`, or maybe not?
         #TODO Handle `IOError`s
         #TODO Handle conditional copy
         #TODO Handle setting of target mtime according to source mtime
-        #  (beware of rootdir anomalies; try to handle them as well).
+        # (beware of rootdir anomalies; try to handle them as well).
         #print "Syncing", source_file, "->", target_file
         source = self._source.open(source_file, "rb")
         try:

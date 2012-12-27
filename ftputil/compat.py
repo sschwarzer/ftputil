@@ -11,16 +11,16 @@ the Python 3 helpers as well.
 """
 
 # Note that more imports are to be found in the large `if`
-#  statement below, because they work only in Python 2 or
-#  Python 3.
+# statement below, because they work only in Python 2 or
+# Python 3.
 import sys
 
 
 if sys.version_info[0] == 2:
 
     # As a low-level networking library, ftputil mostly works on
-    #  byte strings, so 2to3's approach to turn byte strings into
-    #  unicode strings won't work most of the time.
+    # byte strings, so 2to3's approach to turn byte strings into
+    # unicode strings won't work most of the time.
     def b(byte_string):
         return byte_string
 

@@ -104,7 +104,7 @@ class TimeShiftMockSession(mock_ftplib.MockSession):
 
 #
 # Customized `FTPHost` class for conditional upload/download tests
-#  and time shift tests
+# and time shift tests
 #
 class FailingUploadAndDownloadFTPHost(ftputil.FTPHost):
     def upload(self, source, target, mode=''):
@@ -254,9 +254,9 @@ class TestUploadAndDownload(unittest.TestCase):
         # Upload
         host = test_base.ftp_host_factory()
         host.upload(local_source, 'dummy')
-        # Check uploaded content
-        # The data which was uploaded has its line endings converted
-        #  so the conversion must also be applied to `data`.
+        # Check uploaded content. The data which was uploaded has its
+        # line endings converted so the conversion must also be
+        # applied to `data`.
         data = data.replace('\n', '\r\n')
         remote_file_content = mock_ftplib.content_of('dummy')
         self.assertEqual(data, remote_file_content)
@@ -291,9 +291,9 @@ class TestUploadAndDownload(unittest.TestCase):
         host = test_base.ftp_host_factory()
         flag = host.upload_if_newer(local_source, '/home/older')
         self.assertEqual(flag, True)
-        # Check uploaded content
-        # The data which was uploaded has its line endings converted
-        #  so the conversion must also be applied to 'data'.
+        # Check uploaded content. The data which was uploaded has its
+        # line endings converted so the conversion must also be
+        # applied to 'data'.
         data = data.replace('\n', '\r\n')
         remote_file_content = mock_ftplib.content_of('older')
         self.assertEqual(data, remote_file_content)
@@ -410,13 +410,13 @@ class TestTimeShift(unittest.TestCase):
         presumed_time_shift = -6 * hour
         # Set `mtime` to simulate a server east of us.
         # In case the `time_shift` value for this host instance is 0.0
-        #  (as is to be expected before the time shift is determined),
-        #  the directory parser (more specifically
-        #  `ftp_stat.Parser.parse_unix_time`) will return a time which
-        #  is a year too far in the past. The `synchronize_times`
-        #  method needs to deal with this and add the year "back".
-        #  I don't think it's a bug in `parse_unix_time` because the
-        #  method should work once the time shift is set correctly.
+        # (as is to be expected before the time shift is determined),
+        # the directory parser (more specifically
+        # `ftp_stat.Parser.parse_unix_time`) will return a time which
+        # is a year too far in the past. The `synchronize_times`
+        # method needs to deal with this and add the year "back".
+        # I don't think it's a bug in `parse_unix_time` because the
+        # method should work once the time shift is set correctly.
         local_time = time.localtime()
         local_time_with_wrong_year = (local_time.tm_year-1,) + local_time[1:]
         presumed_server_time = \

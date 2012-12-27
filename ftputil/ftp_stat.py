@@ -31,9 +31,9 @@ class StatResult(tuple):
 
     def __init__(self, sequence):
         # Don't call `__init__` via `super`. Construction from a
-        #  sequence is implicitly handled by `tuple.__new__`, not
-        #  `tuple.__init__`. As a by-product, this avoids a
-        #  `DeprecationWarning` in Python 2.6+ .
+        # sequence is implicitly handled by `tuple.__new__`, not
+        # `tuple.__init__`. As a by-product, this avoids a
+        # `DeprecationWarning` in Python 2.6+ .
         # pylint: disable=W0231, W0613
         #
         # These may be overwritten in a `Parser.parse_line` method.
@@ -126,8 +126,8 @@ class Parser(object):
                              'p': stat.S_IFIFO, 's': stat.S_IFSOCK,
                              '-': stat.S_IFREG,
                              # Ignore types which `ls` can't make sense of
-                             #  (assuming the FTP server returns listings
-                             #  like `ls` does).
+                             # (assuming the FTP server returns listings
+                             # like `ls` does).
                              '?': 0,
                             }
         file_type = mode_string[0]
@@ -188,16 +188,17 @@ class Parser(object):
             # Times are precise up to a minute.
             st_mtime_precision = 60
             # Rhs of comparison: Transform client time to server time
-            #  (as on the lhs), so both can be compared with respect
-            #  to the set time shift (see the definition of the time
-            #  shift in `FTPHost.set_time_shift`'s docstring). The
-            #  last addend allows for small deviations between the
-            #  supposed (rounded) and the actual time shift.
+            # (as on the lhs), so both can be compared with respect
+            # to the set time shift (see the definition of the time
+            # shift in `FTPHost.set_time_shift`'s docstring). The
+            # last addend allows for small deviations between the
+            # supposed (rounded) and the actual time shift.
+            #
             # #XXX The downside of this "correction" is that there is
-            #  a one-minute time interval exactly one year ago that
-            #  may cause that datetime to be recognized as the current
-            #  datetime, but after all the datetime from the server
-            #  can only be exact up to a minute.
+            # a one-minute time interval exactly one year ago that
+            # may cause that datetime to be recognized as the current
+            # datetime, but after all the datetime from the server
+            # can only be exact up to a minute.
             if st_mtime > time.time() + time_shift + st_mtime_precision:
                 # If it's in the future, use previous year.
                 st_mtime = time.mktime( (year-1, month, day,
@@ -226,13 +227,14 @@ class Parser(object):
         raises an `ftp_error.ParserError`.
         """
         # Don't complain about unused `time_shift` argument
+        #
         # pylint: disable=W0613
         # For the time being, I don't add a `with_precision`
-        #  parameter as in the Unix parser because the precision for
-        #  the DOS format is always a minute and can be set in
-        #  `MSParser.parse_line`. Should you find yourself needing
-        #  support for `with_precision` for a derived class, please
-        #  send a mail (see ftputil.txt/html).
+        # parameter as in the Unix parser because the precision for
+        # the DOS format is always a minute and can be set in
+        # `MSParser.parse_line`. Should you find yourself needing
+        # support for `with_precision` for a derived class, please
+        # send a mail (see ftputil.txt/html).
         try:
             month, day, year = [int(part) for part in date.split('-')]
             if year >= 70:
@@ -263,8 +265,8 @@ class UnixParser(Parser):
         it will be encoded as a string "link_name -> link_target".
         """
         # This method encapsulates the recognition of an unusual
-        #  Unix format variant (see ticket
-        #  http://ftputil.sschwarzer.net/trac/ticket/12 ).
+        # Unix format variant (see ticket
+        # http://ftputil.sschwarzer.net/trac/ticket/12 ).
         line_parts = line.split()
         FIELD_COUNT_WITHOUT_USERID = 8
         FIELD_COUNT_WITH_USERID = FIELD_COUNT_WITHOUT_USERID + 1
@@ -272,7 +274,7 @@ class UnixParser(Parser):
             # No known Unix-style format
             raise ftp_error.ParserError("line '%s' can't be parsed" % line)
         # If we have a valid format (either with or without user id field),
-        #  the field with index 5 is either the month abbreviation or a day.
+        # the field with index 5 is either the month abbreviation or a day.
         try:
             int(line_parts[5])
         except ValueError:
@@ -314,7 +316,7 @@ class UnixParser(Parser):
         # st_name
         if name.count(" -> ") > 1:
             # If we have more than one arrow we can't tell where the link
-            #  name ends and the target name starts.
+            # name ends and the target name starts.
             raise ftp_error.ParserError(
                   'name "%s" contains more than one "->"' % name)
         elif name.count(" -> ") == 1:
@@ -398,7 +400,7 @@ class _Stat(object):
         # Use the Unix directory parser by default.
         self._parser = UnixParser()
         # Allow one chance to switch to another parser if the default
-        #  doesn't work.
+        # doesn't work.
         self._allow_parser_switching = True
         # Cache only lstat results. `stat` works locally on `lstat` results.
         self._lstat_cache = ftp_stat_cache.StatCache()
@@ -418,10 +420,10 @@ class _Stat(object):
         """
         lines = self._host_dir(path)
         # `cache` is the "high-level" `StatCache` object whereas
-        #  `cache._cache` is the "low-level" `LRUCache` object.
+        # `cache._cache` is the "low-level" `LRUCache` object.
         cache = self._lstat_cache
         # Auto-grow cache if the cache up to now can't hold as many
-        #  entries as there are in the directory `path`.
+        # entries as there are in the directory `path`.
         if cache._enabled and len(lines) >= cache._cache.size:
             new_size = int(math.ceil(1.1 * len(lines)))
             cache.resize(new_size)
@@ -430,8 +432,8 @@ class _Stat(object):
             if self._parser.ignores_line(line):
                 continue
             # For `listdir`, we are interested in just the names,
-            #  but we use the `time_shift` parameter to have the
-            #  correct timestamp values in the cache.
+            # but we use the `time_shift` parameter to have the
+            # correct timestamp values in the cache.
             stat_result = self._parser.parse_line(line,
                                                   self._host.time_shift())
             if stat_result._st_name in [self._host.curdir, self._host.pardir]:
@@ -481,23 +483,23 @@ class _Stat(object):
         if path in self._lstat_cache:
             return self._lstat_cache[path]
         # Note: (l)stat works by going one directory up and parsing
-        #  the output of an FTP `LIST` command. Unfortunately, it is
-        #  not possible to do this for the root directory `/`.
+        # the output of an FTP `LIST` command. Unfortunately, it is
+        # not possible to do this for the root directory `/`.
         if path == '/':
             raise ftp_error.RootDirError(
                   "can't stat remote root directory")
         dirname, basename = self._path.split(path)
         # If even the directory doesn't exist and we don't want the
-        #  exception, treat it the same as if the path wasn't found in
-        #  the directory's contents (compare below). The use of `isdir`
-        #  here causes a recursion but that should be ok because that
-        #  will at the latest stop when we've got to the root directory.
+        # exception, treat it the same as if the path wasn't found in
+        # the directory's contents (compare below). The use of `isdir`
+        # here causes a recursion but that should be ok because that
+        # will at the latest stop when we've got to the root directory.
 #         if not self._path.isdir(dirname) and not _exception_for_missing_path:
 #             return None
         # Loop through all lines of the directory listing. We
-        #  probably won't need all lines for the particular path but
-        #  we want to collect as many stat results in the cache as
-        #  possible.
+        # probably won't need all lines for the particular path but
+        # we want to collect as many stat results in the cache as
+        # possible.
         lstat_result_for_path = None
         for stat_result in self._stat_results_from_dir(dirname):
             # Needed to work without cache or with disabled cache.
@@ -508,16 +510,16 @@ class _Stat(object):
         # Path was not found during the loop.
         if _exception_for_missing_path:
             #TODO Use FTP `LIST` command on the file to implicitly use
-            #  the usual status code of the server for missing files
-            #  (450 vs. 550).
+            # the usual status code of the server for missing files
+            # (450 vs. 550).
             raise ftp_error.PermanentError(
                   "550 %s: no such file or directory" % path)
         else:
             # Be explicit. Returning `None` is a signal for
-            #  `_Path.exists/isfile/isdir/islink` that the path was
-            #  not found. If we would raise an exception, there would
-            #  be no distinction between a missing path or a more
-            #  severe error in the code above.
+            # `_Path.exists/isfile/isdir/islink` that the path was
+            # not found. If we would raise an exception, there would
+            # be no distinction between a missing path or a more
+            # severe error in the code above.
             return None
 
     def _real_stat(self, path, _exception_for_missing_path=True):
@@ -536,7 +538,7 @@ class _Stat(object):
         # Save for error message.
         original_path = path
         # Most code in this method is used to detect recursive
-        #  link structures.
+        # link structures.
         visited_paths = set()
         while True:
             # Stat the link if it is one, else the file/directory.
@@ -544,11 +546,12 @@ class _Stat(object):
             if lstat_result is None:
                 return None
             # If the file is not a link, the `stat` result is the
-            #  same as the `lstat` result.
+            # same as the `lstat` result.
             if not stat.S_ISLNK(lstat_result.st_mode):
                 return lstat_result
             # If we stat'ed a link, calculate a normalized path for
-            #  the file the link points to.
+            # the file the link points to.
+            #
             # We don't use `basename`.
             # pylint: disable=W0612
             dirname, basename = self._path.split(path)
@@ -571,13 +574,13 @@ class _Stat(object):
         propagate the `ParserError`.
         """
         # Do _not_ set `_allow_parser_switching` in a `finally` clause!
-        #  This would cause a `PermanentError` due to a not-found
-        #  file in an empty directory to finally establish the
-        #  parser - which is wrong.
+        # This would cause a `PermanentError` due to a not-found
+        # file in an empty directory to finally establish the
+        # parser - which is wrong.
         try:
             result = method(*args, **kwargs)
             # If a `listdir` call didn't find anything, we can't
-            #  say anything about the usefulness of the parser.
+            # say anything about the usefulness of the parser.
             if (method is not self._real_listdir) and result:
                 self._allow_parser_switching = False
             return result
@@ -590,7 +593,7 @@ class _Stat(object):
                 raise
 
     # Don't use these methods, but instead the corresponding methods
-    #  in the `FTPHost` class.
+    # in the `FTPHost` class.
     def _listdir(self, path):
         """
         Return a list of items in `path`.

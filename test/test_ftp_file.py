@@ -131,7 +131,7 @@ class TestFileOperations(unittest.TestCase):
         self.assertEqual(data, '')
         input_.close()
         # Try it again with a more "problematic" string which
-        #  makes several reads in the `read` method necessary.
+        # makes several reads in the `read` method necessary.
         host = test_base.ftp_host_factory(session_factory=AsciiReadMockSession)
         expected_data = AsciiReadMockSession.mock_file_content.\
                         replace('\r\n', '\n')

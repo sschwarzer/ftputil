@@ -96,8 +96,8 @@ class StatCache(object):
         raise an exception.
         """
         #XXX To be 100 % sure, this should be `host.sep`, but I don't
-        #  want to introduce a reference to the `FTPHost` object for
-        #  only that purpose.
+        # want to introduce a reference to the `FTPHost` object for
+        # only that purpose.
         assert path.startswith("/"), "%s must be an absolute path" % path
         try:
             del self._cache[path]
@@ -121,7 +121,7 @@ class StatCache(object):
                     "entry for path %s has expired" % path)
         else:
             #XXX I don't know if this may raise a `CacheMissError` in
-            #  case of race conditions. I prefer robust code.
+            # case of race conditions. I prefer robust code.
             try:
                 return self._cache[path]
             except lrucache.CacheKeyError:
@@ -145,7 +145,7 @@ class StatCache(object):
         """
         try:
             # Implicitly do an age test which may raise `CacheMissError`.
-            #  Deliberately ignore the return value `stat_result`.
+            # Deliberately ignore the return value `stat_result`.
             # pylint: disable=W0612
             stat_result = self[path]
             return True

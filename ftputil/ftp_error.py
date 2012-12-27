@@ -16,7 +16,7 @@ from ftputil import ftputil_version
 
 
 # You _can_ import these with `from ftp_error import *`, - but
-#  it's _not_ recommended.
+# it's _not_ recommended.
 __all__ = [
   'FTPError',
   'InternalError',
@@ -62,7 +62,7 @@ class FTPError(Exception):
 
 
 # Internal errors are those that have more to do with the inner
-#  workings of ftputil than with errors on the server side.
+# workings of ftputil than with errors on the server side.
 class InternalError(FTPError):
     """Internal error."""
     pass
@@ -123,7 +123,7 @@ def _try_with_oserror(callee, *args, **kwargs):
     derived classes.
     """
     # Use `*exc.args` instead of `str(args)` because args might be
-    #  a unicode string with non-ascii characters.
+    # a unicode string with non-ascii characters.
     try:
         return callee(*args, **kwargs)
     except ftplib.error_temp, exc:
@@ -154,6 +154,6 @@ def _try_with_ioerror(callee, *args, **kwargs):
     except ftplib.all_errors:
         exc = sys.exc_info()[1]
         # Use `*exc.args` instead of `str(args)` because args might be
-        #  a unicode string with non-ascii characters.
+        # a unicode string with non-ascii characters.
         raise FTPIOError(*exc.args)
 
