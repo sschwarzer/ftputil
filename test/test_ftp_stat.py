@@ -57,7 +57,7 @@ class TestParsers(unittest.TestCase):
         listing in `test_valid_unix_lines`.
         """
         # If in this year it's after Dec 19, 23:11, use the current
-        #  year, else use the previous year ...
+        # year, else use the previous year ...
         now = time.localtime()
         # We need only month, day, hour and minute.
         current_time_parts = now[1:5]
@@ -104,7 +104,7 @@ class TestParsers(unittest.TestCase):
 
     def test_alternative_unix_format(self):
         # See http://ftputil.sschwarzer.net/trac/ticket/12 for a
-        #  description for the need for an alternative format.
+        # description for the need for an alternative format.
         lines = [
           "drwxr-sr-x   2   200           512 May  4  2000 "
             "chemeng link -> chemeng target",
@@ -159,7 +159,7 @@ class TestParsers(unittest.TestCase):
 
     #
     # The following code checks if the decision logic in the Unix
-    #  line parser for determining the year works.
+    # line parser for determining the year works.
     #
     def datetime_string(self, time_float):
         """
@@ -221,16 +221,16 @@ class TestParsers(unittest.TestCase):
         # 3. test: Client is three hours ahead of server
         self._test_time_shift(- 3 * 60 * 60)
         # 4. test: Server is supposed to be three hours ahead, but
-        #  is ahead three hours and one minute
+        #    is ahead three hours and one minute
         self._test_time_shift(3 * 60 * 60, 60)
         # 5. test: Server is supposed to be three hours ahead, but
-        #  is ahead three hours minus one minute
+        #    is ahead three hours minus one minute
         self._test_time_shift(3 * 60 * 60, -60)
         # 6. test: Client is supposed to be three hours ahead, but
-        #  is ahead three hours and one minute
+        #    is ahead three hours and one minute
         self._test_time_shift(-3 * 60 * 60, -60)
         # 7. test: Client is supposed to be three hours ahead, but
-        #  is ahead three hours minus one minute
+        #    is ahead three hours minus one minute
         self._test_time_shift(-3 * 60 * 60, 60)
 
 
@@ -264,7 +264,7 @@ class TestLstatAndStat(unittest.TestCase):
     def test_lstat_one_unix_file(self):
         """Test `lstat` for a file described in Unix-style format."""
         stat_result = self.stat._lstat('/home/sschwarzer/index.html')
-        # Second form needed for Python 3
+        # Second form is needed for Python 3
         self.assertTrue(oct(stat_result.st_mode) in ('0100644', '0o100644'))
         self.assertEqual(stat_result.st_size, 4604)
         self.assertEqual(stat_result._st_mtime_precision, 60)
@@ -277,7 +277,7 @@ class TestLstatAndStat(unittest.TestCase):
     def test_lstat_one_unix_dir(self):
         """Test `lstat` for a directory described in Unix-style format."""
         stat_result = self.stat._lstat('/home/sschwarzer/scios2')
-        # Second form needed for Python 3
+        # Second form is needed for Python 3
         self.assertTrue(oct(stat_result.st_mode) in ('042755', '0o42755'))
         self.assertEqual(stat_result.st_ino, None)
         self.assertEqual(stat_result.st_dev, None)
@@ -327,9 +327,9 @@ class TestLstatAndStat(unittest.TestCase):
         """Test non-switching of parser format with `PermanentError`."""
         self.assertEqual(self.stat._allow_parser_switching, True)
         # With these directory contents, we get a `ParserError` for
-        #  the Unix parser, so `_allow_parser_switching` can be
-        #  switched off no matter whether we got a `PermanentError`
-        #  or not.
+        # the Unix parser, so `_allow_parser_switching` can be
+        # switched off no matter whether we got a `PermanentError`
+        # or not.
         self.assertRaises(ftp_error.PermanentError, self.stat._lstat,
                           "/home/msformat/nonexistent")
         self.assertEqual(self.stat._allow_parser_switching, False)

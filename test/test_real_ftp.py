@@ -52,10 +52,10 @@ def utc_local_time_shift():
     return round(time_shift_in_seconds / 3600.0) * 3600
 
 # Difference between local times of server and client. If 0.0, server
-#  and client use the same timezone.
+# and client use the same timezone.
 #EXPECTED_TIME_SHIFT = utc_local_time_shift()
 # Pure-FTPd seems to have changed its mind (see docstring of
-#  `utc_local_time_shift`).
+# `utc_local_time_shift`).
 EXPECTED_TIME_SHIFT = 0.0
 
 
@@ -66,7 +66,7 @@ class Cleaner(object):
 
     def __init__(self, host):
         # The test class (probably `RealFTPTest`) and the helper
-        #  class share the same `FTPHost` object.
+        # class share the same `FTPHost` object.
         self._host = host
         self._ftp_items = []
 
@@ -92,7 +92,7 @@ class Cleaner(object):
             try:
                 if type_ == 'd':
                     # If something goes wrong in `rmtree` we might
-                    #  leave a mess behind.
+                    # leave a mess behind.
                     self._host.rmtree(path)
                 elif type_ == 'f':
                     # Minor mess if `remove` fails
@@ -118,7 +118,7 @@ class RealFTPTest(unittest.TestCase):
         self.cleaner.add_file(path)
         file_ = self.host.file(path, 'wb')
         # Write something. Otherwise the FTP server might not update
-        #  the time of last modification if the file existed before.
+        # the time of last modification if the file existed before.
         file_.write("\n")
         file_.close()
 
@@ -176,7 +176,7 @@ class TestMkdir(RealFTPTest):
 
     def test_makedirs_from_non_root_directory(self):
         # This is a testcase for issue #22, see
-        #  http://ftputil.sschwarzer.net/trac/ticket/22 .
+        # http://ftputil.sschwarzer.net/trac/ticket/22 .
         host = self.host
         # No `_dir1_` and `_dir2_` yet
         self.assertFalse('_dir1_' in host.listdir(host.curdir))
@@ -246,7 +246,7 @@ class TestMkdir(RealFTPTest):
         host = self.host
         self.cleaner.add_dir('rootdir2/dir2')
         # Preparation: `rootdir2` exists but is only writable by root.
-        #  `dir2` is writable by regular ftp user.
+        # `dir2` is writable by regular ftp user.
         # These both should work.
         host.makedirs('rootdir2/dir2')
         host.makedirs('rootdir2/dir2/dir3')
@@ -479,7 +479,7 @@ class TestUploadAndDownload(RealFTPTest):
         # Make local file to upload.
         self.make_local_file()
         # Wait, else small time differences between client and server
-        #  actually could trigger the update.
+        # actually could trigger the update.
         time.sleep(65)
         try:
             self.cleaner.add_file(remote_file)
@@ -508,9 +508,9 @@ class TestUploadAndDownload(RealFTPTest):
         self.assertEqual(downloaded, True)
         try:
             # If the remote file, taking the datetime precision into
-            #  account, _might_ be newer, the file will be downloaded
-            #  again. To prevent this, wait a bit over a minute (the
-            #  remote precision), then "touch" the local file.
+            # account, _might_ be newer, the file will be downloaded
+            # again. To prevent this, wait a bit over a minute (the
+            # remote precision), then "touch" the local file.
             time.sleep(65)
             fobj = open(local_file, "w")
             fobj.close()
@@ -520,8 +520,8 @@ class TestUploadAndDownload(RealFTPTest):
             # Re-make the remote file.
             self.make_file(remote_file)
             # Local file is present but possibly older (taking the
-            #  possible deviation because of the precision into account),
-            #  so should download.
+            # possible deviation because of the precision into account),
+            # so should download.
             downloaded = host.download_if_newer(remote_file, local_file, 'b')
             self.assertEqual(downloaded, True)
         finally:
@@ -567,7 +567,7 @@ class TestFTPFiles(RealFTPTest):
         file_obj2 = host.open(REMOTE_FILENAME, 'rb')
         file_obj2.close()
         # This should re-use the second child because the first isn't
-        #  closed but the second is.
+        # closed but the second is.
         file_obj = host.open(REMOTE_FILENAME, 'rb')
         self.assertEqual(len(host._children), 2)
         self.assertTrue(file_obj._host is host._children[1])
@@ -602,7 +602,7 @@ class TestChmod(RealFTPTest):
         full_mode = self.host.stat(path).st_mode
         # Remove flags we can't set via `chmod`.
         # Allowed flags according to Python documentation
-        #  http://docs.python.org/lib/os-file-dir.html .
+        # http://docs.python.org/lib/os-file-dir.html .
         allowed_flags = [stat.S_ISUID, stat.S_ISGID, stat.S_ENFMT,
           stat.S_ISVTX, stat.S_IREAD, stat.S_IWRITE, stat.S_IEXEC,
           stat.S_IRWXU, stat.S_IRUSR, stat.S_IWUSR, stat.S_IXUSR,
@@ -666,13 +666,13 @@ class TestUnicodePaths(RealFTPTest):
     """
 
     # Actually, all of these methods will raise a `UnicodeEncodeError`
-    #  at some point, at the latest when a unicode string is tried to
-    #  be sent over a socket. However, it can be rather confusing to
-    #  get an encoding error from deep inside of ftputil or even
-    #  modules used by it (see ticket #53). Therefore, I added tests
-    #  to fail as early as possible if a path is a unicode path that
-    #  can't be converted to ASCII. Moreover, the code won't try to
-    #  use unicode strings which come into existence intermediately.
+    # at some point, at the latest when a unicode string is tried to
+    # be sent over a socket. However, it can be rather confusing to
+    # get an encoding error from deep inside of ftputil or even
+    # modules used by it (see ticket #53). Therefore, I added tests
+    # to fail as early as possible if a path is a unicode path that
+    # can't be converted to ASCII. Moreover, the code won't try to
+    # use unicode strings which come into existence intermediately.
  
     def assert_non_unicode(self, s):
         self.assertFalse(isinstance(s, unicode))
@@ -683,7 +683,7 @@ class TestUnicodePaths(RealFTPTest):
     def test_open(self):
         host = self.host
         # Check if the name attribute is a bytestring, no matter if we
-        #  passed in a bytestring or not beforehand.
+        # passed in a bytestring or not beforehand.
         fobj = host.file("CONTENTS")
         try:
             self.assert_non_unicode(fobj.name)
@@ -757,13 +757,13 @@ class TestOther(RealFTPTest):
 
     def test_open_for_reading(self):
         # Test for issues #17 and #51,
-        #  http://ftputil.sschwarzer.net/trac/ticket/17 and
-        #  http://ftputil.sschwarzer.net/trac/ticket/51 .
+        # http://ftputil.sschwarzer.net/trac/ticket/17 and
+        # http://ftputil.sschwarzer.net/trac/ticket/51 .
         file1 = self.host.file("debian-keyring.tar.gz", 'rb')
         time.sleep(1)
         # Depending on the FTP server, this might return a status code
-        #  unexpected by `ftplib` or block the socket connection until
-        #  a server-side timeout.
+        # unexpected by `ftplib` or block the socket connection until
+        # a server-side timeout.
         file1.close()
 
     def test_subsequent_reading(self):
@@ -777,7 +777,7 @@ class TestOther(RealFTPTest):
 
     def test_names_with_spaces(self):
         # Test if directories and files with spaces in their names
-        #  can be used.
+        # can be used.
         host = self.host
         self.assertTrue(host.path.isdir("dir with spaces"))
         self.assertEqual(host.listdir("dir with spaces"),

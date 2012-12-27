@@ -33,8 +33,8 @@ class TestTimestampComparison(unittest.TestCase):
         hour = 60 * minute
         day = 24 * hour
         # Define input arguments; modification datetimes are in seconds.
-        #  Fields are source datetime/precision, target datetime/precision,
-        #  expected comparison result.
+        # Fields are source datetime/precision, target datetime/precision,
+        # expected comparison result.
         file_data = [
           # Non-overlapping modification datetimes/precisions
           (1000.0, second, 900.0, second, True),

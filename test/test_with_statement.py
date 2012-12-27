@@ -34,8 +34,8 @@ class TestHostContextManager(unittest.TestCase):
                 pass
         except ftp_error.FTPOSError:
             # We arrived here, that's fine. Because the `FTPHost` object
-            #  wasn't successfully constructed the assignment to `host`
-            #  shouldn't have happened.
+            # wasn't successfully constructed the assignment to `host`
+            # shouldn't have happened.
             self.assertFalse('host' in locals())
         else:
             raise self.failureException("ftp_error.FTPOSError not raised")
@@ -68,12 +68,12 @@ class TestFileContextManager(unittest.TestCase):
                session_factory=InaccessibleDirSession) as host:
             try:
                 # This should fail since the directory isn't accessible
-                #  by definition.
+                # by definition.
                 with host.file('/inaccessible/new_file', 'w') as f:
                     pass
             except ftp_error.FTPIOError:
                 # The file construction didn't succeed, so `f` should
-                #  be absent from the namespace.
+                # be absent from the namespace.
                 self.assertFalse('f' in locals())
             else:
                 raise self.failureException("ftp_error.FTPIOError not raised")

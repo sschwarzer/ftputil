@@ -1,8 +1,9 @@
 # lrucache.py -- a simple LRU (Least-Recently-Used) cache class
 
 # Copyright 2004 Evan Prodromou <evan@bad.dynu.ca>
+#
 # Copyright 2009-2011 Stefan Schwarzer <sschwarzer@sschwarzer.net>
-#  (some changes to the original version)
+# (some changes to the original version)
 
 # Licensed under the Academic Free License 2.1
 
@@ -45,7 +46,7 @@ import time
 
 
 # The suffix after the hyphen denotes modifications by the
-#  ftputil project with respect to the original version.
+# ftputil project with respect to the original version.
 __version__ = "0.2-10"
 __all__ = ['CacheKeyError', 'LRUCache', 'DEFAULT_SIZE']
 __docformat__ = 'reStructuredText en'
@@ -117,8 +118,8 @@ class LRUCache(object):
 
         def __lt__(self, other):
             # Seems to be preferred over `__cmp__`, at least in newer
-            #  Python versions. Uses only around 60 % of the time
-            #  with respect to `__cmp__`.
+            # Python versions. Uses only around 60 % of the time
+            # with respect to `__cmp__`.
             return self._sort_key < other._sort_key
 
         def __cmp__(self, other):
@@ -136,10 +137,9 @@ class LRUCache(object):
         setting the `size` attribute.
         """
         self.clear()
-        # Maximum size of the cache.
-        # If more than 'size' elements are added to the cache,
-        #  the least-recently-used ones will be discarded.
-        # This assignment implicitly check the size value.
+        # Maximum size of the cache. If more than 'size' elements are
+        # added to the cache, the least-recently-used ones will be
+        # discarded. This assignment implicitly checks the size value.
         self.size = size
 
     def clear(self):
@@ -194,9 +194,9 @@ class LRUCache(object):
             node._sort_key = self._sort_key()
         else:
             # The size of the heap can be at most the value of
-            #  `self.size` because `__setattr__` decreases the cache
-            #  size if the new size value is smaller; so we don't
-            #  need a loop _here_.
+            # `self.size` because `__setattr__` decreases the cache
+            # size if the new size value is smaller; so we don't
+            # need a loop _here_.
             if len(heap) == self.size:
                 lru_node = min(heap)
                 heap.remove(lru_node)

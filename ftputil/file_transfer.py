@@ -42,7 +42,7 @@ class LocalFile(object):
     def mtime_precision(self):
         """Return the precision of the last modification time in seconds."""
         # Assume modification timestamps for local filesystems are
-        #  at least precise up to a second.
+        # at least precise up to a second.
         return 1.0
 
     def fobj(self):
@@ -72,7 +72,7 @@ class RemoteFile(object):
     def mtime(self):
         """Return the timestamp for the last modification in seconds."""
         # Convert to client time zone (see definition of time
-        #  shift in docstring of `FTPHost.set_time_shift`).
+        # shift in docstring of `FTPHost.set_time_shift`).
         return self._path.getmtime(self.name) - self._host.time_shift()
 
     def mtime_precision(self):
@@ -122,7 +122,7 @@ def copyfileobj(source_fobj, target_fobj, max_chunk_size=MAX_COPY_CHUNK_SIZE,
                 callback=None):
     """Copy data from file-like object source to file-like object target."""
     # Inspired by `shutil.copyfileobj` (I don't use the `shutil`
-    #  code directly because it might change)
+    # code directly because it might change)
     for chunk in chunks(source_fobj, max_chunk_size):
         target_fobj.write(chunk)
         if callback is not None:
@@ -143,8 +143,8 @@ def copy_file(source_file, target_file, conditional, callback):
     """
     if conditional:
         # Evaluate condition: The target file either doesn't exist or is
-        #  older than the source file. If in doubt (due to imprecise
-        #  timestamps), perform the transfer.
+        # older than the source file. If in doubt (due to imprecise
+        # timestamps), perform the transfer.
         transfer_condition = not target_file.exists() or \
           source_is_newer_than_target(source_file, target_file)
         if not transfer_condition:
