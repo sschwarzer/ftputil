@@ -175,18 +175,32 @@ class TestKeepAlive(unittest.TestCase):
 
 class TestSetParser(unittest.TestCase):
 
+    class TrivialParser(ftp_stat.Parser):
+        """
+        An instance of this parser always returns the same result
+        from its `parse_line` method. This is all we need to check
+        if ftputil uses the set parser. No actual parsing code is
+        required here.
+        """
+        def __init__(self):
+            # We can't use `os.stat("/home")` directly because we
+            # later need the object's `_st_name` attribute, which
+            # we can't set on a `os.stat` stat value.
+            default_stat_result = ftp_stat.StatResult(os.stat("/home"))
+            default_stat_result._st_name = "home"
+            self.default_stat_result = default_stat_result
+
+        def parse_line(self, line, time_shift=0.0):
+            return self.default_stat_result
+
     def test_set_parser(self):
         """Test if the selected parser is used."""
-        # This test isn't very practical but should help at least a bit ...
         host = test_base.ftp_host_factory()
-        # Implicitly fix at Unix format
-        files = host.listdir("/home/sschwarzer")
-        self.assertEqual(files, ['chemeng', 'download', 'image', 'index.html',
-          'os2', 'osup', 'publications', 'python', 'scios2'])
-        host.set_parser(ftp_stat.MSParser())
-        files = host.listdir("/home/msformat/XPLaunch")
-        self.assertEqual(files, ['WindowsXP', 'XPLaunch', 'empty',
-                                 'abcd.exe', 'O2KKeys.exe'])
+        self.assertEqual(host._stat._allow_parser_switching, True)
+        trivial_parser = TestSetParser.TrivialParser()
+        host.set_parser(trivial_parser)
+        stat_result = host.stat("/home")
+        self.assertEqual(stat_result, trivial_parser.default_stat_result)
         self.assertEqual(host._stat._allow_parser_switching, False)
 
 

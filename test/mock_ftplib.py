@@ -92,7 +92,8 @@ drwxr-sr-x   2 45854    200           512 May  4  2000 sschwarzer
 -rw-r--r--   1 45854    200          4605 Jan 19  1970 older
 -rw-r--r--   1 45854    200          4605 Jan 19  2020 newer
 lrwxrwxrwx   1 45854    200            21 Jan 19  2002 link -> sschwarzer/index.html
-lrwxrwxrwx   1 45854    200            15 Jan 19  2002 bad_link -> python/bad_link""",
+lrwxrwxrwx   1 45854    200            15 Jan 19  2002 bad_link -> python/bad_link
+drwxr-sr-x   2 45854    200           512 May  4  2000 dir with spaces""",
 
       '/home/python': """\
 lrwxrwxrwx   1 45854    200             7 Jan 19  2002 link_link -> ../link
@@ -117,21 +118,6 @@ total 1
       # Fail when trying to write to this directory (the content isn't
       # relevant).
       'sschwarzer': "",
-
-      '/home/msformat': """\
-10-23-01  03:25PM       <DIR>          WindowsXP
-12-07-01  02:05PM       <DIR>          XPLaunch
-07-17-00  02:08PM             12266720 abcd.exe
-07-17-00  02:08PM                89264 O2KKeys.exe""",
-
-      '/home/msformat/XPLaunch': """\
-10-23-01  03:25PM       <DIR>          WindowsXP
-12-07-01  02:05PM       <DIR>          XPLaunch
-12-07-01  02:05PM       <DIR>          empty
-07-17-00  02:08PM             12266720 abcd.exe
-07-17-00  02:08PM                89264 O2KKeys.exe""",
-
-      '/home/msformat/XPLaunch/empty': "total 0",
     }
 
     # File content to be used (indirectly) with `transfercmd`.
@@ -224,3 +210,28 @@ total 1
             self.closed = 1
             assert self._transfercmds == 0
 
+
+class MockMSFormatSession(MockSession):
+
+    dir_contents = {
+      '/': """\
+10-23-01  03:25PM       <DIR>          home""",
+
+      '/home': """\
+10-23-01  03:25PM       <DIR>          msformat""",
+
+      '/home/msformat': """\
+10-23-01  03:25PM       <DIR>          WindowsXP
+12-07-01  02:05PM       <DIR>          XPLaunch
+07-17-00  02:08PM             12266720 abcd.exe
+07-17-00  02:08PM                89264 O2KKeys.exe""",
+
+      '/home/msformat/XPLaunch': """\
+10-23-01  03:25PM       <DIR>          WindowsXP
+12-07-01  02:05PM       <DIR>          XPLaunch
+12-07-01  02:05PM       <DIR>          empty
+07-17-00  02:08PM             12266720 abcd.exe
+07-17-00  02:08PM                89264 O2KKeys.exe""",
+
+      '/home/msformat/XPLaunch/empty': "total 0",
+    }

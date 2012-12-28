@@ -493,12 +493,12 @@ class _Stat(object):
                   "can't stat remote root directory")
         dirname, basename = self._path.split(path)
         # If even the directory doesn't exist and we don't want the
-        # exception, treat it the same as if the path wasn't found in
-        # the directory's contents (compare below). The use of `isdir`
-        # here causes a recursion but that should be ok because that
-        # will at the latest stop when we've got to the root directory.
-#         if not self._path.isdir(dirname) and not _exception_for_missing_path:
-#             return None
+        # exception, treat it the same as if the path wasn't found in the
+        # directory's contents (compare below). The use of `isdir` here
+        # causes a recursion but that should be ok because that will at
+        # the latest stop when we've gotten to the root directory.
+        if not self._path.isdir(dirname) and not _exception_for_missing_path:
+            return None
         # Loop through all lines of the directory listing. We
         # probably won't need all lines for the particular path but
         # we want to collect as many stat results in the cache as
