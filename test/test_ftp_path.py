@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2012, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 import ftplib
@@ -25,6 +25,7 @@ class SessionWithInaccessibleLoginDirectory(mock_ftplib.MockSession):
 
 class TestPath(unittest.TestCase):
     """Test operations in `FTPHost.path`."""
+
     def test_regular_isdir_isfile_islink(self):
         """Test regular `FTPHost._Path.isdir/isfile/islink`."""
         testdir = '/home/sschwarzer'
@@ -34,6 +35,9 @@ class TestPath(unittest.TestCase):
         self.assertFalse(host.path.isdir('notthere'))
         self.assertFalse(host.path.isfile('notthere'))
         self.assertFalse(host.path.islink('notthere'))
+        self.assertFalse(host.path.isdir('/notthere/notthere'))
+        self.assertFalse(host.path.isfile('/notthere/notthere'))
+        self.assertFalse(host.path.islink('/notthere/notthere'))
         # Test a directory
         self.assertTrue(host.path.isdir(testdir))
         self.assertFalse(host.path.isfile(testdir))

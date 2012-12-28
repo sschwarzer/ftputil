@@ -33,6 +33,7 @@ def get_login_data():
     #return server, user, password
     return "localhost", 'ftptest', 'd605581757de5eb56d568a4419f4126e'
 
+
 def utc_local_time_shift():
     """
     Return the expected time shift in seconds assuming the server
@@ -414,6 +415,13 @@ class TestStat(RealFTPTest):
         client_mtime = time.mktime(time.localtime())
         calculated_time_shift = server_mtime - client_mtime
         self.assertFalse(abs(calculated_time_shift-host.time_shift()) > 120)
+
+    def test_issomething_for_nonexistent_directory(self):
+        host = self.host
+        nonexistent_path = "/nonexistent/nonexistent"
+        self.assertEqual(bool(host.path.isdir(nonexistent_path)), False)
+        self.assertEqual(bool(host.path.isfile(nonexistent_path)), False)
+        self.assertEqual(bool(host.path.islink(nonexistent_path)), False)
 
 #    def test_special_broken_link(self):
 #        # Test for ticket #39
@@ -839,5 +847,5 @@ minutes because it has to wait to test the timezone calculation.
     server, user, password = get_login_data()
     unittest.main()
     import __main__
-    #unittest.main(__main__, "TestOther.test_garbage_collection")
+    #unittest.main(__main__, "TestStat.test_issomething_for_nonexistent_directory")
 
