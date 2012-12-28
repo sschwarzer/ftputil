@@ -32,11 +32,13 @@ def random_data(pool, size=10000):
     result = ''.join(character_list)
     return result
 
+
 def ascii_data():
     """Return an ASCII character string."""
     pool = range(32, 128)
     pool.append(ord('\n'))
     return random_data(pool)
+
 
 def binary_data():
     """Return a binary character string."""
@@ -48,11 +50,13 @@ def binary_data():
 # Several customized `MockSession` classes
 #
 class FailOnLoginSession(mock_ftplib.MockSession):
+
     def __init__(self, host='', user='', password=''):
         raise ftplib.error_perm
 
 
 class FailOnKeepAliveSession(mock_ftplib.MockSession):
+
     def dir(self, *args):
         # Implicitly called by `_check_list_a_option`, otherwise unused.
         pass
@@ -99,10 +103,12 @@ d--x--x--x   5 staff        512 Oct  3  2000 usr"""}
 
 
 class BinaryDownloadMockSession(mock_ftplib.MockUnixFormatSession):
+
     mock_file_content = binary_data()
 
 
 class TimeShiftMockSession(mock_ftplib.MockSession):
+
     def delete(self, file_name):
         pass
 
@@ -111,6 +117,7 @@ class TimeShiftMockSession(mock_ftplib.MockSession):
 # and time shift tests
 #
 class FailingUploadAndDownloadFTPHost(ftputil.FTPHost):
+
     def upload(self, source, target, mode=''):
         assert False, "`FTPHost.upload` should not have been called"
 
@@ -119,6 +126,7 @@ class FailingUploadAndDownloadFTPHost(ftputil.FTPHost):
 
 
 class TimeShiftFTPHost(ftputil.FTPHost):
+
     class _Path:
         def split(self, path):
             return posixpath.split(path)
@@ -225,7 +233,8 @@ class TestCommandNotImplementedError(unittest.TestCase):
 
 
 class TestRecursiveListingForDotAsPath(unittest.TestCase):
-    """Return a recursive directory listing when the path to list
+    """
+    Return a recursive directory listing when the path to list
     is a dot. This is used to test for issue #33, see
     http://ftputil.sschwarzer.net/trac/ticket/33 .
     """
@@ -450,4 +459,3 @@ if __name__ == '__main__':
     import __main__
     # unittest.main(__main__,
     #   "TestTimeShift.test_synchronize_times")
-

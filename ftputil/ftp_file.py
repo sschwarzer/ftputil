@@ -29,6 +29,7 @@ def _crlf_to_python_linesep(text):
     """
     return text.replace('\r', '')
 
+
 # Converter for Python line ends to `\r\n`
 def _python_to_crlf_linesep(text):
     """

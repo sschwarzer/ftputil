@@ -281,7 +281,9 @@ class TestLstatAndStat(unittest.TestCase):
                           '/home/sschwarzer/notthere')
 
     def test_lstat_for_root(self):
-        """Test `lstat` for `/` .
+        """
+        Test `lstat` for `/` .
+
         Note: `(l)stat` works by going one directory up and parsing
         the output of an FTP `LIST` command. Unfortunately, it's not
         possible to do this for the root directory `/`.
