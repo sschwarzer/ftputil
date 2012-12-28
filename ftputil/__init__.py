@@ -98,7 +98,7 @@ class FTPHost(object):
         self._args = args
         self._kwargs = kwargs
         #XXX Maybe put the following in a `reset` method.
-        #  The time shift setting shouldn't be reset though.
+        # The time shift setting shouldn't be reset though.
         # Make a session according to these arguments.
         self._session = self._make_session()
         # Simulate `os.path`.
@@ -112,21 +112,21 @@ class FTPHost(object):
         # Associated `FTPHost` objects for data transfer.
         self._children = []
         # This is only set to something else than `None` if this instance
-        #  represents an `_FTPFile`.
+        # represents an `_FTPFile`.
         self._file = None
         # Now opened.
         self.closed = False
         # Set curdir, pardir etc. for the remote host. RFC 959 states
-        #  that this is, strictly speaking, dependent on the server OS
-        #  but it seems to work at least with Unix and Windows
-        #  servers.
+        # that this is, strictly speaking, dependent on the server OS
+        # but it seems to work at least with Unix and Windows
+        # servers.
         self.curdir, self.pardir, self.sep = '.', '..', '/'
         # Set default time shift (used in `upload_if_newer` and
-        #  `download_if_newer`).
+        # `download_if_newer`).
         self.set_time_shift(0.0)
         # Check if the server accepts the `-a` option for the `LIST`
-        #  command. If yes, always use it to tell the server to show
-        #  directory and file names with a leading dot.
+        # command. If yes, always use it to tell the server to show
+        # directory and file names with a leading dot.
         self._accepts_list_a_option = False
         self._check_list_a_option()
 
@@ -140,7 +140,7 @@ class FTPHost(object):
         connection - will be permanent.)
         """
         # Warning: Don't call this method on `FTPHost` instances which
-        #  represent file transfers. This may fail in confusing ways.
+        # represent file transfers. This may fail in confusing ways.
         ftp_error._try_with_oserror(self._session.pwd)
 
     #
@@ -156,15 +156,15 @@ class FTPHost(object):
         args = self._args[:]
         kwargs = self._kwargs.copy()
         # If a session factory had been given on the instantiation of
-        #  this `FTPHost` object, use the same factory for this
-        #  `FTPHost` object's child sessions.
+        # this `FTPHost` object, use the same factory for this
+        # `FTPHost` object's child sessions.
         factory = kwargs.pop('session_factory', ftplib.FTP)
         return ftp_error._try_with_oserror(factory, *args, **kwargs)
 
     def _copy(self):
         """Return a copy of this `FTPHost` object."""
         # The copy includes a new session factory return value (aka
-        #  session) but doesn't copy the state of `self.getcwd()`.
+        # session) but doesn't copy the state of `self.getcwd()`.
         return self.__class__(*self._args, **self._kwargs)
 
     def _available_child(self):
@@ -175,10 +175,10 @@ class FTPHost(object):
         there aren't any.
         """
         #TODO: Currently timed-out child sessions aren't removed and
-        #  may collect over time. In very busy or long running
-        #  processes, this might slow down an application because the
-        #  same stale child sessions have to be processed again and
-        #  again.
+        # may collect over time. In very busy or long running
+        # processes, this might slow down an application because the
+        # same stale child sessions have to be processed again and
+        # again.
         for host in self._children:
             # Test for timeouts only after testing for a closed file:
             # - If a file isn't closed, save time; don't bother to access
@@ -215,7 +215,7 @@ class FTPHost(object):
             host._file = ftp_file._FTPFile(host)
         basedir = self.getcwd()
         # Prepare for changing the directory (see whitespace workaround
-        #  in method `_dir`).
+        # in method `_dir`).
         if host.path.isabs(path):
             effective_path = path
         else:
@@ -226,7 +226,7 @@ class FTPHost(object):
             host.chdir(effective_dir)
         except ftp_error.PermanentError:
             # Similarly to a failed `file` in a local filesystem, we
-            #  raise an `IOError`, not an `OSError`.
+            # raise an `IOError`, not an `OSError`.
             raise ftp_error.FTPIOError("remote directory '%s' doesn't exist "
                   "or has insufficient access rights" % effective_dir)
         host._file._open(effective_file, mode)
@@ -251,9 +251,9 @@ class FTPHost(object):
             ftp_error._try_with_oserror(self._session.close)
         finally:
             # If something went wrong before, the host/session is
-            #  probably defunct and subsequent calls to `close` won't
-            #  help either, so we consider the host/session closed for
-            #  practical purposes.
+            # probably defunct and subsequent calls to `close` won't
+            # help either, so we consider the host/session closed for
+            # practical purposes.
             self.stat_cache.clear()
             self._children = []
             self.closed = True
@@ -332,7 +332,7 @@ class FTPHost(object):
         absolute_time_shift = abs(time_shift)
         signum = time_shift / absolute_time_shift
         # Round it to hours. This code should also work for later Python
-        #  versions because of the explicit `int`.
+        # versions because of the explicit `int`.
         absolute_rounded_time_shift = \
           int( (absolute_time_shift + 30*minute) / hour ) * hour
         # Return with correct sign.
@@ -385,7 +385,7 @@ class FTPHost(object):
         """
         helper_file_name = "_ftputil_sync_"
         # Open a dummy file for writing in the current directory
-        #  on the FTP host, then close it.
+        # on the FTP host, then close it.
         try:
             # May raise `FTPIOError` if directory isn't writable.
             file_ = self.file(helper_file_name, 'w')
@@ -395,31 +395,31 @@ class FTPHost(object):
                   '''couldn't write helper file in directory "%s"''' %
                   self.getcwd())
         # If everything worked up to here it should be possible to stat
-        #  and then remove the just-written file.
+        # and then remove the just-written file.
         try:
             server_time = self.path.getmtime(helper_file_name)
             self.unlink(helper_file_name)
         except ftp_error.FTPOSError:
             # If we got a `TimeShiftError` exception above, we should't
-            #  come here: if we did not get a `TimeShiftError` above,
-            #  deletion should be possible. The only reason for an exception
-            #  I can think of here is a race condition by removing write
-            #  permission from the directory or helper file after it has been
-            #  written to.
+            # come here: if we did not get a `TimeShiftError` above,
+            # deletion should be possible. The only reason for an exception
+            # I can think of here is a race condition by removing write
+            # permission from the directory or helper file after it has been
+            # written to.
             raise ftp_error.TimeShiftError(
                   "could write helper file but not unlink it")
         # Calculate the difference between server and client.
         now = time.time()
         time_shift = server_time - now
         # As the time shift for this host instance isn't set yet, the
-        #  directory parser will calculate times one year in the past if
-        #  the time zone of the server is east from ours. Thus the time
-        #  shift will be off by a year as well (see ticket #55).
+        # directory parser will calculate times one year in the past if
+        # the time zone of the server is east from ours. Thus the time
+        # shift will be off by a year as well (see ticket #55).
         if time_shift < -360 * 24 * 60 * 60:
             # Re-add one year and re-calculate the time shift. We don't
-            #  know how many days made up that year (it might have been
-            #  a leap year), so go the route via `time.localtime` and
-            #  `time.mktime`.
+            # know how many days made up that year (it might have been
+            # a leap year), so go the route via `time.localtime` and
+            # `time.mktime`.
             server_time_struct = time.localtime(server_time)
             server_time_struct = (server_time_struct.tm_year+1,) + \
                                  server_time_struct[1:]
@@ -432,11 +432,11 @@ class FTPHost(object):
 
     #
     # Operations based on file-like objects (rather high-level),
-    #  like upload and download
+    # like upload and download
     #
     # This code doesn't complain if the chunk size is passed as a
-    #  positional argument but emits a deprecation warning if `length`
-    #  is used as a keyword argument.
+    # positional argument but emits a deprecation warning if `length`
+    # is used as a keyword argument.
     def copyfileobj(self, source, target,
                     max_chunk_size=file_transfer.MAX_COPY_CHUNK_SIZE,
                     callback=None, **kwargs):
@@ -557,7 +557,7 @@ class FTPHost(object):
         """
         presumable_login_dir = self.getcwd()
         # Bail out with an internal error rather than modify the
-        #  current directory without hope of restoration.
+        # current directory without hope of restoration.
         try:
             self.chdir(presumable_login_dir)
         except ftp_error.PermanentError:
@@ -573,15 +573,16 @@ class FTPHost(object):
         deeply, i. e. change the directory to the end of the path.
         """
         # If we can't change to the yet-current directory, the code
-        #  below won't work (see below), so in this case rather raise
-        #  an exception than giving wrong results.
+        # below won't work (see below), so in this case rather raise
+        # an exception than giving wrong results.
         self._check_inaccessible_login_directory()
         # Some FTP servers don't behave as expected if the directory
-        #  portion of the path contains whitespace; some even yield
-        #  strange results if the command isn't executed in the
-        #  current directory. Therefore, change to the directory
-        #  which contains the item to run the command on and invoke
-        #  the command just there.
+        # portion of the path contains whitespace; some even yield
+        # strange results if the command isn't executed in the
+        # current directory. Therefore, change to the directory
+        # which contains the item to run the command on and invoke
+        # the command just there.
+        #
         # Remember old working directory.
         old_dir = self.getcwd()
         try:
@@ -589,8 +590,8 @@ class FTPHost(object):
                 # Invoke the command in (not: on) the deepest directory.
                 self.chdir(path)
                 # Workaround for some servers that give recursive
-                #  listings when called with a dot as path; see issue #33,
-                #  http://ftputil.sschwarzer.net/trac/ticket/33
+                # listings when called with a dot as path; see issue #33,
+                # http://ftputil.sschwarzer.net/trac/ticket/33
                 return command(self, "")
             else:
                 # Invoke the command in the "next to last" directory.
@@ -614,7 +615,7 @@ class FTPHost(object):
         path = str(path)
         ftp_error._try_with_oserror(self._session.cwd, path)
         # The path given as the argument is relative to the old current
-        #  directory, therefore join them.
+        # directory, therefore join them.
         self._cached_current_dir = \
           self.path.normpath(self.path.join(self._cached_current_dir, path))
 
@@ -647,7 +648,7 @@ class FTPHost(object):
         path = self.path.abspath(path)
         directories = path.split(self.sep)
         # Try to build the directory chain from the "uppermost" to
-        #  the "lowermost" directory.
+        # the "lowermost" directory.
         for index in range(1, len(directories)):
             # Re-insert the separator which got lost by using `path.split`.
             next_directory = self.sep + self.path.join(*directories[:index+1])
@@ -655,9 +656,9 @@ class FTPHost(object):
                 self.mkdir(next_directory)
             except ftp_error.PermanentError:
                 # Find out the cause of the error. Re-raise the
-                #  exception only if the directory didn't exist already,
-                #  else something went _really_ wrong, e. g. we might
-                #  have a regular file with the name of the directory.
+                # exception only if the directory didn't exist already,
+                # else something went _really_ wrong, e. g. we might
+                # have a regular file with the name of the directory.
                 if not self.path.isdir(next_directory):
                     raise
 
@@ -689,11 +690,11 @@ class FTPHost(object):
         path = str(path)
         path = self.path.abspath(path)
         # Though `isfile` includes also links to files, `islink`
-        #  is needed to include links to directories.
+        # is needed to include links to directories.
         if self.path.isfile(path) or self.path.islink(path) or \
            not self.path.exists(path):
             # If the path doesn't exist, let the removal command trigger
-            #  an exception with a more appropriate error message.
+            # an exception with a more appropriate error message.
             def command(self, path):
                 """Callback function."""
                 ftp_error._try_with_oserror(self._session.delete, path)
@@ -739,7 +740,7 @@ class FTPHost(object):
         # Fail early if we get a unicode path which can't be encoded.
         path = str(path)
         # The following code is an adapted version of Python 2.4's
-        #  `shutil.rmtree` function.
+        # `shutil.rmtree` function.
         if ignore_errors:
             def new_onerror(*args):
                 """Do nothing."""
@@ -783,8 +784,8 @@ class FTPHost(object):
         source = str(source)
         target = str(target)
         # The following code is in spirit similar to the code in the
-        #  method `_robust_ftp_command`, though we do _not_ do
-        #  _everything_ imaginable.
+        # method `_robust_ftp_command`, though we do _not_ do
+        # _everything_ imaginable.
         self._check_inaccessible_login_directory()
         source_head, source_tail = self.path.split(source)
         target_head, target_tail = self.path.split(target)
@@ -811,9 +812,9 @@ class FTPHost(object):
             """Directory listing callback."""
             pass
         # It seems that most servers just ignore unknown `LIST`
-        #  options instead of reacting with an error status.
-        #  In such a case, ftputil will subsequently use the `-a`
-        #  option even if it doesn't have any apparent effect.
+        # options instead of reacting with an error status.
+        # In such a case, ftputil will subsequently use the `-a`
+        # option even if it doesn't have any apparent effect.
         try:
             ftp_error._try_with_oserror(self._session.dir, u"-a", self.curdir,
                                         callback)
@@ -823,14 +824,14 @@ class FTPHost(object):
             self._accepts_list_a_option = True
 
     #XXX One could argue to put this method into the `_Stat` class, but
-    #  I refrained from that because then `_Stat` would have to know
-    #  about `FTPHost`'s `_session` attribute and in turn about
-    #  `_session`'s `dir` method.
+    # I refrained from that because then `_Stat` would have to know
+    # about `FTPHost`'s `_session` attribute and in turn about
+    # `_session`'s `dir` method.
     def _dir(self, path):
         """Return a directory listing as made by FTP's `LIST` command."""
         # We can't use `self.path.isdir` in this method because that
-        #  would cause a call of `(l)stat` and thus a call to `_dir`,
-        #  so we would end up with an infinite recursion.
+        # would cause a call of `(l)stat` and thus a call to `_dir`,
+        # so we would end up with an infinite recursion.
         def _FTPHost_dir_command(self, path):
             """Callback function."""
             lines = []
@@ -848,8 +849,8 @@ class FTPHost(object):
         return lines
 
     # The `listdir`, `lstat` and `stat` methods don't use
-    #  `_robust_ftp_command` because they implicitly already use
-    #  `_dir` which actually uses `_robust_ftp_command`.
+    # `_robust_ftp_command` because they implicitly already use
+    # `_dir` which actually uses `_robust_ftp_command`.
     def listdir(self, path):
         """
         Return a list of directories, files etc. in the directory
@@ -904,7 +905,7 @@ class FTPHost(object):
         # Fail early if we get a unicode path which can't be encoded.
         top = str(top)
         # The following code is copied from `os.walk` in Python 2.4
-        #  and adapted to ftputil.
+        # and adapted to ftputil.
         try:
             names = self.listdir(top)
         except ftp_error.FTPOSError, err:
@@ -953,7 +954,7 @@ class FTPHost(object):
     #
     def __enter__(self):
         # Return `self`, so it can be accessed as the variable
-        #  component of the `with` statement.
+        # component of the `with` statement.
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
