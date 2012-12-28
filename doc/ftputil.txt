@@ -336,6 +336,23 @@ Exceptions will be propagated (as with ``try ... finally``).
 
 .. _`with statement`: http://www.python.org/dev/peps/pep-0343/
 
+Hidden files and directories
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Whether ftputil sees "hidden" files and directories (usually files or
+directories whose names start with a dot) depends on the FTP server
+configuration. By default, ftputil uses the ``-a`` option in the FTP
+``LIST`` command to find hidden files. However, the server may ignore
+this.
+
+If using the ``-a`` option leads to problems, for example if an
+FTP server causes an exception, you may switch off the use of the
+option::
+
+    host = ftputil.FTPHost(host, user, password, account,
+                           session_factory=ftplib.FTP)
+    host.use_list_a_option = False
+
 ``FTPHost`` attributes and methods
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -585,20 +602,6 @@ Removing files and links
 
 Retrieving information about directories, files and links
 `````````````````````````````````````````````````````````
-
-Note: Whether ftputil sees "hidden" files (usually directory or
-file names starting with a dot) depends on the FTP server
-configuration. By default, ftputil uses the ``-a`` option in the
-FTP ``LIST`` command to find hidden files. However, the server may
-ignore this.
-
-If using the ``-a`` option causes any problems, for example if an
-FTP server causes an exception if you use the option, you may switch
-using the option off with ``ftp_host_obj.use_list_a_option = False``
-after the instantiation of the ``FTPHost`` object.
-
-These are the methods to retrieve information about directories,
-files and links:
 
 - ``listdir(path)``
 
@@ -1388,17 +1391,7 @@ Bugs and limitations
 
 - Whether ``ftputil`` "sees" "hidden" directory and file names (i. e.
   names starting with a dot) depends on the configuration of the FTP
-  server.
-
-  Up to version 2.6, ftputil used a plain ``LIST`` command to retrieve
-  directory contents. Starting from version 2.7, ftputil uses ``LIST
-  -a`` if the server doesn't explicitly reject it with an error reply.
-  (The check was removed in ftputil 2.8.)
-
-  Hence, ftputil 2.7 *may* "see" more entries than previous versions.
-  Again, this depends on the server configuration. For example, the
-  server may be configured not to show "hidden" files regardless of
-  the use of the ``-a`` option.
+  server. See `Hidden files and directories`_ for details.
 
 - Due to the implementation of ``lstat`` it can not return a sensible
   value for the root directory ``/`` though stat'ing entries *in* the
