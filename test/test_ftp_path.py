@@ -35,6 +35,7 @@ class TestPath(unittest.TestCase):
         self.assertFalse(host.path.isdir('notthere'))
         self.assertFalse(host.path.isfile('notthere'))
         self.assertFalse(host.path.islink('notthere'))
+        #  This checks additional code (see ticket #66).
         self.assertFalse(host.path.isdir('/notthere/notthere'))
         self.assertFalse(host.path.isfile('/notthere/notthere'))
         self.assertFalse(host.path.islink('/notthere/notthere'))

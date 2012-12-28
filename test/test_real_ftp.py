@@ -418,6 +418,8 @@ class TestStat(RealFTPTest):
 
     def test_issomething_for_nonexistent_directory(self):
         host = self.host
+        # Check if we get the right results if even the containing directory
+        # doesn't exist (see ticket #66).
         nonexistent_path = "/nonexistent/nonexistent"
         self.assertEqual(bool(host.path.isdir(nonexistent_path)), False)
         self.assertEqual(bool(host.path.isfile(nonexistent_path)), False)
