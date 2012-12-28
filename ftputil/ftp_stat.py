@@ -298,8 +298,14 @@ class UnixParser(Parser):
 
         If the line can't be parsed, raise a `ParserError`.
         """
-        mode_string, nlink, user, group, size, month, day, \
-          year_or_time, name = self._split_line(line)
+        try:
+            mode_string, nlink, user, group, size, month, day, \
+              year_or_time, name = self._split_line(line)
+        # We can get a `ValueError` here if the name is blank (see
+        # ticket #69). This is a strange use case, but at least we
+        # should raise the exception the docstring mentions.
+        except ValueError, exc:
+            raise ftp_error.ParserError(str(exc))
         # st_mode
         st_mode = self.parse_unix_mode(mode_string)
         # st_ino, st_dev, st_nlink, st_uid, st_gid, st_size, st_atime
