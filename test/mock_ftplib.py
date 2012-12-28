@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2009, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2012, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 """
@@ -82,43 +82,10 @@ class MockSession(object):
     # Used by `MockSession.cwd` and `MockSession.pwd`
     current_dir = '/home/sschwarzer'
 
-    # Used by `MockSession.dir`
-    dir_contents = {
-      '/': """\
-drwxr-xr-x   2 45854    200           512 May  4  2000 home""",
-
-      '/home': """\
-drwxr-sr-x   2 45854    200           512 May  4  2000 sschwarzer
--rw-r--r--   1 45854    200          4605 Jan 19  1970 older
--rw-r--r--   1 45854    200          4605 Jan 19  2020 newer
-lrwxrwxrwx   1 45854    200            21 Jan 19  2002 link -> sschwarzer/index.html
-lrwxrwxrwx   1 45854    200            15 Jan 19  2002 bad_link -> python/bad_link
-drwxr-sr-x   2 45854    200           512 May  4  2000 dir with spaces""",
-
-      '/home/python': """\
-lrwxrwxrwx   1 45854    200             7 Jan 19  2002 link_link -> ../link
-lrwxrwxrwx   1 45854    200            14 Jan 19  2002 bad_link -> /home/bad_link""",
-
-      '/home/sschwarzer': """\
-total 14
-drwxr-sr-x   2 45854    200           512 May  4  2000 chemeng
-drwxr-sr-x   2 45854    200           512 Jan  3 17:17 download
-drwxr-sr-x   2 45854    200           512 Jul 30 17:14 image
--rw-r--r--   1 45854    200          4604 Jan 19 23:11 index.html
-drwxr-sr-x   2 45854    200           512 May 29  2000 os2
-lrwxrwxrwx   2 45854    200             6 May 29  2000 osup -> ../os2
-drwxr-sr-x   2 45854    200           512 May 25  2000 publications
-drwxr-sr-x   2 45854    200           512 Jan 20 16:12 python
-drwxr-sr-x   6 45854    200           512 Sep 20  1999 scios2""",
-
-      '/home/dir with spaces': """\
-total 1
--rw-r--r--   1 45854    200          4604 Jan 19 23:11 file with spaces""",
-
-      # Fail when trying to write to this directory (the content isn't
-      # relevant).
-      'sschwarzer': "",
-    }
+    # Used by `MockSession.dir`. This is a mapping from absolute path
+    # to the multi-line string that would show up in an FTP
+    # command-line client for this directory.
+    dir_contents = {}
 
     # File content to be used (indirectly) with `transfercmd`.
     mock_file_content = ''
@@ -209,6 +176,46 @@ total 1
         if not self.closed:
             self.closed = 1
             assert self._transfercmds == 0
+
+
+class MockUnixSession(MockSession):
+
+    dir_contents = {
+      '/': """\
+drwxr-xr-x   2 45854    200           512 May  4  2000 home""",
+
+      '/home': """\
+drwxr-sr-x   2 45854    200           512 May  4  2000 sschwarzer
+-rw-r--r--   1 45854    200          4605 Jan 19  1970 older
+-rw-r--r--   1 45854    200          4605 Jan 19  2020 newer
+lrwxrwxrwx   1 45854    200            21 Jan 19  2002 link -> sschwarzer/index.html
+lrwxrwxrwx   1 45854    200            15 Jan 19  2002 bad_link -> python/bad_link
+drwxr-sr-x   2 45854    200           512 May  4  2000 dir with spaces""",
+
+      '/home/python': """\
+lrwxrwxrwx   1 45854    200             7 Jan 19  2002 link_link -> ../link
+lrwxrwxrwx   1 45854    200            14 Jan 19  2002 bad_link -> /home/bad_link""",
+
+      '/home/sschwarzer': """\
+total 14
+drwxr-sr-x   2 45854    200           512 May  4  2000 chemeng
+drwxr-sr-x   2 45854    200           512 Jan  3 17:17 download
+drwxr-sr-x   2 45854    200           512 Jul 30 17:14 image
+-rw-r--r--   1 45854    200          4604 Jan 19 23:11 index.html
+drwxr-sr-x   2 45854    200           512 May 29  2000 os2
+lrwxrwxrwx   2 45854    200             6 May 29  2000 osup -> ../os2
+drwxr-sr-x   2 45854    200           512 May 25  2000 publications
+drwxr-sr-x   2 45854    200           512 Jan 20 16:12 python
+drwxr-sr-x   6 45854    200           512 Sep 20  1999 scios2""",
+
+      '/home/dir with spaces': """\
+total 1
+-rw-r--r--   1 45854    200          4604 Jan 19 23:11 file with spaces""",
+
+      # Fail when trying to write to this directory (the content isn't
+      # relevant).
+      'sschwarzer': "",
+    }
 
 
 class MockMSFormatSession(MockSession):

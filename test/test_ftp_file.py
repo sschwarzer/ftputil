@@ -11,15 +11,15 @@ from test import test_base
 
 
 #
-# Several customized `MockSession` classes
+# Several customized `MockUnixSession` classes
 #
-class ReadMockSession(mock_ftplib.MockSession):
+class ReadMockSession(mock_ftplib.MockUnixSession):
     mock_file_content = 'line 1\r\nanother line\r\nyet another line'
 
-class AsciiReadMockSession(mock_ftplib.MockSession):
+class AsciiReadMockSession(mock_ftplib.MockUnixSession):
     mock_file_content = '\r\n'.join(map(str, range(20)))
 
-class InaccessibleDirSession(mock_ftplib.MockSession):
+class InaccessibleDirSession(mock_ftplib.MockUnixSession):
     _login_dir = '/inaccessible'
 
     def pwd(self):
@@ -29,7 +29,7 @@ class InaccessibleDirSession(mock_ftplib.MockSession):
         if dir in (self._login_dir, self._login_dir + '/'):
             raise ftplib.error_perm
         else:
-            mock_ftplib.MockSession.cwd(self, dir)
+            mock_ftplib.MockUnixSession.cwd(self, dir)
 
 
 class TestFileOperations(unittest.TestCase):

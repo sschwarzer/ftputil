@@ -270,7 +270,7 @@ class TestLstatAndStat(unittest.TestCase):
         # Most tests in this class need the mock session class with
         # Unix format, so make this the default. Tests which need
         # the MS format, can overwrite `self.stat` later.
-        self.stat = test_stat(session_factory=mock_ftplib.MockSession)
+        self.stat = test_stat(session_factory=mock_ftplib.MockUnixSession)
 
     def test_failing_lstat(self):
         """Test whether lstat fails for a nonexistent path."""
@@ -400,7 +400,7 @@ class TestListdir(unittest.TestCase):
     """Test `FTPHost.listdir`."""
 
     def setUp(self):
-        self.stat = test_stat(session_factory=mock_ftplib.MockSession)
+        self.stat = test_stat(session_factory=mock_ftplib.MockUnixSession)
 
     def test_failing_listdir(self):
         """Test failing `FTPHost.listdir`."""

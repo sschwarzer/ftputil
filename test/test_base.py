@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2012, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 import ftputil
@@ -7,8 +7,8 @@ from test import mock_ftplib
 
 
 # Factory to produce `FTPHost`-like classes from a given `FTPHost`
-# class and a given `MockSession` class.
-def ftp_host_factory(session_factory=mock_ftplib.MockSession,
+# class and (usually) a given `MockSession` class.
+def ftp_host_factory(session_factory=mock_ftplib.MockUnixSession,
                      ftp_host_class=ftputil.FTPHost):
     return ftp_host_class('dummy_host', 'dummy_user', 'dummy_password',
                           session_factory=session_factory)
