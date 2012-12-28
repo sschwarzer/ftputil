@@ -9,6 +9,7 @@ from ftputil import ftp_error
 
 
 class TestFTPErrorArguments(unittest.TestCase):
+
     def test_bytestring_argument(self):
         # An umlaut as latin-1 character
         os_error = ftp_error.FTPOSError("\xe4")
@@ -19,6 +20,7 @@ class TestFTPErrorArguments(unittest.TestCase):
 
 
 class TestTryWithFTPError(unittest.TestCase):
+
     def callee(self):
         raise ftplib.error_perm()
 
@@ -47,4 +49,3 @@ class TestTryWithFTPError(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
