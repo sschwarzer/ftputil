@@ -45,13 +45,13 @@ def binary_data():
 
 
 #
-# Several customized `MockSession` classes
+# Several customized `MockUnixSession` classes
 #
-class FailOnLoginSession(mock_ftplib.MockSession):
+class FailOnLoginSession(mock_ftplib.MockUnixSession):
     def __init__(self, host='', user='', password=''):
         raise ftplib.error_perm
 
-class FailOnKeepAliveSession(mock_ftplib.MockSession):
+class FailOnKeepAliveSession(mock_ftplib.MockUnixSession):
     def dir(self, *args):
         # Implicitly called by `_check_list_a_option`, otherwise unused.
         pass
@@ -64,7 +64,7 @@ class FailOnKeepAliveSession(mock_ftplib.MockSession):
             raise ftplib.error_temp
 
 
-class RecursiveListingForDotAsPathSession(mock_ftplib.MockSession):
+class RecursiveListingForDotAsPathSession(mock_ftplib.MockUnixSession):
     dir_contents = {
       ".": """\
 lrwxrwxrwx   1 staff          7 Aug 13  2003 bin -> usr/bin
@@ -95,10 +95,10 @@ d--x--x--x   5 staff        512 Oct  3  2000 usr"""}
     def _transform_path(self, path):
         return path
 
-class BinaryDownloadMockSession(mock_ftplib.MockSession):
+class BinaryDownloadMockSession(mock_ftplib.MockUnixSession):
     mock_file_content = binary_data()
 
-class TimeShiftMockSession(mock_ftplib.MockSession):
+class TimeShiftMockSession(mock_ftplib.MockUnixSession):
     def delete(self, file_name):
         pass
 
