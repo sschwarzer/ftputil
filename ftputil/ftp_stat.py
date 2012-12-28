@@ -345,24 +345,6 @@ class UnixParser(Parser):
         return stat_result
 
 
-class TolerantUnixParser(UnixParser):
-    """
-    This parser ignores invalid lines which would otherwise abort
-    parsing of a directory listing with a `ParserError`.
-    """
-
-    def ignores_line(self, line):
-        if super(TolerantUnixParser, self).ignores_line(line):
-            return True
-        try:
-            # Time shift shouldn't be of interest here.
-            self.parse_line(line)
-        except ftp_error.ParserError:
-            return True
-        else:
-            return False
-
-
 class MSParser(Parser):
     """`Parser` class for MS-specific directory format."""
 
