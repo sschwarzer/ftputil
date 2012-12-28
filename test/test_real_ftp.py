@@ -803,12 +803,17 @@ class TestOther(RealFTPTest):
         host.chdir("rootdir1")
         self.assertRaises(ftp_error.TimeShiftError, host.synchronize_times)
 
-    def test_probing_of_list_a_option(self):
-        # Test probing of `LIST -a` option (ticket #63, comment 12).
+    def test_list_a_option(self):
+        # For this test to pass, the server must _not_ list "hidden"
+        # files by default but instead only when the `LIST` `-a`
+        # option is used.
         host = self.host
-        self.assertTrue(host._accepts_list_a_option)
+        self.assertTrue(host.use_list_a_option)
         directory_entries = host.listdir(host.curdir)
         self.assertTrue(".hidden" in directory_entries)
+        host.use_list_a_option = False
+        directory_entries = host.listdir(host.curdir)
+        self.assertFalse(".hidden" in directory_entries)
 
     def _make_objects_to_be_garbage_collected(self):
         for i in xrange(10):

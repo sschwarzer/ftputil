@@ -111,24 +111,21 @@ class FTPHost(object):
           ftp_error._try_with_oserror(self._session.pwd)
         # Associated `FTPHost` objects for data transfer.
         self._children = []
-        # This is only set to something else than `None` if this instance
-        # represents an `_FTPFile`.
+        # This is only set to something else than `None` if this
+        # instance represents an `_FTPFile`.
         self._file = None
         # Now opened.
         self.closed = False
         # Set curdir, pardir etc. for the remote host. RFC 959 states
         # that this is, strictly speaking, dependent on the server OS
-        # but it seems to work at least with Unix and Windows
-        # servers.
+        # but it seems to work at least with Unix and Windows servers.
         self.curdir, self.pardir, self.sep = '.', '..', '/'
         # Set default time shift (used in `upload_if_newer` and
         # `download_if_newer`).
         self.set_time_shift(0.0)
-        # Check if the server accepts the `-a` option for the `LIST`
-        # command. If yes, always use it to tell the server to show
-        # directory and file names with a leading dot.
-        self._accepts_list_a_option = False
-        self._check_list_a_option()
+        # Use `LIST -a` option by default. If this causes problems,
+        # the user can set the attribute to `False`.
+        self.use_list_a_option = True
 
     def keep_alive(self):
         """
@@ -803,26 +800,6 @@ class FTPHost(object):
             # Use straightforward command.
             ftp_error._try_with_oserror(self._session.rename, source, target)
 
-    def _check_list_a_option(self):
-        """Check for support of the `-a` option for the `LIST` command.
-        If the option is available, use it for all further directory
-        listing requests.
-        """
-        def callback(line):
-            """Directory listing callback."""
-            pass
-        # It seems that most servers just ignore unknown `LIST`
-        # options instead of reacting with an error status.
-        # In such a case, ftputil will subsequently use the `-a`
-        # option even if it doesn't have any apparent effect.
-        try:
-            ftp_error._try_with_oserror(self._session.dir, u"-a", self.curdir,
-                                        callback)
-        except ftp_error.PermanentError:
-            self._accepts_list_a_option = False
-        else:
-            self._accepts_list_a_option = True
-
     #XXX One could argue to put this method into the `_Stat` class, but
     # I refrained from that because then `_Stat` would have to know
     # about `FTPHost`'s `_session` attribute and in turn about
@@ -838,7 +815,7 @@ class FTPHost(object):
             def callback(line):
                 """Callback function."""
                 lines.append(line)
-            if self._accepts_list_a_option:
+            if self.use_list_a_option:
                 args = (self._session.dir, u"-a", path, callback)
             else:
                 args = (self._session.dir, path, callback)
