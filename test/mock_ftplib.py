@@ -178,7 +178,7 @@ class MockSession(object):
             assert self._transfercmds == 0
 
 
-class MockUnixSession(MockSession):
+class MockUnixFormatSession(MockSession):
 
     dir_contents = {
       '/': """\

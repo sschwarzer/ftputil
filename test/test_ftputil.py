@@ -98,7 +98,7 @@ d--x--x--x   5 staff        512 Oct  3  2000 usr"""}
         return path
 
 
-class BinaryDownloadMockSession(mock_ftplib.MockUnixSession):
+class BinaryDownloadMockSession(mock_ftplib.MockUnixFormatSession):
     mock_file_content = binary_data()
 
 

@@ -8,7 +8,7 @@ from test import mock_ftplib
 
 # Factory to produce `FTPHost`-like classes from a given `FTPHost`
 # class and (usually) a given `MockSession` class.
-def ftp_host_factory(session_factory=mock_ftplib.MockUnixSession,
+def ftp_host_factory(session_factory=mock_ftplib.MockUnixFormatSession,
                      ftp_host_class=ftputil.FTPHost):
     return ftp_host_class('dummy_host', 'dummy_user', 'dummy_password',
                           session_factory=session_factory)
