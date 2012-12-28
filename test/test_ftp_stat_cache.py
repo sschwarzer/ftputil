@@ -11,6 +11,7 @@ from test import test_base
 
 
 class TestStatCache(unittest.TestCase):
+
     def setUp(self):
         self.cache = ftp_stat_cache.StatCache()
 
@@ -98,4 +99,3 @@ class TestStatCache(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
