@@ -401,13 +401,13 @@ class TestStat(RealFTPTest):
         # Do some stats
         # - dir
         self.assertEqual(host.listdir(dir_name), ["_nonempty_"])
-        self.assertEqual(bool(host.path.isdir(dir_name)), True)
-        self.assertEqual(bool(host.path.isfile(dir_name)), False)
-        self.assertEqual(bool(host.path.islink(dir_name)), False)
+        self.assertTrue(host.path.isdir(dir_name))
+        self.assertFalse(host.path.isfile(dir_name))
+        self.assertFalse(host.path.islink(dir_name))
         # - file
-        self.assertEqual(bool(host.path.isdir(file_name)), False)
-        self.assertEqual(bool(host.path.isfile(file_name)), True)
-        self.assertEqual(bool(host.path.islink(file_name)), False)
+        self.assertFalse(host.path.isdir(file_name))
+        self.assertTrue(host.path.isfile(file_name))
+        self.assertFalse(host.path.islink(file_name))
         self.assertEqual(host.path.getsize(file_name), 9)
         # - file's modification time; allow up to two minutes difference
         host.synchronize_times()
@@ -421,9 +421,9 @@ class TestStat(RealFTPTest):
         # Check if we get the right results if even the containing directory
         # doesn't exist (see ticket #66).
         nonexistent_path = "/nonexistent/nonexistent"
-        self.assertEqual(bool(host.path.isdir(nonexistent_path)), False)
-        self.assertEqual(bool(host.path.isfile(nonexistent_path)), False)
-        self.assertEqual(bool(host.path.islink(nonexistent_path)), False)
+        self.assertFalse(host.path.isdir(nonexistent_path))
+        self.assertFalse(host.path.isfile(nonexistent_path))
+        self.assertFalse(host.path.islink(nonexistent_path))
 
 #    def test_special_broken_link(self):
 #        # Test for ticket #39
@@ -433,9 +433,9 @@ class TestStat(RealFTPTest):
 #        broken_link_name = os.path.join("dir_with_broken_link", "nonexistent")
 #        self.assertEqual(host.lstat(broken_link_name)._st_target,
 #                         "../nonexistent/nonexistent")
-#        self.assertEqual(bool(host.path.isdir(broken_link_name)), False)
-#        self.assertEqual(bool(host.path.isfile(broken_link_name)), False)
-#        self.assertEqual(bool(host.path.islink(broken_link_name)), True)
+#        self.assertFalse(host.path.isdir(broken_link_name))
+#        self.assertFalse(host.path.isfile(broken_link_name))
+#        self.assertTrue(host.path.islink(broken_link_name))
 
     def test_concurrent_access(self):
         self.make_file("_testfile_")
