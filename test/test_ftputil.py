@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2012, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 import ftplib
@@ -45,13 +45,14 @@ def binary_data():
 
 
 #
-# Several customized `MockUnixSession` classes
+# Several customized `MockSession` classes
 #
-class FailOnLoginSession(mock_ftplib.MockUnixSession):
+class FailOnLoginSession(mock_ftplib.MockSession):
     def __init__(self, host='', user='', password=''):
         raise ftplib.error_perm
 
-class FailOnKeepAliveSession(mock_ftplib.MockUnixSession):
+
+class FailOnKeepAliveSession(mock_ftplib.MockSession):
     def dir(self, *args):
         # Implicitly called by `_check_list_a_option`, otherwise unused.
         pass
@@ -64,7 +65,8 @@ class FailOnKeepAliveSession(mock_ftplib.MockUnixSession):
             raise ftplib.error_temp
 
 
-class RecursiveListingForDotAsPathSession(mock_ftplib.MockUnixSession):
+class RecursiveListingForDotAsPathSession(mock_ftplib.MockSession):
+
     dir_contents = {
       ".": """\
 lrwxrwxrwx   1 staff          7 Aug 13  2003 bin -> usr/bin
@@ -95,10 +97,12 @@ d--x--x--x   5 staff        512 Oct  3  2000 usr"""}
     def _transform_path(self, path):
         return path
 
+
 class BinaryDownloadMockSession(mock_ftplib.MockUnixSession):
     mock_file_content = binary_data()
 
-class TimeShiftMockSession(mock_ftplib.MockUnixSession):
+
+class TimeShiftMockSession(mock_ftplib.MockSession):
     def delete(self, file_name):
         pass
 
@@ -112,6 +116,7 @@ class FailingUploadAndDownloadFTPHost(ftputil.FTPHost):
 
     def download(self, source, target, mode=''):
         assert False, "`FTPHost.download` should not have been called"
+
 
 class TimeShiftFTPHost(ftputil.FTPHost):
     class _Path:
