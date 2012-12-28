@@ -348,12 +348,12 @@ class FTPHost(object):
         hour = 60.0 * minute
         absolute_rounded_time_shift = abs(self.__rounded_time_shift(time_shift))
         # Test 1: Fail if the absolute time shift is greater than
-        #  a full day (24 hours).
+        #         a full day (24 hours).
         if absolute_rounded_time_shift > 24 * hour:
             raise ftp_error.TimeShiftError(
                   "time shift abs(%.2f s) > 1 day" % time_shift)
         # Test 2: Fail if the deviation between given time shift and
-        #  full hours is greater than a certain limit.
+        #         full hours is greater than a certain limit.
         maximum_deviation = 5 * minute
         if abs(time_shift - self.__rounded_time_shift(time_shift)) > \
            maximum_deviation:
