@@ -1409,7 +1409,7 @@ Bugs and limitations
   streams in FTP sessions.
 
 - Currently, it is not possible to continue an interrupted upload or
-  download. Contact me if you have problems with that.
+  download. Contact me if this causes problems for you.
 
 - There's exactly one cache for lstat results for each ``FTPHost``
   object, i. e. there's no sharing of cache results determined by
