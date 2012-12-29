@@ -17,7 +17,7 @@ import os
 import shutil
 
 from ftputil import FTPHost
-import ftp_error
+from ftputil import ftp_error
 
 __all__ = ['FTPHost', 'LocalHost', 'Syncer']
 
