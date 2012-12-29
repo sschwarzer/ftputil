@@ -18,9 +18,9 @@ What's new?
 Since version 2.7.1 the following changed:
 
 - After some discussion [1] I decided to remove the auto-probing
-  before using the `-a` option for `LIST` [2]. The option is used by
-  default now, without probing for exceptions. If this new approach
-  causes problems, you can use
+  before using the `-a` option for `LIST` [2] to find "hidden" files
+  and directories. The option is used by default now, without probing
+  for exceptions. If this new approach causes problems, you can use
 
     ftp_host = ftputil.FTPHost(...)
     ftp_host.use_list_a_option = False
