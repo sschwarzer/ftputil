@@ -10,7 +10,6 @@ ftp_error.py - exception classes and wrappers
 
 import ftplib
 import sys
-import warnings
 
 from ftputil import ftputil_version
 
