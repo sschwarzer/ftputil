@@ -17,7 +17,26 @@ What's new?
 
 Since version 2.7.1 the following changed:
 
-- An installation problem was fixed.
+- After some discussion [1] I decided to remove the auto-probing
+  before using the `-a` option for `LIST` [2]. The option is used by
+  default now, without probing for exceptions. If this new approach
+  causes problems, you can use
+
+    ftp_host = ftputil.FTPHost(...)
+    ftp_host.use_list_a_option = False
+
+- Several bugs were fixed. [3]
+
+- The mailing lists have moved to
+
+    ftputil@lists.sschwarzer.net
+    ftputil-tickets@lists.sschwarzer.net
+
+  The first list requires a subscription before you can post. The
+  second list is read-only anway.
+
+  Thanks to Codespeak.net for having hosted the lists for almost
+  ten years. :-)
 
 Documentation
 -------------
@@ -96,9 +115,10 @@ Evan Prodromou <evan@bad.dynu.ca> (lrucache module)
 Please provide feedback! It's certainly appreciated. :-)
 
 
-[1] http://ftputil.sschwarzer.net/trac/ticket/23
-[2] http://ftputil.sschwarzer.net/trac/ticket/23#comment:4
-[3] http://codespeak.net/mailman/listinfo/ftputil
-    (note that you need to subscribe to the list to be able to post there)
-[4] sschwarzer@sschwarzer.net
-[5] http://ftputil.sschwarzer.net/trac/ticket/62
+[1] http://ftputil.sschwarzer.net/trac/ticket/65
+[2] http://lists.sschwarzer.net/pipermail/ftputil/2012q3/000350.html
+[3] http://ftputil.sschwarzer.net/trac/ticket/39
+    http://ftputil.sschwarzer.net/trac/ticket/65
+    http://ftputil.sschwarzer.net/trac/ticket/66
+    http://ftputil.sschwarzer.net/trac/ticket/67
+    http://ftputil.sschwarzer.net/trac/ticket/69
