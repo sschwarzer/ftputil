@@ -5,9 +5,9 @@ Changes since version 2.7.1
 ---------------------------
 
 - After some discussion [1] I decided to remove the auto-probing
-  before using the `-a` option for `LIST` [2]. The option is used by
-  default now, without probing for exceptions. If this new approach
-  causes problems, you can use
+  before using the `-a` option for `LIST` [2] to find "hidden" files
+  and directories. The option is used by default now, without probing
+  for exceptions. If this new approach causes problems, you can use
 
     ftp_host = ftputil.FTPHost(...)
     ftp_host.use_list_a_option = False
@@ -235,7 +235,7 @@ Changes since version 2.4.1
 
 - The installation script ``setup.py`` didn't work with the ``--home``
   option because it still tried to install the documentation in a
-  system directory (report by Albrecht Mühlenschulte).
+  system directory (report by Albrecht MÃ¼hlenschulte).
 
   As a side effect, when using the *global* installation, the
   documentation is no longer installed in the ftputil package
@@ -471,7 +471,7 @@ Changes since version 2.2.1
 ---------------------------
 
 This bugfix release handles whitespace in path names more reliably
-(thanks to Johannes Strömberg). Upgrading is recommended.
+(thanks to Johannes StrÃ¶mberg). Upgrading is recommended.
 
 What is ftputil?
 ----------------
@@ -666,7 +666,7 @@ Changes since version 2.0
 
 - Border cases like inaccessible login directories and whitespace in
   directory names, are now handled more gracefully (based on input
-  from Valeriy Pogrebitskiy, Tommy Sundström and H. Y. Chu).
+  from Valeriy Pogrebitskiy, Tommy SundstrÃ¶m and H. Y. Chu).
 
 - The documentation was updated.
 
@@ -754,7 +754,7 @@ From version 1.1 to 2.0, the following has changed:
   files and directories"
 
 - added a workaround regarding whitespace in directory names (thanks
-  to Tommy Sundström and H. Y. Chu)
+  to Tommy SundstrÃ¶m and H. Y. Chu)
 
 - extended documentation and converted it to HTML format (now
   generated from reStructured Text)
