@@ -112,16 +112,6 @@ class TimeShiftMockSession(mock_ftplib.MockSession):
     def delete(self, file_name):
         pass
 
-
-class MockSessionWithBlankFileName(mock_ftplib.MockUnixFormatSession):
-
-    dir_contents = {
-      "/": """\
--rwxr-xr-x   2 45854    200           512 May  4  2000 file1
--rwxr-xr-x   2 45854    200           512 May  4  2000
--rwxr-xr-x   2 45854    200           512 May  4  2000 file2"""
-    }
-
 #
 # Customized `FTPHost` class for conditional upload/download tests
 # and time shift tests
@@ -225,18 +215,6 @@ class TestSetParser(unittest.TestCase):
         stat_result = host.stat("/home")
         self.assertEqual(stat_result, trivial_parser.default_stat_result)
         self.assertEqual(host._stat._allow_parser_switching, False)
-
-
-    class TolerantUnixParser(ftp_stat.UnixParser):
-
-        should_ignore_invalid_lines = True
-
-    def test_should_ignore_invalid_lines(self):
-        host = test_base.ftp_host_factory(
-               session_factory=MockSessionWithBlankFileName)
-        host.set_parser(TestSetParser.TolerantUnixParser())
-        files = host.listdir("/")
-        self.assertEqual(files, ["file1", "file2"])
 
 
 class TestCommandNotImplementedError(unittest.TestCase):
