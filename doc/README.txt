@@ -103,7 +103,7 @@ License
 
 ftputil is Open Source Software. It is distributed under the
 new/modified/revised BSD license (see
-http://www.opensource.org/licenses/bsd-license.html ).
+http://opensource.org/licenses/BSD-3-Clause ).
 
 Authors
 -------
