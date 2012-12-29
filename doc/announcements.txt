@@ -1,10 +1,29 @@
-ftputil 2.7.1 is now available from
+ftputil 2.8 beta is now available from
 http://ftputil.sschwarzer.net/download .
 
 Changes since version 2.7.1
 ---------------------------
 
-A packaging problem was fixed. [1]
+- After some discussion [1] I decided to remove the auto-probing
+  before using the `-a` option for `LIST` [2]. The option is used by
+  default now, without probing for exceptions. If this new approach
+  causes problems, you can use
+
+    ftp_host = ftputil.FTPHost(...)
+    ftp_host.use_list_a_option = False
+
+- Several bugs were fixed. [3]
+
+- The mailing lists have moved to
+
+    ftputil@lists.sschwarzer.net
+    ftputil-tickets@lists.sschwarzer.net
+
+  The first list requires a subscription before you can post. The
+  second list is read-only anway.
+
+  Thanks to Codespeak.net for having hosted the lists for almost
+  ten years. :-)
 
 What is ftputil?
 ----------------
@@ -26,7 +45,13 @@ License
 ftputil is Open Source software, released under the revised BSD
 license (see http://www.opensource.org/licenses/bsd-license.php ).
 
-[1] http://ftputil.sschwarzer.net/trac/ticket/64
+[1] http://ftputil.sschwarzer.net/trac/ticket/65
+[2] http://lists.sschwarzer.net/pipermail/ftputil/2012q3/000350.html
+[3] http://ftputil.sschwarzer.net/trac/ticket/39
+    http://ftputil.sschwarzer.net/trac/ticket/65
+    http://ftputil.sschwarzer.net/trac/ticket/66
+    http://ftputil.sschwarzer.net/trac/ticket/67
+    http://ftputil.sschwarzer.net/trac/ticket/69
 
 Stefan
 
