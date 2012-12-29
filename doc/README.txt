@@ -33,7 +33,7 @@ Since version 2.7.1 the following changed:
     ftputil-tickets@lists.sschwarzer.net
 
   The ftputil list [4] requires a subscription before you can post.
-  The ftputil-tickets list [5] is read-only anway.
+  The ftputil-tickets list [5] is read-only anyway.
 
   Thanks to Codespeak.net for having hosted the lists for almost
   ten years. :-)
