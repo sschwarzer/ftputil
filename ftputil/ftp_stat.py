@@ -57,10 +57,6 @@ class Parser(object):
     directory formats inherit from this class.
     """
 
-    # Set this to `True` if ftputil should ignore directory lines that
-    # result in a `ParserError`.
-    should_ignore_invalid_lines = False
-
     # Map month abbreviations to month numbers.
     _month_numbers = {
       'jan':  1, 'feb':  2, 'mar':  3, 'apr':  4,
@@ -447,14 +443,8 @@ class _Stat(object):
             # For `listdir`, we are interested in just the names,
             # but we use the `time_shift` parameter to have the
             # correct timestamp values in the cache.
-            try:
-                stat_result = self._parser.parse_line(line,
-                                                      self._host.time_shift())
-            except ftp_error.ParserError:
-                if self._parser.should_ignore_invalid_lines:
-                    continue
-                else:
-                    raise
+            stat_result = self._parser.parse_line(line,
+                                                  self._host.time_shift())
             if stat_result._st_name in [self._host.curdir, self._host.pardir]:
                 continue
             loop_path = self._path.join(path, stat_result._st_name)
