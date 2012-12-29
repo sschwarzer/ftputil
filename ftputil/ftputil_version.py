@@ -5,7 +5,7 @@ import sys
 
 
 # ftputil version number; substituted by `make patch`
-__version__ = '2.7.1'
+__version__ = '2.8b'
 
 _ftputil_version = __version__
 _python_version = sys.version.split()[0]
