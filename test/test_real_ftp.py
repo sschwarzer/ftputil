@@ -425,17 +425,15 @@ class TestStat(RealFTPTest):
         self.assertFalse(host.path.isfile(nonexistent_path))
         self.assertFalse(host.path.islink(nonexistent_path))
 
-#    def test_special_broken_link(self):
-#        # Test for ticket #39
-#        # This test currently fails; I guess I'll postpone it until
-#        #  at least ftputil 2.5
-#        host = self.host
-#        broken_link_name = os.path.join("dir_with_broken_link", "nonexistent")
-#        self.assertEqual(host.lstat(broken_link_name)._st_target,
-#                         "../nonexistent/nonexistent")
-#        self.assertFalse(host.path.isdir(broken_link_name))
-#        self.assertFalse(host.path.isfile(broken_link_name))
-#        self.assertTrue(host.path.islink(broken_link_name))
+    def test_special_broken_link(self):
+        # Test for ticket #39
+        host = self.host
+        broken_link_name = os.path.join("dir_with_broken_link", "nonexistent")
+        self.assertEqual(host.lstat(broken_link_name)._st_target,
+                         "../nonexistent/nonexistent")
+        self.assertFalse(host.path.isdir(broken_link_name))
+        self.assertFalse(host.path.isfile(broken_link_name))
+        self.assertTrue(host.path.islink(broken_link_name))
 
     def test_concurrent_access(self):
         self.make_file("_testfile_")
