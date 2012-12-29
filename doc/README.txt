@@ -32,8 +32,8 @@ Since version 2.7.1 the following changed:
     ftputil@lists.sschwarzer.net
     ftputil-tickets@lists.sschwarzer.net
 
-  The first list requires a subscription before you can post. The
-  second list is read-only anway.
+  The ftputil list [4] requires a subscription before you can post.
+  The ftputil-tickets list [5] is read-only anway.
 
   Thanks to Codespeak.net for having hosted the lists for almost
   ten years. :-)
@@ -122,3 +122,5 @@ Please provide feedback! It's certainly appreciated. :-)
     http://ftputil.sschwarzer.net/trac/ticket/66
     http://ftputil.sschwarzer.net/trac/ticket/67
     http://ftputil.sschwarzer.net/trac/ticket/69
+[4] http://lists.sschwarzer.net/listinfo/ftputil
+[5] http://lists.sschwarzer.net/listinfo/ftputil-tickets
