@@ -1425,7 +1425,7 @@ reside in the ``ftputil`` package. The documentation in
 
 .. _`reStructuredText`: http://docutils.sourceforge.net/rst.html
 
-The files ``_test_*.py`` and ``_mock_ftplib.py`` are for unit-testing.
+The files ``test_*.py`` and ``mock_ftplib.py`` are for unit-testing.
 If you only *use* ``ftputil``, i. e. *don't* modify it, you can
 delete these files.
 
