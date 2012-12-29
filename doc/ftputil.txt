@@ -1359,7 +1359,7 @@ presumable line endings and thus corrupt binary files. Pass "b" as the
 When I use ``ftputil``, all I get is a ``ParserError`` exception
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The FTP server you connect to uses a directory format that
+The FTP server you connect to may use a directory format that
 ``ftputil`` doesn't understand. You can either write and
 `plug in an own parser`_, or preferably ask on the `mailing list`_ for
 help.
