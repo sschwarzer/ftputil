@@ -30,9 +30,11 @@ Things to do for a new release:
 
 Only for non-alpha/beta releases:
 
-- update documentation on the website
+  _Before_ sending announcement to mailing list ...
 
-- register new version with PyPI
+  - update documentation on the website
+
+  - register new version with PyPI
 
 - send announcement to comp.lang.python.announce
 
