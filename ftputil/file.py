@@ -235,14 +235,14 @@ class _FTPFile(object):
             try:
                 with ftputil.error.ftplib_error_to_ftp_io_error:
                     self._session.voidresp()
-            except ftputil.error.FTPIOError, exception:
+            except ftputil.error.FTPIOError as exc:
                 # Ignore some errors, see tickets #51 and #17 at
                 # http://ftputil.sschwarzer.net/trac/ticket/51 and
                 # http://ftputil.sschwarzer.net/trac/ticket/17,
                 # respectively.
-                exception = str(exception)
-                error_code = exception[:3]
-                if exception.splitlines()[0] != "timed out" and \
+                exc = str(exc)
+                error_code = exc[:3]
+                if exc.splitlines()[0] != "timed out" and \
                   error_code not in ("150", "426", "450", "451"):
                     raise
         finally:

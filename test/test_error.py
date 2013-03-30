@@ -29,7 +29,7 @@ class TestErrorConversion(unittest.TestCase):
         try:
             with ftputil.error.ftplib_error_to_ftp_os_error:
                 self.callee()
-        except ftputil.error.FTPOSError, exc:
+        except ftputil.error.FTPOSError as exc:
             self.assertFalse(exc.args and
                              isinstance(exc.args[0], ftplib.error_perm))
         else:
@@ -41,7 +41,7 @@ class TestErrorConversion(unittest.TestCase):
         try:
             with ftputil.error.ftplib_error_to_ftp_io_error:
                 self.callee()
-        except ftputil.error.FTPIOError, exc:
+        except ftputil.error.FTPIOError as exc:
             self.assertFalse(exc.args and
                              isinstance(exc.args[0], ftplib.error_perm))
         else:

@@ -309,7 +309,7 @@ class UnixParser(Parser):
         # We can get a `ValueError` here if the name is blank (see
         # ticket #69). This is a strange use case, but at least we
         # should raise the exception the docstring mentions.
-        except ValueError, exc:
+        except ValueError as exc:
             raise ftputil.error.ParserError(str(exc))
         # st_mode
         st_mode = self.parse_unix_mode(mode_string)
