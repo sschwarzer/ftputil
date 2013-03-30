@@ -89,9 +89,7 @@ class Cleaner(object):
         Errors due to a removal are ignored.
         """
         self._host.chdir("/")
-        # Code should work with Python 2.3
-        self._ftp_items.reverse()
-        for type_, path in self._ftp_items:
+        for type_, path in reversed(self._ftp_items):
             try:
                 if type_ == 'd':
                     # If something goes wrong in `rmtree` we might
