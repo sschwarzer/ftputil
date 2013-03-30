@@ -19,15 +19,16 @@ class TestFTPErrorArguments(unittest.TestCase):
         io_error = ftputil.error.FTPIOError(u"\xe4")
 
 
-class TestTryWithFTPError(unittest.TestCase):
+class TestErrorConversion(unittest.TestCase):
 
     def callee(self):
         raise ftplib.error_perm()
 
-    def test_try_with_oserror(self):
+    def test_ftplib_error_to_ftp_os_error(self):
         "Ensure the `ftplib` exception isn't used as `FTPOSError` argument."
         try:
-            ftputil.error._try_with_oserror(self.callee)
+            with ftputil.error.ftplib_error_to_ftp_os_error:
+                self.callee()
         except ftputil.error.FTPOSError, exc:
             self.assertFalse(exc.args and
                              isinstance(exc.args[0], ftplib.error_perm))
@@ -35,10 +36,11 @@ class TestTryWithFTPError(unittest.TestCase):
             # We shouldn't come here.
             self.assertTrue(False)
 
-    def test_try_with_ioerror(self):
+    def test_ftplib_error_to_ftp_io_error(self):
         "Ensure the `ftplib` exception isn't used as `FTPIOError` argument."
         try:
-            ftputil.error._try_with_ioerror(self.callee)
+            with ftputil.error.ftplib_error_to_ftp_io_error:
+                self.callee()
         except ftputil.error.FTPIOError, exc:
             self.assertFalse(exc.args and
                              isinstance(exc.args[0], ftplib.error_perm))

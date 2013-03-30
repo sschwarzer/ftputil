@@ -74,7 +74,8 @@ class _FTPFile(object):
         # Select ASCII or binary mode.
         transfer_type = ('A', 'I')[self._bin_mode]
         command = 'TYPE %s' % transfer_type
-        ftputil.error._try_with_ioerror(self._session.voidcmd, command)
+        with ftputil.error.ftplib_error_to_ftp_io_error:
+            self._session.voidcmd(command)
         # Make transfer command.
         command_type = ('STOR', 'RETR')[self._read_mode]
         command = '%s %s' % (command_type, path)
@@ -83,8 +84,8 @@ class _FTPFile(object):
         if not 'b' in mode:
             mode = mode + 'b'
         # Get connection and file object.
-        self._conn = ftputil.error._try_with_ioerror(
-                       self._session.transfercmd, command)
+        with ftputil.error.ftplib_error_to_ftp_io_error:
+            self._conn = self._session.transfercmd(command)
         self._fo = self._conn.makefile(mode)
         # This comes last so that `close` won't try to close `_FTPFile`
         # objects without `_conn` and `_fo` attributes in case of an error.
@@ -226,12 +227,14 @@ class _FTPFile(object):
         try:
             self._fo.close()
             self._fo = None
-            ftputil.error._try_with_ioerror(self._conn.close)
+            with ftputil.error.ftplib_error_to_ftp_io_error:
+                self._conn.close()
             # Set a timeout to prevent waiting until server timeout
             # if we have a server blocking here like in ticket #51.
             self._session.sock.settimeout(self._close_timeout)
             try:
-                ftputil.error._try_with_ioerror(self._session.voidresp)
+                with ftputil.error.ftplib_error_to_ftp_io_error:
+                    self._session.voidresp()
             except ftputil.error.FTPIOError, exception:
                 # Ignore some errors, see tickets #51 and #17 at
                 # http://ftputil.sschwarzer.net/trac/ticket/51 and

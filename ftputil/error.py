@@ -116,29 +116,34 @@ class SyncError(PermanentError):
     pass
 
 
-#XXX Do you know better names for `_try_with_oserror` and
-#    `_try_with_ioerror`?
-def _try_with_oserror(callee, *args, **kwargs):
+class FtplibErrorToFTPOSError(object):
     """
-    Try the callee with the given arguments and map resulting
-    exceptions from `ftplib.all_errors` to `FTPOSError` and its
-    derived classes.
+    Context manager to convert `ftplib` exceptions to exceptions
+    derived from `FTPOSError`.
     """
-    # Use `*exc.args` instead of `str(args)` because args might be
-    # a unicode string with non-ascii characters.
-    try:
-        return callee(*args, **kwargs)
-    except ftplib.error_temp, exc:
-        raise TemporaryError(*exc.args)
-    except ftplib.error_perm, exc:
-        # If `exc.args` is present, assume it's a byte or unicode string.
-        if exc.args and exc.args[0].startswith("502"):
-            raise CommandNotImplementedError(*exc.args)
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type is None:
+            # No exception
+            return
+        if isinstance(exc_value, ftplib.error_temp):
+            raise TemporaryError(*exc_value.args)
+        elif isinstance(exc_value, ftplib.error_perm):
+            # If `exc_value.args` is present, assume it's a byte or
+            # unicode string.
+            if exc_value.args and exc_value.args[0].startswith("502"):
+                raise CommandNotImplementedError(*exc_value.args)
+            else:
+                raise PermanentError(*exc_value.args)
+        elif isinstance(exc_value, ftplib.all_errors):
+            raise FTPOSError(*exc_value.args)
         else:
-            raise PermanentError(*exc.args)
-    except ftplib.all_errors:
-        exc = sys.exc_info()[1]
-        raise FTPOSError(*exc.args)
+            raise
+
+ftplib_error_to_ftp_os_error = FtplibErrorToFTPOSError()
 
 
 class FTPIOError(FTPError, IOError):
@@ -146,15 +151,22 @@ class FTPIOError(FTPError, IOError):
     pass
 
 
-def _try_with_ioerror(callee, *args, **kwargs):
+class FtplibErrorToFTPIOError(object):
     """
-    Try the callee with the given arguments and map resulting
-    exceptions from `ftplib.all_errors` to `FTPIOError`.
+    Context manager to convert `ftplib` exceptions to `FTPIOError`
+    exceptions.
     """
-    try:
-        return callee(*args, **kwargs)
-    except ftplib.all_errors:
-        exc = sys.exc_info()[1]
-        # Use `*exc.args` instead of `str(args)` because args might be
-        # a unicode string with non-ascii characters.
-        raise FTPIOError(*exc.args)
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type is None:
+            # No exception
+            return
+        if isinstance(exc_value, ftplib.all_errors):
+            raise FTPIOError(*exc_value.args)
+        else:
+            raise
+
+ftplib_error_to_ftp_io_error = FtplibErrorToFTPIOError()
