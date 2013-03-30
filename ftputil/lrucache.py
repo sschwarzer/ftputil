@@ -47,7 +47,7 @@ import time
 
 # The suffix after the hyphen denotes modifications by the
 # ftputil project with respect to the original version.
-__version__ = "0.2-10"
+__version__ = "0.2-11"
 __all__ = ['CacheKeyError', 'LRUCache', 'DEFAULT_SIZE']
 __docformat__ = 'reStructuredText en'
 
@@ -105,7 +105,7 @@ class LRUCache(object):
         print j, cache[j] # iterator produces keys, not values
     """
 
-    class __Node(object):
+    class _Node(object):
         """Record of a cached value. Not for public consumption."""
 
         def __init__(self, key, obj, timestamp, sort_key):
@@ -121,9 +121,6 @@ class LRUCache(object):
             # Python versions. Uses only around 60 % of the time
             # with respect to `__cmp__`.
             return self._sort_key < other._sort_key
-
-        def __cmp__(self, other):
-            return cmp(self._sort_key, other._sort_key)
 
         def __repr__(self):
             return "<%s %s => %s (%s)>" % \
@@ -201,7 +198,7 @@ class LRUCache(object):
                 lru_node = min(heap)
                 heap.remove(lru_node)
                 del dict_[lru_node.key]
-            node = self.__Node(key, obj, time.time(), self._sort_key())
+            node = self._Node(key, obj, time.time(), self._sort_key())
             dict_[key] = node
             heap.append(node)
 
