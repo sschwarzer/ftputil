@@ -24,6 +24,9 @@ class StatResult(tuple):
     `os.(l)stat`.
     """
 
+    # Disable "Badly implemented container" warning.
+    # pylint: disable=R0924
+
     _index_mapping = {
       'st_mode':  0, 'st_ino':   1, 'st_dev':    2, 'st_nlink':    3,
       'st_uid':   4, 'st_gid':   5, 'st_size':   6, 'st_atime':    7,
@@ -570,8 +573,8 @@ class _Stat(object):
             if path in visited_paths:
                 # We had seen this path already.
                 raise ftp_error.PermanentError(
-                      "recursive link structure detected for remote path '%s'" %
-                      original_path)
+                  "recursive link structure detected for remote path '%s'" %
+                  original_path)
             # Remember the path we have encountered.
             visited_paths.add(path)
 

@@ -7,6 +7,9 @@ ftp_error.py - exception classes and wrappers
 
 # "Too many ancestors"
 # pylint: disable = R0901
+#
+# "Used * or ** magic"
+# pylint: disable = W0142
 
 import ftplib
 import sys
