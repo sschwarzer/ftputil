@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-# Copyright (C) 2003-2012, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 """
@@ -44,7 +44,7 @@ core.setup(
   description="High-level FTP client library (virtual filesystem and more)",
   keywords="FTP, client, library, virtual file system",
   license="Open source (revised BSD license)",
-  platforms=["Pure Python (Python version >= 2.4)"],
+  platforms=["Pure Python"],
   long_description="""\
 ftputil is a high-level FTP client library for the Python programming
 language. ftputil implements a virtual file system for accessing FTP servers,
@@ -62,6 +62,10 @@ and downloads, and handles FTP clients and servers in different timezones.""",
     "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
+    "Programming Language :: Python :: 2",
+    "Programming Language :: Python :: 2 :: Only",
+    "Programming Language :: Python :: 2.6",
+    "Programming Language :: Python :: 2.7",
     "Topic :: Internet :: File Transfer Protocol (FTP)",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: System :: Filesystems",
