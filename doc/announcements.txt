@@ -1,4 +1,4 @@
-ftputil 2.8 beta is now available from
+ftputil 2.8 is now available from
 http://ftputil.sschwarzer.net/download .
 
 Changes since version 2.7.1
