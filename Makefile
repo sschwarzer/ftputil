@@ -61,11 +61,6 @@ ${DOC_DIR}/ftputil_ru.html: ${DOC_DIR}/ftputil_ru_utf8.txt
 # Quality assurance
 test:
 	@echo "=== Running tests for ftputil ${VERSION} ===\n"
-	if which python2.4; then \
-		PYTHONPATH=${PYTHONPATH} python2.4 ${TEST_DIR}/test_python2_4.py; \
-	else \
-		echo "Tests specific for Python 2.4 have been skipped."; \
-	fi
 	for file in $(TEST_FILES); \
 	do \
 		echo $$file ; \
