@@ -18,8 +18,8 @@ import stat
 import sys
 
 import ftputil
-from ftputil import file_transfer
 import ftputil.error
+import ftputil.file_transfer
 import ftputil.stat
 import ftputil.stat_cache
 
@@ -546,7 +546,7 @@ class TestUploadAndDownload(RealFTPTest):
         host = self.host
         FILENAME = "debian-keyring.tar.gz"
         # Default chunk size as in `FTPHost.copyfileobj`
-        MAX_COPY_CHUNK_SIZE = file_transfer.MAX_COPY_CHUNK_SIZE
+        MAX_COPY_CHUNK_SIZE = ftputil.file_transfer.MAX_COPY_CHUNK_SIZE
         file_size = host.path.getsize(FILENAME)
         chunk_count, remainder = divmod(file_size, MAX_COPY_CHUNK_SIZE)
         # Add one chunk for remainder.

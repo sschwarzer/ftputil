@@ -10,7 +10,6 @@ import unittest
 
 import ftputil
 import ftputil.error
-from ftputil import file_transfer
 import ftputil.stat
 
 from test import mock_ftplib

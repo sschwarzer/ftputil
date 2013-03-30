@@ -8,7 +8,7 @@ ftp_stat_cache.py - cache for (l)stat data
 import time
 
 import ftputil.error
-from ftputil import lrucache
+import ftputil.lrucache
 
 
 # This module shouldn't be used by clients of the ftputil library.
@@ -43,7 +43,7 @@ class StatCache(object):
 
     def __init__(self):
         # Can be reset with method `resize`
-        self._cache = lrucache.LRUCache(self._DEFAULT_CACHE_SIZE)
+        self._cache = ftputil.lrucache.LRUCache(self._DEFAULT_CACHE_SIZE)
         # Never expire
         self.max_age = None
         self.enable()
@@ -82,7 +82,7 @@ class StatCache(object):
         """
         try:
             return time.time() - self._cache.mtime(path)
-        except lrucache.CacheKeyError:
+        except ftputil.lrucache.CacheKeyError:
             raise ftputil.error.CacheMissError(
                     "no entry for path %s in cache" % path)
 
@@ -107,7 +107,7 @@ class StatCache(object):
             del self._cache[path]
         # Don't complain about lazy except clause
         # pylint: disable=W0704
-        except lrucache.CacheKeyError:
+        except ftputil.lrucache.CacheKeyError:
             # Ignore errors
             pass
 
@@ -128,7 +128,7 @@ class StatCache(object):
             # case of race conditions. I prefer robust code.
             try:
                 return self._cache[path]
-            except lrucache.CacheKeyError:
+            except ftputil.lrucache.CacheKeyError:
                 raise ftputil.error.CacheMissError(
                         "entry for path %s not found" % path)
 

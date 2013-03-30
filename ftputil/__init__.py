@@ -58,9 +58,9 @@ import sys
 import time
 import warnings
 
-from ftputil import file_transfer
 import ftputil.error
 import ftputil.file
+import ftputil.file_transfer
 import ftputil.path
 import ftputil.stat
 import ftputil.version
@@ -446,7 +446,7 @@ class FTPHost(object):
     # positional argument but emits a deprecation warning if `length`
     # is used as a keyword argument.
     def copyfileobj(self, source, target,
-                    max_chunk_size=file_transfer.MAX_COPY_CHUNK_SIZE,
+                    max_chunk_size=ftputil.file_transfer.MAX_COPY_CHUNK_SIZE,
                     callback=None, **kwargs):
         """
         Copy data from file-like object `source` to file-like object
@@ -457,7 +457,8 @@ class FTPHost(object):
             warnings.warn(("Parameter name `length` will be removed in "
                            "ftputil 2.6, use `max_chunk_size` instead"),
                           DeprecationWarning, stacklevel=2)
-        file_transfer.copyfileobj(source, target, max_chunk_size, callback)
+        ftputil.file_transfer.copyfileobj(source, target, max_chunk_size,
+                                          callback)
 
     def __get_modes(self, mode):
         """Return modes for source and target file."""
@@ -477,9 +478,10 @@ class FTPHost(object):
         or relative) paths of the local and the remote file, respectively.
         """
         source_mode, target_mode = self.__get_modes(mode)
-        source_file = file_transfer.LocalFile(source_path, source_mode)
+        source_file = ftputil.file_transfer.LocalFile(source_path, source_mode)
         # Passing `self` (the `FTPHost` instance) here is correct.
-        target_file = file_transfer.RemoteFile(self, target_path, target_mode)
+        target_file = ftputil.file_transfer.RemoteFile(self, target_path,
+                                                       target_mode)
         return source_file, target_file
 
     def upload(self, source, target, mode='', callback=None):
@@ -494,8 +496,8 @@ class FTPHost(object):
         # wants to support unicode filenames or not.
         target = str(target)
         source_file, target_file = self._upload_files(source, target, mode)
-        file_transfer.copy_file(source_file, target_file,
-                                conditional=False, callback=callback)
+        ftputil.file_transfer.copy_file(source_file, target_file,
+                                        conditional=False, callback=callback)
 
     def upload_if_newer(self, source, target, mode='', callback=None):
         """
@@ -508,8 +510,9 @@ class FTPHost(object):
         # See comment in `upload`.
         target = str(target)
         source_file, target_file = self._upload_files(source, target, mode)
-        return file_transfer.copy_file(source_file, target_file,
-                                       conditional=True, callback=callback)
+        return ftputil.file_transfer.copy_file(source_file, target_file,
+                                               conditional=True,
+                                               callback=callback)
 
     def _download_files(self, source_path, target_path, mode):
         """
@@ -520,8 +523,9 @@ class FTPHost(object):
         or relative) paths of the remote and the local file, respectively.
         """
         source_mode, target_mode = self.__get_modes(mode)
-        source_file = file_transfer.RemoteFile(self, source_path, source_mode)
-        target_file = file_transfer.LocalFile(target_path, target_mode)
+        source_file = ftputil.file_transfer.RemoteFile(self, source_path,
+                                                       source_mode)
+        target_file = ftputil.file_transfer.LocalFile(target_path, target_mode)
         return source_file, target_file
 
     def download(self, source, target, mode='', callback=None):
@@ -536,8 +540,8 @@ class FTPHost(object):
         # wants to support unicode filenames or not.
         source = str(source)
         source_file, target_file = self._download_files(source, target, mode)
-        file_transfer.copy_file(source_file, target_file,
-                                conditional=False, callback=callback)
+        ftputil.file_transfer.copy_file(source_file, target_file,
+                                        conditional=False, callback=callback)
 
     def download_if_newer(self, source, target, mode='', callback=None):
         """
@@ -551,8 +555,9 @@ class FTPHost(object):
         # See comment in `download`.
         source = str(source)
         source_file, target_file = self._download_files(source, target, mode)
-        return file_transfer.copy_file(source_file, target_file,
-                                       conditional=True, callback=callback)
+        return ftputil.file_transfer.copy_file(source_file, target_file,
+                                               conditional=True,
+                                               callback=callback)
 
     #
     # Helper methods to descend into a directory before executing a command
