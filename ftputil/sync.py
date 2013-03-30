@@ -17,7 +17,7 @@ import os
 import shutil
 
 from ftputil import FTPHost
-from ftputil import ftp_error
+import ftputil.error
 
 __all__ = ['FTPHost', 'LocalHost', 'Syncer']
 
@@ -82,8 +82,8 @@ class Syncer(object):
         # (beware of rootdir anomalies; try to handle them as well).
         #print "Making", target_dir
         if self._target.path.isfile(target_dir):
-            raise ftp_error.SyncError("target dir '%s' is actually a file" %
-                                      target_dir)
+            raise ftputil.error.SyncError("target dir '%s' is actually a file"
+                                          % target_dir)
         # Deliberately use an `isdir` test instead of `try/except`. The
         #  latter approach might mask other errors we want to see, e. g.
         #  insufficient permissions.

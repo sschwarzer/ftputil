@@ -1,12 +1,12 @@
-# Copyright (C) 2003-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # Copyright (C) 2008, Roger Demetrescu <roger.demetrescu@gmail.com>
 # See the file LICENSE for licensing terms.
 
 """
-ftp_file.py - support for file-like objects on FTP servers
+ftputil.file - support for file-like objects on FTP servers
 """
 
-from ftputil import ftp_error
+import ftputil.error
 
 
 # This module shouldn't be used by clients of the ftputil library.
@@ -65,16 +65,16 @@ class _FTPFile(object):
         """Open the remote file with given path name and mode."""
         # Check mode.
         if 'a' in mode:
-            raise ftp_error.FTPIOError("append mode not supported")
+            raise ftputil.error.FTPIOError("append mode not supported")
         if mode not in ('r', 'rb', 'w', 'wb'):
-            raise ftp_error.FTPIOError("invalid mode '%s'" % mode)
+            raise ftputil.error.FTPIOError("invalid mode '%s'" % mode)
         # Remember convenience variables instead of the mode itself.
         self._bin_mode = 'b' in mode
         self._read_mode = 'r' in mode
         # Select ASCII or binary mode.
         transfer_type = ('A', 'I')[self._bin_mode]
         command = 'TYPE %s' % transfer_type
-        ftp_error._try_with_ioerror(self._session.voidcmd, command)
+        ftputil.error._try_with_ioerror(self._session.voidcmd, command)
         # Make transfer command.
         command_type = ('STOR', 'RETR')[self._read_mode]
         command = '%s %s' % (command_type, path)
@@ -83,7 +83,7 @@ class _FTPFile(object):
         if not 'b' in mode:
             mode = mode + 'b'
         # Get connection and file object.
-        self._conn = ftp_error._try_with_ioerror(
+        self._conn = ftputil.error._try_with_ioerror(
                        self._session.transfercmd, command)
         self._fo = self._conn.makefile(mode)
         # This comes last so that `close` won't try to close `_FTPFile`
@@ -226,13 +226,13 @@ class _FTPFile(object):
         try:
             self._fo.close()
             self._fo = None
-            ftp_error._try_with_ioerror(self._conn.close)
+            ftputil.error._try_with_ioerror(self._conn.close)
             # Set a timeout to prevent waiting until server timeout
             # if we have a server blocking here like in ticket #51.
             self._session.sock.settimeout(self._close_timeout)
             try:
-                ftp_error._try_with_ioerror(self._session.voidresp)
-            except ftp_error.FTPIOError, exception:
+                ftputil.error._try_with_ioerror(self._session.voidresp)
+            except ftputil.error.FTPIOError, exception:
                 # Ignore some errors, see tickets #51 and #17 at
                 # http://ftputil.sschwarzer.net/trac/ticket/51 and
                 # http://ftputil.sschwarzer.net/trac/ticket/17,
@@ -251,4 +251,3 @@ class _FTPFile(object):
             # either, so we consider the file closed for practical
             # purposes.
             self.closed = True
-

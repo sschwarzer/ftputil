@@ -1,11 +1,11 @@
-# Copyright (C) 2006-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2006-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 import time
 import unittest
 
-from ftputil import ftp_error
-from ftputil import ftp_stat_cache
+import ftputil.error
+import ftputil.stat_cache
 
 from test import test_base
 
@@ -13,10 +13,10 @@ from test import test_base
 class TestStatCache(unittest.TestCase):
 
     def setUp(self):
-        self.cache = ftp_stat_cache.StatCache()
+        self.cache = ftputil.stat_cache.StatCache()
 
     def test_get_set(self):
-        self.assertRaises(ftp_error.CacheMissError,
+        self.assertRaises(ftputil.error.CacheMissError,
                           self.cache.__getitem__, "/path")
         self.cache["/path"] = "test"
         self.assertEqual(self.cache["/path"], "test")
@@ -61,7 +61,7 @@ class TestStatCache(unittest.TestCase):
         self.assertEqual(self.cache["/path1"], "test1")
         time.sleep(0.6)
         # Should have expired (_setting_ the cache counts)
-        self.assertRaises(ftp_error.CacheMissError,
+        self.assertRaises(ftputil.error.CacheMissError,
                           self.cache.__getitem__, "/path1")
 
     def test_max_age2(self):
@@ -74,16 +74,16 @@ class TestStatCache(unittest.TestCase):
         self.assertEqual(self.cache["/path1"], "test1")
         time.sleep(0.6)
         # Should have expired (_setting_ the cache counts)
-        self.assertRaises(ftp_error.CacheMissError,
+        self.assertRaises(ftputil.error.CacheMissError,
                           self.cache.__getitem__, "/path1")
 
     def test_disabled(self):
         self.cache["/path1"] = "test1"
         self.cache.disable()
         self.cache["/path2"] = "test2"
-        self.assertRaises(ftp_error.CacheMissError,
+        self.assertRaises(ftputil.error.CacheMissError,
                           self.cache.__getitem__, "/path1")
-        self.assertRaises(ftp_error.CacheMissError,
+        self.assertRaises(ftputil.error.CacheMissError,
                           self.cache.__getitem__, "/path2")
         self.assertEqual(len(self.cache), 1)
         # Don't raise a `CacheMissError` for missing paths

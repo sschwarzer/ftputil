@@ -1,4 +1,4 @@
-# Copyright (C) 2006-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2006-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 """
@@ -7,7 +7,7 @@ ftp_stat_cache.py - cache for (l)stat data
 
 import time
 
-from ftputil import ftp_error
+import ftputil.error
 from ftputil import lrucache
 
 
@@ -83,7 +83,7 @@ class StatCache(object):
         try:
             return time.time() - self._cache.mtime(path)
         except lrucache.CacheKeyError:
-            raise ftp_error.CacheMissError(
+            raise ftputil.error.CacheMissError(
                     "no entry for path %s in cache" % path)
 
     def clear(self):
@@ -117,11 +117,11 @@ class StatCache(object):
         stat entry or the cache is disabled, raise `CacheMissError`.
         """
         if not self._enabled:
-            raise ftp_error.CacheMissError("cache is disabled")
+            raise ftputil.error.CacheMissError("cache is disabled")
         # Possibly raise a `CacheMissError` in `_age`
         if (self.max_age is not None) and (self._age(path) > self.max_age):
             self.invalidate(path)
-            raise ftp_error.CacheMissError(
+            raise ftputil.error.CacheMissError(
                     "entry for path %s has expired" % path)
         else:
             #XXX I don't know if this may raise a `CacheMissError` in
@@ -129,7 +129,7 @@ class StatCache(object):
             try:
                 return self._cache[path]
             except lrucache.CacheKeyError:
-                raise ftp_error.CacheMissError(
+                raise ftputil.error.CacheMissError(
                         "entry for path %s not found" % path)
 
     def __setitem__(self, path, stat_result):
@@ -153,7 +153,7 @@ class StatCache(object):
             # pylint: disable=W0612
             stat_result = self[path]
             return True
-        except ftp_error.CacheMissError:
+        except ftputil.error.CacheMissError:
             return False
 
     #
@@ -172,4 +172,3 @@ class StatCache(object):
         for key in sorted(self._cache):
             lines.append("%s: %s" % (key, self[key]))
         return "\n".join(lines)
-

@@ -15,5 +15,6 @@ _ftputil_version = __version__
 _python_version = sys.version.split()[0]
 _python_platform = sys.platform
 
+
 version_info = "ftputil %s, Python %s (%s)" % \
                (_ftputil_version, _python_version, _python_platform)

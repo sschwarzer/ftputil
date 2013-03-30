@@ -4,6 +4,10 @@
 
 # pylint: disable=W0622
 
+#TODO: `ftputil.ftp_error`       -> `ftputil.error`
+#      `ftputil.ftp_stat`        -> `ftputil.stat`
+#      `ftputil.ftputil_version` -> `ftputil.version`
+
 """\
 This script scans a directory tree for files which contain code which
 is deprecated in ftputil %s and above (and even much longer). The
@@ -28,13 +32,15 @@ Currently, these deprecated features are examined:
       ...
 """
 
-from ftputil import ftputil_version
-
 import os
 import re
 import sys
 
-__doc__ = __doc__ % (ftputil_version.__version__, os.path.basename(sys.argv[0]))
+import ftputil.version
+
+
+__doc__ = __doc__ % (ftputil.version.__version__,
+                     os.path.basename(sys.argv[0]))
 
 deprecated_features = [
   ("Possible use(s) of FTP exceptions via ftputil module",
@@ -115,4 +121,3 @@ if __name__ == '__main__':
         print >> sys.stderr, "Usage: %s start_dir" % sys.argv[0]
         sys.exit()
     main(start_dir)
-

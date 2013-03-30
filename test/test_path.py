@@ -1,11 +1,11 @@
-# Copyright (C) 2003-2012, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 import ftplib
 import unittest
 
 import ftputil
-from ftputil import ftp_error
+import ftputil.error
 
 from test import mock_ftplib
 from test import test_base
@@ -13,7 +13,7 @@ from test import test_base
 
 class FailingFTPHost(ftputil.FTPHost):
     def _dir(self, path):
-        raise ftp_error.FTPOSError("simulate a failure, e. g. timeout")
+        raise ftputil.error.FTPOSError("simulate a failure, e. g. timeout")
 
 
 # Mock session, used for testing an inaccessible login directory
@@ -69,7 +69,7 @@ class TestPath(unittest.TestCase):
         "Test combination of inaccessible home directory + whitespace in path."
         host = test_base.ftp_host_factory(
                session_factory=SessionWithInaccessibleLoginDirectory)
-        self.assertRaises(ftp_error.InaccessibleLoginDirError,
+        self.assertRaises(ftputil.error.InaccessibleLoginDirError,
                           host._dir, '/home dir')
 
     def test_abnormal_isdir_isfile_islink(self):
@@ -78,9 +78,12 @@ class TestPath(unittest.TestCase):
         host = test_base.ftp_host_factory(ftp_host_class=FailingFTPHost)
         host.chdir(testdir)
         # Test a path which isn't there
-        self.assertRaises(ftp_error.FTPOSError, host.path.isdir, "index.html")
-        self.assertRaises(ftp_error.FTPOSError, host.path.isfile, "index.html")
-        self.assertRaises(ftp_error.FTPOSError, host.path.islink, "index.html")
+        self.assertRaises(ftputil.error.FTPOSError, host.path.isdir,
+                          "index.html")
+        self.assertRaises(ftputil.error.FTPOSError, host.path.isfile,
+                          "index.html")
+        self.assertRaises(ftputil.error.FTPOSError, host.path.islink,
+                          "index.html")
 
     def test_exists(self):
         """Test if "abnormal" FTP errors come through `path.exists`."""
@@ -92,9 +95,9 @@ class TestPath(unittest.TestCase):
         self.assertEqual(host.path.exists("notthere"), False)
         # "Abnormal" failure
         host = test_base.ftp_host_factory(ftp_host_class=FailingFTPHost)
-        self.assertRaises(ftp_error.FTPOSError, host.path.exists, "index.html")
+        self.assertRaises(ftputil.error.FTPOSError, host.path.exists,
+                          "index.html")
 
 
 if __name__ == '__main__':
     unittest.main()
-

@@ -5,6 +5,8 @@
 
 # Execute a test on a real FTP server (other tests use a mock server)
 
+from __future__ import absolute_import
+
 import ftplib
 import gc
 import getpass
@@ -17,9 +19,9 @@ import sys
 
 import ftputil
 from ftputil import file_transfer
-from ftputil import ftp_error
-from ftputil import ftp_stat
-from ftputil import ftp_stat_cache
+import ftputil.error
+import ftputil.stat
+import ftputil.stat_cache
 
 
 def get_login_data():
@@ -98,7 +100,7 @@ class Cleaner(object):
                 elif type_ == 'f':
                     # Minor mess if `remove` fails
                     self._host.remove(path)
-            except ftp_error.FTPError:
+            except ftputil.error.FTPError:
                 pass
 
 
@@ -144,14 +146,14 @@ class TestMkdir(RealFTPTest):
         self.cleaner.add_file(file_name)
         non_empty = host.file(file_name, "w")
         non_empty.close()
-        self.assertRaises(ftp_error.PermanentError, host.rmdir, dir_name)
+        self.assertRaises(ftputil.error.PermanentError, host.rmdir, dir_name)
         # Remove file
         host.unlink(file_name)
         # `remove` on a directory should fail
         try:
             try:
                 host.remove(dir_name)
-            except ftp_error.PermanentError, exc:
+            except ftputil.error.PermanentError, exc:
                 self.assertTrue(str(exc).startswith(
                                 "remove/unlink can only delete files"))
             else:
@@ -223,9 +225,9 @@ class TestMkdir(RealFTPTest):
         host.mkdir('_dir1_')
         self.make_file('_dir1_/file1')
         # Try it
-        self.assertRaises(ftp_error.PermanentError, host.makedirs,
+        self.assertRaises(ftputil.error.PermanentError, host.makedirs,
                           '_dir1_/file1')
-        self.assertRaises(ftp_error.PermanentError, host.makedirs,
+        self.assertRaises(ftputil.error.PermanentError, host.makedirs,
                           '_dir1_/file1/dir2')
 
     def test_makedirs_with_existing_directory(self):
@@ -240,7 +242,7 @@ class TestMkdir(RealFTPTest):
     def test_makedirs_in_non_writable_directory(self):
         host = self.host
         # Preparation: `rootdir1` exists but is only writable by root
-        self.assertRaises(ftp_error.PermanentError, host.makedirs,
+        self.assertRaises(ftputil.error.PermanentError, host.makedirs,
                           'rootdir1/dir2')
 
     def test_makedirs_with_writable_directory_at_end(self):
@@ -265,7 +267,8 @@ class TestRemoval(RealFTPTest):
         self.make_file('_dir1_/dir2/file3')
         self.make_file('_dir1_/dir2/file4')
         # Try to remove a _file_ with `rmtree`
-        self.assertRaises(ftp_error.PermanentError, host.rmtree, '_dir1_/file2')
+        self.assertRaises(ftputil.error.PermanentError, host.rmtree,
+                          '_dir1_/file2')
         # remove dir2
         host.rmtree('_dir1_/dir2')
         self.assertFalse(host.path.exists('_dir1_/dir2'))
@@ -305,7 +308,8 @@ class TestRemoval(RealFTPTest):
 
     def test_remove_non_existent_item(self):
         host = self.host
-        self.assertRaises(ftp_error.PermanentError, host.remove, "nonexistent")
+        self.assertRaises(ftputil.error.PermanentError, host.remove,
+                          "nonexistent")
 
     def test_remove_existent_file(self):
         self.cleaner.add_file('_testfile_')
@@ -447,11 +451,13 @@ class TestStat(RealFTPTest):
         stat_result1 = host1.stat("_testfile_")
         self.assertEqual(stat_result1, stat_result2)
         # Stat'ing on `host2` gives an exception
-        self.assertRaises(ftp_error.PermanentError, host2.stat, "_testfile_")
+        self.assertRaises(ftputil.error.PermanentError, host2.stat,
+                          "_testfile_")
         # Stat'ing on `host1` after invalidation
         absolute_path = host1.path.join(host1.getcwd(), "_testfile_")
         host1.stat_cache.invalidate(absolute_path)
-        self.assertRaises(ftp_error.PermanentError, host1.stat, "_testfile_")
+        self.assertRaises(ftputil.error.PermanentError, host1.stat,
+                          "_testfile_")
 
     def test_cache_auto_resizing(self):
         """Test if the cache is resized appropriately."""
@@ -460,7 +466,7 @@ class TestStat(RealFTPTest):
         # Make sure the cache size isn't adjusted towards smaller values.
         entries = host.listdir("walk_test")
         self.assertEqual(cache.size,
-                         ftp_stat_cache.StatCache._DEFAULT_CACHE_SIZE)
+                         ftputil.stat_cache.StatCache._DEFAULT_CACHE_SIZE)
         # Make the cache very small initially and see if it gets resized.
         cache.size = 2
         entries = host.listdir("walk_test")
@@ -647,7 +653,7 @@ class TestChmod(RealFTPTest):
 
     def test_chmod_nonexistent_path(self):
         # Set/get mode of a directory
-        self.assertRaises(ftp_error.PermanentError, self.host.chmod,
+        self.assertRaises(ftputil.error.PermanentError, self.host.chmod,
                           "nonexistent", 0757)
 
     def test_cache_invalidation(self):
@@ -799,7 +805,7 @@ class TestOther(RealFTPTest):
         host = self.host
         # This isn't writable by the ftp account the tests are run under.
         host.chdir("rootdir1")
-        self.assertRaises(ftp_error.TimeShiftError, host.synchronize_times)
+        self.assertRaises(ftputil.error.TimeShiftError, host.synchronize_times)
 
     def test_list_a_option(self):
         # For this test to pass, the server must _not_ list "hidden"
@@ -852,5 +858,4 @@ minutes because it has to wait to test the timezone calculation.
     server, user, password = get_login_data()
     unittest.main()
     import __main__
-    #unittest.main(__main__, "TestStat.test_issomething_for_nonexistent_directory")
-
+    #unittest.main(__main__, "TestRename.test_rename_with_spaces_in_directory")
