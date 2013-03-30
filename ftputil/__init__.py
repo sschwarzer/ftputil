@@ -156,6 +156,7 @@ class FTPHost(object):
         # this `FTPHost` object, use the same factory for this
         # `FTPHost` object's child sessions.
         factory = kwargs.pop('session_factory', ftplib.FTP)
+        # pylint: disable=W0142
         return ftp_error._try_with_oserror(factory, *args, **kwargs)
 
     def _copy(self):
@@ -343,7 +344,8 @@ class FTPHost(object):
         """
         minute = 60.0  # seconds
         hour = 60.0 * minute
-        absolute_rounded_time_shift = abs(self.__rounded_time_shift(time_shift))
+        absolute_rounded_time_shift = \
+          abs(self.__rounded_time_shift(time_shift))
         # Test 1: Fail if the absolute time shift is greater than
         #         a full day (24 hours).
         if absolute_rounded_time_shift > 24 * hour:
@@ -616,6 +618,8 @@ class FTPHost(object):
         self._cached_current_dir = \
           self.path.normpath(self.path.join(self._cached_current_dir, path))
 
+    # Ignore unused argument `mode`
+    # pylint: disable=W0613
     def mkdir(self, path, mode=None):
         """
         Make the directory path on the remote host. The argument
@@ -624,13 +628,13 @@ class FTPHost(object):
         """
         # Fail early if we get a unicode path which can't be encoded.
         path = str(path)
-        # Ignore unused argument `mode`
-        # pylint: disable=W0613
         def command(self, path):
             """Callback function."""
             return ftp_error._try_with_oserror(self._session.mkd, path)
         self._robust_ftp_command(command, path)
 
+    # Ignore unused argument `mode`
+    # pylint: disable=W0613
     def makedirs(self, path, mode=None):
         """
         Make the directory `path`, but also make not yet existing
@@ -640,8 +644,6 @@ class FTPHost(object):
         """
         # Fail early if we get a unicode path which can't be encoded.
         path = str(path)
-        # Ignore unused argument `mode`
-        # pylint: disable=W0613
         path = self.path.abspath(path)
         directories = path.split(self.sep)
         # Try to build the directory chain from the "uppermost" to
@@ -819,6 +821,7 @@ class FTPHost(object):
                 args = (self._session.dir, u"-a", path, callback)
             else:
                 args = (self._session.dir, path, callback)
+            # pylint: disable=W0142
             ftp_error._try_with_oserror(*args)
             return lines
         lines = self._robust_ftp_command(_FTPHost_dir_command, path,

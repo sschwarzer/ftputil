@@ -34,6 +34,10 @@ class StatCache(object):
     Note that the `__len__` method does no age tests and thus may
     include some or many already expired entries.
     """
+
+    # Disable "Badly implemented container" warning.
+    # pylint: disable=R0924
+
     # Default number of cache entries
     _DEFAULT_CACHE_SIZE = 5000
 

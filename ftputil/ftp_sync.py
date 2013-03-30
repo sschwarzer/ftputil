@@ -11,7 +11,7 @@ Tools for syncing combinations of local and remote directories.
 # - remote -> local (download)
 # - local -> remote (upload)
 # - remote -> remote
-# - local -> local (perhaps implicitly possible due to design, but not targeted)
+# - local -> local (maybe implicitly possible due to design, but not targeted)
 
 import os
 import shutil
@@ -27,6 +27,10 @@ CHUNK_SIZE = 64 * 1024
 
 
 class LocalHost(object):
+    """
+    Provide an API for local directories and files so we can use the
+    same code as for `FTPHost` instances.
+    """
 
     def open(self, path, mode):
         """
@@ -49,6 +53,10 @@ class LocalHost(object):
 
 
 class Syncer(object):
+    """
+    Control synchronization between combinations of local and remote
+    directories and files.
+    """
 
     def __init__(self, source, target):
         """

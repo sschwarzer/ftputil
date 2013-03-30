@@ -1,6 +1,10 @@
 # Copyright (C) 2006-2010, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
+"""
+Provide version information about ftputil and the runtime environment.
+"""
+
 import sys
 
 
@@ -13,4 +17,3 @@ _python_platform = sys.platform
 
 version_info = "ftputil %s, Python %s (%s)" % \
                (_ftputil_version, _python_version, _python_platform)
-
