@@ -48,7 +48,7 @@ class TestStatCache(unittest.TestCase):
     def test_resize(self):
         self.cache.resize(100)
         for i in xrange(150):
-            self.cache["/%d" % i] = i
+            self.cache["/{0:d}".format(i)] = i
         self.assertEqual(len(self.cache), 100)
 
     def test_max_age1(self):

@@ -623,7 +623,7 @@ class TestChmod(RealFTPTest):
         allowed_mask = reduce(operator.or_, allowed_flags)
         mode = full_mode & allowed_mask
         self.assertEqual(mode, expected_mode,
-                         "mode %s != %s" % (oct(mode), oct(expected_mode)))
+                         "mode {0:o} != {1:o}".format(mode, expected_mode))
 
     def test_chmod_existing_directory(self):
         host = self.host

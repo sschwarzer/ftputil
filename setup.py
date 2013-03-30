@@ -53,8 +53,8 @@ supports many functions similar to those in the os, os.path and
 shutil modules. ftputil has convenience functions for conditional uploads
 and downloads, and handles FTP clients and servers in different timezones.""",
   download_url=
-    "http://ftputil.sschwarzer.net/trac/attachment/wiki/Download/%s-%s.tar.gz?format=raw" %
-    (_name, _version),
+    "http://ftputil.sschwarzer.net/trac/attachment/wiki/Download/"
+    "{0}-{1}.tar.gz?format=raw".format(_name, _version),
   classifiers=[
     "Development Status :: 5 - Production/Stable",
     "Environment :: Other Environment",

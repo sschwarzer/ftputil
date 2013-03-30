@@ -67,18 +67,18 @@ class _FTPFile(object):
         if 'a' in mode:
             raise ftputil.error.FTPIOError("append mode not supported")
         if mode not in ('r', 'rb', 'w', 'wb'):
-            raise ftputil.error.FTPIOError("invalid mode '%s'" % mode)
+            raise ftputil.error.FTPIOError("invalid mode '{0}'".format(mode))
         # Remember convenience variables instead of the mode itself.
         self._bin_mode = 'b' in mode
         self._read_mode = 'r' in mode
         # Select ASCII or binary mode.
         transfer_type = ('A', 'I')[self._bin_mode]
-        command = 'TYPE %s' % transfer_type
+        command = 'TYPE {0}'.format(transfer_type)
         with ftputil.error.ftplib_error_to_ftp_io_error:
             self._session.voidcmd(command)
         # Make transfer command.
         command_type = ('STOR', 'RETR')[self._read_mode]
-        command = '%s %s' % (command_type, path)
+        command = '{0} {1}'.format(command_type, path)
         # Ensure we can process the raw line separators.
         # Force to binary regardless of transfer type.
         if not 'b' in mode:
@@ -211,7 +211,7 @@ class _FTPFile(object):
                          'truncate name softspace'.split()):
             return getattr(self._fo, attr_name)
         raise AttributeError(
-              "'FTPFile' object has no attribute '%s'" % attr_name)
+              "'FTPFile' object has no attribute '{0}'".format(attr_name))
 
     # TODO: Implement `__dir__`? (See
     # http://docs.python.org/py3k/whatsnew/2.6.html#other-language-changes )

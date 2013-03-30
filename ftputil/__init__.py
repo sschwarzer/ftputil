@@ -237,8 +237,9 @@ class FTPHost(object):
         except ftputil.error.PermanentError:
             # Similarly to a failed `file` in a local filesystem, we
             # raise an `IOError`, not an `OSError`.
-            raise ftputil.error.FTPIOError("remote directory '%s' doesn't "
-                  "exist or has insufficient access rights" % effective_dir)
+            raise ftputil.error.FTPIOError("remote directory '{0}' doesn't "
+                  "exist or has insufficient access rights".
+                  format(effective_dir))
         host._file._open(effective_file, mode)
         if 'w' in mode:
             # Invalidate cache entry because size and timestamps will change.
@@ -363,15 +364,15 @@ class FTPHost(object):
         #         a full day (24 hours).
         if absolute_rounded_time_shift > 24 * hour:
             raise ftputil.error.TimeShiftError(
-                  "time shift abs(%.2f s) > 1 day" % time_shift)
+                  "time shift abs({0:.2f} s) > 1 day".format(time_shift))
         # Test 2: Fail if the deviation between given time shift and
         #         full hours is greater than a certain limit.
         maximum_deviation = 5 * minute
         if abs(time_shift - self.__rounded_time_shift(time_shift)) > \
            maximum_deviation:
             raise ftputil.error.TimeShiftError(
-                  "time shift (%.2f s) deviates more than %d s from full hours"
-                  % (time_shift, maximum_deviation))
+                  "time shift ({0:.2f} s) deviates more than {1:d} s "
+                  "from full hours".format(time_shift, int(maximum_deviation)))
 
     def synchronize_times(self):
         """
@@ -404,8 +405,8 @@ class FTPHost(object):
             file_.close()
         except ftputil.error.FTPIOError:
             raise ftputil.error.TimeShiftError(
-                  '''couldn't write helper file in directory "%s"''' %
-                  self.getcwd())
+                  '''couldn't write helper file in directory "{0}"'''.
+                  format(self.getcwd()))
         # If everything worked up to here it should be possible to stat
         # and then remove the just-written file.
         try:
@@ -579,7 +580,8 @@ class FTPHost(object):
             self.chdir(presumable_login_dir)
         except ftputil.error.PermanentError:
             raise ftputil.error.InaccessibleLoginDirError(
-                  "directory '%s' is not accessible" % presumable_login_dir)
+                  "directory '{0}' is not accessible".
+                  format(presumable_login_dir))
 
     def _robust_ftp_command(self, command, path, descend_deeply=False):
         """
@@ -695,8 +697,8 @@ class FTPHost(object):
         path = str(path)
         path = self.path.abspath(path)
         if self.listdir(path):
-            raise ftputil.error.PermanentError("directory '%s' not empty" %
-                                               path)
+            raise ftputil.error.PermanentError("directory '{0}' not empty".
+                                               format(path))
         #XXX How does `rmd` work with links?
         def command(self, path):
             """Callback function."""
@@ -950,7 +952,8 @@ class FTPHost(object):
         def command(self, path):
             """Callback function."""
             with ftputil.error.ftplib_error_to_ftp_os_error:
-                self._session.voidcmd("SITE CHMOD %s %s" % (oct(mode), path))
+                self._session.voidcmd("SITE CHMOD 0{0:o} {1}".
+                                      format(mode, path))
         self._robust_ftp_command(command, path)
         self.stat_cache.invalidate(path)
 
