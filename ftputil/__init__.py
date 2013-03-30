@@ -50,10 +50,10 @@ Note: ftputil currently is not threadsafe. More specifically, you can
 from __future__ import absolute_import
 
 import ftplib
-# We need a different name (e. g. `std_stat`) here because
+# We need a different name (e. g. `stdlib_stat`) here because
 # `__init__.stat` will be aliased with `ftputil.stat` below; the
 # namespace of `__init__` _is_ the namespace of the `ftputil` package.
-import stat as std_stat
+import stat as stdlib_stat
 import sys
 import time
 import warnings
@@ -789,7 +789,7 @@ class FTPHost(object):
                 mode = self.lstat(full_name).st_mode
             except ftputil.error.PermanentError:
                 mode = 0
-            if std_stat.S_ISDIR(mode):
+            if stdlib_stat.S_ISDIR(mode):
                 self.rmtree(full_name, ignore_errors, new_onerror)
             else:
                 try:
