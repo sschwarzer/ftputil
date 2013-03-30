@@ -1,12 +1,8 @@
 #! /usr/bin/env python
-# Copyright (C) 2008, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2008-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 # pylint: disable=W0622
-
-#TODO: `ftputil.ftp_error`       -> `ftputil.error`
-#      `ftputil.ftp_stat`        -> `ftputil.stat`
-#      `ftputil.ftputil_version` -> `ftputil.version`
 
 """\
 This script scans a directory tree for files which contain code which
@@ -42,12 +38,18 @@ import ftputil.version
 __doc__ = __doc__ % (ftputil.version.__version__,
                      os.path.basename(sys.argv[0]))
 
+
 deprecated_features = [
   ("Possible use(s) of FTP exceptions via ftputil module",
    re.compile(r"\bftputil\s*?\.\s*?[A-Za-z]+Error\b"), {}),
   ("Possible use(s) of xreadline method of FTP file objects",
    re.compile(r"\.\s*?xreadlines\b"), {}),
+  ("Possible use(s) of ftp_error module",
+   re.compile(r"\bftp_error\b"), {}),
+  ("Possible use(s) of ftp_stat module",
+   re.compile(r"\bftp_stat\b"), {}),
 ]
+
 
 def scan_file(file_name):
     """
@@ -66,6 +68,7 @@ def scan_file(file_name):
                     positions[file_name].append((index+1, line.rstrip()))
     finally:
         fobj.close()
+
 
 def print_results():
     """
@@ -92,6 +95,7 @@ def print_results():
                 print "%5d: %s" % (line_number, line)
     print
     print "If possible, check your code also by other means."
+
 
 def main(start_dir):
     """
