@@ -84,7 +84,7 @@ class StatCache(object):
             return time.time() - self._cache.mtime(path)
         except ftputil.lrucache.CacheKeyError:
             raise ftputil.error.CacheMissError(
-                    "no entry for path %s in cache" % path)
+                    "no entry for path {0} in cache".format(path))
 
     def clear(self):
         """Clear (invalidate) all cache entries."""
@@ -102,7 +102,8 @@ class StatCache(object):
         #XXX To be 100 % sure, this should be `host.sep`, but I don't
         # want to introduce a reference to the `FTPHost` object for
         # only that purpose.
-        assert path.startswith("/"), "%s must be an absolute path" % path
+        assert path.startswith("/"), ("{0} must be an absolute path".
+                                      format(path))
         try:
             del self._cache[path]
         # Don't complain about lazy except clause
@@ -122,7 +123,7 @@ class StatCache(object):
         if (self.max_age is not None) and (self._age(path) > self.max_age):
             self.invalidate(path)
             raise ftputil.error.CacheMissError(
-                    "entry for path %s has expired" % path)
+                    "entry for path {0} has expired".format(path))
         else:
             #XXX I don't know if this may raise a `CacheMissError` in
             # case of race conditions. I prefer robust code.
@@ -130,7 +131,7 @@ class StatCache(object):
                 return self._cache[path]
             except ftputil.lrucache.CacheKeyError:
                 raise ftputil.error.CacheMissError(
-                        "entry for path %s not found" % path)
+                        "entry for path {0} not found".format(path))
 
     def __setitem__(self, path, stat_result):
         """
@@ -170,5 +171,5 @@ class StatCache(object):
         """Return a string representation of the cache contents."""
         lines = []
         for key in sorted(self._cache):
-            lines.append("%s: %s" % (key, self[key]))
+            lines.append("{0}: {1}".format(key, self[key]))
         return "\n".join(lines)

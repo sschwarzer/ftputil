@@ -1,4 +1,4 @@
-# Copyright (C) 2009-2012, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2009-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 import os
@@ -44,10 +44,10 @@ def ftp_client_listing(server, directory):
                                  stdin=subprocess.PIPE,
                                  stdout=subprocess.PIPE,
                                  universal_newlines=True)
-    commands = ["user anonymous %s" % EMAIL, "dir", "bye"]
+    commands = ["user anonymous {0}".format(EMAIL), "dir", "bye"]
     if directory:
         # Change to this directory before calling "dir"
-        commands.insert(1, "cd %s" % directory)
+        commands.insert(1, "cd {0}".format(directory))
     input_ = "\n".join(commands)
     stdout, stderr = ftp_popen.communicate(input_)
     # Collect the directory/file names from the listing's text
@@ -147,9 +147,9 @@ class TestPublicServers(unittest.TestCase):
                                 # finds but not the FTP command line client.
                                 name == "mscomtest"
                               )]
-                failure_message = "For server %s, directory %s: %s != %s" % \
-                                  (server, initial_directory, names,
-                                   canonical_names)
+                failure_message = ("For server {0}, directory {1}: {2} != {3}".
+                                   format(server, initial_directory, names,
+                                          canonical_names))
                 self.assertEqual(names, canonical_names, failure_message)
         finally:
             host.close()
@@ -173,4 +173,3 @@ class TestPublicServers(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

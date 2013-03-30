@@ -56,7 +56,7 @@ class MockSocket(object):
     """
     def __init__(self, path, mock_file_content=''):
         if DEBUG:
-            print 'File content: *%s*' % mock_file_content
+            print "File content: *{0}*".format(mock_file_content)
         self.file_path = path
         self.mock_file_content = mock_file_content
         self._timeout = 60
@@ -136,7 +136,7 @@ class MockSession(object):
         # Everything before the path argument are options.
         path = args[-1]
         if DEBUG:
-            print 'dir: %s' % path
+            print "dir: {0}".format(path)
         path = self._transform_path(path)
         if not self.dir_contents.has_key(path):
             raise ftplib.error_perm

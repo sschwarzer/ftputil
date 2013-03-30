@@ -82,8 +82,8 @@ class Syncer(object):
         # (beware of rootdir anomalies; try to handle them as well).
         #print "Making", target_dir
         if self._target.path.isfile(target_dir):
-            raise ftputil.error.SyncError("target dir '%s' is actually a file"
-                                          % target_dir)
+            raise ftputil.error.SyncError(
+                  "target dir '{0}' is actually a file".format(target_dir))
         # Deliberately use an `isdir` test instead of `try/except`. The
         #  latter approach might mask other errors we want to see, e. g.
         #  insufficient permissions.

@@ -59,8 +59,8 @@ class FTPError(Exception):
         self.filename = None
 
     def __str__(self):
-        return "%s\nDebugging info: %s" % \
-               (self.strerror, ftputil.version.version_info)
+        return "{0}\nDebugging info: {1}".format(self.strerror,
+                                                 ftputil.version.version_info)
 
 
 # Internal errors are those that have more to do with the inner

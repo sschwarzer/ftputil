@@ -50,8 +50,8 @@ class StatResult(tuple):
         if attr_name in self._index_mapping:
             return self[self._index_mapping[attr_name]]
         else:
-            raise AttributeError("'StatResult' object has no attribute '%s'" %
-                                 attr_name)
+            raise AttributeError("'StatResult' object has no attribute '{0}'".
+                                 format(attr_name))
 
 #
 # FTP directory parsers
@@ -115,8 +115,8 @@ class Parser(object):
         `ftputil.error.ParserError`.
         """
         if len(mode_string) != 10:
-            raise ftputil.error.ParserError("invalid mode string '%s'" %
-                                        mode_string)
+            raise ftputil.error.ParserError("invalid mode string '{0}'".
+                                            format(mode_string))
         st_mode = 0
         #TODO Add support for "S" and sticky bit ("t", "T").
         for bit in mode_string[1:10]:
@@ -140,7 +140,7 @@ class Parser(object):
             st_mode = st_mode | file_type_to_mode[file_type]
         else:
             raise ftputil.error.ParserError(
-                  "unknown file type character '%s'" % file_type)
+                  "unknown file type character '{0}'".format(file_type))
         return st_mode
 
     def parse_unix_time(self, month_abbreviation, day, year_or_time,
@@ -173,7 +173,8 @@ class Parser(object):
         try:
             month = self._month_numbers[month_abbreviation.lower()]
         except KeyError:
-            raise ftputil.error.ParserError("invalid month name '%s'" % month)
+            raise ftputil.error.ParserError("invalid month name '{0}'".
+                                            format(month))
         day = int(day)
         if ":" not in year_or_time:
             # `year_or_time` is really a year.
@@ -252,7 +253,8 @@ class Parser(object):
             hour, minute, am_pm = time_[0:2], time_[3:5], time_[5]
             hour, minute = int(hour), int(minute)
         except (ValueError, IndexError):
-            raise ftputil.error.ParserError("invalid time string '%s'" % time_)
+            raise ftputil.error.ParserError("invalid time string '{0}'".
+                                            format(time_))
         if hour == 12 and am_pm == 'A':
             hour = 0
         if hour != 12 and am_pm == 'P':
@@ -280,7 +282,8 @@ class UnixParser(Parser):
         FIELD_COUNT_WITH_USERID = FIELD_COUNT_WITHOUT_USERID + 1
         if len(line_parts) < FIELD_COUNT_WITHOUT_USERID:
             # No known Unix-style format
-            raise ftputil.error.ParserError("line '%s' can't be parsed" % line)
+            raise ftputil.error.ParserError("line '{0}' can't be parsed".
+                                            format(line))
         # If we have a valid format (either with or without user id field),
         # the field with index 5 is either the month abbreviation or a day.
         try:
@@ -332,7 +335,7 @@ class UnixParser(Parser):
             # If we have more than one arrow we can't tell where the link
             # name ends and the target name starts.
             raise ftputil.error.ParserError(
-                  'name "%s" contains more than one "->"' % name)
+                  'name "{0}" contains more than one "->"'.format(name))
         elif name.count(" -> ") == 1:
             st_name, st_target = name.split(' -> ')
         else:
@@ -364,7 +367,8 @@ class MSParser(Parser):
             date, time_, dir_or_size, name = line.split(None, 3)
         except ValueError:
             # "unpack list of wrong size"
-            raise ftputil.error.ParserError("line '%s' can't be parsed" % line)
+            raise ftputil.error.ParserError("line '{0}' can't be parsed".
+                                            format(line))
         # st_mode
         #  Default to read access only; in fact, we can't tell.
         st_mode = 0400
@@ -383,7 +387,8 @@ class MSParser(Parser):
             try:
                 st_size = int(dir_or_size)
             except ValueError:
-                raise ftputil.error.ParserError("invalid size %s" % dir_or_size)
+                raise ftputil.error.ParserError("invalid size {0}".
+                                                format(dir_or_size))
         else:
             st_size = None
         # st_atime
@@ -469,8 +474,8 @@ class _Stat(object):
         # `listdir` should only be allowed for directories and links to them.
         if not self._path.isdir(path):
             raise ftputil.error.PermanentError(
-                  "550 %s: no such directory or wrong directory parser used" %
-                  path)
+                  "550 {0}: no such directory or wrong directory parser used".
+                  format(path))
         # Set up for `for` loop.
         names = []
         for stat_result in self._stat_results_from_dir(path):
@@ -527,7 +532,7 @@ class _Stat(object):
             # the usual status code of the server for missing files
             # (450 vs. 550).
             raise ftputil.error.PermanentError(
-                  "550 %s: no such file or directory" % path)
+                  "550 {0}: no such file or directory".format(path))
         else:
             # Be explicit. Returning `None` is a signal for
             # `_Path.exists/isfile/isdir/islink` that the path was
@@ -575,8 +580,8 @@ class _Stat(object):
             if path in visited_paths:
                 # We had seen this path already.
                 raise ftputil.error.PermanentError(
-                  "recursive link structure detected for remote path '%s'" %
-                  original_path)
+                  "recursive link structure detected for remote path '{0}'".
+                  format(original_path))
             # Remember the path we have encountered.
             visited_paths.add(path)
 
