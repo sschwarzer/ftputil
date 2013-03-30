@@ -296,8 +296,8 @@ class TestLstatAndStat(unittest.TestCase):
         self.assertRaises(ftputil.error.RootDirError, self.stat._lstat, '/')
         try:
             self.stat._lstat('/')
-        except ftputil.error.RootDirError, exc_obj:
-            self.assertFalse(isinstance(exc_obj, ftputil.error.FTPOSError))
+        except ftputil.error.RootDirError as exc:
+            self.assertFalse(isinstance(exc, ftputil.error.FTPOSError))
 
     def test_lstat_one_unix_file(self):
         """Test `lstat` for a file described in Unix-style format."""

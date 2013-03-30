@@ -151,7 +151,7 @@ class TestMkdir(RealFTPTest):
         try:
             try:
                 host.remove(dir_name)
-            except ftputil.error.PermanentError, exc:
+            except ftputil.error.PermanentError as exc:
                 self.assertTrue(str(exc).startswith(
                                 "remove/unlink can only delete files"))
             else:

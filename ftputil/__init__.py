@@ -913,7 +913,7 @@ class FTPHost(object):
         # and adapted to ftputil.
         try:
             names = self.listdir(top)
-        except ftputil.error.FTPOSError, err:
+        except ftputil.error.FTPOSError as err:
             if onerror is not None:
                 onerror(err)
             return
