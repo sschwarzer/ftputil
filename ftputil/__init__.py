@@ -116,8 +116,8 @@ class FTPHost(object):
         self._stat = ftputil.stat._Stat(self)
         self.stat_cache = self._stat._lstat_cache
         self.stat_cache.enable()
-        self._cached_current_dir = \
-          ftputil.error._try_with_oserror(self._session.pwd)
+        with ftputil.error.ftplib_error_to_ftp_os_error:
+            self._cached_current_dir = self._session.pwd()
         # Associated `FTPHost` objects for data transfer.
         self._children = []
         # This is only set to something else than `None` if this
@@ -147,7 +147,9 @@ class FTPHost(object):
         """
         # Warning: Don't call this method on `FTPHost` instances which
         # represent file transfers. This may fail in confusing ways.
-        ftputil.error._try_with_oserror(self._session.pwd)
+        with ftputil.error.ftplib_error_to_ftp_os_error:
+            # Ignore return value.
+            self._session.pwd()
 
     #
     # Dealing with child sessions and file-like objects
@@ -166,7 +168,8 @@ class FTPHost(object):
         # `FTPHost` object's child sessions.
         factory = kwargs.pop('session_factory', ftplib.FTP)
         # pylint: disable=W0142
-        return ftputil.error._try_with_oserror(factory, *args, **kwargs)
+        with ftputil.error.ftplib_error_to_ftp_os_error:
+            return factory(*args, **kwargs)
 
     def _copy(self):
         """Return a copy of this `FTPHost` object."""
@@ -255,7 +258,8 @@ class FTPHost(object):
             host.close()
         # Now deal with ourself.
         try:
-            ftputil.error._try_with_oserror(self._session.close)
+            with ftputil.error.ftplib_error_to_ftp_os_error:
+                self._session.close()
         finally:
             # If something went wrong before, the host/session is
             # probably defunct and subsequent calls to `close` won't
@@ -626,7 +630,8 @@ class FTPHost(object):
         """Change the directory on the host."""
         # Fail early if we get a unicode path which can't be encoded.
         path = str(path)
-        ftputil.error._try_with_oserror(self._session.cwd, path)
+        with ftputil.error.ftplib_error_to_ftp_os_error:
+            self._session.cwd(path)
         # The path given as the argument is relative to the old current
         # directory, therefore join them.
         self._cached_current_dir = \
@@ -644,7 +649,8 @@ class FTPHost(object):
         path = str(path)
         def command(self, path):
             """Callback function."""
-            return ftputil.error._try_with_oserror(self._session.mkd, path)
+            with ftputil.error.ftplib_error_to_ftp_os_error:
+                self._session.mkd(path)
         self._robust_ftp_command(command, path)
 
     # Ignore unused argument `mode`
@@ -694,7 +700,8 @@ class FTPHost(object):
         #XXX How does `rmd` work with links?
         def command(self, path):
             """Callback function."""
-            ftputil.error._try_with_oserror(self._session.rmd, path)
+            with ftputil.error.ftplib_error_to_ftp_os_error:
+                self._session.rmd(path)
         self._robust_ftp_command(command, path)
         self.stat_cache.invalidate(path)
 
@@ -711,7 +718,8 @@ class FTPHost(object):
             # an exception with a more appropriate error message.
             def command(self, path):
                 """Callback function."""
-                ftputil.error._try_with_oserror(self._session.delete, path)
+                with ftputil.error.ftplib_error_to_ftp_os_error:
+                    self._session.delete(path)
             self._robust_ftp_command(command, path)
         else:
             raise ftputil.error.PermanentError(
@@ -810,14 +818,14 @@ class FTPHost(object):
             old_dir = self.getcwd()
             try:
                 self.chdir(source_head)
-                ftputil.error._try_with_oserror(self._session.rename,
-                                                source_tail, target_tail)
+                with ftputil.error.ftplib_error_to_ftp_os_error:
+                    self._session.rename(source_tail, target_tail)
             finally:
                 self.chdir(old_dir)
         else:
             # Use straightforward command.
-            ftputil.error._try_with_oserror(self._session.rename,
-                                            source, target)
+            with ftputil.error.ftplib_error_to_ftp_os_error:
+                self._session.rename(source, target)
 
     #XXX One could argue to put this method into the `_Stat` class, but
     # I refrained from that because then `_Stat` would have to know
@@ -834,12 +842,12 @@ class FTPHost(object):
             def callback(line):
                 """Callback function."""
                 lines.append(line)
-            if self.use_list_a_option:
-                args = (self._session.dir, u"-a", path, callback)
-            else:
-                args = (self._session.dir, path, callback)
             # pylint: disable=W0142
-            ftputil.error._try_with_oserror(*args)
+            with ftputil.error.ftplib_error_to_ftp_os_error:
+                if self.use_list_a_option:
+                    self._session.dir(u"-a", path, callback)
+                else:
+                    self._session.dir(path, callback)
             return lines
         lines = self._robust_ftp_command(_FTPHost_dir_command, path,
                                          descend_deeply=True)
@@ -941,8 +949,8 @@ class FTPHost(object):
         path = self.path.abspath(path)
         def command(self, path):
             """Callback function."""
-            ftputil.error._try_with_oserror(
-              self._session.voidcmd, "SITE CHMOD %s %s" % (oct(mode), path))
+            with ftputil.error.ftplib_error_to_ftp_os_error:
+                self._session.voidcmd("SITE CHMOD %s %s" % (oct(mode), path))
         self._robust_ftp_command(command, path)
         self.stat_cache.invalidate(path)
 
