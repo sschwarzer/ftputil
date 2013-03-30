@@ -1,8 +1,8 @@
-# Copyright (C) 2003-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 """
-ftp_error.py - exception classes and wrappers
+ftputil.error - exception classes and wrappers
 """
 
 # "Too many ancestors"
@@ -14,10 +14,10 @@ ftp_error.py - exception classes and wrappers
 import ftplib
 import sys
 
-from ftputil import ftputil_version
+import ftputil.version
 
 
-# You _can_ import these with `from ftp_error import *`, - but
+# You _can_ import these with `from ftputil.error import *`, - but
 # it's _not_ recommended.
 __all__ = [
   'FTPError',
@@ -60,7 +60,7 @@ class FTPError(Exception):
 
     def __str__(self):
         return "%s\nDebugging info: %s" % \
-               (self.strerror, ftputil_version.version_info)
+               (self.strerror, ftputil.version.version_info)
 
 
 # Internal errors are those that have more to do with the inner
@@ -158,4 +158,3 @@ def _try_with_ioerror(callee, *args, **kwargs):
         # Use `*exc.args` instead of `str(args)` because args might be
         # a unicode string with non-ascii characters.
         raise FTPIOError(*exc.args)
-

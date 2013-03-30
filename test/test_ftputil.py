@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2012, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 import ftplib
@@ -9,9 +9,9 @@ import time
 import unittest
 
 import ftputil
+import ftputil.error
 from ftputil import file_transfer
-from ftputil import ftp_error
-from ftputil import ftp_stat
+import ftputil.stat
 
 from test import mock_ftplib
 from test import test_base
@@ -168,7 +168,7 @@ class TestLogin(unittest.TestCase):
 
     def test_invalid_login(self):
         """Login to invalid host must fail."""
-        self.assertRaises(ftp_error.FTPOSError, test_base.ftp_host_factory,
+        self.assertRaises(ftputil.error.FTPOSError, test_base.ftp_host_factory,
                           FailOnLoginSession)
 
 
@@ -183,12 +183,12 @@ class TestKeepAlive(unittest.TestCase):
         """Assume the connection has timed out, so `keep_alive` fails."""
         host = test_base.ftp_host_factory(
                  session_factory=FailOnKeepAliveSession)
-        self.assertRaises(ftp_error.TemporaryError, host.keep_alive)
+        self.assertRaises(ftputil.error.TemporaryError, host.keep_alive)
 
 
 class TestSetParser(unittest.TestCase):
 
-    class TrivialParser(ftp_stat.Parser):
+    class TrivialParser(ftputil.stat.Parser):
         """
         An instance of this parser always returns the same result
         from its `parse_line` method. This is all we need to check
@@ -199,7 +199,7 @@ class TestSetParser(unittest.TestCase):
             # We can't use `os.stat("/home")` directly because we
             # later need the object's `_st_name` attribute, which
             # we can't set on a `os.stat` stat value.
-            default_stat_result = ftp_stat.StatResult(os.stat("/home"))
+            default_stat_result = ftputil.stat.StatResult(os.stat("/home"))
             default_stat_result._st_name = "home"
             self.default_stat_result = default_stat_result
 
@@ -225,10 +225,10 @@ class TestCommandNotImplementedError(unittest.TestCase):
         implemented by the server.
         """
         host = test_base.ftp_host_factory()
-        self.assertRaises(ftp_error.PermanentError,
-                          host.chmod, "nonexistent", 0644)
+        self.assertRaises(ftputil.error.PermanentError, host.chmod,
+                          "nonexistent", 0644)
         # `CommandNotImplementedError` is a subclass of `PermanentError`
-        self.assertRaises(ftp_error.CommandNotImplementedError,
+        self.assertRaises(ftputil.error.CommandNotImplementedError,
                           host.chmod, "nonexistent", 0644)
 
 
@@ -408,11 +408,14 @@ class TestTimeShift(unittest.TestCase):
         for time_shift in test_data:
             self.assertTrue(assert_time_shift(time_shift) is None)
         # Invalid time shift (exceeds one day)
-        self.assertRaises(ftp_error.TimeShiftError, assert_time_shift, 25*3600)
-        self.assertRaises(ftp_error.TimeShiftError, assert_time_shift, -25*3600)
+        self.assertRaises(ftputil.error.TimeShiftError, assert_time_shift,
+                          25*3600)
+        self.assertRaises(ftputil.error.TimeShiftError, assert_time_shift,
+                          -25*3600)
         # Invalid time shift (deviation from full hours unacceptable)
-        self.assertRaises(ftp_error.TimeShiftError, assert_time_shift, 10*60)
-        self.assertRaises(ftp_error.TimeShiftError, assert_time_shift,
+        self.assertRaises(ftputil.error.TimeShiftError, assert_time_shift,
+                          10*60)
+        self.assertRaises(ftputil.error.TimeShiftError, assert_time_shift,
                           -3600-10*60)
 
     def test_synchronize_times(self):
@@ -425,7 +428,7 @@ class TestTimeShift(unittest.TestCase):
         self.assertEqual(host.time_shift(), 3600)
         # Invalid time shift
         host.path.set_mtime(time.time() + 3600+10*60)
-        self.assertRaises(ftp_error.TimeShiftError, host.synchronize_times)
+        self.assertRaises(ftputil.error.TimeShiftError, host.synchronize_times)
 
     def test_synchronize_times_for_server_in_east(self):
         """Test for timestamp correction (see ticket #55)."""
@@ -440,7 +443,7 @@ class TestTimeShift(unittest.TestCase):
         # In case the `time_shift` value for this host instance is 0.0
         # (as is to be expected before the time shift is determined),
         # the directory parser (more specifically
-        # `ftp_stat.Parser.parse_unix_time`) will return a time which
+        # `ftputil.stat.Parser.parse_unix_time`) will return a time which
         # is a year too far in the past. The `synchronize_times`
         # method needs to deal with this and add the year "back".
         # I don't think it's a bug in `parse_unix_time` because the

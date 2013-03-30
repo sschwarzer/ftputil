@@ -1,17 +1,19 @@
-# Copyright (C) 2002-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 """
-ftp_stat.py - stat result, parsers, and FTP stat'ing for `ftputil`
+ftputil.stat - stat result, parsers, and FTP stat'ing for `ftputil`
 """
+
+from __future__ import absolute_import
 
 import math
 import re
 import stat
 import time
 
-from ftputil import ftp_error
-from ftputil import ftp_stat_cache
+import ftputil.error
+import ftputil.stat_cache
 
 
 # These can be used to write custom parsers.
@@ -110,10 +112,10 @@ class Parser(object):
         may look like "drwxr-xr-x".
 
         If the mode string can't be parsed, raise an
-        `ftp_error.ParserError`.
+        `ftputil.error.ParserError`.
         """
         if len(mode_string) != 10:
-            raise ftp_error.ParserError("invalid mode string '%s'" %
+            raise ftputil.error.ParserError("invalid mode string '%s'" %
                                         mode_string)
         st_mode = 0
         #TODO Add support for "S" and sticky bit ("t", "T").
@@ -137,7 +139,7 @@ class Parser(object):
         if file_type in file_type_to_mode:
             st_mode = st_mode | file_type_to_mode[file_type]
         else:
-            raise ftp_error.ParserError(
+            raise ftputil.error.ParserError(
                   "unknown file type character '%s'" % file_type)
         return st_mode
 
@@ -166,12 +168,12 @@ class Parser(object):
         - "May 26  2005" (month name, day of month, year)
 
         If this method can not make sense of the given arguments, it
-        raises an `ftp_error.ParserError`.
+        raises an `ftputil.error.ParserError`.
         """
         try:
             month = self._month_numbers[month_abbreviation.lower()]
         except KeyError:
-            raise ftp_error.ParserError("invalid month name '%s'" % month)
+            raise ftputil.error.ParserError("invalid month name '%s'" % month)
         day = int(day)
         if ":" not in year_or_time:
             # `year_or_time` is really a year.
@@ -227,7 +229,7 @@ class Parser(object):
         hour:minute, am/pm).
 
         If this method can not make sense of the given arguments, it
-        raises an `ftp_error.ParserError`.
+        raises an `ftputil.error.ParserError`.
         """
         # Don't complain about unused `time_shift` argument
         #
@@ -250,7 +252,7 @@ class Parser(object):
             hour, minute, am_pm = time_[0:2], time_[3:5], time_[5]
             hour, minute = int(hour), int(minute)
         except (ValueError, IndexError):
-            raise ftp_error.ParserError("invalid time string '%s'" % time_)
+            raise ftputil.error.ParserError("invalid time string '%s'" % time_)
         if hour == 12 and am_pm == 'A':
             hour = 0
         if hour != 12 and am_pm == 'P':
@@ -278,7 +280,7 @@ class UnixParser(Parser):
         FIELD_COUNT_WITH_USERID = FIELD_COUNT_WITHOUT_USERID + 1
         if len(line_parts) < FIELD_COUNT_WITHOUT_USERID:
             # No known Unix-style format
-            raise ftp_error.ParserError("line '%s' can't be parsed" % line)
+            raise ftputil.error.ParserError("line '%s' can't be parsed" % line)
         # If we have a valid format (either with or without user id field),
         # the field with index 5 is either the month abbreviation or a day.
         try:
@@ -308,7 +310,7 @@ class UnixParser(Parser):
         # ticket #69). This is a strange use case, but at least we
         # should raise the exception the docstring mentions.
         except ValueError, exc:
-            raise ftp_error.ParserError(str(exc))
+            raise ftputil.error.ParserError(str(exc))
         # st_mode
         st_mode = self.parse_unix_mode(mode_string)
         # st_ino, st_dev, st_nlink, st_uid, st_gid, st_size, st_atime
@@ -329,7 +331,7 @@ class UnixParser(Parser):
         if name.count(" -> ") > 1:
             # If we have more than one arrow we can't tell where the link
             # name ends and the target name starts.
-            raise ftp_error.ParserError(
+            raise ftputil.error.ParserError(
                   'name "%s" contains more than one "->"' % name)
         elif name.count(" -> ") == 1:
             st_name, st_target = name.split(' -> ')
@@ -362,7 +364,7 @@ class MSParser(Parser):
             date, time_, dir_or_size, name = line.split(None, 3)
         except ValueError:
             # "unpack list of wrong size"
-            raise ftp_error.ParserError("line '%s' can't be parsed" % line )
+            raise ftputil.error.ParserError("line '%s' can't be parsed" % line)
         # st_mode
         #  Default to read access only; in fact, we can't tell.
         st_mode = 0400
@@ -381,7 +383,7 @@ class MSParser(Parser):
             try:
                 st_size = int(dir_or_size)
             except ValueError:
-                raise ftp_error.ParserError("invalid size %s" % dir_or_size)
+                raise ftputil.error.ParserError("invalid size %s" % dir_or_size)
         else:
             st_size = None
         # st_atime
@@ -415,7 +417,7 @@ class _Stat(object):
         # doesn't work.
         self._allow_parser_switching = True
         # Cache only lstat results. `stat` works locally on `lstat` results.
-        self._lstat_cache = ftp_stat_cache.StatCache()
+        self._lstat_cache = ftputil.stat_cache.StatCache()
 
     def _host_dir(self, path):
         """
@@ -466,7 +468,7 @@ class _Stat(object):
         path = self._path.abspath(path)
         # `listdir` should only be allowed for directories and links to them.
         if not self._path.isdir(path):
-            raise ftp_error.PermanentError(
+            raise ftputil.error.PermanentError(
                   "550 %s: no such directory or wrong directory parser used" %
                   path)
         # Set up for `for` loop.
@@ -498,7 +500,7 @@ class _Stat(object):
         # the output of an FTP `LIST` command. Unfortunately, it is
         # not possible to do this for the root directory `/`.
         if path == '/':
-            raise ftp_error.RootDirError(
+            raise ftputil.error.RootDirError(
                   "can't stat remote root directory")
         dirname, basename = self._path.split(path)
         # If even the directory doesn't exist and we don't want the
@@ -524,7 +526,7 @@ class _Stat(object):
             #TODO Use FTP `LIST` command on the file to implicitly use
             # the usual status code of the server for missing files
             # (450 vs. 550).
-            raise ftp_error.PermanentError(
+            raise ftputil.error.PermanentError(
                   "550 %s: no such file or directory" % path)
         else:
             # Be explicit. Returning `None` is a signal for
@@ -572,7 +574,7 @@ class _Stat(object):
             # Check for cyclic structure.
             if path in visited_paths:
                 # We had seen this path already.
-                raise ftp_error.PermanentError(
+                raise ftputil.error.PermanentError(
                   "recursive link structure detected for remote path '%s'" %
                   original_path)
             # Remember the path we have encountered.
@@ -596,7 +598,7 @@ class _Stat(object):
             if (method is not self._real_listdir) and result:
                 self._allow_parser_switching = False
             return result
-        except ftp_error.ParserError:
+        except ftputil.error.ParserError:
             if self._allow_parser_switching:
                 self._allow_parser_switching = False
                 self._parser = MSParser()
@@ -637,4 +639,3 @@ class _Stat(object):
         """
         return self.__call_with_parser_retry(self._real_stat, path,
                                              _exception_for_missing_path)
-

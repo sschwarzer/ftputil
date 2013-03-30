@@ -1,14 +1,16 @@
-# Copyright (C) 2003-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 """
-ftp_path.py - simulate `os.path` for FTP servers
+ftputil.path - simulate `os.path` for FTP servers
 """
+
+from __future__ import absolute_import
 
 import posixpath
 import stat
 
-from ftputil import ftp_error
+import ftputil.error
 
 
 # The `_Path` class shouldn't be used directly by clients of the
@@ -56,7 +58,7 @@ class _Path(object):
             lstat_result = self._host.lstat(
                            path, _exception_for_missing_path=False)
             return lstat_result is not None
-        except ftp_error.RootDirError:
+        except ftputil.error.RootDirError:
             return True
 
     def getmtime(self, path):
@@ -113,7 +115,7 @@ class _Path(object):
                 return False
             else:
                 return stat.S_ISREG(stat_result.st_mode)
-        except ftp_error.RootDirError:
+        except ftputil.error.RootDirError:
             return False
 
     def isdir(self, path):
@@ -135,7 +137,7 @@ class _Path(object):
                 return False
             else:
                 return stat.S_ISDIR(stat_result.st_mode)
-        except ftp_error.RootDirError:
+        except ftputil.error.RootDirError:
             return True
 
     def islink(self, path):
@@ -153,7 +155,7 @@ class _Path(object):
                 return False
             else:
                 return stat.S_ISLNK(lstat_result.st_mode)
-        except ftp_error.RootDirError:
+        except ftputil.error.RootDirError:
             return False
 
     def walk(self, top, func, arg):
@@ -191,4 +193,3 @@ class _Path(object):
                 continue
             if stat.S_ISDIR(stat_result[stat.ST_MODE]):
                 self.walk(name, func, arg)
-

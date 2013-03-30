@@ -1,16 +1,16 @@
 # Copyright (C) 2008, Roger Demetrescu <roger.demetrescu@gmail.com>
-# Copyright (C) 2008-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2008-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 from __future__ import with_statement
 
 import unittest
 
-from ftputil import ftp_error
+import ftputil.error
 
 from test import test_base
 from test.test_ftputil import FailOnLoginSession
-from test.test_ftp_file import InaccessibleDirSession, ReadMockSession
+from test.test_file import InaccessibleDirSession, ReadMockSession
 
 
 # Exception raised by client code, i. e. code using ftputil
@@ -32,13 +32,13 @@ class TestHostContextManager(unittest.TestCase):
         try:
             with test_base.ftp_host_factory(FailOnLoginSession) as host:
                 pass
-        except ftp_error.FTPOSError:
+        except ftputil.error.FTPOSError:
             # We arrived here, that's fine. Because the `FTPHost` object
             # wasn't successfully constructed the assignment to `host`
             # shouldn't have happened.
             self.assertFalse('host' in locals())
         else:
-            raise self.failureException("ftp_error.FTPOSError not raised")
+            raise self.failureException("ftputil.error.FTPOSError not raised")
 
     def test_client_code_exception(self):
         try:
@@ -71,12 +71,13 @@ class TestFileContextManager(unittest.TestCase):
                 # by definition.
                 with host.file('/inaccessible/new_file', 'w') as f:
                     pass
-            except ftp_error.FTPIOError:
+            except ftputil.error.FTPIOError:
                 # The file construction didn't succeed, so `f` should
                 # be absent from the namespace.
                 self.assertFalse('f' in locals())
             else:
-                raise self.failureException("ftp_error.FTPIOError not raised")
+                raise self.failureException(
+                      "ftputil.error.FTPIOError not raised")
 
     def test_client_code_exception(self):
         with test_base.ftp_host_factory(session_factory=ReadMockSession) \
@@ -93,4 +94,3 @@ class TestFileContextManager(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

@@ -4,7 +4,7 @@
 import ftplib
 import unittest
 
-from ftputil import ftp_error
+import ftputil.error
 
 from test import mock_ftplib
 from test import test_base
@@ -40,7 +40,7 @@ class TestFileOperations(unittest.TestCase):
         """Test whether opening a file at an invalid location fails."""
         host = test_base.ftp_host_factory(
                session_factory=InaccessibleDirSession)
-        self.assertRaises(ftp_error.FTPIOError, host.file,
+        self.assertRaises(ftputil.error.FTPIOError, host.file,
                           '/inaccessible/new_file', 'w')
 
     def test_caching(self):
@@ -78,7 +78,7 @@ class TestFileOperations(unittest.TestCase):
     def test_write_to_directory(self):
         """Test whether attempting to write to a directory fails."""
         host = test_base.ftp_host_factory()
-        self.assertRaises(ftp_error.FTPIOError, host.file,
+        self.assertRaises(ftputil.error.FTPIOError, host.file,
                           '/home/sschwarzer', 'w')
 
     def test_binary_write(self):
@@ -211,9 +211,8 @@ class TestFileOperations(unittest.TestCase):
     def test_read_unknown_file(self):
         """Test whether reading a file which isn't there fails."""
         host = test_base.ftp_host_factory()
-        self.assertRaises(ftp_error.FTPIOError, host.file, 'notthere', 'r')
+        self.assertRaises(ftputil.error.FTPIOError, host.file, 'notthere', 'r')
 
 
 if __name__ == '__main__':
     unittest.main()
-

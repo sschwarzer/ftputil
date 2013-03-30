@@ -1,22 +1,22 @@
 # encoding: utf-8
-# Copyright (C) 2002-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 import ftplib
 import unittest
 
-from ftputil import ftp_error
+import ftputil.error
 
 
 class TestFTPErrorArguments(unittest.TestCase):
 
     def test_bytestring_argument(self):
         # An umlaut as latin-1 character
-        os_error = ftp_error.FTPOSError("\xe4")
+        os_error = ftputil.error.FTPOSError("\xe4")
 
     def test_unicode_argument(self):
         # An umlaut as unicode character
-        io_error = ftp_error.FTPIOError(u"\xe4")
+        io_error = ftputil.error.FTPIOError(u"\xe4")
 
 
 class TestTryWithFTPError(unittest.TestCase):
@@ -27,8 +27,8 @@ class TestTryWithFTPError(unittest.TestCase):
     def test_try_with_oserror(self):
         "Ensure the `ftplib` exception isn't used as `FTPOSError` argument."
         try:
-            ftp_error._try_with_oserror(self.callee)
-        except ftp_error.FTPOSError, exc:
+            ftputil.error._try_with_oserror(self.callee)
+        except ftputil.error.FTPOSError, exc:
             self.assertFalse(exc.args and
                              isinstance(exc.args[0], ftplib.error_perm))
         else:
@@ -38,8 +38,8 @@ class TestTryWithFTPError(unittest.TestCase):
     def test_try_with_ioerror(self):
         "Ensure the `ftplib` exception isn't used as `FTPIOError` argument."
         try:
-            ftp_error._try_with_ioerror(self.callee)
-        except ftp_error.FTPIOError, exc:
+            ftputil.error._try_with_ioerror(self.callee)
+        except ftputil.error.FTPIOError, exc:
             self.assertFalse(exc.args and
                              isinstance(exc.args[0], ftplib.error_perm))
         else:

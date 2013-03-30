@@ -86,8 +86,8 @@ to `os.stat`_. `FTPHost.walk`_ and `FTPHost.path.walk`_ work, too.
 Exception hierarchy
 -------------------
 
-The exceptions are in the namespace of the ``ftp_error`` module, e. g.
-``ftp_error.TemporaryError``.
+The exceptions are in the namespace of the ``ftputil.error`` module, e. g.
+``ftputil.error.TemporaryError``.
 
 The exception classes are organized as follows::
 
@@ -930,10 +930,10 @@ Other methods
     host = ftputil.FTPHost(server, user, password)
     try:
         host.chmod("some_file", 0644)
-    except ftp_error.CommandNotImplementedError:
+    except ftputil.error.CommandNotImplementedError:
         # `chmod` not supported
         ...
-    except ftp_error.PermanentError:
+    except ftputil.error.PermanentError:
         # Possibly a non-existent file
         ...
 
@@ -977,7 +977,7 @@ Other methods
   progress or calling ``keep_alive`` from a `callback function`_.
 
   The ``keep_alive`` method won't help if the connection has already
-  timed out. In this case, a ``ftp_error.TemporaryError`` is raised.
+  timed out. In this case, a ``ftputil.error.TemporaryError`` is raised.
 
   If you want to use this method, keep in mind that FTP servers define
   a timeout for a reason. A timeout prevents running out of server
@@ -995,7 +995,7 @@ Other methods
       for i in xrange(15):
           time.sleep(60)
           host.keep_alive()
-      # Will raise an `ftp_error.TemporaryError`
+      # Will raise an `ftputil.error.TemporaryError`
       data += fobj.read()
       fobj.close()
 
@@ -1096,12 +1096,12 @@ server uses a format which is different from the two provided by
 a single method call.
 
 For this, you need to write a parser class by inheriting from the
-class ``Parser`` in the ``ftp_stat`` module. Here's an example::
+class ``Parser`` in the ``ftputil.stat`` module. Here's an example::
 
-    from ftputil import ftp_error
-    from ftputil import ftp_stat
+    import ftputil.error
+    import ftputil.stat
 
-    class XyzParser(ftp_stat.Parser):
+    class XyzParser(ftputil.stat.Parser):
         """
         Parse the default format of the FTP server of the XYZ
         corporation.
@@ -1110,17 +1110,17 @@ class ``Parser`` in the ``ftp_stat`` module. Here's an example::
             """
             Parse a `line` from the directory listing and return a
             corresponding `StatResult` object. If the line can't
-            be parsed, raise `ftp_error.ParserError`.
+            be parsed, raise `ftputil.error.ParserError`.
 
             The `time_shift` argument can be used to fine-tune the
             parsing of dates and times. See the class
-            `ftp_stat.UnixParser` for an example.
+            `ftputil.stat.UnixParser` for an example.
             """
             # Split the `line` argument and examine it further; if
-            #  something goes wrong, raise an `ftp_error.ParserError`.
+            #  something goes wrong, raise an `ftputil.error.ParserError`.
             ...
             # Make a `StatResult` object from the parts above.
-            stat_result = ftp_stat.StatResult(...)
+            stat_result = ftputil.stat.StatResult(...)
             # `_st_name`, `_st_target` and `_st_mtime_precision` are optional.
             stat_result._st_name = ...
             stat_result._st_target = ...
@@ -1197,7 +1197,7 @@ Additionally, there's an attribute ``_month_numbers`` which maps
 lowercase three-letter month abbreviations to integers.
 
 For more details, see the two "standard" parsers ``UnixParser`` and
-``MSParser`` in the module ``ftp_stat.py``.
+``MSParser`` in the module ``ftputil/stat.py``.
 
 To actually *use* the parser, call the method `set_parser`_ of the
 ``FTPHost`` instance.

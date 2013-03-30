@@ -1,9 +1,9 @@
-# Copyright (C) 2003-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 import unittest
 
-from ftputil import ftp_error
+import ftputil.error
 
 
 class Python24(unittest.TestCase):
@@ -11,10 +11,10 @@ class Python24(unittest.TestCase):
 
     def test_exception_base_class(self):
         try:
-            raise ftp_error.FTPOSError("")
+            raise ftputil.error.FTPOSError("")
         except TypeError:
             self.fail("can't use super in classic class")
-        except ftp_error.FTPOSError:
+        except ftputil.error.FTPOSError:
             # Everything's fine
             pass
 

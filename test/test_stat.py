@@ -1,6 +1,7 @@
-# Copyright (C) 2003-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
+from __future__ import absolute_import
 from __future__ import division
 
 import stat
@@ -8,8 +9,8 @@ import time
 import unittest
 
 import ftputil
-from ftputil import ftp_error
-from ftputil import ftp_stat
+import ftputil.error
+import ftputil.stat
 
 from test import test_base
 from test import mock_ftplib
@@ -17,10 +18,10 @@ from test import mock_ftplib
 
 def test_stat(session_factory):
     host = test_base.ftp_host_factory(session_factory=session_factory)
-    stat = ftp_stat._Stat(host)
+    stat = ftputil.stat._Stat(host)
     # Use Unix format parser explicitly. This doesn't exclude switching
     # to the MS format parser later if the test allows this switching.
-    stat._parser = ftp_stat.UnixParser()
+    stat._parser = ftputil.stat.UnixParser()
     return stat
 
 
@@ -55,7 +56,8 @@ class TestParsers(unittest.TestCase):
     def _test_invalid_lines(self, parser_class, lines):
         parser = parser_class()
         for line in lines:
-            self.assertRaises(ftp_error.ParserError, parser.parse_line, line)
+            self.assertRaises(ftputil.error.ParserError, parser.parse_line,
+                              line)
 
     def _expected_year(self):
         """
@@ -97,7 +99,7 @@ class TestParsers(unittest.TestCase):
           [41471, None, None, 2, '45854', '200', 512, None,
            (2000, 5, 29, 0, 0, 0), None, "osup", "../os2"]
           ]
-        self._test_valid_lines(ftp_stat.UnixParser, lines,
+        self._test_valid_lines(ftputil.stat.UnixParser, lines,
                                expected_stat_results)
 
     def test_invalid_unix_lines(self):
@@ -110,7 +112,7 @@ class TestParsers(unittest.TestCase):
             "os1 -> os2 -> os3",
           "xrwxr-sr-x   2 45854    200           51x May  4  2000 ",
           ]
-        self._test_invalid_lines(ftp_stat.UnixParser, lines)
+        self._test_invalid_lines(ftputil.stat.UnixParser, lines)
 
     def test_alternative_unix_format(self):
         # See http://ftputil.sschwarzer.net/trac/ticket/12 for a
@@ -134,7 +136,7 @@ class TestParsers(unittest.TestCase):
           [41471, None, None, 2, None, '200', 512, None,
            (2000, 5, 29, 0, 0, 0), None, "osup", "../os2"]
           ]
-        self._test_valid_lines(ftp_stat.UnixParser, lines,
+        self._test_valid_lines(ftputil.stat.UnixParser, lines,
                                expected_stat_results)
 
     #
@@ -160,7 +162,8 @@ class TestParsers(unittest.TestCase):
           [33024, None, None, None, None, None, 12266720, None,
            (2009, 7, 17, 12, 8, 0), None, "test.exe", None]
           ]
-        self._test_valid_lines(ftp_stat.MSParser, lines, expected_stat_results)
+        self._test_valid_lines(ftputil.stat.MSParser, lines,
+                               expected_stat_results)
 
     def test_valid_ms_lines_four_digit_year(self):
         # See http://ftputil.sschwarzer.net/trac/ticket/67
@@ -174,7 +177,8 @@ class TestParsers(unittest.TestCase):
           [16640, None, None, None, None, None, None, None,
            (2012, 10, 19, 15, 13, 0), None, "SYNCSOURCE", None],
           ]
-        self._test_valid_lines(ftp_stat.MSParser, lines, expected_stat_results)
+        self._test_valid_lines(ftputil.stat.MSParser, lines,
+                               expected_stat_results)
 
     def test_invalid_ms_lines(self):
         lines = [
@@ -182,7 +186,7 @@ class TestParsers(unittest.TestCase):
           "07-17-00  02:08             12266720 test.exe",
           "07-17-00  02:08AM           1226672x test.exe"
           ]
-        self._test_invalid_lines(ftp_stat.MSParser, lines)
+        self._test_invalid_lines(ftputil.stat.MSParser, lines)
 
     #
     # The following code checks if the decision logic in the Unix
@@ -232,7 +236,7 @@ class TestParsers(unittest.TestCase):
         """
         host = test_base.ftp_host_factory()
         # Explicitly use Unix format parser here.
-        host._stat._parser = ftp_stat.UnixParser()
+        host._stat._parser = ftputil.stat.UnixParser()
         host.set_time_shift(supposed_time_shift)
         server_time = time.time() + supposed_time_shift + deviation
         stat_result = host._stat._parser.parse_line(self.dir_line(server_time),
@@ -276,9 +280,9 @@ class TestLstatAndStat(unittest.TestCase):
 
     def test_failing_lstat(self):
         """Test whether lstat fails for a nonexistent path."""
-        self.assertRaises(ftp_error.PermanentError, self.stat._lstat,
+        self.assertRaises(ftputil.error.PermanentError, self.stat._lstat,
                           '/home/sschw/notthere')
-        self.assertRaises(ftp_error.PermanentError, self.stat._lstat,
+        self.assertRaises(ftputil.error.PermanentError, self.stat._lstat,
                           '/home/sschwarzer/notthere')
 
     def test_lstat_for_root(self):
@@ -289,11 +293,11 @@ class TestLstatAndStat(unittest.TestCase):
         the output of an FTP `LIST` command. Unfortunately, it's not
         possible to do this for the root directory `/`.
         """
-        self.assertRaises(ftp_error.RootDirError, self.stat._lstat, '/')
+        self.assertRaises(ftputil.error.RootDirError, self.stat._lstat, '/')
         try:
             self.stat._lstat('/')
-        except ftp_error.RootDirError, exc_obj:
-            self.assertFalse(isinstance(exc_obj, ftp_error.FTPOSError))
+        except ftputil.error.RootDirError, exc_obj:
+            self.assertFalse(isinstance(exc_obj, ftputil.error.FTPOSError))
 
     def test_lstat_one_unix_file(self):
         """Test `lstat` for a file described in Unix-style format."""
@@ -351,9 +355,9 @@ class TestLstatAndStat(unittest.TestCase):
         stat_result = self.stat._stat('../python/link_link')
         self.assertEqual(stat_result.st_size, 4604)
         # Recursive link structures
-        self.assertRaises(ftp_error.PermanentError, self.stat._stat,
+        self.assertRaises(ftputil.error.PermanentError, self.stat._stat,
                           '../python/bad_link')
-        self.assertRaises(ftp_error.PermanentError, self.stat._stat,
+        self.assertRaises(ftputil.error.PermanentError, self.stat._stat,
                           '/home/bad_link')
 
     #
@@ -367,25 +371,25 @@ class TestLstatAndStat(unittest.TestCase):
         # the Unix parser, so `_allow_parser_switching` can be
         # switched off no matter whether we got a `PermanentError`
         # or not.
-        self.assertRaises(ftp_error.PermanentError, self.stat._lstat,
+        self.assertRaises(ftputil.error.PermanentError, self.stat._lstat,
                           "/home/msformat/nonexistent")
         self.assertEqual(self.stat._allow_parser_switching, False)
 
     def test_parser_switching_default_to_unix(self):
         """Test non-switching of parser format; stay with Unix."""
         self.assertEqual(self.stat._allow_parser_switching, True)
-        self.assertTrue(isinstance(self.stat._parser, ftp_stat.UnixParser))
+        self.assertTrue(isinstance(self.stat._parser, ftputil.stat.UnixParser))
         stat_result = self.stat._lstat("/home/sschwarzer/index.html")
-        self.assertTrue(isinstance(self.stat._parser, ftp_stat.UnixParser))
+        self.assertTrue(isinstance(self.stat._parser, ftputil.stat.UnixParser))
         self.assertEqual(self.stat._allow_parser_switching, False)
 
     def test_parser_switching_to_ms(self):
         """Test switching of parser from Unix to MS format."""
         self.stat = test_stat(session_factory=mock_ftplib.MockMSFormatSession)
         self.assertEqual(self.stat._allow_parser_switching, True)
-        self.assertTrue(isinstance(self.stat._parser, ftp_stat.UnixParser))
+        self.assertTrue(isinstance(self.stat._parser, ftputil.stat.UnixParser))
         stat_result = self.stat._lstat("/home/msformat/abcd.exe")
-        self.assertTrue(isinstance(self.stat._parser, ftp_stat.MSParser))
+        self.assertTrue(isinstance(self.stat._parser, ftputil.stat.MSParser))
         self.assertEqual(self.stat._allow_parser_switching, False)
         self.assertEqual(stat_result._st_name, "abcd.exe")
         self.assertEqual(stat_result.st_size, 12266720)
@@ -397,7 +401,7 @@ class TestLstatAndStat(unittest.TestCase):
         result = self.stat._listdir("/home/msformat/XPLaunch/empty")
         self.assertEqual(result, [])
         self.assertEqual(self.stat._allow_parser_switching, True)
-        self.assertTrue(isinstance(self.stat._parser, ftp_stat.UnixParser))
+        self.assertTrue(isinstance(self.stat._parser, ftputil.stat.UnixParser))
 
 
 class TestListdir(unittest.TestCase):
@@ -409,7 +413,7 @@ class TestListdir(unittest.TestCase):
 
     def test_failing_listdir(self):
         """Test failing `FTPHost.listdir`."""
-        self.assertRaises(ftp_error.PermanentError,
+        self.assertRaises(ftputil.error.PermanentError,
                           self.stat._listdir, 'notthere')
 
     def test_succeeding_listdir(self):
@@ -426,4 +430,3 @@ class TestListdir(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
