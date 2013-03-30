@@ -18,6 +18,8 @@ Things to do for a new release:
 
 - Tag release (tags are formed like "release2_0_3b2")
 
+- Push to main and Bitbucket repositories
+
 - Add new version to Trac issue tracker
 
 - Add new version to Download page on the website
