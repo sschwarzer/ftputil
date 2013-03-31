@@ -16,7 +16,7 @@ the Python 3 helpers as well.
 import sys
 
 
-if sys.version_info[0] == 2:
+if sys.version_info.major == 2:
 
     # As a low-level networking library, ftputil mostly works on
     # byte strings, so 2to3's approach to turn byte strings into
@@ -24,14 +24,11 @@ if sys.version_info[0] == 2:
     def b(byte_string):
         return byte_string
 
-    # Similarly for `StringIO` and such.
-    import StringIO
-    byte_string_io = StringIO.StringIO
+    int_types = (int, long)
 
 else:
 
     def b(byte_string):
         return bytes(byte_string, encoding="ASCII")
 
-    import io
-    byte_string_io = io.BytesIO
+    int_types = (int,)

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2012, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # Copyright (C) 2008, Roger Demetrescu <roger.demetrescu@gmail.com>
 # See the file LICENSE for licensing terms.
 
@@ -847,7 +847,7 @@ class FTPHost(object):
             # pylint: disable=W0142
             with ftputil.error.ftplib_error_to_ftp_os_error:
                 if self.use_list_a_option:
-                    self._session.dir(u"-a", path, callback)
+                    self._session.dir("-a", path, callback)
                 else:
                     self._session.dir(path, callback)
             return lines

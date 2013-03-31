@@ -371,7 +371,7 @@ class MSParser(Parser):
                                             format(line))
         # st_mode
         #  Default to read access only; in fact, we can't tell.
-        st_mode = 0400
+        st_mode = 0o400
         if dir_or_size == "<DIR>":
             st_mode = st_mode | stat.S_IFDIR
         else:

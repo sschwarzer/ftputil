@@ -28,6 +28,8 @@ Currently, these deprecated features are examined:
       ...
 """
 
+from __future__ import print_function
+
 import os
 import re
 import sys
@@ -80,21 +82,19 @@ def print_results():
     # pylint: disable=W0612
     for title, regex, positions in deprecated_features:
         if title != last_title:
-            print
-            print title, "..."
-            print
+            print()
+            print(title, "...")
+            print()
             last_title = title
         if not positions:
-            print "   no deprecated code found"
+            print("   no deprecated code found")
             continue
-        file_names = positions.keys()
-        file_names.sort()
-        for file_name in file_names:
-            print file_name
+        for file_name in sorted(positions.keys()):
+            print(file_name)
             for line_number, line in positions[file_name]:
-                print "%5d: %s" % (line_number, line)
-    print
-    print "If possible, check your code also by other means."
+                print("%5d: %s" % (line_number, line))
+    print()
+    print("If possible, check your code also by other means.")
 
 
 def main(start_dir):
@@ -115,13 +115,13 @@ def main(start_dir):
 if __name__ == '__main__':
     if len(sys.argv) == 2:
         if sys.argv[1] in ("-h", "--help"):
-            print __doc__
+            print(__doc__)
             sys.exit(0)
         start_dir = sys.argv[1]
         if not os.path.isdir(start_dir):
-            print >> sys.stderr, "Directory %s not found." % start_dir
+            print("Directory %s not found." % start_dir, file=sys.stderr)
             sys.exit()
     else:
-        print >> sys.stderr, "Usage: %s start_dir" % sys.argv[0]
+        print("Usage: %s start_dir" % sys.argv[0], file=sys.stderr)
         sys.exit()
     main(start_dir)
