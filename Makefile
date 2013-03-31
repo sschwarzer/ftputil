@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2012, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 # This Makefile requires GNU Make.
@@ -6,7 +6,7 @@
 SHELL=/bin/sh
 PROJECT_DIR=$(shell pwd)
 VERSION=$(shell cat VERSION)
-PYTHON_BINARY=python2
+PYTHON_BINARY?=python2
 
 TEST_DIR=${PROJECT_DIR}/test
 
