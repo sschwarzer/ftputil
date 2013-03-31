@@ -42,8 +42,16 @@ def same_string_type_as(type_source, content_source):
 
 
 def to_bytes_type(string):
+    """
+    Return the argument `string` converted to a byte string if it's a
+    unicode string. Otherwise just return the string.
+    """
     return same_string_type_as(b"", string)
 
 
 def to_unicode_type(string):
+    """
+    Return the argument `string` converted to a unicode string if it's
+    a byte string. Otherwise just return the string.
+    """
     return same_string_type_as("", string)
