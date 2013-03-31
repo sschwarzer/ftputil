@@ -3,12 +3,15 @@ Planned:
 - Python 3 support (see
   ftp://ftp.rfc-editor.org/in-notes/rfc2640.txt for some notes on
   internationalization)
+
 - clean up the code by using decorators
+
 - add `ftp_session` module containing session classes (e. g. for
   passive mode connections)
+
 
 Ideas for future development:
 
 - see ticket system
-- WebDAV support?
 
+- WebDAV support?
