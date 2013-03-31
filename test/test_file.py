@@ -191,10 +191,10 @@ class TestFileOperations(unittest.TestCase):
         host = test_base.ftp_host_factory(session_factory=ReadMockSession)
         input_ = host.file('dummy')
         input_iterator = iter(input_)
-        self.assertEqual(input_iterator.next(), "line 1\n")
-        self.assertEqual(input_iterator.next(), "another line\n")
-        self.assertEqual(input_iterator.next(), "yet another line")
-        self.assertRaises(StopIteration, input_iterator.next)
+        self.assertEqual(next(input_iterator), "line 1\n")
+        self.assertEqual(next(input_iterator), "another line\n")
+        self.assertEqual(next(input_iterator), "yet another line")
+        self.assertRaises(StopIteration, input_iterator.__next__)
         input_.close()
 
     def test_ascii_iterator(self):
@@ -202,10 +202,10 @@ class TestFileOperations(unittest.TestCase):
         host = test_base.ftp_host_factory(session_factory=ReadMockSession)
         input_ = host.file('dummy', 'rb')
         input_iterator = iter(input_)
-        self.assertEqual(input_iterator.next(), "line 1\r\n")
-        self.assertEqual(input_iterator.next(), "another line\r\n")
-        self.assertEqual(input_iterator.next(), "yet another line")
-        self.assertRaises(StopIteration, input_iterator.next)
+        self.assertEqual(next(input_iterator), "line 1\r\n")
+        self.assertEqual(next(input_iterator), "another line\r\n")
+        self.assertEqual(next(input_iterator), "yet another line")
+        self.assertRaises(StopIteration, input_iterator.__next__)
         input_.close()
 
     def test_read_unknown_file(self):

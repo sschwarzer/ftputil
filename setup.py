@@ -6,6 +6,8 @@
 setup.py - installation script for Python distutils
 """
 
+from __future__ import print_function
+
 import os
 import sys
 
@@ -26,8 +28,8 @@ for doc_file in doc_files:
         doc_files_are_present = False
 
 if "install" in sys.argv[1:] and not doc_files_are_present:
-    print "One or more of the HTML documentation files are missing."
-    print "Please generate them with `make docs`."
+    print("One or more of the HTML documentation files are missing.")
+    print("Please generate them with `make docs`.")
     sys.exit(1)
 
 core.setup(

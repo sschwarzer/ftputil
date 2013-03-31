@@ -466,6 +466,9 @@ class _Stat(object):
         Return a list of directories, files etc. in the directory
         named `path`.
 
+        Like `os.listdir` the returned list elements have the type
+        of the argument.
+
         If the directory listing from the server can't be parsed
         raise a `ParserError`.
         """

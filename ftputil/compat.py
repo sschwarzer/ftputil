@@ -1,5 +1,5 @@
 # encoding: utf-8
-# Copyright (C) 2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2011-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 """
@@ -10,9 +10,6 @@ The comments given for the Python 2 versions of the helpers apply to
 the Python 3 helpers as well.
 """
 
-# Note that more imports are to be found in the large `if`
-# statement below, because they work only in Python 2 or
-# Python 3.
 import sys
 
 
@@ -26,9 +23,20 @@ if sys.version_info.major == 2:
 
     int_types = (int, long)
 
+    unicode_type = unicode
+    bytes_type = str
+
+    # Non-evaluating input
+    input = raw_input
+
 else:
 
     def b(byte_string):
         return bytes(byte_string, encoding="ASCII")
 
     int_types = (int,)
+
+    unicode_type = str
+    bytes_type = bytes
+
+    input = input

@@ -9,9 +9,12 @@ Not all functionality is implemented, only that what is used to
 run the unit tests.
 """
 
+from __future__ import unicode_literals
+
+import io
+import collections
 import ftplib
 import posixpath
-import StringIO
 
 DEBUG = 0
 
@@ -24,7 +27,7 @@ def content_of(path):
     return mock_files[path].getvalue()
 
 
-class MockFile(StringIO.StringIO, object):
+class MockFile(io.BytesIO, object):
     """
     Mock class for the file objects _contained in_ `_FTPFile` objects
     (not `_FTPFile` objects themselves!).
@@ -32,7 +35,7 @@ class MockFile(StringIO.StringIO, object):
     Contrary to `StringIO.StringIO` instances, `MockFile` objects can
     be queried for their contents after they have been closed.
     """
-    def __init__(self, path, content=''):
+    def __init__(self, path, content=b''):
         global mock_files
         mock_files[path] = self
         super(MockFile, self).__init__(content)
@@ -56,7 +59,7 @@ class MockSocket(object):
     """
     def __init__(self, path, mock_file_content=''):
         if DEBUG:
-            print "File content: *{0}*".format(mock_file_content)
+            print("File content: *{0}*".format(mock_file_content))
         self.file_path = path
         self.mock_file_content = mock_file_content
         self._timeout = 60
@@ -88,7 +91,7 @@ class MockSession(object):
     dir_contents = {}
 
     # File content to be used (indirectly) with `transfercmd`.
-    mock_file_content = ''
+    mock_file_content = b''
 
     def __init__(self, host='', user='', password=''):
         self.closed = 0
@@ -100,7 +103,7 @@ class MockSession(object):
 
     def voidcmd(self, cmd):
         if DEBUG:
-            print cmd
+            print(cmd)
         if cmd == 'STAT':
             return 'MockSession server awaiting your commands ;-)'
         elif cmd.startswith('TYPE '):
@@ -128,7 +131,7 @@ class MockSession(object):
         """Provide a callback function for processing each line of
         a directory listing. Return nothing.
         """
-        if callable(args[-1]):
+        if isinstance(args[-1], collections.Callable):
             callback = args[-1]
             args = args[:-1]
         else:
@@ -136,14 +139,14 @@ class MockSession(object):
         # Everything before the path argument are options.
         path = args[-1]
         if DEBUG:
-            print "dir: {0}".format(path)
+            print("dir: {0}".format(path))
         path = self._transform_path(path)
-        if not self.dir_contents.has_key(path):
+        if path not in self.dir_contents:
             raise ftplib.error_perm
         dir_lines = self.dir_contents[path].split('\n')
         for line in dir_lines:
             if callback is None:
-                print line
+                print(line)
             else:
                 callback(line)
 
@@ -158,11 +161,11 @@ class MockSession(object):
         return a mock file object.
         """
         if DEBUG:
-            print cmd
+            print(cmd)
         # Fail if attempting to read from/write to a directory
         cmd, path = cmd.split()
         path = self._remove_trailing_slash(path)
-        if self.dir_contents.has_key(path):
+        if path in self.dir_contents:
             raise ftplib.error_perm
         # Fail if path isn't available (this name is hard-coded here
         # and has to be used for the corresponding tests).

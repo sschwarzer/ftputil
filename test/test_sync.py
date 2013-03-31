@@ -1,10 +1,12 @@
 # Copyright (C) 2007-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
+from __future__ import unicode_literals
+
+import io
 import ntpath
 import os
 import shutil
-import StringIO
 import sys
 import unittest
 
@@ -54,11 +56,11 @@ class LocalWindowsHost(ftputil.sync.LocalHost):
 
     def __init__(self):
         self.path = LocalWindowsHostPath()
-        self.sep = u"\\"
+        self.sep = "\\"
 
     def open(self, path, mode):
         # Just return a dummy file object.
-        return StringIO.StringIO(u"")
+        return io.StringIO("")
 
     def walk(self, root):
         """
@@ -75,18 +77,18 @@ class LocalWindowsHost(ftputil.sync.LocalHost):
         """
         join = ntpath.join
         return [(root,
-                 [join(root, u"dir1")],
+                 [join(root, "dir1")],
                  []),
-                (join(root, u"dir1"),
-                 [u"dir11"],
-                 [u"file1", u"file2"])
+                (join(root, "dir1"),
+                 ["dir11"],
+                 ["file1", "file2"])
                 ]
 
 
 class DummyFTPSession(object):
 
     def pwd(self):
-        return u"/"
+        return "/"
 
     def dir(self, *args):
         # Called by `_check_list_a_option`, otherwise not used.
@@ -100,10 +102,10 @@ class DummyFTPPath(object):
         return path
 
     def isdir(self, path):
-        return path[:-1].endswith(u"dir")
+        return path[:-1].endswith("dir")
 
     def isfile(self, path):
-        return path[:-1].endswith(u"file")
+        return path[:-1].endswith("file")
 
 
 class ArgumentCheckingFTPHost(ftputil.FTPHost):
@@ -116,11 +118,11 @@ class ArgumentCheckingFTPHost(ftputil.FTPHost):
         return DummyFTPSession()
 
     def mkdir(self, path):
-        assert u"\\" not in path
+        assert "\\" not in path
 
     def open(self, path, mode):
-        assert u"\\" not in path
-        return StringIO.StringIO(u"")
+        assert "\\" not in path
+        return io.StringIO("")
 
 
 class TestUploadFromWindows(unittest.TestCase):
@@ -128,11 +130,11 @@ class TestUploadFromWindows(unittest.TestCase):
     def test_no_mixed_separators(self):
         source = LocalWindowsHost()
         target = ArgumentCheckingFTPHost()
-        local_root = ntpath.join(u"some", u"directory")
+        local_root = ntpath.join("some", "directory")
         syncer = ftputil.sync.Syncer(source, target)
         # If the following call raises any `AssertionError`s, the
         # `unittest` framework will catch them and show them.
-        syncer.sync(local_root, u"not_used_by_ArgumentCheckingFTPHost")
+        syncer.sync(local_root, "not_used_by_ArgumentCheckingFTPHost")
 
 
 if __name__ == '__main__':
