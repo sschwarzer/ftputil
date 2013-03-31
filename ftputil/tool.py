@@ -10,7 +10,7 @@ from __future__ import unicode_literals
 import ftputil.compat as compat
 
 
-__all__ = ["same_string_type_as"]
+__all__ = ["same_string_type_as", "to_bytes_type", "to_unicode_type"]
 
 
 # Encoding to convert a string to the same type as another. This is a
