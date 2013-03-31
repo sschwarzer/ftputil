@@ -155,7 +155,7 @@ class _FTPFile(object):
         """Return a file iterator."""
         return self
 
-    def next(self):
+    def __next__(self):
         """
         Return the next line or raise `StopIteration`, if there are
         no more.
@@ -166,6 +166,9 @@ class _FTPFile(object):
             return line
         else:
             raise StopIteration
+
+    # For Python 2 compatibility
+    next = __next__
 
     def write(self, data):
         """Write data to file. Do linesep conversion for text mode."""
