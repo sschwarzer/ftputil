@@ -64,7 +64,7 @@ test:
 	for file in $(TEST_FILES); \
 	do \
 		echo $$file ; \
-		PYTHONPATH=${PYTHONPATH} python $$file ; \
+		PYTHONPATH=${PYTHONPATH} python2 $$file ; \
 	done
 
 pylint:
