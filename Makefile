@@ -6,6 +6,7 @@
 SHELL=/bin/sh
 PROJECT_DIR=$(shell pwd)
 VERSION=$(shell cat VERSION)
+PYTHON_BINARY=python2
 
 TEST_DIR=${PROJECT_DIR}/test
 
@@ -64,7 +65,7 @@ test:
 	for file in $(TEST_FILES); \
 	do \
 		echo $$file ; \
-		PYTHONPATH=${PYTHONPATH} python2 $$file ; \
+		PYTHONPATH=${PYTHONPATH} ${PYTHON_BINARY} $$file ; \
 	done
 
 pylint:
@@ -72,14 +73,14 @@ pylint:
 
 # Prepare everything for making a distribution tarball.
 dist: clean patch test pylint docs
-	python setup.py sdist
+	${PYTHON_BINARY} setup.py sdist
 
 extdist: test dist register
 
 # Register package on PyPI.
 register:
 	@echo "Registering new version with PyPI"
-	python setup.py register
+	${PYTHON_BINARY} setup.py register
 
 # Remove files with `orig` suffix (caused by `hg revert`).
 cleanorig:
