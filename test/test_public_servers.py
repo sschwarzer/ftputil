@@ -167,7 +167,7 @@ class TestPublicServers(unittest.TestCase):
             for initial_directory, paths in self.paths_table:
                 initial_directory = initial_directory.replace(
                                       "DIR", actual_initial_directory)
-                print server, initial_directory
+                print(server, initial_directory)
                 self.inner_test_server(server, initial_directory, paths)
 
 

@@ -34,14 +34,14 @@ def random_data(pool, size=10000):
 
 def ascii_data():
     """Return an ASCII character string."""
-    pool = range(32, 128)
+    pool = list(range(32, 128))
     pool.append(ord('\n'))
     return random_data(pool)
 
 
 def binary_data():
     """Return a binary character string."""
-    pool = range(0, 256)
+    pool = list(range(0, 256))
     return random_data(pool)
 
 
@@ -225,10 +225,10 @@ class TestCommandNotImplementedError(unittest.TestCase):
         """
         host = test_base.ftp_host_factory()
         self.assertRaises(ftputil.error.PermanentError, host.chmod,
-                          "nonexistent", 0644)
+                          "nonexistent", 0o644)
         # `CommandNotImplementedError` is a subclass of `PermanentError`
         self.assertRaises(ftputil.error.CommandNotImplementedError,
-                          host.chmod, "nonexistent", 0644)
+                          host.chmod, "nonexistent", 0o644)
 
 
 class TestRecursiveListingForDotAsPath(unittest.TestCase):

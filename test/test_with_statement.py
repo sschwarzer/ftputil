@@ -2,8 +2,6 @@
 # Copyright (C) 2008-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
-from __future__ import with_statement
-
 import unittest
 
 import ftputil.error

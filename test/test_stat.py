@@ -225,7 +225,7 @@ class TestParsers(unittest.TestCase):
         try:
             self.assertFalse(abs_difference > 60.0)
         except AssertionError:
-            print "Difference is", abs_difference, "seconds"
+            print("Difference is", abs_difference, "seconds")
             raise
 
     def _test_time_shift(self, supposed_time_shift, deviation=0.0):

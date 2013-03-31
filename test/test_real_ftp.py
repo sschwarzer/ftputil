@@ -6,8 +6,10 @@
 # Execute a test on a real FTP server (other tests use a mock server)
 
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import ftplib
+import functools
 import gc
 import getpass
 import operator
@@ -18,6 +20,7 @@ import stat
 import sys
 
 import ftputil
+import ftputil.compat
 import ftputil.error
 import ftputil.file_transfer
 import ftputil.stat
@@ -620,7 +623,7 @@ class TestChmod(RealFTPTest):
           stat.S_IRWXU, stat.S_IRUSR, stat.S_IWUSR, stat.S_IXUSR,
           stat.S_IRWXG, stat.S_IRGRP, stat.S_IWGRP, stat.S_IXGRP,
           stat.S_IRWXO, stat.S_IROTH, stat.S_IWOTH, stat.S_IXOTH]
-        allowed_mask = reduce(operator.or_, allowed_flags)
+        allowed_mask = functools.reduce(operator.or_, allowed_flags)
         mode = full_mode & allowed_mask
         self.assertEqual(mode, expected_mode,
                          "mode {0:o} != {1:o}".format(mode, expected_mode))
@@ -630,14 +633,14 @@ class TestChmod(RealFTPTest):
         host.mkdir("_test dir_")
         self.cleaner.add_dir("_test dir_")
         # Set/get mode of a directory
-        host.chmod("_test dir_", 0757)
-        self.assert_mode("_test dir_", 0757)
+        host.chmod("_test dir_", 0o757)
+        self.assert_mode("_test dir_", 0o757)
         # Set/get mode in nested directory
         host.mkdir("_test dir_/nested_dir")
         self.cleaner.add_dir("_test dir_/nested_dir")
         # Set/get mode of a directory
-        host.chmod("_test dir_/nested_dir", 0757)
-        self.assert_mode("_test dir_/nested_dir", 0757)
+        host.chmod("_test dir_/nested_dir", 0o757)
+        self.assert_mode("_test dir_/nested_dir", 0o757)
 
     def test_chmod_existing_file(self):
         host = self.host
@@ -646,13 +649,13 @@ class TestChmod(RealFTPTest):
         # Set/get mode on a file
         file_name = host.path.join("_test dir_", "_testfile_")
         self.make_file(file_name)
-        host.chmod(file_name, 0646)
-        self.assert_mode(file_name, 0646)
+        host.chmod(file_name, 0o646)
+        self.assert_mode(file_name, 0o646)
 
     def test_chmod_nonexistent_path(self):
         # Set/get mode of a directory
         self.assertRaises(ftputil.error.PermanentError, self.host.chmod,
-                          "nonexistent", 0757)
+                          "nonexistent", 0o757)
 
     def test_cache_invalidation(self):
         host = self.host
@@ -661,15 +664,15 @@ class TestChmod(RealFTPTest):
         # Make sure the mode is in the cache
         unused_stat_result = host.stat("_test dir_")
         # Set/get mode of a directory
-        host.chmod("_test dir_", 0757)
-        self.assert_mode("_test dir_", 0757)
+        host.chmod("_test dir_", 0o757)
+        self.assert_mode("_test dir_", 0o757)
         # Set/get mode on a file
         file_name = host.path.join("_test dir_", "_testfile_")
         self.make_file(file_name)
         # Make sure the mode is in the cache
         unused_stat_result = host.stat(file_name)
-        host.chmod(file_name, 0646)
-        self.assert_mode(file_name, 0646)
+        host.chmod(file_name, 0o646)
+        self.assert_mode(file_name, 0o646)
 
 
 class TestUnicodePaths(RealFTPTest):
@@ -687,7 +690,7 @@ class TestUnicodePaths(RealFTPTest):
     # use unicode strings which come into existence intermediately.
  
     def assert_non_unicode(self, s):
-        self.assertFalse(isinstance(s, unicode))
+        self.assertFalse(isinstance(s, ftputil.compat.unicode_type))
 
     def assert_unicode_error(self, function, *args):
         self.assertRaises(UnicodeEncodeError, function, *args)
@@ -701,49 +704,49 @@ class TestUnicodePaths(RealFTPTest):
             self.assert_non_unicode(fobj.name)
         finally:
             fobj.close()
-        fobj = host.file(u"CONTENTS")
+        fobj = host.file("CONTENTS")
         try:
             self.assert_non_unicode(fobj.name)
         finally:
             fobj.close()
         # Check if non-encodable unicode strings are refused.
-        self.assert_unicode_error(host.file, u"ä")
+        self.assert_unicode_error(host.file, "ä")
 
     def test_upload(self):
-        self.assert_unicode_error(self.host.upload, "ftputil.py", u"ä")
+        self.assert_unicode_error(self.host.upload, "ftputil.py", "ä")
 
     def test_upload_if_newer(self):
         self.assert_unicode_error(self.host.upload_if_newer,
-                                  "ftputil.py", u"ä")
+                                  "ftputil.py", "ä")
 
     def test_download(self):
-        self.assert_unicode_error(self.host.download, u"ä", "ok")
+        self.assert_unicode_error(self.host.download, "ä", "ok")
 
     def test_download_if_newer(self):
-        self.assert_unicode_error(self.host.download_if_newer, u"ä", "ok")
+        self.assert_unicode_error(self.host.download_if_newer, "ä", "ok")
 
     def test_chdir(self):
         # Unicode strings are ok if they can be encoded to ASCII.
         host = self.host
         host.chdir(".")
         self.assert_non_unicode(host.getcwd())
-        host.chdir(u".")
+        host.chdir(".")
         self.assert_non_unicode(host.getcwd())
         # Fail early if string can't be encoded to ASCII.
-        self.assert_unicode_error(host.chdir, u"ä")
+        self.assert_unicode_error(host.chdir, "ä")
 
     def test_rename(self):
-        self.assert_unicode_error(self.host.rename, u"ä", "b")
-        self.assert_unicode_error(self.host.rename, "b", u"ä")
+        self.assert_unicode_error(self.host.rename, "ä", "b")
+        self.assert_unicode_error(self.host.rename, "b", "ä")
 
     def test_walk(self):
         # The string test is only executed when the first item is
         #  requested from the generator.
-        iterator = self.host.walk(u"ä")
-        self.assert_unicode_error(iterator.next)
+        iterator = self.host.walk("ä")
+        self.assert_unicode_error(next, iterator)
 
     def test_chmod(self):
-        self.assert_unicode_error(self.host.chmod, u"ä", 0644)
+        self.assert_unicode_error(self.host.chmod, "ä", 0o644)
 
     def test_single_path_methods(self):
         # Collective test for similar tests which use just a single
@@ -751,18 +754,18 @@ class TestUnicodePaths(RealFTPTest):
         for method_name in \
           "mkdir makedirs rmdir remove rmtree listdir lstat stat".split():
             method = getattr(self.host, method_name)
-            self.assert_unicode_error(method, u"ä")
+            self.assert_unicode_error(method, "ä")
 
     def test_path(self):
         for method_name in \
           "abspath exists getmtime getsize isfile isdir islink".split():
             method = getattr(self.host.path, method_name)
-            self.assert_unicode_error(method, u"ä")
+            self.assert_unicode_error(method, "ä")
 
     def test_path_walk(self):
         def noop():
             pass
-        self.assert_unicode_error(self.host.path.walk, u"ä", noop, None)
+        self.assert_unicode_error(self.host.path.walk, "ä", noop, None)
 
 
 class TestOther(RealFTPTest):
@@ -818,9 +821,9 @@ class TestOther(RealFTPTest):
         self.assertFalse(".hidden" in directory_entries)
 
     def _make_objects_to_be_garbage_collected(self):
-        for i in xrange(10):
+        for i in range(10):
             with ftputil.FTPHost(server, user, password) as host:
-                for j in xrange(10):
+                for j in range(10):
                     stat_result = host.stat("CONTENTS")
                     with host.file("CONTENTS") as fobj:
                         data = fobj.read()
@@ -836,7 +839,7 @@ class TestOther(RealFTPTest):
 
 
 if __name__ == '__main__':
-    print """\
+    print("""\
 Test real FTP access.
 
 This test writes some files and directories on the local client and the
@@ -846,11 +849,12 @@ function `get_login_data` in `test_real_ftp.py` and restart this test.
 
 You'll need write access in the login directory. This test can take a few
 minutes because it has to wait to test the timezone calculation.
-"""
+""")
     try:
-        raw_input("[Return] to continue, or [Ctrl-C] to skip test. ")
+        ftputil.compat.input(
+          "[Return] to continue, or [Ctrl-C] to skip test. ")
     except KeyboardInterrupt:
-        print "\nTest aborted."
+        print("\nTest aborted.")
         sys.exit()
     # Get login data only once, not for each test
     server, user, password = get_login_data()

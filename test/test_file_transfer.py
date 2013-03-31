@@ -1,11 +1,11 @@
 # Copyright (C) 2010-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
+import io
 import random
-import StringIO
 import unittest
 
-from ftputil import file_transfer
+import ftputil.file_transfer
 
 
 class MockFile(object):
@@ -58,12 +58,12 @@ class TestTimestampComparison(unittest.TestCase):
             #        expected_result)
             source_file = MockFile(source_mtime, source_mtime_precision)
             target_file = MockFile(target_mtime, target_mtime_precision)
-            result = file_transfer.source_is_newer_than_target(source_file,
-                                                               target_file)
+            result = ftputil.file_transfer.source_is_newer_than_target(
+                       source_file, target_file)
             self.assertEqual(result, expected_result)
 
 
-class FailingStringIO(StringIO.StringIO):
+class FailingStringIO(io.BytesIO):
     """Mock class to test whether exceptions are passed on."""
 
     # Kind of nonsense; we just want to see this exception raised
@@ -76,15 +76,15 @@ class FailingStringIO(StringIO.StringIO):
 class TestChunkwiseTransfer(unittest.TestCase):
 
     def random_string(self, count):
-        """Return a `StringIO` object containing `count` "random" bytes."""
-        ints = (random.randint(0, 255) for i in xrange(count))
-        return "".join((chr(i) for i in ints))
+        """Return a `BytesIO` object containing `count` "random" bytes."""
+        ints = (random.randint(0, 255) for i in range(count))
+        return b"".join((chr(i) for i in ints))
 
     def test_chunkwise_transfer_without_remainder(self):
         """Check if we get four chunks with 256 Bytes each."""
         data = self.random_string(1024)
-        fobj = StringIO.StringIO(data)
-        chunks = list(file_transfer.chunks(fobj, 256))
+        fobj = io.BytesIO(data)
+        chunks = list(ftputil.file_transfer.chunks(fobj, 256))
         self.assertEqual(len(chunks), 4)
         self.assertEqual(chunks[0], data[:256])
         self.assertEqual(chunks[1], data[256:512])
@@ -94,8 +94,8 @@ class TestChunkwiseTransfer(unittest.TestCase):
     def test_chunkwise_transfer_with_remainder(self):
         """Check if we get three chunks with 256 Bytes and one with 253."""
         data = self.random_string(1021)
-        fobj = StringIO.StringIO(data)
-        chunks = list(file_transfer.chunks(fobj, 256))
+        fobj = io.BytesIO(data)
+        chunks = list(ftputil.file_transfer.chunks(fobj, 256))
         self.assertEqual(len(chunks), 4)
         self.assertEqual(chunks[0], data[:256])
         self.assertEqual(chunks[1], data[256:512])
@@ -106,11 +106,9 @@ class TestChunkwiseTransfer(unittest.TestCase):
         """Check if we see the exception raised during reading."""
         data = self.random_string(1024)
         fobj = FailingStringIO(data)
-        iterator = file_transfer.chunks(fobj, 256)
-        self.assertRaises(FailingStringIO.expected_exception,
-                          iterator.next)
+        iterator = ftputil.file_transfer.chunks(fobj, 256)
+        self.assertRaises(FailingStringIO.expected_exception, next, iterator)
 
 
 if __name__ == '__main__':
     unittest.main()
-

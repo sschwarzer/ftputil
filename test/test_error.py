@@ -16,7 +16,7 @@ class TestFTPErrorArguments(unittest.TestCase):
 
     def test_unicode_argument(self):
         # An umlaut as unicode character
-        io_error = ftputil.error.FTPIOError(u"\xe4")
+        io_error = ftputil.error.FTPIOError("\xe4")
 
 
 class TestErrorConversion(unittest.TestCase):
