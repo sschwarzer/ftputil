@@ -15,12 +15,14 @@ from test import test_base
 
 
 class FailingFTPHost(ftputil.FTPHost):
+
     def _dir(self, path):
         raise ftputil.error.FTPOSError("simulate a failure, e. g. timeout")
 
 
 # Mock session, used for testing an inaccessible login directory
 class SessionWithInaccessibleLoginDirectory(mock_ftplib.MockSession):
+
     def cwd(self, dir):
         # Assume that `dir` is the inaccessible login directory.
         raise ftplib.error_perm("can't change into this directory")
