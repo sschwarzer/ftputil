@@ -68,3 +68,14 @@ def as_default_string(string):
     `LOSSLESS_ENCODING` is used for encoding or decoding.
     """
     return same_string_type_as(compat.default_string_type(), string)
+
+
+def encode_if_unicode(string, encoding):
+    """
+    Return the string `string`, encoded with `encoding` if `string` is
+    a unicode string. Otherwise return `string` unchanged.
+    """
+    if isinstance(string, compat.unicode_type):
+        return string.encode(encoding)
+    else:
+        return string
