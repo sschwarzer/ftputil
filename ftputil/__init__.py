@@ -63,6 +63,7 @@ import ftputil.file
 import ftputil.file_transfer
 import ftputil.path
 import ftputil.stat
+import ftputil.tool
 import ftputil.version
 
 # For backward compatibility. No other modules are part of the
@@ -843,7 +844,7 @@ class FTPHost(object):
             lines = []
             def callback(line):
                 """Callback function."""
-                lines.append(line)
+                lines.append(ftputil.tool.to_unicode_type(line))
             # pylint: disable=W0142
             with ftputil.error.ftplib_error_to_ftp_os_error:
                 if self.use_list_a_option:
