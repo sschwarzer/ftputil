@@ -13,10 +13,11 @@ import ftputil.compat as compat
 __all__ = ["same_string_type_as", "to_bytes_type", "to_unicode_type"]
 
 
-# Encoding to convert a string to the same type as another. This is a
-# "lossless" encoding: Strings can be encoded/decoded back and forth
+# Encoding to convert between byte string and unicode string. This is
+# a "lossless" encoding: Strings can be encoded/decoded back and forth
 # without information loss or causing encoding-related errors. The
-# `ftplib` module under Python 3 also uses the "latin1" encoding.
+# `ftplib` module under Python 3 also uses the "latin1" encoding
+# internally.
 LOSSLESS_ENCODING = "latin1"
 
 
