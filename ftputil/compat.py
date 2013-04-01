@@ -9,10 +9,15 @@ The comments given for the Python 2 versions of the helpers apply to
 the Python 3 helpers as well.
 """
 
+from __future__ import unicode_literals
+
 import sys
 
 
-if sys.version_info.major == 2:
+python_version = sys.version_info.major
+
+
+if python_version == 2:
 
     int_types = (int, long)
 

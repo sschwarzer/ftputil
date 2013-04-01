@@ -11,6 +11,8 @@ ftputil.error - exception classes and wrappers
 # "Used * or ** magic"
 # pylint: disable = W0142
 
+from __future__ import unicode_literals
+
 import ftplib
 import sys
 

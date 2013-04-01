@@ -5,6 +5,8 @@
 file_transfer.py - upload, download and generic file copy
 """
 
+from __future__ import unicode_literals
+
 import os
 
 

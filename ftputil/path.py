@@ -6,6 +6,7 @@ ftputil.path - simulate `os.path` for FTP servers
 """
 
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import posixpath
 import stat

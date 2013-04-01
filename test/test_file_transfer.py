@@ -1,6 +1,8 @@
 # Copyright (C) 2010-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
+from __future__ import unicode_literals
+
 import io
 import random
 import unittest

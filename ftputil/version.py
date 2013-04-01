@@ -1,9 +1,11 @@
-# Copyright (C) 2006-2010, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2006-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 """
 Provide version information about ftputil and the runtime environment.
 """
+
+from __future__ import unicode_literals
 
 import sys
 

@@ -48,6 +48,7 @@ Note: ftputil currently is not threadsafe. More specifically, you can
 """
 
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import ftplib
 # We need a different name (e. g. `stdlib_stat`) here because

@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2012, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 """
@@ -35,7 +35,7 @@ class MockFile(io.BytesIO, object):
     Contrary to `StringIO.StringIO` instances, `MockFile` objects can
     be queried for their contents after they have been closed.
     """
-    def __init__(self, path, content=b''):
+    def __init__(self, path, content=b""):
         global mock_files
         mock_files[path] = self
         super(MockFile, self).__init__(content)
@@ -57,7 +57,7 @@ class MockSocket(object):
     Mock class which is used to return something from
     `MockSession.transfercmd`.
     """
-    def __init__(self, path, mock_file_content=''):
+    def __init__(self, path, mock_file_content=b""):
         if DEBUG:
             print("File content: *{0}*".format(mock_file_content))
         self.file_path = path
