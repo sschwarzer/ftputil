@@ -405,11 +405,17 @@ class TestStat(RealFTPTest):
         fobj.close()
         # Do some stats
         # - dir
+        dir_stat = host.stat(dir_name)
+        self.assertTrue(isinstance(dir_stat._st_name,
+                                   ftputil.compat.unicode_type))
         self.assertEqual(host.listdir(dir_name), ["_nonempty_"])
         self.assertTrue(host.path.isdir(dir_name))
         self.assertFalse(host.path.isfile(dir_name))
         self.assertFalse(host.path.islink(dir_name))
         # - file
+        file_stat = host.stat(file_name)
+        self.assertTrue(isinstance(file_stat._st_name,
+                                   ftputil.compat.unicode_type))
         self.assertFalse(host.path.isdir(file_name))
         self.assertTrue(host.path.isfile(file_name))
         self.assertFalse(host.path.islink(file_name))
