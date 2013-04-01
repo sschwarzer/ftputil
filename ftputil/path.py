@@ -45,8 +45,8 @@ class _Path(object):
 
     def abspath(self, path):
         """Return an absolute path."""
-        # Fail early if we get a unicode path which can't be encoded.
         orig_path = path
+        # Fail early if we get a unicode path which can't be encoded.
         path = str(path)
         if not self.isabs(path):
             path = self.join(self._host.getcwd(), path)
