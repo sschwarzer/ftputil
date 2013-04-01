@@ -15,17 +15,17 @@ class TestSameStringTypeAs(unittest.TestCase):
     # comparing a byte string and unicode string would raise an
     # exception. However, we need the second test for Python 2.
 
-    def test_to_bytes_type(self):
+    def test_to_bytes(self):
         result = ftputil.tool.same_string_type_as(b"abc", "def")
         self.assertEqual(result, b"def")
         self.assertTrue(isinstance(result, compat.bytes_type))
 
-    def test_to_unicode_type(self):
+    def test_to_unicode(self):
         result = ftputil.tool.same_string_type_as("abc", b"def")
         self.assertEqual(result, "def")
         self.assertTrue(isinstance(result, compat.unicode_type))
 
-    def test_both_byte_type(self):
+    def test_both_bytes_type(self):
         result = ftputil.tool.same_string_type_as(b"abc", b"def")
         self.assertEqual(result, b"def")
         self.assertTrue(isinstance(result, compat.bytes_type))
@@ -38,19 +38,19 @@ class TestSameStringTypeAs(unittest.TestCase):
 
 class TestSimpleConversions(unittest.TestCase):
 
-    def test_to_bytes_type(self):
-        result = ftputil.tool.to_bytes_type(b"abc")
+    def test_as_bytes(self):
+        result = ftputil.tool.as_bytes(b"abc")
         self.assertEqual(result, b"abc")
         self.assertTrue(isinstance(result, compat.bytes_type))
-        result = ftputil.tool.to_bytes_type("abc")
+        result = ftputil.tool.as_bytes("abc")
         self.assertEqual(result, b"abc")
         self.assertTrue(isinstance(result, compat.bytes_type))
         
-    def test_to_unicode_type(self):
-        result = ftputil.tool.to_unicode_type(b"abc")
+    def test_as_unicode(self):
+        result = ftputil.tool.as_unicode(b"abc")
         self.assertEqual(result, "abc")
         self.assertTrue(isinstance(result, compat.unicode_type))
-        result = ftputil.tool.to_unicode_type("abc")
+        result = ftputil.tool.as_unicode("abc")
         self.assertEqual(result, "abc")
         self.assertTrue(isinstance(result, compat.unicode_type))
 
