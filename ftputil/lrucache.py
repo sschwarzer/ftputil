@@ -2,7 +2,7 @@
 
 # Copyright 2004 Evan Prodromou <evan@bad.dynu.ca>
 #
-# Copyright 2009-2011 Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright 2009-2013 Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # (some changes to the original version)
 
 # Licensed under the Academic Free License 2.1
@@ -41,6 +41,8 @@ discarded. [1]_
 .. [1]: 'Discarded' here means 'removed from the cache'.
 
 """
+
+from __future__ import unicode_literals
 
 import time
 

@@ -2,6 +2,8 @@
 # Copyright (C) 2008-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
+from __future__ import unicode_literals
+
 import unittest
 
 import ftputil.error

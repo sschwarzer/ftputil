@@ -13,6 +13,8 @@ Tools for syncing combinations of local and remote directories.
 # - remote -> remote
 # - local -> local (maybe implicitly possible due to design, but not targeted)
 
+from __future__ import unicode_literals
+
 import os
 import shutil
 

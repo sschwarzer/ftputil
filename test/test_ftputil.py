@@ -1,6 +1,8 @@
 # Copyright (C) 2002-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
+from __future__ import unicode_literals
+
 import ftplib
 import os
 import posixpath
@@ -21,26 +23,26 @@ from test import test_base
 #
 def random_data(pool, size=10000):
     """
-    Return a sequence of characters consisting of those from
-    the pool of integer numbers.
+    Return a byte string of characters consisting of those from the
+    pool of integer numbers.
     """
     character_list = []
     for i in range(size):
         ordinal = random.choice(pool)
         character_list.append(chr(ordinal))
-    result = ''.join(character_list)
+    result = b"".join(character_list)
     return result
 
 
 def ascii_data():
-    """Return an ASCII character string."""
+    """Return a _byte_ string of ASCII characters."""
     pool = list(range(32, 128))
-    pool.append(ord('\n'))
+    pool.append(ord("\n"))
     return random_data(pool)
 
 
 def binary_data():
-    """Return a binary character string."""
+    """Return a binary character byte string."""
     pool = list(range(0, 256))
     return random_data(pool)
 

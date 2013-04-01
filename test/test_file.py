@@ -1,9 +1,12 @@
 # Copyright (C) 2002-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
+from __future__ import unicode_literals
+
 import ftplib
 import unittest
 
+import ftputil.compat
 import ftputil.error
 
 from test import mock_ftplib
@@ -14,15 +17,15 @@ from test import test_base
 # Several customized `MockSession` classes
 #
 class ReadMockSession(mock_ftplib.MockSession):
-    mock_file_content = 'line 1\r\nanother line\r\nyet another line'
+    mock_file_content = b"line 1\r\nanother line\r\nyet another line"
 
 
 class AsciiReadMockSession(mock_ftplib.MockSession):
-    mock_file_content = '\r\n'.join(map(str, range(20)))
+    mock_file_content = b"\r\n".join(map(ftputil.compat.bytes_type, range(20)))
 
 
 class InaccessibleDirSession(mock_ftplib.MockSession):
-    _login_dir = '/inaccessible'
+    _login_dir = "/inaccessible"
 
     def pwd(self):
         return self._login_dir
@@ -84,7 +87,7 @@ class TestFileOperations(unittest.TestCase):
     def test_binary_write(self):
         """Write binary data with `write`."""
         host = test_base.ftp_host_factory()
-        data = '\000a\001b\r\n\002c\003\n\004\r\005'
+        data = b"\000a\001b\r\n\002c\003\n\004\r\005"
         output = host.file('dummy', 'wb')
         output.write(data)
         output.close()
@@ -95,12 +98,12 @@ class TestFileOperations(unittest.TestCase):
     def test_ascii_write(self):
         """Write ASCII text with `write`."""
         host = test_base.ftp_host_factory()
-        data = ' \nline 2\nline 3'
+        data = " \nline 2\nline 3"
         output = host.file('dummy', 'w')
         output.write(data)
         output.close()
         child_data = mock_ftplib.content_of('dummy')
-        expected_data = ' \r\nline 2\r\nline 3'
+        expected_data = " \r\nline 2\r\nline 3"
         self.assertEqual(child_data, expected_data)
 
     def test_ascii_writelines(self):

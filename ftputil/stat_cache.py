@@ -5,6 +5,8 @@
 ftp_stat_cache.py - cache for (l)stat data
 """
 
+from __future__ import unicode_literals
+
 import time
 
 import ftputil.error

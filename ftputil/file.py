@@ -6,6 +6,9 @@
 ftputil.file - support for file-like objects on FTP servers
 """
 
+from __future__ import unicode_literals
+
+import ftputil.compat
 import ftputil.error
 
 
@@ -57,6 +60,8 @@ class _FTPFile(object):
         self.closed = True
         # Overwritten later in `_open`.
         self._bin_mode = None
+        #TODO: Allow encoding to be set in `_open`.
+        self._encoding = "utf-8"
         self._conn = None
         self._read_mode = None
         self._fo = None
@@ -174,6 +179,15 @@ class _FTPFile(object):
         """Write data to file. Do linesep conversion for text mode."""
         if not self._bin_mode:
             data = _python_to_crlf_linesep(data)
+            if ftputil.compat.python_version == 3:
+                # For Python 3, always require that the data for text
+                # mode writes is a unicode string.
+                data = data.encode(self._encoding)
+            else:
+                # For Python 2, also accept byte strings for
+                # compatibility with `open` semantics. Only encode
+                # unicode strings.
+                data = ftputil.tool.encode_if_unicode(data, self._encoding)
         self._fo.write(data)
 
     def writelines(self, lines):
@@ -185,7 +199,7 @@ class _FTPFile(object):
         # `readlines` method. That would modify the original list,
         # given as argument `lines`.
         for line in lines:
-            self._fo.write(_python_to_crlf_linesep(line))
+            self.write(line)
 
     #
     # Context manager methods
