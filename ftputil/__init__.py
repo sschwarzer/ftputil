@@ -844,7 +844,7 @@ class FTPHost(object):
             lines = []
             def callback(line):
                 """Callback function."""
-                lines.append(ftputil.tool.to_unicode_type(line))
+                lines.append(ftputil.tool.as_unicode(line))
             # pylint: disable=W0142
             with ftputil.error.ftplib_error_to_ftp_os_error:
                 if self.use_list_a_option:

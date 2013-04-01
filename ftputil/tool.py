@@ -10,7 +10,8 @@ from __future__ import unicode_literals
 import ftputil.compat as compat
 
 
-__all__ = ["same_string_type_as", "to_bytes_type", "to_unicode_type"]
+__all__ = ["same_string_type_as", "as_bytes", "as_unicode",
+           "as_default_string"]
 
 
 # Encoding to convert between byte string and unicode string. This is
@@ -44,7 +45,7 @@ def same_string_type_as(type_source, content_source):
         return content_source
 
 
-def to_bytes_type(string):
+def as_bytes(string):
     """
     Return the argument `string` converted to a byte string if it's a
     unicode string. Otherwise just return the string.
@@ -52,7 +53,7 @@ def to_bytes_type(string):
     return same_string_type_as(b"", string)
 
 
-def to_unicode_type(string):
+def as_unicode(string):
     """
     Return the argument `string` converted to a unicode string if it's
     a byte string. Otherwise just return the string.
@@ -60,7 +61,7 @@ def to_unicode_type(string):
     return same_string_type_as("", string)
 
 
-def to_default_string_type(string):
+def as_default_string(string):
     """
     Return the argument `string` converted to a the default string
     type for the Python version. For unicode strings,
