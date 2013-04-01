@@ -11,6 +11,7 @@ import posixpath
 import stat
 
 import ftputil.error
+import ftputil.tool
 
 
 # The `_Path` class shouldn't be used directly by clients of the
@@ -45,10 +46,11 @@ class _Path(object):
     def abspath(self, path):
         """Return an absolute path."""
         # Fail early if we get a unicode path which can't be encoded.
+        orig_path = path
         path = str(path)
         if not self.isabs(path):
             path = self.join(self._host.getcwd(), path)
-        return self.normpath(path)
+        return ftputil.tool.same_string_type_as(orig_path, self.normpath(path))
 
     def exists(self, path):
         """Return true if the path exists."""
