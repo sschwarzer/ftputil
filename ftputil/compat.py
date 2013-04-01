@@ -15,12 +15,6 @@ import sys
 
 if sys.version_info.major == 2:
 
-    # As a low-level networking library, ftputil mostly works on
-    # byte strings, so 2to3's approach to turn byte strings into
-    # unicode strings won't work most of the time.
-    def b(byte_string):
-        return byte_string
-
     int_types = (int, long)
 
     unicode_type = unicode
@@ -30,9 +24,6 @@ if sys.version_info.major == 2:
     input = raw_input
 
 else:
-
-    def b(byte_string):
-        return bytes(byte_string, encoding="ASCII")
 
     int_types = (int,)
 
