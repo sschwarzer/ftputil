@@ -56,3 +56,12 @@ def to_unicode_type(string):
     a byte string. Otherwise just return the string.
     """
     return same_string_type_as("", string)
+
+
+def to_default_string_type(string):
+    """
+    Return the argument `string` converted to a the default string
+    type for the Python version. For unicode strings,
+    `LOSSLESS_ENCODING` is used for encoding or decoding.
+    """
+    return same_string_type_as(compat.default_string_type(), string)
