@@ -17,7 +17,7 @@ __all__ = ["same_string_type_as", "to_bytes_type", "to_unicode_type"]
 # "lossless" encoding: Strings can be encoded/decoded back and forth
 # without information loss or causing encoding-related errors. The
 # `ftplib` module under Python 3 also uses the "latin1" encoding.
-ENCODING = "latin1"
+LOSSLESS_ENCODING = "latin1"
 
 
 def same_string_type_as(type_source, content_source):
@@ -26,17 +26,17 @@ def same_string_type_as(type_source, content_source):
     from `content_source`.
 
     If the `type_source` and `content_source` don't have the same
-    type, use `ENCODING` above to encode or decode, whatever operation
-    is needed.
+    type, use `LOSSLESS_ENCODING` above to encode or decode, whatever
+    operation is needed.
     """
     if (
       isinstance(type_source, compat.bytes_type) and
       isinstance(content_source, compat.unicode_type)):
-        return content_source.encode(ENCODING)
+        return content_source.encode(LOSSLESS_ENCODING)
     elif (
       isinstance(type_source, compat.unicode_type) and
       isinstance(content_source, compat.bytes_type)):
-        return content_source.decode(ENCODING)
+        return content_source.decode(LOSSLESS_ENCODING)
     else:
         return content_source
 
