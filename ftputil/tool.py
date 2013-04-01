@@ -17,7 +17,9 @@ __all__ = ["same_string_type_as", "to_bytes_type", "to_unicode_type"]
 # a "lossless" encoding: Strings can be encoded/decoded back and forth
 # without information loss or causing encoding-related errors. The
 # `ftplib` module under Python 3 also uses the "latin1" encoding
-# internally.
+# internally. It's important to use the same encoding here, so that users who
+# used `ftplib` to create FTP items with non-ASCII characters can access them
+# in the same way with ftputil.
 LOSSLESS_ENCODING = "latin1"
 
 
