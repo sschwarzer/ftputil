@@ -3,8 +3,7 @@
 # See the file LICENSE for licensing terms.
 
 """
-Some functions to make the code work also on Python 3 after applying
-the 2to3 utility.
+Functions to make the same code work in both Python 2 and 3.
 
 The comments given for the Python 2 versions of the helpers apply to
 the Python 3 helpers as well.
