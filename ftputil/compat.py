@@ -31,3 +31,6 @@ else:
     bytes_type = bytes
 
     input = input
+
+# For Python 2 that's a byte string, for Python 3 a unicode string.
+default_string_type = str
