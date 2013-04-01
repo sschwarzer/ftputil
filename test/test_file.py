@@ -17,14 +17,17 @@ from test import test_base
 # Several customized `MockSession` classes
 #
 class ReadMockSession(mock_ftplib.MockSession):
+
     mock_file_content = b"line 1\r\nanother line\r\nyet another line"
 
 
 class AsciiReadMockSession(mock_ftplib.MockSession):
+
     mock_file_content = b"\r\n".join(map(ftputil.compat.bytes_type, range(20)))
 
 
 class InaccessibleDirSession(mock_ftplib.MockSession):
+
     _login_dir = "/inaccessible"
 
     def pwd(self):
@@ -39,6 +42,7 @@ class InaccessibleDirSession(mock_ftplib.MockSession):
 
 class TestFileOperations(unittest.TestCase):
     """Test operations with file-like objects."""
+
     def test_inaccessible_dir(self):
         """Test whether opening a file at an invalid location fails."""
         host = test_base.ftp_host_factory(
