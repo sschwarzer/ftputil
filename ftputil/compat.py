@@ -14,7 +14,7 @@ from __future__ import unicode_literals
 import sys
 
 
-python_version = sys.version_info.major
+python_version = sys.version_info[0]
 
 
 if python_version == 2:
