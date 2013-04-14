@@ -36,5 +36,5 @@ else:
 
     input = input
 
-# For Python 2 that's a byte string, for Python 3 a unicode string.
+# For Python 2 `str` means byte strings, for Python 3 unicode strings.
 default_string_type = str
