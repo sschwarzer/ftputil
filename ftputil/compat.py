@@ -27,6 +27,9 @@ if python_version == 2:
     # Non-evaluating input
     input = raw_input
 
+    def bytes_from_ints(int_list):
+        return b"".join((chr(i) for i in int_list))
+
 else:
 
     int_types = (int,)
@@ -35,6 +38,8 @@ else:
     bytes_type = bytes
 
     input = input
+
+    bytes_from_ints = bytes
 
 # For Python 2 `str` means byte strings, for Python 3 unicode strings.
 default_string_type = str

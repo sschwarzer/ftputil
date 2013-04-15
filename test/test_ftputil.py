@@ -11,6 +11,7 @@ import time
 import unittest
 
 import ftputil
+import ftputil.compat
 import ftputil.error
 import ftputil.stat
 
@@ -26,12 +27,8 @@ def random_data(pool, size=10000):
     Return a byte string of characters consisting of those from the
     pool of integer numbers.
     """
-    character_list = []
-    for i in range(size):
-        ordinal = random.choice(pool)
-        character_list.append(chr(ordinal))
-    result = b"".join(character_list)
-    return result
+    ordinal_list = [random.choice(pool) for i in range(size)]
+    return ftputil.compat.bytes_from_ints(ordinal_list)
 
 
 def ascii_data():
