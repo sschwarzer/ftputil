@@ -172,7 +172,8 @@ class _FTPFile(object):
         else:
             raise StopIteration
 
-    # For Python 2 compatibility
+    # Although Python 2.6+ has the `next` builtin function already, it
+    # still requires iterators to have a `next` method.
     next = __next__
 
     def write(self, data):
