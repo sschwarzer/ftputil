@@ -55,6 +55,10 @@ class FailOnLoginSession(mock_ftplib.MockSession):
 
 class FailOnKeepAliveSession(mock_ftplib.MockSession):
 
+    # XXX: I think `_check_list_a_option` doesn't exist anymore. If
+    # not, we don't need to handle this specially but can raise the
+    # exception immediately.
+ 
     def dir(self, *args):
         # Implicitly called by `_check_list_a_option`, otherwise unused.
         pass
