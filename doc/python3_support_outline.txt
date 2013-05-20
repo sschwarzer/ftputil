@@ -1,7 +1,8 @@
 What to do for Python 3 support
 ===============================
 
-Need to improve unit tests?
+
+Improving unit tests
     Review them before starting coding on them.
         Will probably remind me of what's tricky.
     Maybe this is the time (aka chance ;-) ) to clean up.
@@ -117,6 +118,9 @@ File object API
         Is there a way to specify a desired line ending type when
           using the `io` module?
             Yes, there's the `newline` argument in `io.open`.
+        Probably it's better to let ftputil behave as for "regular"
+          file systems.
+            This also holds for remote file systems (NFS, CIFS).
 
 
 Provide user and password in `FTPHost` constructor as unicode strings?
