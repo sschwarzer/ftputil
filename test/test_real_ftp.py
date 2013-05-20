@@ -50,7 +50,7 @@ def utc_local_time_shift():
     utc_tuple = time.gmtime()
     localtime_tuple = time.localtime()
     # To calculate the correct times shift, we need to ignore the
-    #  DST component in the localtime tuple, i. e. set it to 0.
+    # DST component in the localtime tuple, i. e. set it to 0.
     localtime_tuple = localtime_tuple[:-1] + (0,)
     time_shift_in_seconds = time.mktime(utc_tuple) - \
                             time.mktime(localtime_tuple)
@@ -208,6 +208,7 @@ class TestMkdir(RealFTPTest):
         self.assertFalse(host.path.isdir('/_dir1_/_dir2_'))
 
     def test_makedirs_from_non_root_directory_fake_windows_os(self):
+        # XXX: Why do we do this?
         saved_sep = os.sep
         os.sep = '\\'
         try:
@@ -274,7 +275,7 @@ class TestRemoval(RealFTPTest):
         host.rmtree('_dir1_/dir2')
         self.assertFalse(host.path.exists('_dir1_/dir2'))
         self.assertTrue(host.path.exists('_dir1_/file2'))
-        # Remake dir2 and remove _dir1_
+        # Re-create dir2 and remove _dir1_
         host.mkdir('_dir1_/dir2')
         self.make_file('_dir1_/dir2/file3')
         self.make_file('_dir1_/dir2/file4')
