@@ -14,7 +14,7 @@ class TestFTPErrorArguments(unittest.TestCase):
 
     def test_bytestring_argument(self):
         # An umlaut as latin-1 character
-        os_error = ftputil.error.FTPOSError("\xe4")
+        os_error = ftputil.error.FTPOSError(b"\xe4")
 
     def test_unicode_argument(self):
         # An umlaut as unicode character
