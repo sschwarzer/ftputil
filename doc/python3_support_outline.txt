@@ -121,6 +121,8 @@ File object API
         Probably it's better to let ftputil behave as for "regular"
           file systems.
             This also holds for remote file systems (NFS, CIFS).
+            So it should be ok to use Python conventions here; mounted
+              remote file systems are treated like local file systems.
 
 
 Provide user and password in `FTPHost` constructor as unicode strings?
