@@ -87,6 +87,7 @@ class TestPath(unittest.TestCase):
 
     def test_abnormal_isdir_isfile_islink(self):
         """Test abnormal `FTPHost._Path.isdir/isfile/islink`."""
+        # XXX: What does "abnormal" mean here? Be specific.
         testdir = '/home/sschwarzer'
         host = test_base.ftp_host_factory(ftp_host_class=FailingFTPHost)
         host.chdir(testdir)
@@ -100,6 +101,7 @@ class TestPath(unittest.TestCase):
 
     def test_exists(self):
         """Test if "abnormal" FTP errors come through `path.exists`."""
+        # XXX: What does "abnormal" mean here? Be specific.
         # Regular use of `exists`
         testdir = '/home/sschwarzer'
         host = test_base.ftp_host_factory()
