@@ -49,7 +49,7 @@ Note: ftputil currently is not threadsafe. More specifically, you can
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-from ftputil.main    import FTPHost
+from ftputil.host    import FTPHost
 from ftputil.version import __version__
 
 
