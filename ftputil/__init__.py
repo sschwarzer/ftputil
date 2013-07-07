@@ -162,10 +162,10 @@ class FTPHost(object):
         Return a new session object according to the current state of
         this `FTPHost` instance.
         """
-        # Use copies of the arguments.
+        # Don't modify original attributes below.
         args = self._args[:]
         kwargs = self._kwargs.copy()
-        # If a session factory had been given on the instantiation of
+        # If a session factory has been given on the instantiation of
         # this `FTPHost` object, use the same factory for this
         # `FTPHost` object's child sessions.
         factory = kwargs.pop('session_factory', ftplib.FTP)
@@ -234,10 +234,10 @@ class FTPHost(object):
             effective_path = host.path.join(basedir, path)
         effective_dir, effective_file = host.path.split(effective_path)
         try:
-            # This will fail if we can't access the directory at all.
+            # This will fail if the directory isn't accesible at all.
             host.chdir(effective_dir)
         except ftputil.error.PermanentError:
-            # Similarly to a failed `file` in a local filesystem, we
+            # Similarly to a failed `file` in a local filesystem,
             # raise an `IOError`, not an `OSError`.
             raise ftputil.error.FTPIOError("remote directory '{0}' doesn't "
                   "exist or has insufficient access rights".
@@ -266,7 +266,7 @@ class FTPHost(object):
         finally:
             # If something went wrong before, the host/session is
             # probably defunct and subsequent calls to `close` won't
-            # help either, so we consider the host/session closed for
+            # help either, so consider the host/session closed for
             # practical purposes.
             self.stat_cache.clear()
             self._children = []
@@ -499,7 +499,7 @@ class FTPHost(object):
         """
         # Fail early if we get a unicode path which can't be encoded.
         # Only attempt to convert the remote `target` name to a
-        # bytestring. We leave it to the local filesystem whether it
+        # bytestring. Leave it to the local filesystem whether it
         # wants to support unicode filenames or not.
         target = str(target)
         source_file, target_file = self._upload_files(source, target, mode)
@@ -620,7 +620,6 @@ class FTPHost(object):
                 self.chdir(head)
                 return command(self, tail)
         finally:
-            # Restore the old directory.
             self.chdir(old_dir)
 
     #
@@ -680,8 +679,8 @@ class FTPHost(object):
             except ftputil.error.PermanentError:
                 # Find out the cause of the error. Re-raise the
                 # exception only if the directory didn't exist already,
-                # else something went _really_ wrong, e. g. we might
-                # have a regular file with the name of the directory.
+                # else something went _really_ wrong, e. g. there's a
+                # regular file with the name of the directory.
                 if not self.path.isdir(next_directory):
                     raise
 
@@ -755,7 +754,7 @@ class FTPHost(object):
 
         To distinguish between error situations, pass in a callable
         for `onerror`. This callable must accept three arguments:
-        `func`, `path` and `exc_info`). `func` is a bound method
+        `func`, `path` and `exc_info`. `func` is a bound method
         object, _for example_ `your_host_object.listdir`. `path` is
         the path that was the recent argument of the respective method
         (`listdir`, `remove`, `rmdir`). `exc_info` is the exception
@@ -837,7 +836,7 @@ class FTPHost(object):
     # `_session`'s `dir` method.
     def _dir(self, path):
         """Return a directory listing as made by FTP's `LIST` command."""
-        # We can't use `self.path.isdir` in this method because that
+        # Don't use `self.path.isdir` in this method because that
         # would cause a call of `(l)stat` and thus a call to `_dir`,
         # so we would end up with an infinite recursion.
         def _FTPHost_dir_command(self, path):
