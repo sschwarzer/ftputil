@@ -2,59 +2,11 @@
 # Copyright (C) 2008, Roger Demetrescu <roger.demetrescu@gmail.com>
 # See the file LICENSE for licensing terms.
 
-"""
-ftputil - high-level FTP client library
-
-FTPHost objects
-    This class resembles the `os` module's interface to ordinary file
-    systems. In addition, it provides a method `file` which will
-    return file-objects corresponding to remote files.
-
-    # Example session
-    host = ftputil.FTPHost('ftp.domain.com', 'me', 'secret')
-    print host.getcwd()  # e. g. '/home/me'
-    source = host.file('sourcefile', 'r')
-    host.mkdir('newdir')
-    host.chdir('newdir')
-    target = host.file('targetfile', 'w')
-    host.copyfileobj(source, target)
-    source.close()
-    target.close()
-    host.remove('targetfile')
-    host.chdir(host.pardir)
-    host.rmdir('newdir')
-    host.close()
-
-    There are also shortcuts for uploads and downloads:
-
-    host.upload(local_file, remote_file)
-    host.download(remote_file, local_file)
-
-    Both accept an additional mode parameter. If it is 'b', the
-    transfer mode will be for binary files.
-
-    For even more functionality refer to the documentation in
-    `ftputil.txt` or `ftputil.html`.
-
-FTPFile objects
-    `FTPFile` objects are constructed via the `file` method (`open`
-    is an alias) of `FTPHost` objects. `FTPFile` objects support the
-    usual file operations for non-seekable files (`read`, `readline`,
-    `readlines`, `write`, `writelines`, `close`).
-
-Note: ftputil currently is not threadsafe. More specifically, you can
-      use different `FTPHost` objects in different threads but not
-      using a single `FTPHost` object in different threads.
-"""
-
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import ftplib
-# We need a different name (e. g. `stdlib_stat`) here because
-# `__init__.stat` will be aliased with `ftputil.stat` below; the
-# namespace of `__init__` _is_ the namespace of the `ftputil` package.
-import stat as stdlib_stat
+import stat
 import sys
 import time
 import warnings
@@ -65,7 +17,6 @@ import ftputil.file_transfer
 import ftputil.path
 import ftputil.stat
 import ftputil.tool
-import ftputil.version
 
 # For backward compatibility. No other modules are part of the
 # official API of ftputil.
@@ -73,8 +24,6 @@ ftp_error = ftputil.error
 ftp_stat  = ftputil.stat
 
 __all__ = ['FTPHost']
-
-__version__ = ftputil.version.__version__
 
 
 #####################################################################
@@ -792,7 +741,7 @@ class FTPHost(object):
                 mode = self.lstat(full_name).st_mode
             except ftputil.error.PermanentError:
                 mode = 0
-            if stdlib_stat.S_ISDIR(mode):
+            if stat.S_ISDIR(mode):
                 self.rmtree(full_name, ignore_errors, new_onerror)
             else:
                 try:
