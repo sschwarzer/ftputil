@@ -18,11 +18,6 @@ import ftputil.path
 import ftputil.stat
 import ftputil.tool
 
-# For backward compatibility. No other modules are part of the
-# official API of ftputil.
-ftp_error = ftputil.error
-ftp_stat  = ftputil.stat
-
 __all__ = ['FTPHost']
 
 
