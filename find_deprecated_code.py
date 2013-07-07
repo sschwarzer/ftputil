@@ -28,7 +28,9 @@ Currently, these deprecated features are examined:
       ...
 """
 
+from __future__ import absolute_import
 from __future__ import print_function
+from __future__ import unicode_literals
 
 import os
 import re
@@ -41,35 +43,42 @@ __doc__ = __doc__ % (ftputil.version.__version__,
                      os.path.basename(sys.argv[0]))
 
 
+class DeprecatedFeature(object):
+
+    def __init__(self, message, regex):
+        self.message = message
+        self.regex = regex
+        # Map file name to a list of line numbers (starting at 1).
+        self.locations = {}
+
+
 deprecated_features = [
-  ("Possible use(s) of FTP exceptions via ftputil module",
-   re.compile(r"\bftputil\s*?\.\s*?[A-Za-z]+Error\b"), {}),
-  ("Possible use(s) of xreadline method of FTP file objects",
-   re.compile(r"\.\s*?xreadlines\b"), {}),
-  ("Possible use(s) of ftp_error module",
-   re.compile(r"\bftp_error\b"), {}),
-  ("Possible use(s) of ftp_stat module",
-   re.compile(r"\bftp_stat\b"), {}),
+  DeprecatedFeature("Possible use(s) of FTP exceptions via ftputil module",
+                    re.compile(r"\bftputil\s*?\.\s*?[A-Za-z]+Error\b")),
+  DeprecatedFeature("Possible use(s) of `FTPHost` class",
+                    re.compile(r"\bFTPHost\b")),
+  DeprecatedFeature("Possible use(s) of ftp_error module",
+                    re.compile(r"\bftp_error\b")),
+  DeprecatedFeature("Possible use(s) of ftp_stat module",
+                    re.compile(r"\bftp_stat\b")),
+  DeprecatedFeature("Possible use(s) of xreadline method of FTP file objects",
+                    re.compile(r"\.\s*?xreadlines\b")),
 ]
 
 
 def scan_file(file_name):
     """
     Scan a file with name `file_name` for code deprecated in
-    ftputil usage and collect the offending data in the data
-    structure `deprecated_features`.
+    ftputil usage and collect the offending data in the dictionary
+    `features.locations`.
     """
-    fobj = open(file_name)
-    try:
-        for index, line in enumerate(fobj):
-            # `title` isn't used here
-            # pylint: disable=W0612
-            for title, regex, positions in deprecated_features:
-                if regex.search(line):
-                    positions.setdefault(file_name, [])
-                    positions[file_name].append((index+1, line.rstrip()))
-    finally:
-        fobj.close()
+    with open(file_name) as fobj:
+        for index, line in enumerate(fobj, start=1):
+            for feature in deprecated_features:
+                if feature.regex.search(line):
+                    locations = feature.locations
+                    locations.setdefault(file_name, [])
+                    locations[file_name].append((index, line.rstrip()))
 
 
 def print_results():
@@ -77,24 +86,23 @@ def print_results():
     Print statistics of deprecated code after the directory has been
     scanned.
     """
-    last_title = ""
-    # `regex` isn't used here
-    # pylint: disable=W0612
-    for title, regex, positions in deprecated_features:
-        if title != last_title:
+    last_message = ""
+    for feature in deprecated_features:
+        if feature.message != last_message:
             print()
-            print(title, "...")
+            print(feature.message, "...")
             print()
-            last_title = title
-        if not positions:
+            last_message = feature.message
+        locations = feature.locations
+        if not locations:
             print("   no deprecated code found")
             continue
-        for file_name in sorted(positions.keys()):
+        for file_name in sorted(locations.keys()):
             print(file_name)
-            for line_number, line in positions[file_name]:
+            for line_number, line in locations[file_name]:
                 print("%5d: %s" % (line_number, line))
     print()
-    print("If possible, check your code also by other means.")
+    print("Please check your code also by other means.")
 
 
 def main(start_dir):
