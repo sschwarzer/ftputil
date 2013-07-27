@@ -5,8 +5,8 @@
 This module implements a mock version of the standard library's
 `ftplib.py` module. Some code is taken from there.
 
-Not all functionality is implemented, only that what is used to
-run the unit tests.
+Not all functionality is implemented, only what is needed to run the
+unit tests.
 """
 
 from __future__ import unicode_literals
@@ -18,12 +18,16 @@ import posixpath
 
 DEBUG = 0
 
-# Use a global dictionary of the form `{path: mock_file, ...}` to
-# make "volatile" mock files accessible. This is used for testing
-# the contents of a file after an `FTPHost.upload` call.
+# Use a global dictionary of the form `{path: `MockFile` object, ...}`
+# to make "remote" mock files that were generated during a test
+# accessible. For example, this is used for testing the contents of a
+# file after an `FTPHost.upload` call.
 mock_files = {}
 
 def content_of(path):
+    """
+    Return the data stored in a mock remote file identified by `path`.
+    """
     return mock_files[path].getvalue()
 
 
@@ -38,18 +42,19 @@ class MockFile(io.BytesIO, object):
     def __init__(self, path, content=b""):
         global mock_files
         mock_files[path] = self
-        super(MockFile, self).__init__(content)
+        self._super = super(MockFile, self)
+        self._super.__init__(content)
 
     def getvalue(self):
         if not self.closed:
-            return super(MockFile, self).getvalue()
+            return self._super.getvalue()
         else:
             return self._value_after_close
 
     def close(self):
         if not self.closed:
-            self._value_after_close = super(MockFile, self).getvalue()
-        super(MockFile, self).close()
+            self._value_after_close = self._super.getvalue()
+        self._super.close()
 
 
 class MockSocket(object):
@@ -70,6 +75,7 @@ class MockSocket(object):
     def close(self):
         pass
 
+    # Timeout-related methods are used in `FTPFile.close`.
     def gettimeout(self):
         return self._timeout
 
@@ -128,10 +134,13 @@ class MockSession(object):
         self.current_dir = self._transform_path(path)
 
     def dir(self, *args):
-        """Provide a callback function for processing each line of
-        a directory listing. Return nothing.
         """
+        Provide a callback function for processing each line of a
+        directory listing. Return nothing.
+        """
+        # The callback comes last in `ftplib.FTP.dir`.
         if isinstance(args[-1], collections.Callable):
+            # Get `args[-1]` _before_ removing it in the line after.
             callback = args[-1]
             args = args[:-1]
         else:
@@ -162,8 +171,9 @@ class MockSession(object):
         """
         if DEBUG:
             print(cmd)
-        # Fail if attempting to read from/write to a directory
+        # Fail if attempting to read from/write to a directory.
         cmd, path = cmd.split()
+        #  Normalize path for lookup.
         path = self._remove_trailing_slash(path)
         if path in self.dir_contents:
             raise ftplib.error_perm
