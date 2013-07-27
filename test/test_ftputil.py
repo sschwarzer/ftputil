@@ -190,6 +190,7 @@ class TestSetParser(unittest.TestCase):
         if ftputil uses the set parser. No actual parsing code is
         required here.
         """
+
         def __init__(self):
             # We can't use `os.stat("/home")` directly because we
             # later need the object's `_st_name` attribute, which
@@ -220,10 +221,10 @@ class TestCommandNotImplementedError(unittest.TestCase):
         implemented by the server.
         """
         host = test_base.ftp_host_factory()
-        self.assertRaises(ftputil.error.PermanentError, host.chmod,
-                          "nonexistent", 0o644)
-        # `CommandNotImplementedError` is a subclass of `PermanentError`
         self.assertRaises(ftputil.error.CommandNotImplementedError,
+                          host.chmod, "nonexistent", 0o644)
+        # `CommandNotImplementedError` is a subclass of `PermanentError`.
+        self.assertRaises(ftputil.error.PermanentError,
                           host.chmod, "nonexistent", 0o644)
 
 
@@ -264,7 +265,7 @@ class TestUploadAndDownload(unittest.TestCase):
     """Test ASCII upload and binary download as examples."""
 
     def generate_ascii_file(self, data, filename):
-        """Generate an ASCII data file."""
+        """Generate a local ASCII data file."""
         source_file = open(filename, 'w')
         source_file.write(data)
         source_file.close()
@@ -290,7 +291,7 @@ class TestUploadAndDownload(unittest.TestCase):
         """Test binary mode download."""
         local_target = '__test_target'
         host = test_base.ftp_host_factory(
-               session_factory=BinaryDownloadMockSession)
+                 session_factory=BinaryDownloadMockSession)
         # Download
         host.download('dummy', local_target, 'b')
         # Read file and compare
@@ -305,12 +306,12 @@ class TestUploadAndDownload(unittest.TestCase):
         local_source = '__test_source'
         data = ascii_data()
         self.generate_ascii_file(data, local_source)
-        # Target is newer, so don't upload
+        # Target is newer, so don't upload.
         host = test_base.ftp_host_factory(
-               ftp_host_class=FailingUploadAndDownloadFTPHost)
+                 ftp_host_class=FailingUploadAndDownloadFTPHost)
         flag = host.upload_if_newer(local_source, '/home/newer')
         self.assertEqual(flag, False)
-        # Target is older, so upload
+        # Target is older, so upload.
         host = test_base.ftp_host_factory()
         flag = host.upload_if_newer(local_source, '/home/older')
         self.assertEqual(flag, True)
@@ -330,20 +331,26 @@ class TestUploadAndDownload(unittest.TestCase):
         os.unlink(local_source)
 
     def compare_and_delete_downloaded_data(self, filename):
-        """Compare content of downloaded file with its source, then
-        delete the local target file."""
+        """
+        Compare content of downloaded file with its source, then
+        delete the local target file.
+        """
         data = open(filename, 'rb').read()
+        # The name `newer` is used by all callers, so use it here, too.
         remote_file_content = mock_ftplib.content_of('newer')
         self.assertEqual(data, remote_file_content)
         # Clean up
         os.unlink(filename)
 
     def test_conditional_download_without_target(self):
-        "Test conditional binary mode download when no target file exists."
+        """
+        Test conditional binary mode download when no target file
+        exists.
+        """
         local_target = '__test_target'
-        # Target does not exist, so download
+        # Target does not exist, so download.
         host = test_base.ftp_host_factory(
-               session_factory=BinaryDownloadMockSession)
+                 session_factory=BinaryDownloadMockSession)
         flag = host.download_if_newer('/home/newer', local_target, 'b')
         self.assertEqual(flag, True)
         self.compare_and_delete_downloaded_data(local_target)
@@ -351,11 +358,11 @@ class TestUploadAndDownload(unittest.TestCase):
     def test_conditional_download_with_older_target(self):
         """Test conditional binary mode download with newer source file."""
         local_target = '__test_target'
-        # Make target file
+        # Make target file.
         open(local_target, 'w').close()
-        # Source is newer, so download
+        # Source is newer (date in 2020), so download.
         host = test_base.ftp_host_factory(
-               session_factory=BinaryDownloadMockSession)
+                 session_factory=BinaryDownloadMockSession)
         flag = host.download_if_newer('/home/newer', local_target, 'b')
         self.assertEqual(flag, True)
         self.compare_and_delete_downloaded_data(local_target)
@@ -363,14 +370,12 @@ class TestUploadAndDownload(unittest.TestCase):
     def test_conditional_download_with_newer_target(self):
         """Test conditional binary mode download with older source file."""
         local_target = '__test_target'
-        # Make target file
+        # Make target file.
         open(local_target, 'w').close()
-        # Source is older, so don't download
+        # Source is older (date in 1970), so don't download.
         host = test_base.ftp_host_factory(
-               session_factory=BinaryDownloadMockSession)
-        host = test_base.ftp_host_factory(
-               ftp_host_class=FailingUploadAndDownloadFTPHost,
-               session_factory=BinaryDownloadMockSession)
+                 ftp_host_class=FailingUploadAndDownloadFTPHost,
+                 session_factory=BinaryDownloadMockSession)
         flag = host.download_if_newer('/home/older', local_target, 'b')
         self.assertEqual(flag, False)
         # Remove target file
@@ -382,13 +387,21 @@ class TestTimeShift(unittest.TestCase):
     def test_rounded_time_shift(self):
         """Test if time shift is rounded correctly."""
         host = test_base.ftp_host_factory(session_factory=TimeShiftMockSession)
-        # Use private bound method
+        # Use private bound method.
         rounded_time_shift = host._FTPHost__rounded_time_shift
         # Pairs consisting of original value and expected result
         test_data = [
-          (0, 0), (0.1, 0), (-0.1, 0), (1500, 0), (-1500, 0),
-          (1800, 3600), (-1800, -3600), (2000, 3600), (-2000, -3600),
-          (5*3600-100, 5*3600), (-5*3600+100, -5*3600)]
+          (      0,           0),
+          (      0.1,         0),
+          (     -0.1,         0),
+          (   1500,           0),
+          (  -1500,           0),
+          (   1800,        3600),
+          (  -1800,       -3600),
+          (   2000,        3600),
+          (  -2000,       -3600),
+          ( 5*3600-100,  5*3600),
+          (-5*3600+100, -5*3600)]
         for time_shift, expected_time_shift in test_data:
             calculated_time_shift = rounded_time_shift(time_shift)
             self.assertEqual(calculated_time_shift, expected_time_shift)
@@ -396,7 +409,7 @@ class TestTimeShift(unittest.TestCase):
     def test_assert_valid_time_shift(self):
         """Test time shift sanity checks."""
         host = test_base.ftp_host_factory(session_factory=TimeShiftMockSession)
-        # Use private bound method
+        # Use private bound method.
         assert_time_shift = host._FTPHost__assert_valid_time_shift
         # Valid time shifts
         test_data = [23*3600, -23*3600, 3600+30, -3600+30]
@@ -407,7 +420,7 @@ class TestTimeShift(unittest.TestCase):
                           25*3600)
         self.assertRaises(ftputil.error.TimeShiftError, assert_time_shift,
                           -25*3600)
-        # Invalid time shift (deviation from full hours unacceptable)
+        # Invalid time shift (too large deviation from full hours unacceptable)
         self.assertRaises(ftputil.error.TimeShiftError, assert_time_shift,
                           10*60)
         self.assertRaises(ftputil.error.TimeShiftError, assert_time_shift,
@@ -416,7 +429,7 @@ class TestTimeShift(unittest.TestCase):
     def test_synchronize_times(self):
         """Test time synchronization with server."""
         host = test_base.ftp_host_factory(ftp_host_class=TimeShiftFTPHost,
-               session_factory=TimeShiftMockSession)
+                                          session_factory=TimeShiftMockSession)
         # Valid time shift
         host.path.set_mtime(time.time() + 3630)
         host.synchronize_times()
@@ -428,7 +441,7 @@ class TestTimeShift(unittest.TestCase):
     def test_synchronize_times_for_server_in_east(self):
         """Test for timestamp correction (see ticket #55)."""
         host = test_base.ftp_host_factory(ftp_host_class=TimeShiftFTPHost,
-               session_factory=TimeShiftMockSession)
+                                          session_factory=TimeShiftMockSession)
         # Set this explicitly to emphasize the problem.
         host.set_time_shift(0.0)
         hour = 60 * 60
