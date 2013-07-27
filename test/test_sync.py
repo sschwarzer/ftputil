@@ -1,6 +1,7 @@
 # Copyright (C) 2007-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
+from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import io
@@ -46,16 +47,10 @@ class TestLocalToLocal(unittest.TestCase):
 
 # Helper classes for `TestUploadFromWindows`
 
-class LocalWindowsHostPath(object):
-
-    def __getattr__(self, name):
-        return getattr(ntpath, name)
-
-
 class LocalWindowsHost(ftputil.sync.LocalHost):
 
     def __init__(self):
-        self.path = LocalWindowsHostPath()
+        self.path = ntpath
         self.sep = "\\"
 
     def open(self, path, mode):
@@ -90,10 +85,6 @@ class DummyFTPSession(object):
     def pwd(self):
         return "/"
 
-    def dir(self, *args):
-        # Called by `_check_list_a_option`, otherwise not used.
-        pass
-
 
 class DummyFTPPath(object):
 
@@ -102,10 +93,10 @@ class DummyFTPPath(object):
         return path
 
     def isdir(self, path):
-        return path[:-1].endswith("dir")
+        return ("dir" in path)
 
     def isfile(self, path):
-        return path[:-1].endswith("file")
+        return ("file" in path)
 
 
 class ArgumentCheckingFTPHost(ftputil.FTPHost):
