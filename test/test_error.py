@@ -11,14 +11,20 @@ import ftputil.error
 
 
 class TestFTPErrorArguments(unittest.TestCase):
+    """
+    The `*Error` constructors should accept either a byte string or a
+    unicode string.
+    """
 
     def test_bytestring_argument(self):
         # An umlaut as latin-1 character
+        io_error = ftputil.error.FTPIOError(b"\xe4")
         os_error = ftputil.error.FTPOSError(b"\xe4")
 
     def test_unicode_argument(self):
         # An umlaut as unicode character
         io_error = ftputil.error.FTPIOError("\xe4")
+        os_error = ftputil.error.FTPOSError("\xe4")
 
 
 class TestErrorConversion(unittest.TestCase):
@@ -27,7 +33,10 @@ class TestErrorConversion(unittest.TestCase):
         raise ftplib.error_perm()
 
     def test_ftplib_error_to_ftp_os_error(self):
-        "Ensure the `ftplib` exception isn't used as `FTPOSError` argument."
+        """
+        Ensure the `ftplib` exception isn't used as `FTPOSError`
+        argument.
+        """
         try:
             with ftputil.error.ftplib_error_to_ftp_os_error:
                 self.callee()
@@ -39,7 +48,10 @@ class TestErrorConversion(unittest.TestCase):
             self.assertTrue(False)
 
     def test_ftplib_error_to_ftp_io_error(self):
-        "Ensure the `ftplib` exception isn't used as `FTPIOError` argument."
+        """
+        Ensure the `ftplib` exception isn't used as `FTPIOError`
+        argument.
+        """
         try:
             with ftputil.error.ftplib_error_to_ftp_io_error:
                 self.callee()
