@@ -27,9 +27,11 @@ class MockFile(object):
 class TestTimestampComparison(unittest.TestCase):
 
     def test_source_is_newer_than_target(self):
-        """Test whether the source is newer than the target, i. e.
-        if the file should be transferred."""
-        # Define some precisions.
+        """
+        Test whether the source is newer than the target, i. e. if the
+        file should be transferred.
+        """
+        # Define some time units/precisions.
         second = 1.0
         minute = 60.0 * second
         hour = 60 * minute
@@ -39,25 +41,22 @@ class TestTimestampComparison(unittest.TestCase):
         # expected comparison result.
         file_data = [
           # Non-overlapping modification datetimes/precisions
-          (1000.0, second, 900.0, second, True),
-          (900.0, second, 1000.0, second, False),
+          (1000.0, second,  900.0,  second,  True),
+          (900.0,  second,  1000.0, second,  False),
           # Equal modification datetimes/precisions (if in doubt, transfer)
-          (1000.0, second, 1000.0, second, True),
+          (1000.0, second,  1000.0, second,  True),
           # Just touching intervals
-          (1000.0, second, 1000.0+second, minute, True),
-          (1000.0+second, minute, 1000.0, second, True),
+          (1000.0,        second,  1000.0+second, minute,  True),
+          (1000.0+second, minute,  1000.0,        second,  True),
           # Other overlapping intervals
-          (10000.0-0.5*hour, hour, 10000.0, day, True),
-          (10000.0+0.5*hour, hour, 10000.0, day, True),
-          (10000.0+0.2*hour, 0.2*hour, 10000.0, hour, True),
-          (10000.0-0.2*hour, 2*hour, 10000.0, hour, True),
+          (10000.0-0.5*hour, hour,      10000.0, day,   True),
+          (10000.0+0.5*hour, hour,      10000.0, day,   True),
+          (10000.0+0.2*hour, 0.2*hour,  10000.0, hour,  True),
+          (10000.0-0.2*hour, 2*hour,    10000.0, hour,  True),
         ]
         for (source_mtime, source_mtime_precision,
              target_mtime, target_mtime_precision,
              expected_result) in file_data:
-            # print (source_mtime, source_mtime_precision,
-            #        target_mtime, target_mtime_precision,
-            #        expected_result)
             source_file = MockFile(source_mtime, source_mtime_precision)
             target_file = MockFile(target_mtime, target_mtime_precision)
             result = ftputil.file_transfer.source_is_newer_than_target(
