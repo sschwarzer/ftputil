@@ -21,7 +21,7 @@ class ReadMockSession(mock_ftplib.MockSession):
     mock_file_content = b"line 1\r\nanother line\r\nyet another line"
 
 
-class AsciiReadMockSession(mock_ftplib.MockSession):
+class ReadMockSessionWithMoreNewlines(mock_ftplib.MockSession):
 
     mock_file_content = b"\r\n".join(map(ftputil.compat.bytes_type, range(20)))
 
@@ -46,7 +46,7 @@ class TestFileOperations(unittest.TestCase):
     def test_inaccessible_dir(self):
         """Test whether opening a file at an invalid location fails."""
         host = test_base.ftp_host_factory(
-               session_factory=InaccessibleDirSession)
+                 session_factory=InaccessibleDirSession)
         self.assertRaises(ftputil.error.FTPIOError, host.file,
                           '/inaccessible/new_file', 'w')
 
@@ -56,29 +56,29 @@ class TestFileOperations(unittest.TestCase):
         self.assertEqual(len(host._children), 0)
         path1 = 'path1'
         path2 = 'path2'
-        # Open one file and inspect cache
+        # Open one file and inspect cache.
         file1 = host.file(path1, 'w')
         child1 = host._children[0]
         self.assertEqual(len(host._children), 1)
         self.assertFalse(child1._file.closed)
-        # Open another file
+        # Open another file.
         file2 = host.file(path2, 'w')
         child2 = host._children[1]
         self.assertEqual(len(host._children), 2)
         self.assertFalse(child2._file.closed)
-        # Close first file
+        # Close first file.
         file1.close()
         self.assertEqual(len(host._children), 2)
         self.assertTrue(child1._file.closed)
         self.assertFalse(child2._file.closed)
-        # Re-open first child's file
+        # Re-open first child's file.
         file1 = host.file(path1, 'w')
         child1_1 = file1._host
-        # Check if it's reused
+        # Check if it's reused.
         self.assertTrue(child1 is child1_1)
         self.assertFalse(child1._file.closed)
         self.assertFalse(child2._file.closed)
-        # Close second file
+        # Close second file.
         file2.close()
         self.assertTrue(child2._file.closed)
 
@@ -121,7 +121,7 @@ class TestFileOperations(unittest.TestCase):
         child_data = mock_ftplib.content_of('dummy')
         expected_data = ' \r\nline 2\r\nline 3'
         self.assertEqual(child_data, expected_data)
-        # Ensure that the original data was not modified
+        # Ensure that the original data was not modified.
         self.assertEqual(data, backup_data)
 
     def test_ascii_read(self):
@@ -141,9 +141,10 @@ class TestFileOperations(unittest.TestCase):
         input_.close()
         # Try it again with a more "problematic" string which
         # makes several reads in the `read` method necessary.
-        host = test_base.ftp_host_factory(session_factory=AsciiReadMockSession)
-        expected_data = AsciiReadMockSession.mock_file_content.\
-                        replace('\r\n', '\n')
+        host = test_base.ftp_host_factory(
+                 session_factory=ReadMockSessionWithMoreNewlines)
+        expected_data = ReadMockSessionWithMoreNewlines.mock_file_content.\
+                          replace('\r\n', '\n')
         input_ = host.file('dummy', 'r')
         data = input_.read(len(expected_data))
         self.assertEqual(data, expected_data)
@@ -194,7 +195,10 @@ class TestFileOperations(unittest.TestCase):
         input_.close()
 
     def test_binary_iterator(self):
-        """Test the iterator interface of `FTPFile` objects."""
+        """
+        Test the iterator interface of `FTPFile` objects (with newline
+        conversion).
+        """
         host = test_base.ftp_host_factory(session_factory=ReadMockSession)
         input_ = host.file('dummy')
         input_iterator = iter(input_)
@@ -205,7 +209,10 @@ class TestFileOperations(unittest.TestCase):
         input_.close()
 
     def test_ascii_iterator(self):
-        """Test the iterator interface of `FTPFile` objects."""
+        """
+        Test the iterator interface of `FTPFile` objects (without
+        newline conversion.
+        """
         host = test_base.ftp_host_factory(session_factory=ReadMockSession)
         input_ = host.file('dummy', 'rb')
         input_iterator = iter(input_)
