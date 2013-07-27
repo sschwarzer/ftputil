@@ -44,21 +44,21 @@ class TestParsers(unittest.TestCase):
     def _test_valid_lines(self, parser_class, lines, expected_stat_results):
         parser = parser_class()
         for line, expected_stat_result in zip(lines, expected_stat_results):
-            # Convert to list to compare with the list `expected_stat_results`
+            # Convert to list to compare with the list `expected_stat_results`.
             parse_result = parser.parse_line(line)
             stat_result = list(parse_result) + [parse_result._st_name,
                                                 parse_result._st_target]
             # Convert time tuple to seconds.
             expected_stat_result[8] = \
               stat_tuple_to_seconds(expected_stat_result[8])
-            # Compare both lists.
+            # Compare lists.
             self.assertEqual(stat_result, expected_stat_result)
 
     def _test_invalid_lines(self, parser_class, lines):
         parser = parser_class()
         for line in lines:
-            self.assertRaises(ftputil.error.ParserError, parser.parse_line,
-                              line)
+            self.assertRaises(ftputil.error.ParserError,
+                              parser.parse_line, line)
 
     def _expected_year(self):
         """
@@ -66,7 +66,9 @@ class TestParsers(unittest.TestCase):
         listing in `test_valid_unix_lines`.
         """
         # If in this year it's after Dec 19, 23:11, use the current
-        # year, else use the previous year ...
+        # year, else use the previous year. This datetime value
+        # corresponds to the hard-coded value in the string lists
+        # below.
         now = time.localtime()
         # We need only month, day, hour and minute.
         current_time_parts = now[1:5]
@@ -105,13 +107,22 @@ class TestParsers(unittest.TestCase):
 
     def test_invalid_unix_lines(self):
         lines = [
+          # Not intended to be parsed. Should have been filtered out by
+          # `ignores_line`.
           "total 14",
+          # Incomplete mode
           "drwxr-sr-    2 45854    200           512 May  4  2000 chemeng",
+          # Invalid first letter in mode
           "xrwxr-sr-x   2 45854    200           512 May  4  2000 chemeng",
+          # Ditto, plus invalid size value
           "xrwxr-sr-x   2 45854    200           51x May  4  2000 chemeng",
+          # Is this `os1 -> os2` pointing to `os3`, or `os1` pointing
+          # to `os2 -> os3` or the plain name `os1 -> os2 -> os3`? We
+          # don't know, so we consider the line invalid.
           "drwxr-sr-x   2 45854    200           512 May 29  2000 "
             "os1 -> os2 -> os3",
-          "xrwxr-sr-x   2 45854    200           51x May  4  2000 ",
+          # Missing name
+          "-rwxr-sr-x   2 45854    200           51x May  4  2000 ",
           ]
         self._test_invalid_lines(ftputil.stat.UnixParser, lines)
 
@@ -183,8 +194,11 @@ class TestParsers(unittest.TestCase):
 
     def test_invalid_ms_lines(self):
         lines = [
+          # Neither "<DIR>" nor a size present
           "07-27-01  11:16AM                      Test",
+          # "AM"/"PM" missing
           "07-17-00  02:08             12266720 test.exe",
+          # Invalid size value
           "07-17-00  02:08AM           1226672x test.exe"
           ]
         self._test_invalid_lines(ftputil.stat.MSParser, lines)
@@ -218,9 +232,6 @@ class TestParsers(unittest.TestCase):
         Check if both times (seconds since the epoch) are equal. For
         the purpose of this test, two times are "equal" if they
         differ no more than one minute from each other.
-
-        If the test fails, an exception is raised by the inherited
-        `assertFalse` method.
         """
         abs_difference = abs(time1 - time2)
         try:
@@ -277,15 +288,15 @@ class TestLstatAndStat(unittest.TestCase):
         # Most tests in this class need the mock session class with
         # Unix format, so make this the default. Tests which need
         # the MS format can overwrite `self.stat` later.
-        self.stat = test_stat(
-                    session_factory=mock_ftplib.MockUnixFormatSession)
+        self.stat = \
+          test_stat(session_factory=mock_ftplib.MockUnixFormatSession)
 
     def test_failing_lstat(self):
-        """Test whether lstat fails for a nonexistent path."""
-        self.assertRaises(ftputil.error.PermanentError, self.stat._lstat,
-                          '/home/sschw/notthere')
-        self.assertRaises(ftputil.error.PermanentError, self.stat._lstat,
-                          '/home/sschwarzer/notthere')
+        """Test whether `lstat` fails for a nonexistent path."""
+        self.assertRaises(ftputil.error.PermanentError,
+                          self.stat._lstat, '/home/sschw/notthere')
+        self.assertRaises(ftputil.error.PermanentError,
+                          self.stat._lstat, '/home/sschwarzer/notthere')
 
     def test_lstat_for_root(self):
         """
@@ -357,10 +368,10 @@ class TestLstatAndStat(unittest.TestCase):
         stat_result = self.stat._stat('../python/link_link')
         self.assertEqual(stat_result.st_size, 4604)
         # Recursive link structures
-        self.assertRaises(ftputil.error.PermanentError, self.stat._stat,
-                          '../python/bad_link')
-        self.assertRaises(ftputil.error.PermanentError, self.stat._stat,
-                          '/home/bad_link')
+        self.assertRaises(ftputil.error.PermanentError,
+                          self.stat._stat, '../python/bad_link')
+        self.assertRaises(ftputil.error.PermanentError,
+                          self.stat._stat, '/home/bad_link')
 
     #
     # Test automatic switching of Unix/MS parsers
@@ -370,11 +381,11 @@ class TestLstatAndStat(unittest.TestCase):
         self.stat = test_stat(session_factory=mock_ftplib.MockMSFormatSession)
         self.assertEqual(self.stat._allow_parser_switching, True)
         # With these directory contents, we get a `ParserError` for
-        # the Unix parser, so `_allow_parser_switching` can be
+        # the Unix parser first, so `_allow_parser_switching` can be
         # switched off no matter whether we got a `PermanentError`
-        # or not.
-        self.assertRaises(ftputil.error.PermanentError, self.stat._lstat,
-                          "/home/msformat/nonexistent")
+        # afterward or not.
+        self.assertRaises(ftputil.error.PermanentError,
+                          self.stat._lstat, "/home/msformat/nonexistent")
         self.assertEqual(self.stat._allow_parser_switching, False)
 
     def test_parser_switching_default_to_unix(self):
@@ -382,6 +393,7 @@ class TestLstatAndStat(unittest.TestCase):
         self.assertEqual(self.stat._allow_parser_switching, True)
         self.assertTrue(isinstance(self.stat._parser, ftputil.stat.UnixParser))
         stat_result = self.stat._lstat("/home/sschwarzer/index.html")
+        # The Unix parser worked, so keep it.
         self.assertTrue(isinstance(self.stat._parser, ftputil.stat.UnixParser))
         self.assertEqual(self.stat._allow_parser_switching, False)
 
@@ -390,6 +402,8 @@ class TestLstatAndStat(unittest.TestCase):
         self.stat = test_stat(session_factory=mock_ftplib.MockMSFormatSession)
         self.assertEqual(self.stat._allow_parser_switching, True)
         self.assertTrue(isinstance(self.stat._parser, ftputil.stat.UnixParser))
+        # Parsing the directory `/home/msformat` with the Unix parser
+        # fails, so switch to the MS parser.
         stat_result = self.stat._lstat("/home/msformat/abcd.exe")
         self.assertTrue(isinstance(self.stat._parser, ftputil.stat.MSParser))
         self.assertEqual(self.stat._allow_parser_switching, False)
@@ -400,6 +414,9 @@ class TestLstatAndStat(unittest.TestCase):
         """Test switching of parser if a directory is empty."""
         self.stat = test_stat(session_factory=mock_ftplib.MockMSFormatSession)
         self.assertEqual(self.stat._allow_parser_switching, True)
+        # When the directory we're looking into doesn't give us any
+        # lines we can't decide whether the first parser worked,
+        # because it wasn't applied. So keep the parser for now.
         result = self.stat._listdir("/home/msformat/XPLaunch/empty")
         self.assertEqual(result, [])
         self.assertEqual(self.stat._allow_parser_switching, True)
@@ -410,8 +427,8 @@ class TestListdir(unittest.TestCase):
     """Test `FTPHost.listdir`."""
 
     def setUp(self):
-        self.stat = test_stat(
-                    session_factory=mock_ftplib.MockUnixFormatSession)
+        self.stat = \
+          test_stat(session_factory=mock_ftplib.MockUnixFormatSession)
 
     def test_failing_listdir(self):
         """Test failing `FTPHost.listdir`."""
