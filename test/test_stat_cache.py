@@ -36,8 +36,8 @@ class TestStatCache(unittest.TestCase):
 
     def test_contains(self):
         self.cache["/path1"] = "test1"
-        self.assertEqual("/path1" in self.cache, True)
-        self.assertEqual("/path2" in self.cache, False)
+        self.assertTrue ("/path1" in self.cache)
+        self.assertFalse("/path2" in self.cache)
 
     def test_len(self):
         self.assertEqual(len(self.cache), 0)
@@ -47,6 +47,7 @@ class TestStatCache(unittest.TestCase):
 
     def test_resize(self):
         self.cache.resize(100)
+        # Don't grow the cache beyond it's set size.
         for i in range(150):
             self.cache["/{0:d}".format(i)] = i
         self.assertEqual(len(self.cache), 100)
@@ -92,7 +93,7 @@ class TestStatCache(unittest.TestCase):
     def test_cache_size_zero(self):
         host = test_base.ftp_host_factory()
         self.assertRaises(ValueError, host.stat_cache.resize, 0)
-        # If bug #38 is present, this raises an `IndexError`
+        # If bug #38 is present, this raises an `IndexError`.
         items = host.listdir(host.curdir)
         self.assertEqual(items[:3], ['chemeng', 'download', 'image'])
 
