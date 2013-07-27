@@ -31,13 +31,17 @@ class SessionWithInaccessibleLoginDirectory(mock_ftplib.MockSession):
 class TestPath(unittest.TestCase):
     """Test operations in `FTPHost.path`."""
 
+    def _test_abspath_types(self, path, expected_type):
+        host = test_base.ftp_host_factory()
+        self.assertTrue(isinstance(host.path.abspath(path),
+                                   expected_type))
+
     def test_abspath(self):
         """Test whether the same type as the argument is returned."""
-        host = test_base.ftp_host_factory()
-        self.assertTrue(isinstance(host.path.abspath(b"/"),
-                                   ftputil.compat.bytes_type))
-        self.assertTrue(isinstance(host.path.abspath("/"),
-                                   ftputil.compat.unicode_type))
+        self._test_abspath_types(b"/", ftputil.compat.bytes_type)
+        self._test_abspath_types(b".", ftputil.compat.bytes_type)
+        self._test_abspath_types( "/", ftputil.compat.unicode_type)
+        self._test_abspath_types( ".", ftputil.compat.unicode_type)
 
     def test_regular_isdir_isfile_islink(self):
         """Test regular `FTPHost._Path.isdir/isfile/islink`."""
