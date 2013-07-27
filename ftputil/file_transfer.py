@@ -93,13 +93,29 @@ def source_is_newer_than_target(source_file, target_file):
     
     Both arguments are `LocalFile` or `RemoteFile` objects.
 
-    For the purpose of this test the source is newer than the
-    target, if the target modification datetime plus its precision
-    is before the source precision. In other words: If in doubt,
-    the file should be transferred.
+    It's assumed that the actual modification time is
+
+      reported_mtime <= actual_mtime <= reported_mtime + mtime_precision
+
+    i. e. that the reported mtime is the actual mtime or rounded down
+    (truncated).
+
+    For the purpose of this test the source is newer than the target
+    if any of the possible actual source modification times is greater
+    than the reported target modification time. In other words: If in
+    doubt, the file should be transferred.
+
+    This is the only situation where the source is _not_ considered
+    newer than the target:
+
+    |/////////////////////|              possible source mtime
+                            |////////|   possible target mtime
+
+    That is, the latest possible actual source modification time is
+    before the first possible actual target modification time.
     """
-    return source_file.mtime() + source_file.mtime_precision() >= \
-           target_file.mtime()
+    return (source_file.mtime() + source_file.mtime_precision() >=
+            target_file.mtime())
 
 
 def chunks(fobj, max_chunk_size=MAX_COPY_CHUNK_SIZE):
