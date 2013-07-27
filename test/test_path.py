@@ -45,41 +45,42 @@ class TestPath(unittest.TestCase):
 
     def test_regular_isdir_isfile_islink(self):
         """Test regular `FTPHost._Path.isdir/isfile/islink`."""
-        testdir = '/home/sschwarzer'
         host = test_base.ftp_host_factory()
+        testdir = '/home/sschwarzer'
         host.chdir(testdir)
-        # Test a path which isn't there
-        self.assertFalse(host.path.isdir('notthere'))
+        # Test a path which isn't there.
+        self.assertFalse(host.path.isdir ('notthere'))
         self.assertFalse(host.path.isfile('notthere'))
         self.assertFalse(host.path.islink('notthere'))
         #  This checks additional code (see ticket #66).
-        self.assertFalse(host.path.isdir('/notthere/notthere'))
+        self.assertFalse(host.path.isdir ('/notthere/notthere'))
         self.assertFalse(host.path.isfile('/notthere/notthere'))
         self.assertFalse(host.path.islink('/notthere/notthere'))
-        # Test a directory
-        self.assertTrue(host.path.isdir(testdir))
+        # Test a directory.
+        self.assertTrue (host.path.isdir (testdir))
         self.assertFalse(host.path.isfile(testdir))
         self.assertFalse(host.path.islink(testdir))
-        # Test a file
+        # Test a file.
         testfile = '/home/sschwarzer/index.html'
-        self.assertFalse(host.path.isdir(testfile))
-        self.assertTrue(host.path.isfile(testfile))
+        self.assertFalse(host.path.isdir (testfile))
+        self.assertTrue (host.path.isfile(testfile))
         self.assertFalse(host.path.islink(testfile))
-        # Test a link
+        # Test a link. Since the link target of `osup` doesn't exist,
+        # neither `isdir` nor `isfile` return `True`.
         testlink = '/home/sschwarzer/osup'
-        self.assertFalse(host.path.isdir(testlink))
+        self.assertFalse(host.path.isdir (testlink))
         self.assertFalse(host.path.isfile(testlink))
-        self.assertTrue(host.path.islink(testlink))
+        self.assertTrue (host.path.islink(testlink))
 
     def test_workaround_for_spaces(self):
         """Test whether the workaround for space-containing paths is used."""
-        testdir = '/home/sschwarzer'
         host = test_base.ftp_host_factory()
+        testdir = '/home/sschwarzer'
         host.chdir(testdir)
-        # Test a file name containing spaces
+        # Test a file name containing spaces.
         testfile = '/home/dir with spaces/file with spaces'
-        self.assertFalse(host.path.isdir(testfile))
-        self.assertTrue(host.path.isfile(testfile))
+        self.assertFalse(host.path.isdir (testfile))
+        self.assertTrue (host.path.isfile(testfile))
         self.assertFalse(host.path.islink(testfile))
 
     def test_inaccessible_home_directory_and_whitespace_workaround(self):
@@ -89,33 +90,29 @@ class TestPath(unittest.TestCase):
         self.assertRaises(ftputil.error.InaccessibleLoginDirError,
                           host._dir, '/home dir')
 
-    def test_abnormal_isdir_isfile_islink(self):
-        """Test abnormal `FTPHost._Path.isdir/isfile/islink`."""
-        # XXX: What does "abnormal" mean here? Be specific.
-        testdir = '/home/sschwarzer'
+    def test_isdir_isfile_islink_with_exception(self):
+        """Test failing `FTPHost._Path.isdir/isfile/islink`."""
         host = test_base.ftp_host_factory(ftp_host_class=FailingFTPHost)
+        testdir = '/home/sschwarzer'
         host.chdir(testdir)
-        # Test a path which isn't there
-        self.assertRaises(ftputil.error.FTPOSError, host.path.isdir,
-                          "index.html")
-        self.assertRaises(ftputil.error.FTPOSError, host.path.isfile,
-                          "index.html")
-        self.assertRaises(ftputil.error.FTPOSError, host.path.islink,
-                          "index.html")
+        # Test if exceptions are propagated.
+        FTPOSError = ftputil.error.FTPOSError
+        self.assertRaises(FTPOSError, host.path.isdir,  "index.html")
+        self.assertRaises(FTPOSError, host.path.isfile, "index.html")
+        self.assertRaises(FTPOSError, host.path.islink, "index.html")
 
     def test_exists(self):
-        """Test if "abnormal" FTP errors come through `path.exists`."""
-        # XXX: What does "abnormal" mean here? Be specific.
+        """Test `FTPHost.path.exists`."""
         # Regular use of `exists`
-        testdir = '/home/sschwarzer'
         host = test_base.ftp_host_factory()
+        testdir = '/home/sschwarzer'
         host.chdir(testdir)
-        self.assertEqual(host.path.exists("index.html"), True)
-        self.assertEqual(host.path.exists("notthere"), False)
-        # "Abnormal" failure
+        self.assertTrue (host.path.exists("index.html"))
+        self.assertFalse(host.path.exists("notthere"))
+        # Test if exceptions are propagated.
         host = test_base.ftp_host_factory(ftp_host_class=FailingFTPHost)
-        self.assertRaises(ftputil.error.FTPOSError, host.path.exists,
-                          "index.html")
+        self.assertRaises(
+          ftputil.error.FTPOSError, host.path.exists, "index.html")
 
 
 if __name__ == '__main__':
