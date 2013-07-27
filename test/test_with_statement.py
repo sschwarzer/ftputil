@@ -13,7 +13,8 @@ from test.test_ftputil import FailOnLoginSession
 from test.test_file import InaccessibleDirSession, ReadMockSession
 
 
-# Exception raised by client code, i. e. code using ftputil
+# Exception raised by client code, i. e. code using ftputil. Used to
+# test the behavior in case of client exceptions.
 class ClientCodeException(Exception):
     pass
 
@@ -34,7 +35,7 @@ class TestHostContextManager(unittest.TestCase):
                 pass
         except ftputil.error.FTPOSError:
             # We arrived here, that's fine. Because the `FTPHost` object
-            # wasn't successfully constructed the assignment to `host`
+            # wasn't successfully constructed, the assignment to `host`
             # shouldn't have happened.
             self.assertFalse('host' in locals())
         else:
@@ -54,8 +55,8 @@ class TestHostContextManager(unittest.TestCase):
 class TestFileContextManager(unittest.TestCase):
 
     def test_normal_operation(self):
-        with test_base.ftp_host_factory(session_factory=ReadMockSession) \
-             as host:
+        with test_base.ftp_host_factory(
+               session_factory=ReadMockSession) as host:
             with host.file('dummy', 'r') as f:
                 self.assertEqual(f.closed, False)
                 data = f.readline()
@@ -72,16 +73,16 @@ class TestFileContextManager(unittest.TestCase):
                 with host.file('/inaccessible/new_file', 'w') as f:
                     pass
             except ftputil.error.FTPIOError:
-                # The file construction didn't succeed, so `f` should
-                # be absent from the namespace.
+                # The file construction shouldn't have succeeded, so
+                # `f` should be absent from the local namespace.
                 self.assertFalse('f' in locals())
             else:
                 raise self.failureException(
-                      "ftputil.error.FTPIOError not raised")
+                        "ftputil.error.FTPIOError not raised")
 
     def test_client_code_exception(self):
-        with test_base.ftp_host_factory(session_factory=ReadMockSession) \
-             as host:
+        with test_base.ftp_host_factory(
+               session_factory=ReadMockSession) as host:
             try:
                 with host.file('dummy', 'r') as f:
                     self.assertEqual(f.closed, False)
