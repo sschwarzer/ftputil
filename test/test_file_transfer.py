@@ -67,7 +67,7 @@ class TestTimestampComparison(unittest.TestCase):
 class FailingStringIO(io.BytesIO):
     """Mock class to test whether exceptions are passed on."""
 
-    # Kind of nonsense; we just want to see this exception raised
+    # Kind of nonsense; we just want to see this exception raised.
     expected_exception = IndexError
 
     def read(self, count):
