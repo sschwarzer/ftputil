@@ -17,7 +17,7 @@ def email_address():
     FTP server.
 
     If the hostname is "warpy", use my (Stefan's) email address,
-    else try to use the content of the $EMAIL environment variable.
+    else try to use the content of the `$EMAIL` environment variable.
     If that doesn't exist, use a dummy address.
     """
     hostname = socket.gethostname()
@@ -36,19 +36,18 @@ EMAIL = email_address()
 
 def ftp_client_listing(server, directory):
     """
-    Log into the FTP server `server` using the command line
-    client, then change to the `directory` and retrieve a
-    listing with "dir". Return the list of items found as the
-    an `os.listdir` would return it.
+    Log into the FTP server `server` using the command line client,
+    then change to the `directory` and retrieve a listing with "dir".
+    Return the list of items found as an `os.listdir` would return it.
     """
-    # The -n option prevents an auto-login
+    # The `-n` option prevents an auto-login.
     ftp_popen = subprocess.Popen(["ftp", "-n", server],
                                  stdin=subprocess.PIPE,
                                  stdout=subprocess.PIPE,
                                  universal_newlines=True)
     commands = ["user anonymous {0}".format(EMAIL), "dir", "bye"]
     if directory:
-        # Change to this directory before calling "dir"
+        # Change to this directory before calling "dir".
         commands.insert(1, "cd {0}".format(directory))
     input_ = "\n".join(commands)
     stdout, stderr = ftp_popen.communicate(input_)
@@ -59,7 +58,7 @@ def ftp_client_listing(server, directory):
             continue
         parts = line.split()
         if parts[-2] == "->":
-            # Most probably a link
+            # Most likely a link
             name = parts[-3]
         else:
             name = parts[-1]
@@ -81,7 +80,7 @@ class TestPublicServers(unittest.TestCase):
     which is usually set after login, use "" (nothing), ".",
     "/", "/.", "./.", "././", "..", "../.", "../.." etc.
 
-    The command line client "ftp" has to be in the path.
+    The command line client `ftp` has to be in the path.
     """
 
     # Implementation note:
@@ -96,10 +95,10 @@ class TestPublicServers(unittest.TestCase):
     # to exist" under the login directory which is assumed to be
     # the root directory.
     servers = [# Posix format
-               ("ftp.gnome.org", "pub"),
-               ("ftp.kde.org", "pub"),
+               ("ftp.gnome.org",  "pub"),
+               ("ftp.kde.org",    "pub"),
                ("ftp.debian.org", "debian"),
-               ("ftp.heanet.ie", "pub"),
+               ("ftp.heanet.ie",  "pub"),
                # DOS/Microsoft format
                # ftp.microsoft.com sporadically refuses anonymous access
                # ("530 User cannot log in, home directory inaccessible")
