@@ -32,7 +32,9 @@ def random_data(pool, size=10000):
 
 
 def ascii_data():
-    """Return a _byte_ string of ASCII characters."""
+    r"""
+    Return a _byte_ string of "normal" ASCII characters, including `\n`.
+    """
     pool = list(range(32, 128))
     pool.append(ord("\n"))
     return random_data(pool)
@@ -54,14 +56,6 @@ class FailOnLoginSession(mock_ftplib.MockSession):
 
 
 class FailOnKeepAliveSession(mock_ftplib.MockSession):
-
-    # XXX: I think `_check_list_a_option` doesn't exist anymore. If
-    # not, we don't need to handle this specially but can raise the
-    # exception immediately.
- 
-    def dir(self, *args):
-        # Implicitly called by `_check_list_a_option`, otherwise unused.
-        pass
 
     def pwd(self):
         # Raise exception on second call to let the constructor work.
@@ -155,11 +149,10 @@ class TimeShiftFTPHost(ftputil.FTPHost):
 #
 # Test cases
 #
-class TestOpenAndClose(unittest.TestCase):
-    """Test opening and closing of `FTPHost` objects."""
+class TestInitAndClose(unittest.TestCase):
+    """Test initialization and closure of `FTPHost` objects."""
 
     def test_open_and_close(self):
-        """Test closing of `FTPHost`."""
         host = test_base.ftp_host_factory()
         host.close()
         self.assertEqual(host.closed, True)
