@@ -33,45 +33,6 @@ class SessionWithInaccessibleLoginDirectory(mock_ftplib.MockSession):
 class TestPath(unittest.TestCase):
     """Test operations in `FTPHost.path`."""
 
-    def _test_method_string_types(self, method, path):
-        expected_type = type(path)
-        self.assertTrue(isinstance(method(path), expected_type))
-
-    def test_types_for_methods_that_take_and_return_one_string(self):
-        """
-        Test whether the same string type as for the argument is returned.
-        """
-        host = test_base.ftp_host_factory()
-        bytes_type = ftputil.compat.bytes_type
-        unicode_type = ftputil.compat.unicode_type
-        method_names = ("abspath dirname basename join normcase normpath".
-                        split())
-        for method_name in method_names:
-            method = getattr(host.path, method_name)
-            self._test_method_string_types(method,  "/")
-            self._test_method_string_types(method,  ".")
-            self._test_method_string_types(method, b"/")
-            self._test_method_string_types(method, b".")
-
-    def test_types_for_methods_that_take_a_string_and_return_a_bool(self):
-        """Test whether the methods accept byte and unicode strings."""
-        host = test_base.ftp_host_factory()
-        as_bytes = ftputil.tool.as_bytes
-        host.chdir("/home/file_name_test")
-        # `isabs`
-        self.assertFalse(host.path.isabs("ä"))
-        self.assertFalse(host.path.isabs(as_bytes("ä")))
-        # `exists`
-        self.assertTrue(host.path.exists("ä"))
-        self.assertTrue(host.path.exists(as_bytes("ä")))
-        # `isdir`, `isfile`, `islink`
-        self.assertTrue(host.path.isdir ("ä"))
-        self.assertTrue(host.path.isdir (as_bytes("ä")))
-        self.assertTrue(host.path.isfile("ö"))
-        self.assertTrue(host.path.isfile(as_bytes("ö")))
-        self.assertTrue(host.path.islink("ü"))
-        self.assertTrue(host.path.islink(as_bytes("ü")))
-
     def test_regular_isdir_isfile_islink(self):
         """Test regular `FTPHost._Path.isdir/isfile/islink`."""
         host = test_base.ftp_host_factory()
@@ -142,6 +103,48 @@ class TestPath(unittest.TestCase):
         host = test_base.ftp_host_factory(ftp_host_class=FailingFTPHost)
         self.assertRaises(
           ftputil.error.FTPOSError, host.path.exists, "index.html")
+
+
+class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
+
+    def _test_method_string_types(self, method, path):
+        expected_type = type(path)
+        self.assertTrue(isinstance(method(path), expected_type))
+
+    def test_types_for_methods_that_take_and_return_one_string(self):
+        """
+        Test whether the same string type as for the argument is returned.
+        """
+        host = test_base.ftp_host_factory()
+        bytes_type = ftputil.compat.bytes_type
+        unicode_type = ftputil.compat.unicode_type
+        method_names = ("abspath dirname basename join normcase normpath".
+                        split())
+        for method_name in method_names:
+            method = getattr(host.path, method_name)
+            self._test_method_string_types(method,  "/")
+            self._test_method_string_types(method,  ".")
+            self._test_method_string_types(method, b"/")
+            self._test_method_string_types(method, b".")
+
+    def test_types_for_methods_that_take_a_string_and_return_a_bool(self):
+        """Test whether the methods accept byte and unicode strings."""
+        host = test_base.ftp_host_factory()
+        as_bytes = ftputil.tool.as_bytes
+        host.chdir("/home/file_name_test")
+        # `isabs`
+        self.assertFalse(host.path.isabs("ä"))
+        self.assertFalse(host.path.isabs(as_bytes("ä")))
+        # `exists`
+        self.assertTrue(host.path.exists("ä"))
+        self.assertTrue(host.path.exists(as_bytes("ä")))
+        # `isdir`, `isfile`, `islink`
+        self.assertTrue(host.path.isdir ("ä"))
+        self.assertTrue(host.path.isdir (as_bytes("ä")))
+        self.assertTrue(host.path.isfile("ö"))
+        self.assertTrue(host.path.isfile(as_bytes("ö")))
+        self.assertTrue(host.path.islink("ü"))
+        self.assertTrue(host.path.islink(as_bytes("ü")))
 
 
 if __name__ == '__main__':
