@@ -158,12 +158,11 @@ class StatCache(object):
         """
         try:
             # Implicitly do an age test which may raise `CacheMissError`.
-            # Deliberately ignore the return value `stat_result`.
-            # pylint: disable=W0612
-            stat_result = self[path]
-            return True
+            self[path]
         except ftputil.error.CacheMissError:
             return False
+        else:
+            return True
 
     #
     # The following methods are only intended for debugging!
