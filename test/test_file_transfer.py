@@ -77,14 +77,14 @@ class FailingStringIO(io.BytesIO):
 
 class TestChunkwiseTransfer(unittest.TestCase):
 
-    def random_string(self, count):
+    def _random_string(self, count):
         """Return a `BytesIO` object containing `count` "random" bytes."""
         ints = (random.randint(0, 255) for i in range(count))
         return ftputil.compat.bytes_from_ints(ints)
 
     def test_chunkwise_transfer_without_remainder(self):
         """Check if we get four chunks with 256 Bytes each."""
-        data = self.random_string(1024)
+        data = self._random_string(1024)
         fobj = io.BytesIO(data)
         chunks = list(ftputil.file_transfer.chunks(fobj, 256))
         self.assertEqual(len(chunks), 4)
@@ -95,7 +95,7 @@ class TestChunkwiseTransfer(unittest.TestCase):
 
     def test_chunkwise_transfer_with_remainder(self):
         """Check if we get three chunks with 256 Bytes and one with 253."""
-        data = self.random_string(1021)
+        data = self._random_string(1021)
         fobj = io.BytesIO(data)
         chunks = list(ftputil.file_transfer.chunks(fobj, 256))
         self.assertEqual(len(chunks), 4)
@@ -106,7 +106,7 @@ class TestChunkwiseTransfer(unittest.TestCase):
 
     def test_chunkwise_transfer_with_exception(self):
         """Check if we see the exception raised during reading."""
-        data = self.random_string(1024)
+        data = self._random_string(1024)
         fobj = FailingStringIO(data)
         iterator = ftputil.file_transfer.chunks(fobj, 256)
         self.assertRaises(FailingStringIO.expected_exception, next, iterator)
