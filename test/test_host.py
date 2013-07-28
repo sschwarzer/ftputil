@@ -486,12 +486,12 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
         #  Need explicit type check for Python 2
         for item in items:
             self.assertTrue(isinstance(item, ftputil.compat.unicode_type))
-#         # Bytes
-#         items = host.listdir(as_bytes("ä"))
-#         self.assertEqual(items, [as_bytes("ö"), as_bytes("o")])
-#         #  Need explicit type check for Python 2
-#         for item in items:
-#             self.assertTrue(isinstance(item, ftputil.compat.bytes_type))
+        # Bytes
+        items = host.listdir(as_bytes("ä"))
+        self.assertEqual(items, [as_bytes("ö"), as_bytes("o")])
+        #  Need explicit type check for Python 2
+        for item in items:
+            self.assertTrue(isinstance(item, ftputil.compat.bytes_type))
 
 
 if __name__ == '__main__':
