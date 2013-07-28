@@ -472,11 +472,11 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
     def setUp(self):
         self.host = test_base.ftp_host_factory()
 
-    def test_string_types_for_chdir(self):
+    def test_chdir(self):
         self.host.chdir("/home/file_name_test/ö")
         self.host.chdir(ftputil.tool.as_bytes("/home/file_name_test/ö"))
 
-    def test_string_types_for_listdir(self):
+    def test_listdir(self):
         host = self.host
         as_bytes = ftputil.tool.as_bytes
         host.chdir("/home/file_name_test")
