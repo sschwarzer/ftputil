@@ -115,7 +115,7 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
         expected_type = type(path)
         self.assertTrue(isinstance(method(path), expected_type))
 
-    def test_types_for_methods_that_take_and_return_one_string(self):
+    def test_string_types_for_methods_that_take_and_return_one_string(self):
         """
         Test whether the same string type as for the argument is returned.
         """
@@ -130,7 +130,8 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
             self._test_method_string_types(method, b"/")
             self._test_method_string_types(method, b".")
 
-    def test_types_for_methods_that_take_a_string_and_return_a_bool(self):
+    def test_string_types_for_methods_that_take_a_string_and_return_a_bool(
+          self):
         """Test whether the methods accept byte and unicode strings."""
         host = self.host
         as_bytes = ftputil.tool.as_bytes
@@ -149,12 +150,14 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
         self.assertTrue(host.path.islink("ü"))
         self.assertTrue(host.path.islink(as_bytes("ü")))
 
-    def test_types_for_methods_that_take_a_string_and_return_an_int(self):
-        """Test whether the methods accept byte and unicode strings."""
+    def test_string_types_for_getmtime(self):
+        """
+        Test whether `FTPHost.path.getmtime` accepts byte and unicode
+        paths.
+        """
         host = self.host
         as_bytes = ftputil.tool.as_bytes
         host.chdir("/home/file_name_test")
-        # `getmtime`
         #  We don't care about the _exact_ time, so don't bother with
         #  timezone differences. Instead, do a simple sanity check.
         day = 24 * 60 * 60  # seconds
@@ -163,11 +166,18 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
                                            expected_mtime + day)
         self.assertTrue(mtime_makes_sense(host.path.getmtime("ä")))
         self.assertTrue(mtime_makes_sense(host.path.getmtime(as_bytes("ä"))))
-        # `getsize`
+
+    def test_string_types_for_getsize(self):
+        """
+        Test whether `FTPHost.path.getsize` accepts byte and unicode paths.
+        """
+        host = self.host
+        as_bytes = ftputil.tool.as_bytes
+        host.chdir("/home/file_name_test")
         self.assertEqual(host.path.getsize("ä"), 512)
         self.assertEqual(host.path.getsize(as_bytes("ä")), 512)
 
-    def test_types_for_walk(self):
+    def test_string_types_for_walk(self):
         """Test whether `FTPHost.path.walk` accepts bytes and unicode paths."""
         host = self.host
         as_bytes = ftputil.tool.as_bytes
