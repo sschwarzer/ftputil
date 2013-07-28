@@ -795,10 +795,10 @@ class FTPHost(object):
         If the directory listing from the server can't be parsed with
         any of the available parsers raise a `ParserError`.
         """
-        orig_path = path
+        original_path = path
         path = ftputil.tool.as_unicode(path)
         items = self._stat._listdir(path)
-        return [ftputil.tool.same_string_type_as(orig_path, item)
+        return [ftputil.tool.same_string_type_as(original_path, item)
                 for item in items]
 
     def lstat(self, path, _exception_for_missing_path=True):
