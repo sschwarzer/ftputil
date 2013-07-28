@@ -17,6 +17,9 @@ import collections
 import ftplib
 import posixpath
 
+import ftputil.tool
+
+
 DEBUG = 0
 
 # Use a global dictionary of the form `{path: `MockFile` object, ...}`
@@ -132,6 +135,7 @@ class MockSession(object):
         return posixpath.normpath(posixpath.join(self.pwd(), path))
 
     def cwd(self, path):
+        path = ftputil.tool.as_unicode(path)
         self.current_dir = self._transform_path(path)
 
     def dir(self, *args):
@@ -230,6 +234,10 @@ total 1
 drwxr-sr-x   2 45854    200           512 May 29  2000 ä
 -rw-r--r--   1 45854    200          4604 Jan 19 23:11 ö
 lrwxrwxrwx   2 45854    200             6 May 29  2000 ü -> ä""",
+
+      '/home/file_name_test/ä': """\
+-rw-r--r--   1 45854    200          4604 Jan 19 23:11 ö
+-rw-r--r--   1 45854    200          4604 Jan 19 23:11 o""",
 
       # Fail when trying to write to this directory (the content isn't
       # relevant).

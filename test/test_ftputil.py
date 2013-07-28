@@ -1,3 +1,4 @@
+# encoding: utf-8
 # Copyright (C) 2002-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
@@ -464,6 +465,33 @@ class TestTimeShift(unittest.TestCase):
         host.path.set_mtime(presumed_server_time)
         host.synchronize_times()
         self.assertEqual(host.time_shift(), presumed_time_shift)
+
+
+class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
+
+    def setUp(self):
+        self.host = test_base.ftp_host_factory()
+
+    def test_string_types_for_chdir(self):
+        self.host.chdir("/home/file_name_test/ö")
+        self.host.chdir(ftputil.tool.as_bytes("/home/file_name_test/ö"))
+
+    def test_string_types_for_listdir(self):
+        host = self.host
+        as_bytes = ftputil.tool.as_bytes
+        host.chdir("/home/file_name_test")
+        # Unicode
+        items = host.listdir("ä")
+        self.assertEqual(items, ["ö", "o"])
+        #  Need explicit type check for Python 2
+        for item in items:
+            self.assertTrue(isinstance(item, ftputil.compat.unicode_type))
+#         # Bytes
+#         items = host.listdir(as_bytes("ä"))
+#         self.assertEqual(items, [as_bytes("ö"), as_bytes("o")])
+#         #  Need explicit type check for Python 2
+#         for item in items:
+#             self.assertTrue(isinstance(item, ftputil.compat.bytes_type))
 
 
 if __name__ == '__main__':
