@@ -103,7 +103,7 @@ class _Path(object):
             return False
         try:
             stat_result = self._host.stat(
-                          path, _exception_for_missing_path=False)
+                            path, _exception_for_missing_path=False)
             if stat_result is None:
                 return False
             else:
@@ -123,7 +123,7 @@ class _Path(object):
             return True
         try:
             stat_result = self._host.stat(
-                          path, _exception_for_missing_path=False)
+                            path, _exception_for_missing_path=False)
             if stat_result is None:
                 return False
             else:
@@ -139,7 +139,7 @@ class _Path(object):
         """
         try:
             lstat_result = self._host.lstat(
-                           path, _exception_for_missing_path=False)
+                             path, _exception_for_missing_path=False)
             if lstat_result is None:
                 return False
             else:
