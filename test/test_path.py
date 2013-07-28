@@ -44,8 +44,8 @@ class TestPath(unittest.TestCase):
         host = test_base.ftp_host_factory()
         bytes_type = ftputil.compat.bytes_type
         unicode_type = ftputil.compat.unicode_type
-        method_names = ("""abspath commonprefix dirname basename join normcase
-                           normpath""".split())
+        method_names = ("abspath dirname basename join normcase normpath".
+                        split())
         for method_name in method_names:
             method = getattr(host.path, method_name)
             self._test_method_string_types(method,  "/")
