@@ -108,6 +108,9 @@ class TestPath(unittest.TestCase):
 
 class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
 
+    def setUp(self):
+        self.host = test_base.ftp_host_factory()
+
     def _test_method_string_types(self, method, path):
         expected_type = type(path)
         self.assertTrue(isinstance(method(path), expected_type))
@@ -116,13 +119,12 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
         """
         Test whether the same string type as for the argument is returned.
         """
-        host = test_base.ftp_host_factory()
         bytes_type = ftputil.compat.bytes_type
         unicode_type = ftputil.compat.unicode_type
         method_names = ("abspath dirname basename join normcase normpath".
                         split())
         for method_name in method_names:
-            method = getattr(host.path, method_name)
+            method = getattr(self.host.path, method_name)
             self._test_method_string_types(method,  "/")
             self._test_method_string_types(method,  ".")
             self._test_method_string_types(method, b"/")
@@ -130,7 +132,7 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
 
     def test_types_for_methods_that_take_a_string_and_return_a_bool(self):
         """Test whether the methods accept byte and unicode strings."""
-        host = test_base.ftp_host_factory()
+        host = self.host
         as_bytes = ftputil.tool.as_bytes
         host.chdir("/home/file_name_test")
         # `isabs`
@@ -149,7 +151,7 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
 
     def test_types_for_methods_that_take_a_string_and_return_an_int(self):
         """Test whether the methods accept byte and unicode strings."""
-        host = test_base.ftp_host_factory()
+        host = self.host
         as_bytes = ftputil.tool.as_bytes
         host.chdir("/home/file_name_test")
         # `getmtime`
@@ -164,6 +166,9 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
         # `getsize`
         self.assertEqual(host.path.getsize("ä"), 512)
         self.assertEqual(host.path.getsize(as_bytes("ä")), 512)
+
+    def test_types_for_path_walk(self):
+        """Test whether `FTPHost.path.walk` accepts bytes and unicode paths."""
 
 
 if __name__ == '__main__':
