@@ -56,14 +56,21 @@ class TestPath(unittest.TestCase):
     def test_types_for_methods_that_take_a_string_and_return_a_bool(self):
         """Test whether the methods accept byte and unicode strings."""
         host = test_base.ftp_host_factory()
-        method_names = "isabs exists isdir isfile islink".split()
+        as_bytes = ftputil.tool.as_bytes
         host.chdir("/home/file_name_test")
         # `isabs`
         self.assertFalse(host.path.isabs("ä"))
-        self.assertFalse(host.path.isabs(ftputil.tool.as_bytes("ä")))
+        self.assertFalse(host.path.isabs(as_bytes("ä")))
         # `exists`
         self.assertTrue(host.path.exists("ä"))
-        self.assertTrue(host.path.exists(ftputil.tool.as_bytes("ä")))
+        self.assertTrue(host.path.exists(as_bytes("ä")))
+        # `isdir`, `isfile`, `islink`
+        self.assertTrue(host.path.isdir ("ä"))
+        self.assertTrue(host.path.isdir (as_bytes("ä")))
+        self.assertTrue(host.path.isfile("ö"))
+        self.assertTrue(host.path.isfile(as_bytes("ö")))
+        self.assertTrue(host.path.islink("ü"))
+        self.assertTrue(host.path.islink(as_bytes("ü")))
 
     def test_regular_isdir_isfile_islink(self):
         """Test regular `FTPHost._Path.isdir/isfile/islink`."""
