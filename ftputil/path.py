@@ -37,7 +37,6 @@ class _Path(object):
         self.basename     = pp.basename
         self.isabs        = pp.isabs
         self.commonprefix = pp.commonprefix
-        self.join         = pp.join
         self.split        = pp.split
         self.splitdrive   = pp.splitdrive
         self.splitext     = pp.splitext
@@ -47,6 +46,7 @@ class _Path(object):
     def abspath(self, path):
         """Return an absolute path."""
         orig_path = path
+        path = ftputil.tool.as_unicode(path)
         if not self.isabs(path):
             path = self.join(self._host.getcwd(), path)
         return ftputil.tool.same_string_type_as(orig_path, self.normpath(path))
@@ -81,6 +81,28 @@ class _Path(object):
         """
         return self._host.stat(path).st_size
 
+    def join(self, *paths):
+        """
+        Join the path component from `paths` and return the joined
+        path.
+
+        All of these paths must be either unicode strings or byte
+        strings. If not, `join` raises a `TypeError`.
+        """
+        # These checks are implicitly done by Python 3, but not by
+        # Python 2.
+        all_paths_are_unicode = all(
+          (isinstance(path, ftputil.compat.unicode_type)
+          for path in paths))
+        all_paths_are_bytes = all(
+          (isinstance(path, ftputil.compat.bytes_type)
+          for path in paths))
+        if all_paths_are_unicode or all_paths_are_bytes:
+            return posixpath.join(*paths)
+        else:
+            raise TypeError(
+                    "can't mix unicode strings and bytes in path components")
+
     # Check whether a path is a regular file/dir/link. For the first
     # two cases follow links (like in `os.path`).
     #
@@ -98,6 +120,7 @@ class _Path(object):
 
         A non-existing path does _not_ cause a `PermanentError`.
         """
+        path = ftputil.tool.as_unicode(path)
         # Workaround if we can't go up from the current directory
         if path == self._host.getcwd():
             return False
@@ -118,6 +141,7 @@ class _Path(object):
 
         A non-existing path does _not_ cause a `PermanentError`.
         """
+        path = ftputil.tool.as_unicode(path)
         # Workaround if we can't go up from the current directory
         if path == self._host.getcwd():
             return True
@@ -137,6 +161,7 @@ class _Path(object):
 
         A non-existing path does _not_ cause a `PermanentError`.
         """
+        path = ftputil.tool.as_unicode(path)
         try:
             lstat_result = self._host.lstat(
                              path, _exception_for_missing_path=False)
