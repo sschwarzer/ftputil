@@ -63,7 +63,8 @@ class FTPHost(object):
         self.stat_cache = self._stat._lstat_cache
         self.stat_cache.enable()
         with ftputil.error.ftplib_error_to_ftp_os_error:
-            self._cached_current_dir = self._session.pwd()
+            self._cached_current_dir = \
+              ftputil.tool.as_unicode(self._session.pwd())
         # Associated `FTPHost` objects for data transfer.
         self._children = []
         # This is only set to something else than `None` if this
@@ -162,8 +163,7 @@ class FTPHost(object):
         This method tries to reuse a child but will generate a new one
         if none is available.
         """
-        # Fail early if we get a unicode path which can't be encoded.
-        path = str(path)
+        path = ftputil.tool.as_unicode(path)
         host = self._available_child()
         if host is None:
             host = self._copy()
@@ -441,11 +441,7 @@ class FTPHost(object):
         target (name). The argument `mode` is an empty string or 'a' for
         text copies, or 'b' for binary copies.
         """
-        # Fail early if we get a unicode path which can't be encoded.
-        # Only attempt to convert the remote `target` name to a
-        # bytestring. Leave it to the local filesystem whether it
-        # wants to support unicode filenames or not.
-        target = str(target)
+        target = ftputil.tool.as_unicode(target)
         source_file, target_file = self._upload_files(source, target, mode)
         ftputil.file_transfer.copy_file(source_file, target_file,
                                         conditional=False, callback=callback)
@@ -458,8 +454,7 @@ class FTPHost(object):
 
         If an upload was necessary, return `True`, else return `False`.
         """
-        # See comment in `upload`.
-        target = str(target)
+        target = ftputil.tool.as_unicode(target)
         source_file, target_file = self._upload_files(source, target, mode)
         return ftputil.file_transfer.copy_file(source_file, target_file,
                                                conditional=True,
@@ -485,11 +480,7 @@ class FTPHost(object):
         target (name). The argument mode is an empty string or 'a' for
         text copies, or 'b' for binary copies.
         """
-        # Fail early if we get a unicode path which can't be encoded.
-        # Only attempt to convert the remote `source` name to a
-        # bytestring. We leave it to the local filesystem whether it
-        # wants to support unicode filenames or not.
-        source = str(source)
+        source = ftputil.tool.as_unicode(source)
         source_file, target_file = self._download_files(source, target, mode)
         ftputil.file_transfer.copy_file(source_file, target_file,
                                         conditional=False, callback=callback)
@@ -503,8 +494,7 @@ class FTPHost(object):
         If a download was necessary, return `True`, else return
         `False`.
         """
-        # See comment in `download`.
-        source = str(source)
+        source = ftputil.tool.as_unicode(source)
         source_file, target_file = self._download_files(source, target, mode)
         return ftputil.file_transfer.copy_file(source_file, target_file,
                                                conditional=True,
@@ -575,7 +565,7 @@ class FTPHost(object):
 
     def chdir(self, path):
         """Change the directory on the host."""
-        path = ftputil.tool.as_bytes(path)
+        path = ftputil.tool.as_unicode(path)
         with ftputil.error.ftplib_error_to_ftp_os_error:
             self._session.cwd(path)
         # The path given as the argument is relative to the old current
@@ -591,8 +581,7 @@ class FTPHost(object):
         `mode` is ignored and only "supported" for similarity with
         `os.mkdir`.
         """
-        # Fail early if we get a unicode path which can't be encoded.
-        path = str(path)
+        path = ftputil.tool.as_unicode(path)
         def command(self, path):
             """Callback function."""
             with ftputil.error.ftplib_error_to_ftp_os_error:
@@ -608,8 +597,7 @@ class FTPHost(object):
         of `mode` is only accepted for compatibility with
         `os.makedirs` but otherwise ignored.
         """
-        # Fail early if we get a unicode path which can't be encoded.
-        path = str(path)
+        path = ftputil.tool.as_unicode(path)
         path = self.path.abspath(path)
         directories = path.split(self.sep)
         # Try to build the directory chain from the "uppermost" to
@@ -637,8 +625,7 @@ class FTPHost(object):
         empty directories as well, - if the server allowed it. This
         is no longer supported.
         """
-        # Fail early if we get a unicode path which can't be encoded.
-        path = str(path)
+        path = ftputil.tool.as_unicode(path)
         path = self.path.abspath(path)
         if self.listdir(path):
             raise ftputil.error.PermanentError("directory '{0}' not empty".
@@ -653,8 +640,7 @@ class FTPHost(object):
 
     def remove(self, path):
         """Remove the given file or link."""
-        # Fail early if we get a unicode path which can't be encoded.
-        path = str(path)
+        path = ftputil.tool.as_unicode(path)
         path = self.path.abspath(path)
         # Though `isfile` includes also links to files, `islink`
         # is needed to include links to directories.
@@ -681,6 +667,7 @@ class FTPHost(object):
         `PermanentError`, but maybe raise other exceptions depending
         on the state of the server (e. g. timeout).
         """
+        path = ftputil.tool.as_unicode(path)
         self.remove(path)
 
     def rmtree(self, path, ignore_errors=False, onerror=None):
@@ -706,8 +693,7 @@ class FTPHost(object):
         Implementation note: The code is copied from `shutil.rmtree`
         in Python 2.4 and adapted to ftputil.
         """
-        # Fail early if we get a unicode path which can't be encoded.
-        path = str(path)
+        path = ftputil.tool.as_unicode(path)
         # The following code is an adapted version of Python 2.4's
         # `shutil.rmtree` function.
         if ignore_errors:
@@ -749,9 +735,8 @@ class FTPHost(object):
 
     def rename(self, source, target):
         """Rename the source on the FTP host to target."""
-        # Fail early if we get a unicode path which can't be encoded.
-        source = str(source)
-        target = str(target)
+        source = ftputil.tool.as_unicode(source)
+        target = ftputil.tool.as_unicode(target)
         # The following code is in spirit similar to the code in the
         # method `_robust_ftp_command`, though we do _not_ do
         # _everything_ imaginable.
@@ -810,7 +795,11 @@ class FTPHost(object):
         If the directory listing from the server can't be parsed with
         any of the available parsers raise a `ParserError`.
         """
-        return self._stat._listdir(path)
+        orig_path = path
+        path = ftputil.tool.as_unicode(path)
+        items = self._stat._listdir(path)
+        return [ftputil.tool.same_string_type_as(orig_path, item)
+                for item in items]
 
     def lstat(self, path, _exception_for_missing_path=True):
         """
@@ -824,6 +813,7 @@ class FTPHost(object):
         (`_exception_for_missing_path` is an implementation aid and
         _not_ intended for use by ftputil clients.)
         """
+        path = ftputil.tool.as_unicode(path)
         return self._stat._lstat(path, _exception_for_missing_path)
 
     def stat(self, path, _exception_for_missing_path=True):
@@ -839,6 +829,7 @@ class FTPHost(object):
         (`_exception_for_missing_path` is an implementation aid and
         _not_ intended for use by ftputil clients.)
         """
+        path = ftputil.tool.as_unicode(path)
         return self._stat._stat(path, _exception_for_missing_path)
 
     def walk(self, top, topdown=True, onerror=None):
@@ -847,8 +838,7 @@ class FTPHost(object):
         dirnames, filenames) on each iteration, like the `os.walk`
         function (see http://docs.python.org/lib/os-file-dir.html ).
         """
-        # Fail early if we get a unicode path which can't be encoded.
-        top = str(top)
+        top = ftputil.tool.as_unicode(top)
         # The following code is copied from `os.walk` in Python 2.4
         # and adapted to ftputil.
         try:
@@ -884,8 +874,7 @@ class FTPHost(object):
         the server. In particular, a non-existent path usually
         causes a `PermanentError`.
         """
-        # Fail early if we get a unicode path which can't be encoded.
-        path = str(path)
+        path = ftputil.tool.as_unicode(path)
         path = self.path.abspath(path)
         def command(self, path):
             """Callback function."""
