@@ -1,3 +1,4 @@
+# encoding: utf-8
 # Copyright (C) 2006-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
@@ -96,6 +97,42 @@ class TestStatCache(unittest.TestCase):
         # If bug #38 is present, this raises an `IndexError`.
         items = host.listdir(host.curdir)
         self.assertEqual(items[:3], ['chemeng', 'download', 'image'])
+
+    #
+    # Tests of implicit decoding of paths.
+    # Idea: The cache entry for corresponding unicode and bytes
+    # versions of paths should be aliased.
+    #
+    def _umlaut_paths(self):
+        """Return a unicode and a bytes version of a path with umlaut."""
+        unicode_path = "/path_ä"
+        bytes_path = ftputil.tool.as_bytes(unicode_path)
+        return unicode_path, bytes_path
+
+    def test_implicit_decoding_for_setitem(self):
+        """Test whether a bytes argument for `__setitem__` is decoded."""
+        unicode_path, bytes_path = self._umlaut_paths()
+        self.cache[bytes_path] = "test"
+        self.assertEqual(self.cache[unicode_path], "test")
+
+    def test_implicit_decoding_for_getitem(self):
+        """Test whether a bytes argument for `__getitem__` is decoded."""
+        unicode_path, bytes_path = self._umlaut_paths()
+        self.cache[unicode_path] = "test"
+        self.assertEqual(self.cache[bytes_path], "test")
+
+    def test_implicit_decoding_for_invalidate(self):
+        """Test whether a bytes argument for `invalidate` is decoded."""
+        unicode_path, bytes_path = self._umlaut_paths()
+        self.cache[unicode_path] = "test"
+        self.cache.invalidate(bytes_path)
+        self.assertEqual(len(self.cache), 0)
+
+    def test_implicit_decoding_for_contains(self):
+        """Test whether a bytes argument for `__contains__` is decoded."""
+        unicode_path, bytes_path = self._umlaut_paths()
+        self.cache[unicode_path] = "test"
+        self.assertTrue(bytes_path in self.cache)
 
 
 if __name__ == '__main__':
