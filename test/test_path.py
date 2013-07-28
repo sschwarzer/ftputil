@@ -158,8 +158,8 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
         host = self.host
         as_bytes = ftputil.tool.as_bytes
         host.chdir("/home/file_name_test")
-        #  We don't care about the _exact_ time, so don't bother with
-        #  timezone differences. Instead, do a simple sanity check.
+        # We don't care about the _exact_ time, so don't bother with
+        # timezone differences. Instead, do a simple sanity check.
         day = 24 * 60 * 60  # seconds
         expected_mtime = time.mktime((2000, 5, 29, 0, 0, 0, 0, 0, 0))
         mtime_makes_sense = (lambda mtime: expected_mtime - day <= mtime <=
