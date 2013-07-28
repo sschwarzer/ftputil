@@ -98,11 +98,13 @@ class TestStatCache(unittest.TestCase):
         items = host.listdir(host.curdir)
         self.assertEqual(items[:3], ['chemeng', 'download', 'image'])
 
-    #
+
+class TestImplicitDecoding(TestStatCache):
+
     # Tests of implicit decoding of paths.
     # Idea: The cache entry for corresponding unicode and bytes
     # versions of paths should be aliased.
-    #
+
     def _umlaut_paths(self):
         """Return a unicode and a bytes version of a path with umlaut."""
         unicode_path = "/path_ä"
