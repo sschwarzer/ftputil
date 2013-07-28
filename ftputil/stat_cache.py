@@ -11,6 +11,7 @@ import time
 
 import ftputil.error
 import ftputil.lrucache
+import ftputil.tool
 
 
 # This module shouldn't be used by clients of the ftputil library.
@@ -82,6 +83,8 @@ class StatCache(object):
         Return the age of a cache entry for `path` in seconds. If
         the path isn't in the cache, raise a `CacheMissError`.
         """
+        # Don't need path conversion here because this method is
+        # used internally only.
         try:
             return time.time() - self._cache.mtime(path)
         except ftputil.lrucache.CacheKeyError:
@@ -101,6 +104,7 @@ class StatCache(object):
         If no stat result for `path` is in the cache, do _not_
         raise an exception.
         """
+        path = ftputil.tool.as_unicode(path)
         #XXX To be 100 % sure, this should be `host.sep`, but I don't
         # want to introduce a reference to the `FTPHost` object for
         # only that purpose.
@@ -119,6 +123,7 @@ class StatCache(object):
         Return the stat entry for the `path`. If there's no stored
         stat entry or the cache is disabled, raise `CacheMissError`.
         """
+        path = ftputil.tool.as_unicode(path)
         if not self._enabled:
             raise ftputil.error.CacheMissError("cache is disabled")
         # Possibly raise a `CacheMissError` in `_age`
@@ -140,6 +145,7 @@ class StatCache(object):
         Put the stat data for the absolute `path` into the cache,
         unless it's disabled.
         """
+        path = ftputil.tool.as_unicode(path)
         assert path.startswith("/")
         if not self._enabled:
             return
