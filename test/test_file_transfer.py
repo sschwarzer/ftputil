@@ -1,4 +1,4 @@
-# Copyright (C) 2010-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2010-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 from __future__ import unicode_literals
@@ -7,6 +7,7 @@ import io
 import random
 import unittest
 
+import ftputil.compat
 import ftputil.file_transfer
 
 
@@ -79,7 +80,7 @@ class TestChunkwiseTransfer(unittest.TestCase):
     def random_string(self, count):
         """Return a `BytesIO` object containing `count` "random" bytes."""
         ints = (random.randint(0, 255) for i in range(count))
-        return b"".join((chr(i) for i in ints))
+        return ftputil.compat.bytes_from_ints(ints)
 
     def test_chunkwise_transfer_without_remainder(self):
         """Check if we get four chunks with 256 Bytes each."""
