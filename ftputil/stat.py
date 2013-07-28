@@ -468,9 +468,9 @@ class _Stat(object):
         named `path`.
 
         Like `os.listdir` the returned list elements have the type
-        of the argument.
+        of the path argument.
 
-        If the directory listing from the server can't be parsed
+        If the directory listing from the server can't be parsed,
         raise a `ParserError`.
         """
         # We _can't_ put this check into `FTPHost._dir`; see its docstring.
