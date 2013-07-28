@@ -100,6 +100,8 @@ class _Path(object):
         if all_paths_are_unicode or all_paths_are_bytes:
             return posixpath.join(*paths)
         else:
+            # Python 3 raises this exception for mixed strings
+            # in `os.path.join`, so also use this exception.
             raise TypeError(
                     "can't mix unicode strings and bytes in path components")
 
