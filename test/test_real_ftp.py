@@ -795,19 +795,19 @@ class TestUnicodePaths(RealFTPTest):
     def test_chmod(self):
         self.assert_unicode_error(self.host.chmod, "ä", 0o644)
 
-    def test_single_path_methods(self):
-        # Collective test for similar tests which use just a single
-        # path as argument.
-        for method_name in \
-          "mkdir makedirs rmdir remove rmtree listdir lstat stat".split():
-            method = getattr(self.host, method_name)
-            self.assert_unicode_error(method, "ä")
+#     def test_single_path_methods(self):
+#         # Collective test for similar tests which use just a single
+#         # path as argument.
+#         for method_name in \
+#           "mkdir makedirs rmdir remove rmtree listdir lstat stat".split():
+#             method = getattr(self.host, method_name)
+#             self.assert_unicode_error(method, "ä")
 
-    def test_path(self):
-        for method_name in \
-          "abspath exists getmtime getsize isfile isdir islink".split():
-            method = getattr(self.host.path, method_name)
-            self.assert_unicode_error(method, "ä")
+#     def test_path(self):
+#         for method_name in \
+#           "abspath exists getmtime getsize isfile isdir islink".split():
+#             method = getattr(self.host.path, method_name)
+#             self.assert_unicode_error(method, "ä")
 
     def test_path_walk(self):
         def noop():

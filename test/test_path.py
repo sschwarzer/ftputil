@@ -61,9 +61,9 @@ class TestPath(unittest.TestCase):
         # `isabs`
         self.assertFalse(host.path.isabs("ä"))
         self.assertFalse(host.path.isabs(ftputil.tool.as_bytes("ä")))
-#         # `exists`
-#         self.assertTrue(host.path.exists("ä"))
-#         self.assertTrue(host.path.exists(ftputil.tool.as_bytes("ä")))
+        # `exists`
+        self.assertTrue(host.path.exists("ä"))
+        self.assertTrue(host.path.exists(ftputil.tool.as_bytes("ä")))
 
     def test_regular_isdir_isfile_islink(self):
         """Test regular `FTPHost._Path.isdir/isfile/islink`."""

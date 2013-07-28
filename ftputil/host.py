@@ -827,8 +827,6 @@ class FTPHost(object):
         (`_exception_for_missing_path` is an implementation aid and
         _not_ intended for use by ftputil clients.)
         """
-        # Fail early if we get a unicode path which can't be encoded.
-        path = str(path)
         return self._stat._lstat(path, _exception_for_missing_path)
 
     def stat(self, path, _exception_for_missing_path=True):
@@ -844,8 +842,6 @@ class FTPHost(object):
         (`_exception_for_missing_path` is an implementation aid and
         _not_ intended for use by ftputil clients.)
         """
-        # Fail early if we get a unicode path which can't be encoded.
-        path = str(path)
         return self._stat._stat(path, _exception_for_missing_path)
 
     def walk(self, top, topdown=True, onerror=None):
