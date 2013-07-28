@@ -1,3 +1,4 @@
+# encoding: utf-8
 # Copyright (C) 2003-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
@@ -9,6 +10,7 @@ import unittest
 import ftputil
 import ftputil.compat
 import ftputil.error
+import ftputil.tool
 
 from test import mock_ftplib
 from test import test_base
@@ -31,21 +33,37 @@ class SessionWithInaccessibleLoginDirectory(mock_ftplib.MockSession):
 class TestPath(unittest.TestCase):
     """Test operations in `FTPHost.path`."""
 
-    def _test_method_types(self, method, path):
+    def _test_method_string_types(self, method, path):
         expected_type = type(path)
         self.assertTrue(isinstance(method(path), expected_type))
 
-    def test_same_string_type(self):
-        """Test whether the same type as the argument is returned."""
+    def test_types_for_methods_that_take_and_return_one_string(self):
+        """
+        Test whether the same string type as for the argument is returned.
+        """
         host = test_base.ftp_host_factory()
-        method_names = ("abspath dirname basename join normcase normpath".
-                        split())
+        bytes_type = ftputil.compat.bytes_type
+        unicode_type = ftputil.compat.unicode_type
+        method_names = ("""abspath commonprefix dirname basename join normcase
+                           normpath""".split())
         for method_name in method_names:
             method = getattr(host.path, method_name)
-            self._test_method_types(method, b"/")
-            self._test_method_types(method, b".")
-            self._test_method_types(method,  "/")
-            self._test_method_types(method,  ".")
+            self._test_method_string_types(method,  "/")
+            self._test_method_string_types(method,  ".")
+            self._test_method_string_types(method, b"/")
+            self._test_method_string_types(method, b".")
+
+    def test_types_for_methods_that_take_a_string_and_return_a_bool(self):
+        """Test whether the methods accept byte and unicode strings."""
+        host = test_base.ftp_host_factory()
+        method_names = "isabs exists isdir isfile islink".split()
+        host.chdir("/home/file_name_test")
+        # `isabs`
+        self.assertFalse(host.path.isabs("ä"))
+        self.assertFalse(host.path.isabs(ftputil.tool.as_bytes("ä")))
+#         # `exists`
+#         self.assertTrue(host.path.exists("ä"))
+#         self.assertTrue(host.path.exists(ftputil.tool.as_bytes("ä")))
 
     def test_regular_isdir_isfile_islink(self):
         """Test regular `FTPHost._Path.isdir/isfile/islink`."""
