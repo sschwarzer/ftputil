@@ -121,7 +121,7 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
         """
         bytes_type = ftputil.compat.bytes_type
         unicode_type = ftputil.compat.unicode_type
-        method_names = ("abspath dirname basename join normcase normpath".
+        method_names = ("abspath basename dirname join normcase normpath".
                         split())
         for method_name in method_names:
             method = getattr(self.host.path, method_name)
