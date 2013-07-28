@@ -721,100 +721,6 @@ class TestChmod(RealFTPTest):
         self.assert_mode(file_name, 0o646)
 
 
-class TestUnicodePaths(RealFTPTest):
-    """
-    Test if using unicode paths fails if they contain non-ASCII
-    characters (see ticket #53).
-    """
-
-    # Actually, all of these methods will raise a `UnicodeEncodeError`
-    # at some point, at the latest when a unicode string is tried to
-    # be sent over a socket. However, it can be rather confusing to
-    # get an encoding error from deep inside of ftputil or even
-    # modules used by it (see ticket #53). Therefore, I added tests
-    # to fail as early as possible if a path is a unicode path that
-    # can't be converted to ASCII. Moreover, the code won't try to
-    # use unicode strings which come into existence intermediately.
- 
-    def assert_non_unicode(self, s):
-        self.assertFalse(isinstance(s, ftputil.compat.unicode_type))
-
-    def assert_unicode_error(self, function, *args):
-        self.assertRaises(UnicodeEncodeError, function, *args)
-
-    def test_open(self):
-        host = self.host
-        # Check if the name attribute is a bytestring, no matter if we
-        # passed in a bytestring or not beforehand.
-        fobj = host.file("CONTENTS")
-        try:
-            self.assert_non_unicode(fobj.name)
-        finally:
-            fobj.close()
-        fobj = host.file("CONTENTS")
-        try:
-            self.assert_non_unicode(fobj.name)
-        finally:
-            fobj.close()
-        # Check if non-encodable unicode strings are refused.
-        self.assert_unicode_error(host.file, "ä")
-
-    def test_upload(self):
-        self.assert_unicode_error(self.host.upload, "ftputil.py", "ä")
-
-    def test_upload_if_newer(self):
-        self.assert_unicode_error(self.host.upload_if_newer,
-                                  "ftputil.py", "ä")
-
-    def test_download(self):
-        self.assert_unicode_error(self.host.download, "ä", "ok")
-
-    def test_download_if_newer(self):
-        self.assert_unicode_error(self.host.download_if_newer, "ä", "ok")
-
-#     def test_chdir(self):
-#         # Unicode strings are ok if they can be encoded to ASCII.
-#         host = self.host
-#         host.chdir(".")
-#         self.assert_non_unicode(host.getcwd())
-#         host.chdir(".")
-#         self.assert_non_unicode(host.getcwd())
-#         # Fail early if string can't be encoded to ASCII.
-#         self.assert_unicode_error(host.chdir, "ä")
-
-    def test_rename(self):
-        self.assert_unicode_error(self.host.rename, "ä", "b")
-        self.assert_unicode_error(self.host.rename, "b", "ä")
-
-    def test_walk(self):
-        # The string test is only executed when the first item is
-        # requested from the generator.
-        iterator = self.host.walk("ä")
-        self.assert_unicode_error(next, iterator)
-
-    def test_chmod(self):
-        self.assert_unicode_error(self.host.chmod, "ä", 0o644)
-
-#     def test_single_path_methods(self):
-#         # Collective test for similar tests which use just a single
-#         # path as argument.
-#         for method_name in \
-#           "mkdir makedirs rmdir remove rmtree listdir lstat stat".split():
-#             method = getattr(self.host, method_name)
-#             self.assert_unicode_error(method, "ä")
-
-#     def test_path(self):
-#         for method_name in \
-#           "abspath exists getmtime getsize isfile isdir islink".split():
-#             method = getattr(self.host.path, method_name)
-#             self.assert_unicode_error(method, "ä")
-
-#     def test_path_walk(self):
-#         def noop():
-#             pass
-#         self.assert_unicode_error(self.host.path.walk, "ä", noop, None)
-
-
 class TestOther(RealFTPTest):
 
     def test_open_for_reading(self):
@@ -874,7 +780,7 @@ class TestOther(RealFTPTest):
                     stat_result = host.stat("CONTENTS")
                     with host.file("CONTENTS") as fobj:
                         data = fobj.read()
-            
+
     def test_garbage_collection(self):
         """Test whether there are cycles which prevent garbage collection."""
         gc.collect()
