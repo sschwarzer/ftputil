@@ -149,6 +149,31 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
         self.assertTrue(host.path.islink("ü"))
         self.assertTrue(host.path.islink(as_bytes("ü")))
 
+    def test_join(self):
+        """
+        Test whether `FTPHost.path.join` accepts only arguments of
+        the same string type and returns the same string type.
+        """
+        join = self.host.path.join
+        as_bytes = ftputil.tool.as_bytes
+        # Only unicode
+        parts = list("äöü")
+        result = join(*parts)
+        self.assertEqual(result, "ä/ö/ü")
+        #  Need explicit type check for Python 2
+        self.assertTrue(isinstance(result, ftputil.compat.unicode_type))
+        # Only bytes
+        parts = [as_bytes(s) for s in "äöü"]
+        result = join(*parts)
+        self.assertEqual(result, as_bytes("ä/ö/ü"))
+        #  Need explicit type check for Python 2
+        self.assertTrue(isinstance(result, ftputil.compat.bytes_type))
+        # Mixture of unicode and bytes
+        parts = ["ä", as_bytes("ö")]
+        self.assertRaises(TypeError, join, *parts)
+        parts = [as_bytes("ä"), as_bytes("ö"), "ü"]
+        self.assertRaises(TypeError, join, *parts)
+
     def test_getmtime(self):
         """
         Test whether `FTPHost.path.getmtime` accepts byte and unicode
