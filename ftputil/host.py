@@ -575,8 +575,7 @@ class FTPHost(object):
 
     def chdir(self, path):
         """Change the directory on the host."""
-        # Fail early if we get a unicode path which can't be encoded.
-        path = str(path)
+        path = ftputil.tool.as_bytes(path)
         with ftputil.error.ftplib_error_to_ftp_os_error:
             self._session.cwd(path)
         # The path given as the argument is relative to the old current

@@ -772,15 +772,15 @@ class TestUnicodePaths(RealFTPTest):
     def test_download_if_newer(self):
         self.assert_unicode_error(self.host.download_if_newer, "ä", "ok")
 
-    def test_chdir(self):
-        # Unicode strings are ok if they can be encoded to ASCII.
-        host = self.host
-        host.chdir(".")
-        self.assert_non_unicode(host.getcwd())
-        host.chdir(".")
-        self.assert_non_unicode(host.getcwd())
-        # Fail early if string can't be encoded to ASCII.
-        self.assert_unicode_error(host.chdir, "ä")
+#     def test_chdir(self):
+#         # Unicode strings are ok if they can be encoded to ASCII.
+#         host = self.host
+#         host.chdir(".")
+#         self.assert_non_unicode(host.getcwd())
+#         host.chdir(".")
+#         self.assert_non_unicode(host.getcwd())
+#         # Fail early if string can't be encoded to ASCII.
+#         self.assert_unicode_error(host.chdir, "ä")
 
     def test_rename(self):
         self.assert_unicode_error(self.host.rename, "ä", "b")
