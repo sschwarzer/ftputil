@@ -167,7 +167,7 @@ class _Path(object):
         """
         top = ftputil.tool.as_unicode(top)
         # This code (and the above documentation) is taken from
-        # posixpath.py, with slight modifications.
+        # `posixpath.py`, with slight modifications.
         try:
             names = self._host.listdir(top)
         except OSError:
