@@ -69,8 +69,6 @@ class _Path(object):
         but maybe other exceptions depending on the state of the
         server (e. g. timeout).
         """
-        # Fail early if we get a unicode path which can't be encoded.
-        path = str(path)
         return self._host.stat(path).st_mtime
 
     def getsize(self, path):
@@ -81,8 +79,6 @@ class _Path(object):
         but maybe raise other exceptions depending on the state of the
         server (e. g. timeout).
         """
-        # Fail early if we get a unicode path which can't be encoded.
-        path = str(path)
         return self._host.stat(path).st_size
 
     # Check whether a path is a regular file/dir/link. For the first

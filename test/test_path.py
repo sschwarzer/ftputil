@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 
 import ftplib
+import time
 import unittest
 
 import ftputil
@@ -145,6 +146,24 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
         self.assertTrue(host.path.isfile(as_bytes("ö")))
         self.assertTrue(host.path.islink("ü"))
         self.assertTrue(host.path.islink(as_bytes("ü")))
+
+    def test_types_for_methods_that_take_a_string_and_return_an_int(self):
+        """Test whether the methods accept byte and unicode strings."""
+        host = test_base.ftp_host_factory()
+        as_bytes = ftputil.tool.as_bytes
+        host.chdir("/home/file_name_test")
+        # `getmtime`
+        #  We don't care about the _exact_ time, so don't bother with
+        #  timezone differences. Instead, do a simple sanity check.
+        day = 24 * 60 * 60  # seconds
+        expected_mtime = time.mktime((2000, 5, 29, 0, 0, 0, 0, 0, 0))
+        mtime_makes_sense = (lambda mtime: expected_mtime - day <= mtime <=
+                                           expected_mtime + day)
+        self.assertTrue(mtime_makes_sense(host.path.getmtime("ä")))
+        self.assertTrue(mtime_makes_sense(host.path.getmtime(as_bytes("ä"))))
+        # `getsize`
+        self.assertEqual(host.path.getsize("ä"), 512)
+        self.assertEqual(host.path.getsize(as_bytes("ä")), 512)
 
 
 if __name__ == '__main__':
