@@ -1,6 +1,7 @@
 # Copyright (C) 2009-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
+from __future__ import print_function
 from __future__ import unicode_literals
 
 import os
