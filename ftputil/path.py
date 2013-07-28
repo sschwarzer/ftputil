@@ -45,11 +45,12 @@ class _Path(object):
 
     def abspath(self, path):
         """Return an absolute path."""
-        orig_path = path
+        original_path = path
         path = ftputil.tool.as_unicode(path)
         if not self.isabs(path):
             path = self.join(self._host.getcwd(), path)
-        return ftputil.tool.same_string_type_as(orig_path, self.normpath(path))
+        return ftputil.tool.same_string_type_as(original_path,
+                                                self.normpath(path))
 
     def exists(self, path):
         """Return true if the path exists."""
