@@ -102,8 +102,6 @@ class _Path(object):
 
         A non-existing path does _not_ cause a `PermanentError`.
         """
-        # Fail early if we get a unicode path which can't be encoded.
-        path = str(path)
         # Workaround if we can't go up from the current directory
         if path == self._host.getcwd():
             return False
@@ -124,8 +122,6 @@ class _Path(object):
 
         A non-existing path does _not_ cause a `PermanentError`.
         """
-        # Fail early if we get a unicode path which can't be encoded.
-        path = str(path)
         # Workaround if we can't go up from the current directory
         if path == self._host.getcwd():
             return True
@@ -145,8 +141,6 @@ class _Path(object):
 
         A non-existing path does _not_ cause a `PermanentError`.
         """
-        # Fail early if we get a unicode path which can't be encoded.
-        path = str(path)
         try:
             lstat_result = self._host.lstat(
                            path, _exception_for_missing_path=False)

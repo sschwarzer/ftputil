@@ -227,8 +227,8 @@ total 1
 -rw-r--r--   1 45854    200          4604 Jan 19 23:11 file with spaces""",
 
       '/home/file_name_test': """\
--rw-r--r--   1 45854    200          4604 Jan 19 23:11 ä
-drwxr-sr-x   2 45854    200           512 May 29  2000 ö
+drwxr-sr-x   2 45854    200           512 May 29  2000 ä
+-rw-r--r--   1 45854    200          4604 Jan 19 23:11 ö
 lrwxrwxrwx   2 45854    200             6 May 29  2000 ü -> ä""",
 
       # Fail when trying to write to this directory (the content isn't
