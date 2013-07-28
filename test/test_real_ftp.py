@@ -809,10 +809,10 @@ class TestUnicodePaths(RealFTPTest):
 #             method = getattr(self.host.path, method_name)
 #             self.assert_unicode_error(method, "ä")
 
-    def test_path_walk(self):
-        def noop():
-            pass
-        self.assert_unicode_error(self.host.path.walk, "ä", noop, None)
+#     def test_path_walk(self):
+#         def noop():
+#             pass
+#         self.assert_unicode_error(self.host.path.walk, "ä", noop, None)
 
 
 class TestOther(RealFTPTest):

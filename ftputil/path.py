@@ -165,8 +165,7 @@ class _Path(object):
         e.g., to pass a filename pattern, or a mutable object designed
         to accumulate statistics.  Passing None for arg is common.
         """
-        # Fail early if we get a unicode path which can't be encoded.
-        top = str(top)
+        top = ftputil.tool.as_unicode(top)
         # This code (and the above documentation) is taken from
         # posixpath.py, with slight modifications.
         try:

@@ -167,8 +167,14 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
         self.assertEqual(host.path.getsize("ä"), 512)
         self.assertEqual(host.path.getsize(as_bytes("ä")), 512)
 
-    def test_types_for_path_walk(self):
+    def test_types_for_walk(self):
         """Test whether `FTPHost.path.walk` accepts bytes and unicode paths."""
+        host = self.host
+        as_bytes = ftputil.tool.as_bytes
+        def noop(arg, top, names):
+            del names[:]
+        host.path.walk("ä", noop, None)
+        host.path.walk(as_bytes("ä"), noop, None)
 
 
 if __name__ == '__main__':
