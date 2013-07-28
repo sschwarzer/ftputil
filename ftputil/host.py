@@ -811,8 +811,6 @@ class FTPHost(object):
         If the directory listing from the server can't be parsed with
         any of the available parsers raise a `ParserError`.
         """
-        # Fail early if we get a unicode path which can't be encoded.
-        path = str(path)
         return self._stat._listdir(path)
 
     def lstat(self, path, _exception_for_missing_path=True):
