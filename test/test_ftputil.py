@@ -266,9 +266,8 @@ class TestUploadAndDownload(unittest.TestCase):
 
     def generate_ascii_file(self, data, filename):
         """Generate a local ASCII data file."""
-        source_file = open(filename, 'w')
-        source_file.write(data)
-        source_file.close()
+        with open(filename, "w") as source_file:
+            source_file.write(data)
 
     def test_ascii_upload(self):
         """Test ASCII mode upload."""
@@ -295,7 +294,8 @@ class TestUploadAndDownload(unittest.TestCase):
         # Download
         host.download('dummy', local_target, 'b')
         # Read file and compare
-        data = open(local_target, 'rb').read()
+        with open(local_target, 'rb') as fobj:
+            data = fobj.read()
         remote_file_content = mock_ftplib.content_of('dummy')
         self.assertEqual(data, remote_file_content)
         # Clean up
@@ -335,7 +335,8 @@ class TestUploadAndDownload(unittest.TestCase):
         Compare content of downloaded file with its source, then
         delete the local target file.
         """
-        data = open(filename, 'rb').read()
+        with open(filename, 'rb') as fobj:
+            data = fobj.read()
         # The name `newer` is used by all callers, so use it here, too.
         remote_file_content = mock_ftplib.content_of('newer')
         self.assertEqual(data, remote_file_content)
