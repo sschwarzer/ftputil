@@ -639,7 +639,13 @@ class FTPHost(object):
         self.stat_cache.invalidate(path)
 
     def remove(self, path):
-        """Remove the given file or link."""
+        """
+        Remove the file or link given by `path`.
+
+        Raise a `PermanentError` if the path doesn't exist, but maybe
+        raise other exceptions depending on the state of the server
+        (e. g. timeout).
+        """
         path = ftputil.tool.as_unicode(path)
         path = self.path.abspath(path)
         # Though `isfile` includes also links to files, `islink`
@@ -659,16 +665,7 @@ class FTPHost(object):
                   "not directories")
         self.stat_cache.invalidate(path)
 
-    def unlink(self, path):
-        """
-        Remove the file or link given by `path`.
-
-        Raise a `PermanentError` if the path doesn't exist, but maybe
-        raise other exceptions depending on the state of the server
-        (e. g. timeout).
-        """
-        path = ftputil.tool.as_unicode(path)
-        self.remove(path)
+    unlink = remove
 
     def rmtree(self, path, ignore_errors=False, onerror=None):
         """
