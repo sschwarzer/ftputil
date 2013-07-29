@@ -472,9 +472,33 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
     def setUp(self):
         self.host = test_base.ftp_host_factory()
 
+    def test_upload(self):
+        pass
+
+    def test_download(self):
+        pass
+
     def test_chdir(self):
         self.host.chdir("/home/file_name_test/ö")
         self.host.chdir(ftputil.tool.as_bytes("/home/file_name_test/ö"))
+
+    def test_mkdir(self):
+        pass
+
+    def test_makedirs(self):
+        pass
+
+    def test_rmdir(self):
+        pass
+
+    def test_remove(self):
+        pass
+
+    def test_rmtree(self):
+        pass
+
+    def test_rename(self)
+        pass
 
     def test_listdir(self):
         host = self.host
@@ -492,6 +516,18 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
         #  Need explicit type check for Python 2
         for item in items:
             self.assertTrue(isinstance(item, ftputil.compat.bytes_type))
+
+    def test_lstat(self):
+        pass
+
+    def test_stat(self):
+        pass
+
+    def test_walk(self):
+        pass
+
+    def test_chmod(self):
+        pass
 
 
 if __name__ == '__main__':
