@@ -507,7 +507,7 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
 
     def test_rename(self):
         """Test whether `rename` accepts either unicode or bytes."""
-        # XXX: Is it possible to mix argument types in `rename`?
+        # It's possible to mix argument types.
         pass
 
     def test_listdir(self):
