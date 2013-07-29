@@ -473,34 +473,44 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
         self.host = test_base.ftp_host_factory()
 
     def test_upload(self):
+        """Test whether `upload` accepts either unicode or bytes."""
         pass
 
     def test_download(self):
+        """Test whether `download` accepts either unicode or bytes."""
         pass
 
     def test_chdir(self):
+        """Test whether `chdir` accepts either unicode or bytes."""
         self.host.chdir("/home/file_name_test/ö")
         self.host.chdir(ftputil.tool.as_bytes("/home/file_name_test/ö"))
 
     def test_mkdir(self):
+        """Test whether `mkdir` accepts either unicode or bytes."""
         pass
 
     def test_makedirs(self):
+        """Test whether `makedirs` accepts either unicode or bytes."""
         pass
 
     def test_rmdir(self):
+        """Test whether `rmdir` accepts either unicode or bytes."""
         pass
 
     def test_remove(self):
+        """Test whether `remove` accepts either unicode or bytes."""
         pass
 
     def test_rmtree(self):
+        """Test whether `rmtree` accepts either unicode or bytes."""
         pass
 
-    def test_rename(self)
+    def test_rename(self):
+        """Test whether `rename` accepts either unicode or bytes."""
         pass
 
     def test_listdir(self):
+        """Test whether `listdir` accepts either unicode or bytes."""
         host = self.host
         as_bytes = ftputil.tool.as_bytes
         host.chdir("/home/file_name_test")
@@ -518,15 +528,19 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
             self.assertTrue(isinstance(item, ftputil.compat.bytes_type))
 
     def test_lstat(self):
+        """Test whether `lstat` accepts either unicode or bytes."""
         pass
 
     def test_stat(self):
+        """Test whether `stat` accepts either unicode or bytes."""
         pass
 
     def test_walk(self):
+        """Test whether `walk` accepts either unicode or bytes."""
         pass
 
     def test_chmod(self):
+        """Test whether `chmod` accepts either unicode or bytes."""
         pass
 
 
