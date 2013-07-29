@@ -661,11 +661,11 @@ class FTPHost(object):
 
     def unlink(self, path):
         """
-        Remove the given file given by `path`.
+        Remove the file or link given by `path`.
 
-        Raise a `PermanentError` if the path doesn't exist, raise a
-        `PermanentError`, but maybe raise other exceptions depending
-        on the state of the server (e. g. timeout).
+        Raise a `PermanentError` if the path doesn't exist, but maybe
+        raise other exceptions depending on the state of the server
+        (e. g. timeout).
         """
         path = ftputil.tool.as_unicode(path)
         self.remove(path)
