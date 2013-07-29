@@ -184,8 +184,8 @@ class FTPHost(object):
             # Similarly to a failed `file` in a local filesystem,
             # raise an `IOError`, not an `OSError`.
             raise ftputil.error.FTPIOError("remote directory '{0}' doesn't "
-                  "exist or has insufficient access rights".
-                  format(effective_dir))
+                    "exist or has insufficient access rights".
+                    format(effective_dir))
         host._file._open(effective_file, mode)
         if 'w' in mode:
             # Invalidate cache entry because size and timestamps will change.
@@ -317,8 +317,9 @@ class FTPHost(object):
         if abs(time_shift - self.__rounded_time_shift(time_shift)) > \
            maximum_deviation:
             raise ftputil.error.TimeShiftError(
-                  "time shift ({0:.2f} s) deviates more than {1:d} s "
-                  "from full hours".format(time_shift, int(maximum_deviation)))
+                    "time shift ({0:.2f} s) deviates more than {1:d} s "
+                    "from full hours".format(
+                      time_shift, int(maximum_deviation)))
 
     def synchronize_times(self):
         """
@@ -351,8 +352,8 @@ class FTPHost(object):
             file_.close()
         except ftputil.error.FTPIOError:
             raise ftputil.error.TimeShiftError(
-                  '''couldn't write helper file in directory "{0}"'''.
-                  format(self.getcwd()))
+                    '''couldn't write helper file in directory "{0}"'''.
+                    format(self.getcwd()))
         # If everything worked up to here it should be possible to stat
         # and then remove the just-written file.
         try:
@@ -366,7 +367,7 @@ class FTPHost(object):
             # permission from the directory or helper file after it has been
             # written to.
             raise ftputil.error.TimeShiftError(
-                  "could write helper file but not unlink it")
+                    "could write helper file but not unlink it")
         # Calculate the difference between server and client.
         now = time.time()
         time_shift = server_time - now
@@ -516,8 +517,8 @@ class FTPHost(object):
             self.chdir(presumable_login_dir)
         except ftputil.error.PermanentError:
             raise ftputil.error.InaccessibleLoginDirError(
-                  "directory '{0}' is not accessible".
-                  format(presumable_login_dir))
+                    "directory '{0}' is not accessible".
+                    format(presumable_login_dir))
 
     def _robust_ftp_command(self, command, path, descend_deeply=False):
         """
@@ -661,8 +662,8 @@ class FTPHost(object):
             self._robust_ftp_command(command, path)
         else:
             raise ftputil.error.PermanentError(
-                  "remove/unlink can only delete files and links, "
-                  "not directories")
+                    "remove/unlink can only delete files and links, "
+                    "not directories")
         self.stat_cache.invalidate(path)
 
     unlink = remove
@@ -890,7 +891,7 @@ class FTPHost(object):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        # We don't need the `exc_*` arguments here
+        # We don't need the `exc_*` arguments here.
         # pylint: disable=W0613
         self.close()
         # Be explicit.
