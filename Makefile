@@ -15,7 +15,7 @@ SOURCE_DIR=${PROJECT_DIR}/ftputil
 DOC_DIR=${PROJECT_DIR}/doc
 STYLESHEET_PATH=${DOC_DIR}/default.css
 DOC_SOURCES=$(subst d/,${DOC_DIR}/, d/ftputil.txt)
-DOC_TARGETS=$(subst d/,${DOC_DIR}/, d/ftputil.html d/ftputil_ru.html)
+DOC_TARGETS=$(subst d/,${DOC_DIR}/, d/ftputil.html)
 
 SED=sed -i'' -r -e
 
@@ -51,10 +51,6 @@ patch:
 vpath %.txt ${DOC_DIR}
 
 docs: ${DOC_SOURCES} ${DOC_TARGETS}
-
-${DOC_DIR}/ftputil_ru.html: ${DOC_DIR}/ftputil_ru_utf8.txt
-	${RST2HTML} --stylesheet-path=${STYLESHEET_PATH} --embed-stylesheet \
-		--input-encoding=utf-8 $< $@
 
 %.html: %.txt
 	${RST2HTML} --stylesheet-path=${STYLESHEET_PATH} --embed-stylesheet $< $@
