@@ -550,11 +550,15 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
 
     def test_lstat(self):
         """Test whether `lstat` accepts either unicode or bytes."""
-        pass
+        host = self.host
+        host.lstat("/home/file_name_test/ä")
+        host.lstat(ftputil.tool.as_bytes("/home/file_name_test/ä"))
 
     def test_stat(self):
         """Test whether `stat` accepts either unicode or bytes."""
-        pass
+        host = self.host
+        host.stat("/home/file_name_test/ä")
+        host.stat(ftputil.tool.as_bytes("/home/file_name_test/ä"))
 
     def test_walk(self):
         """Test whether `walk` accepts either unicode or bytes."""
