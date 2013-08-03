@@ -487,15 +487,22 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
 
     def test_mkdir(self):
         """Test whether `mkdir` accepts either unicode or bytes."""
-        pass
+        host = self.host
+        host.mkdir("/home/file_name_test/ö")
+        host.mkdir(ftputil.tool.as_bytes("/home/file_name_test/ä"))
 
     def test_makedirs(self):
         """Test whether `makedirs` accepts either unicode or bytes."""
-        pass
+        host = self.host
+        host.makedirs("/home/file_name_test/ö")
+        host.makedirs(ftputil.tool.as_bytes("/home/file_name_test/ä"))
 
     def test_rmdir(self):
         """Test whether `rmdir` accepts either unicode or bytes."""
-        pass
+        host = self.host
+        empty_directory_as_required_by_rmdir = "/home/file_name_test/empty_ä"
+        host.rmdir(empty_directory_as_required_by_rmdir)
+        host.rmdir(ftputil.tool.as_bytes(empty_directory_as_required_by_rmdir))
 
     def test_remove(self):
         """Test whether `remove` accepts either unicode or bytes."""
