@@ -468,7 +468,7 @@ class TestTimeShift(unittest.TestCase):
         self.assertEqual(host.time_shift(), presumed_time_shift)
 
 
-class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
+class TestAcceptEitherUnicodeOrBytes(unittest.TestCase):
     """
     Test whether certain `FTPHost` methods accept either unicode
     or byte strings for the path(s).
