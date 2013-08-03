@@ -8,6 +8,8 @@ ftputil.file - support for file-like objects on FTP servers
 
 from __future__ import unicode_literals
 
+import io
+
 import ftputil.compat
 import ftputil.error
 
@@ -45,7 +47,7 @@ def _python_to_crlf_linesep(text):
 class _FTPFile(object):
     """
     Represents a file-like object associated with an FTP host. File
-    and socket are closed appropriately if the `close` operation is
+    and socket are closed appropriately if the `close` method is
     called.
     """
 
@@ -66,95 +68,60 @@ class _FTPFile(object):
         self._read_mode = None
         self._fo = None
 
-    def _open(self, path, mode):
-        """Open the remote file with given path name and mode."""
+    def _open(self, path, mode, buffering=None, encoding=None, errors=None,
+              newline=None):
+        """
+        Open the remote file with given path name and mode.
+
+        Contrary to the `open` builtin, this method returns `None`,
+        instead this file object is modified in-place.
+        """
+        # Python 3.x's `socket.makefile` supports the same interface
+        # as the new `open` builtin, but Python 2.x supports a mode,
+        # but neither buffering nor encoding/decoding. Therefore, to
+        # make the code work on Python 2.x and 3.x, create an
+        # unbuffered binary file and wrap it.
+        #
         # Check mode.
-        if 'a' in mode:
+        if "a" in mode:
             raise ftputil.error.FTPIOError("append mode not supported")
-        if mode not in ('r', 'rb', 'w', 'wb'):
+        if mode not in ("r", "rb", "rt", "w", "wb", "wt"):
             raise ftputil.error.FTPIOError("invalid mode '{0}'".format(mode))
+        if "b" in mode and "t" in mode:
+            # Raise a `ValueError` like Python would.
+            raise ValueError("can't have text and binary mode at once")
         # Remember convenience variables instead of the mode itself.
         self._bin_mode = 'b' in mode
         self._read_mode = 'r' in mode
-        # Select ASCII or binary mode.
-        transfer_type = ('A', 'I')[self._bin_mode]
+        # Always use binary mode (see above).
+        transfer_type = "I"
         command = 'TYPE {0}'.format(transfer_type)
         with ftputil.error.ftplib_error_to_ftp_io_error:
             self._session.voidcmd(command)
         # Make transfer command.
         command_type = ('STOR', 'RETR')[self._read_mode]
         command = '{0} {1}'.format(command_type, path)
-        # Ensure we can process the raw line separators.
-        # Force to binary regardless of transfer type.
-        if not 'b' in mode:
-            mode = mode + 'b'
+        # Force to binary regardless of transfer type (see above).
+        makefile_mode = mode
+        if "t" in mode:
+            makefile_mode = makefile_mode.replace("t", "")
+        if not "b" in makefile_mode:
+            makefile_mode += "b"
         # Get connection and file object.
         with ftputil.error.ftplib_error_to_ftp_io_error:
             self._conn = self._session.transfercmd(command)
-        self._fo = self._conn.makefile(mode)
+        # The actual file object.
+        self._fo = self._conn.makefile(makefile_mode)
+        if self._read_mode:
+            self._fo = io.BufferedReader(self._fo)
+        else:
+            self._fo = io.BufferedWriter(self._fo)
+        if not self._bin_mode:
+            self._fo = io.TextIOWrapper(self._fo, encoding=encoding,
+                                        errors=errors, newline=newline)
         # This comes last so that `close` won't try to close `_FTPFile`
         # objects without `_conn` and `_fo` attributes in case of an error.
         self.closed = False
-
-    #
-    # Read and write operations with support for line separator
-    # conversion for text modes.
-    #
-    # Note that we must convert line endings because the FTP server
-    # expects `\r\n` to be sent on text transfers.
-    #
-    def read(self, *args):
-        """Return read bytes, normalized if in text transfer mode."""
-        data = self._fo.read(*args)
-        if self._bin_mode:
-            return data
-        data = _crlf_to_python_linesep(data)
-        if args == ():
-            return data
-        # If the read data contains `\r` characters the number of read
-        # characters will be too small! Thus we (would) have to
-        # continue to read until we have fetched the requested number
-        # of bytes (or run out of source data).
-        #
-        # The algorithm below avoids repetitive string concatanations
-        # in the style of
-        #     data = data + more_data
-        # and so should also work relatively well if there are many
-        # short lines in the file.
-        wanted_size = args[0]
-        chunks = [data]
-        current_size = len(data)
-        while current_size < wanted_size:
-            # print 'not enough bytes (now %s, wanting %s)' % \
-            #       (current_size, wanted_size)
-            more_data = self._fo.read(wanted_size - current_size)
-            if not more_data:
-                break
-            more_data = _crlf_to_python_linesep(more_data)
-            # print '-> new (normalized) data:', repr(more_data)
-            chunks.append(more_data)
-            current_size += len(more_data)
-        return ''.join(chunks)
-
-    def readline(self, *args):
-        """Return one read line, normalized if in text transfer mode."""
-        data = self._fo.readline(*args)
-        if self._bin_mode:
-            return data
-        # If necessary, complete begun newline.
-        if data.endswith('\r'):
-            data = data + self.read(1)
-        return _crlf_to_python_linesep(data)
-
-    def readlines(self, *args):
-        """Return read lines, normalized if in text transfer mode."""
-        lines = self._fo.readlines(*args)
-        if self._bin_mode:
-            return lines
-        # More memory-friendly than `return [... for line in lines]`
-        for index, line in enumerate(lines):
-            lines[index] = _crlf_to_python_linesep(line)
-        return lines
 
     def __iter__(self):
         """Return a file iterator."""
@@ -175,32 +142,6 @@ class _FTPFile(object):
     # Although Python 2.6+ has the `next` builtin function already, it
     # still requires iterators to have a `next` method.
     next = __next__
-
-    def write(self, data):
-        """Write data to file. Do linesep conversion for text mode."""
-        if not self._bin_mode:
-            data = _python_to_crlf_linesep(data)
-            if ftputil.compat.python_version == 3:
-                # For Python 3, always require that the data for text
-                # mode writes is a unicode string.
-                data = data.encode(self._encoding)
-            else:
-                # For Python 2, also accept byte strings for
-                # compatibility with `open` semantics. Only encode
-                # unicode strings.
-                data = ftputil.tool.encode_if_unicode(data, self._encoding)
-        self._fo.write(data)
-
-    def writelines(self, lines):
-        """Write lines to file. Do linesep conversion for text mode."""
-        if self._bin_mode:
-            self._fo.writelines(lines)
-            return
-        # We can't modify the list of lines in-place, as in the
-        # `readlines` method. That would modify the original list,
-        # given as argument `lines`.
-        for line in lines:
-            self.write(line)
 
     #
     # Context manager methods
@@ -225,8 +166,8 @@ class _FTPFile(object):
         Handle requests for attributes unknown to `_FTPFile` objects:
         delegate the requests to the contained file object.
         """
-        if attr_name in ('flush isatty fileno seek tell '
-                         'truncate name softspace'.split()):
+        if attr_name in ("flush isatty fileno read readlines seek tell "
+                         "truncate name softspace write writelines".split()):
             return getattr(self._fo, attr_name)
         raise AttributeError(
               "'FTPFile' object has no attribute '{0}'".format(attr_name))
