@@ -18,32 +18,6 @@ import ftputil.error
 __all__ = []
 
 
-# Converter for `\r\n` line ends to normalized ones in Python. RFC 959
-# states that the server will send `\r\n` on text mode transfers, so
-# this conversion should be safe. I still use text mode transfers
-# (mode 'r', not 'rb') in `socket.makefile` (below) because the
-# server may do charset conversions on text transfers.
-#
-# Note that the "obvious" implementation of replacing "\r\n" with
-# "\n" would fail if "\r" (without "\n") occured at the end of the
-# string `text`.
-def _crlf_to_python_linesep(text):
-    """
-    Return `text` with ASCII line endings (CR/LF) converted to
-    Python's internal representation (LF).
-    """
-    return text.replace('\r', '')
-
-
-# Converter for Python line ends to `\r\n`
-def _python_to_crlf_linesep(text):
-    """
-    Return `text` with Python's internal line ending representation
-    (LF) converted to ASCII line endings (CR/LF).
-    """
-    return text.replace('\n', '\r\n')
-
-
 class _FTPFile(object):
     """
     Represents a file-like object associated with an FTP host. File
