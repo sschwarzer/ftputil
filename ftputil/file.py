@@ -63,6 +63,36 @@ class _FTPFile(object):
         self._conn = None
         self._fobj = None
 
+    def _wrapped_file(self, fobj, is_readable=False, is_writable=False):
+        """
+        Return a new file-like object which wraps `fobj` and in
+        addition has the `readable`, `readinto` and `writable` methods
+        that `BufferedReader` or `BufferedWriter` require.
+        """
+        # I tried to assign the missing methods as bound methods
+        # directly to `fobj`, but this seemingly isn't possible with
+        # the file object returned from `socket.makefile`.
+        class Wrapper(io.RawIOBase):
+            def __init__(self, fobj):
+                super(Wrapper, self).__setattr__("_fobj", fobj)
+            def readable(self):
+                return is_readable
+            def writable(self):
+                return is_writable
+            def readinto(self, bytearray_):
+                data = self._fobj.read(len(bytearray_))
+                bytearray_[:len(data)] = data
+                return len(data)
+            def __getattr__(self, name):
+                return getattr(self._fobj, name)
+            def __setattr__(self, name, value):
+                if name == "__IOBase_closed":
+                    # Delegate to this (`RawIOBase`) instance.
+                    return super(Wrapper, self).__setattr__(name, value)
+                else:
+                    return setattr(self._fobj, name, value)
+        return Wrapper(fobj)
+
     def _open(self, path, mode, buffering=None, encoding=None, errors=None,
               newline=None):
         """
@@ -108,8 +138,12 @@ class _FTPFile(object):
         # The actual file object.
         fobj = self._conn.makefile(makefile_mode)
         if is_read_mode:
+            # See implementation of `_wrapped_file`.
+            fobj = self._wrapped_file(fobj, is_readable=True)
             fobj = io.BufferedReader(fobj)
         else:
+            # See implementation of `_wrapped_file`.
+            fobj = self._wrapped_file(fobj, is_writable=True)
             fobj = io.BufferedWriter(fobj)
         if not is_bin_mode:
             fobj = io.TextIOWrapper(fobj, encoding=encoding,
