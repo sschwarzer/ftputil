@@ -78,8 +78,8 @@ class _FTPFile(object):
         # Python 3.x's `socket.makefile` supports the same interface
         # as the new `open` builtin, but Python 2.x supports a mode,
         # but neither buffering nor encoding/decoding. Therefore, to
-        # make the code work on Python 2.x and 3.x, create an
-        # unbuffered binary file and wrap it.
+        # make the code work on Python 2.x _and_ 3.x, create an
+        # unbuffered binary file and possibly wrap it.
         #
         # Check mode.
         if "a" in mode:
