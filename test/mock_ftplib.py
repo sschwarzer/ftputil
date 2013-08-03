@@ -138,6 +138,12 @@ class MockSession(object):
         path = ftputil.tool.as_unicode(path)
         self.current_dir = self._transform_path(path)
 
+    def mkd(self, path):
+        pass
+
+    def rmd(self, path):
+        pass
+
     def dir(self, *args):
         """
         Provide a callback function for processing each line of a
@@ -208,7 +214,8 @@ drwxr-sr-x   2 45854    200           512 May  4  2000 sschwarzer
 -rw-r--r--   1 45854    200          4605 Jan 19  2020 newer
 lrwxrwxrwx   1 45854    200            21 Jan 19  2002 link -> sschwarzer/index.html
 lrwxrwxrwx   1 45854    200            15 Jan 19  2002 bad_link -> python/bad_link
-drwxr-sr-x   2 45854    200           512 May  4  2000 dir with spaces""",
+drwxr-sr-x   2 45854    200           512 May  4  2000 dir with spaces
+drwxr-sr-x   2 45854    200           512 May  4  2000 file_name_test""",
 
       '/home/python': """\
 lrwxrwxrwx   1 45854    200             7 Jan 19  2002 link_link -> ../link
@@ -232,6 +239,7 @@ total 1
 
       '/home/file_name_test': """\
 drwxr-sr-x   2 45854    200           512 May 29  2000 ä
+drwxr-sr-x   2 45854    200           512 May 29  2000 empty_ä
 -rw-r--r--   1 45854    200          4604 Jan 19 23:11 ö
 lrwxrwxrwx   2 45854    200             6 May 29  2000 ü -> ä""",
 
@@ -239,6 +247,8 @@ lrwxrwxrwx   2 45854    200             6 May 29  2000 ü -> ä""",
 -rw-r--r--   1 45854    200          4604 Jan 19 23:11 ö
 -rw-r--r--   1 45854    200          4604 Jan 19 23:11 o""",
 
+      '/home/file_name_test/empty_ä': """\
+""",
       # Fail when trying to write to this directory (the content isn't
       # relevant).
       'sschwarzer': "",
