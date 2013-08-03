@@ -469,6 +469,10 @@ class TestTimeShift(unittest.TestCase):
 
 
 class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
+    """
+    Test whether certain `FTPHost` methods accept either unicode
+    or byte strings for the path(s).
+    """
 
     def setUp(self):
         self.host = test_base.ftp_host_factory()
