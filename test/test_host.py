@@ -489,6 +489,43 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
         host.download(ftputil.tool.as_bytes("source"), local_file_name, "b")
         os.remove(local_file_name)
 
+    def test_rename(self):
+        """Test whether `rename` accepts either unicode or bytes."""
+        # It's possible to mix argument types, as for `os.rename`.
+        path_as_unicode = "/home/file_name_test/ä"
+        path_as_bytes = ftputil.tool.as_bytes(path_as_unicode)
+        paths = [path_as_unicode, path_as_bytes]
+        for source_path, target_path in itertools.product(paths, paths):
+            self.host.rename(source_path, target_path)
+
+    def test_listdir(self):
+        """Test whether `listdir` accepts either unicode or bytes."""
+        host = self.host
+        as_bytes = ftputil.tool.as_bytes
+        host.chdir("/home/file_name_test")
+        # Unicode
+        items = host.listdir("ä")
+        self.assertEqual(items, ["ö", "o"])
+        #  Need explicit type check for Python 2
+        for item in items:
+            self.assertTrue(isinstance(item, ftputil.compat.unicode_type))
+        # Bytes
+        items = host.listdir(as_bytes("ä"))
+        self.assertEqual(items, [as_bytes("ö"), as_bytes("o")])
+        #  Need explicit type check for Python 2
+        for item in items:
+            self.assertTrue(isinstance(item, ftputil.compat.bytes_type))
+
+    def test_chmod(self):
+        """Test whether `chmod` accepts either unicode or bytes."""
+        host = self.host
+        # The `voidcmd` implementation in `MockSession` would raise an
+        # exception for the `CHMOD` command.
+        host._session.voidcmd = host._session._ignore_arguments
+        path = "/home/file_name_test/ä"
+        host.chmod(path, 0o755)
+        host.chmod(ftputil.tool.as_bytes(path), 0o755)
+
     def _test_method_with_single_path_argument(self, method, path):
         method(path)
         method(ftputil.tool.as_bytes(path))
@@ -527,33 +564,6 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
         self._test_method_with_single_path_argument(
           self.host.rmtree, empty_directory_as_required_by_rmtree)
 
-    def test_rename(self):
-        """Test whether `rename` accepts either unicode or bytes."""
-        # It's possible to mix argument types, as for `os.rename`.
-        path_as_unicode = "/home/file_name_test/ä"
-        path_as_bytes = ftputil.tool.as_bytes(path_as_unicode)
-        paths = [path_as_unicode, path_as_bytes]
-        for source_path, target_path in itertools.product(paths, paths):
-            self.host.rename(source_path, target_path)
-
-    def test_listdir(self):
-        """Test whether `listdir` accepts either unicode or bytes."""
-        host = self.host
-        as_bytes = ftputil.tool.as_bytes
-        host.chdir("/home/file_name_test")
-        # Unicode
-        items = host.listdir("ä")
-        self.assertEqual(items, ["ö", "o"])
-        #  Need explicit type check for Python 2
-        for item in items:
-            self.assertTrue(isinstance(item, ftputil.compat.unicode_type))
-        # Bytes
-        items = host.listdir(as_bytes("ä"))
-        self.assertEqual(items, [as_bytes("ö"), as_bytes("o")])
-        #  Need explicit type check for Python 2
-        for item in items:
-            self.assertTrue(isinstance(item, ftputil.compat.bytes_type))
-
     def test_lstat(self):
         """Test whether `lstat` accepts either unicode or bytes."""
         self._test_method_with_single_path_argument(
@@ -569,16 +579,6 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
         # We're not interested in the return value of `walk`.
         self._test_method_with_single_path_argument(
           self.host.walk, "/home/file_name_test/ä")
-
-    def test_chmod(self):
-        """Test whether `chmod` accepts either unicode or bytes."""
-        host = self.host
-        # The `voidcmd` implementation in `MockSession` would raise an
-        # exception for the `CHMOD` command.
-        host._session.voidcmd = host._session._ignore_arguments
-        path = "/home/file_name_test/ä"
-        host.chmod(path, 0o755)
-        host.chmod(ftputil.tool.as_bytes(path), 0o755)
 
 
 if __name__ == '__main__':
