@@ -39,7 +39,7 @@ class FTPHost(object):
     # request would be made on the `_session` of the object host:
     #
     #   host = FTPHost(ftp_server, user, password)
-    #   f = host.file('index.html')
+    #   f = host.open('index.html')
     #   host.getcwd()   # would block!
     #
     # On the other hand, the initially constructed host object will
@@ -193,8 +193,6 @@ class FTPHost(object):
             # Invalidate cache entry because size and timestamps will change.
             self.stat_cache.invalidate(effective_path)
         return host._file
-
-    file = open
 
     def close(self):
         """Close host connection."""
@@ -350,7 +348,7 @@ class FTPHost(object):
         # on the FTP host, then close it.
         try:
             # May raise `FTPIOError` if directory isn't writable.
-            file_ = self.file(helper_file_name, 'w')
+            file_ = self.open(helper_file_name, 'w')
             file_.close()
         except ftputil.error.FTPIOError:
             raise ftputil.error.TimeShiftError(

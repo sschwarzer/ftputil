@@ -84,7 +84,7 @@ class RemoteFile(object):
 
     def fobj(self):
         """Return a file object for the name/path in the constructor."""
-        return self._host.file(self.name, self.mode)
+        return self._host.open(self.name, self.mode)
 
 
 def source_is_newer_than_target(source_file, target_file):

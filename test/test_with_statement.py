@@ -57,7 +57,7 @@ class TestFileContextManager(unittest.TestCase):
     def test_normal_operation(self):
         with test_base.ftp_host_factory(
                session_factory=ReadMockSession) as host:
-            with host.file('dummy', 'r') as f:
+            with host.open('dummy', 'r') as f:
                 self.assertEqual(f.closed, False)
                 data = f.readline()
                 self.assertEqual(data, 'line 1\n')
@@ -70,7 +70,7 @@ class TestFileContextManager(unittest.TestCase):
             try:
                 # This should fail since the directory isn't accessible
                 # by definition.
-                with host.file('/inaccessible/new_file', 'w') as f:
+                with host.open('/inaccessible/new_file', 'w') as f:
                     pass
             except ftputil.error.FTPIOError:
                 # The file construction shouldn't have succeeded, so
@@ -84,7 +84,7 @@ class TestFileContextManager(unittest.TestCase):
         with test_base.ftp_host_factory(
                session_factory=ReadMockSession) as host:
             try:
-                with host.file('dummy', 'r') as f:
+                with host.open('dummy', 'r') as f:
                     self.assertEqual(f.closed, False)
                     raise ClientCodeException()
             except ClientCodeException:

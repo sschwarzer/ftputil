@@ -12,10 +12,10 @@ FTPHost objects
     # Example session
     host = ftputil.FTPHost('ftp.domain.com', 'me', 'secret')
     print host.getcwd()  # e. g. '/home/me'
-    source = host.file('sourcefile', 'r')
+    source = host.open('sourcefile', 'r')
     host.mkdir('newdir')
     host.chdir('newdir')
-    target = host.file('targetfile', 'w')
+    target = host.open('targetfile', 'w')
     host.copyfileobj(source, target)
     source.close()
     target.close()
