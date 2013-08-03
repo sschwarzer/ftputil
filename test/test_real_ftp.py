@@ -123,7 +123,7 @@ class RealFTPTest(unittest.TestCase):
     def make_remote_file(self, path):
         """Create a file on the FTP host."""
         self.cleaner.add_file(path)
-        file_ = self.host.file(path, 'wb')
+        file_ = self.host.open(path, 'wb')
         # Write something. Otherwise the FTP server might not update
         # the time of last modification if the file existed before.
         file_.write("\n")
@@ -131,7 +131,7 @@ class RealFTPTest(unittest.TestCase):
 
     def make_local_file(self):
         """Create a file on the local host (= on the client side)."""
-        fobj = file('_local_file_', 'wb')
+        fobj = open('_local_file_', 'wb')
         fobj.write("abc\x12\x34def\t")
         fobj.close()
 
@@ -149,7 +149,7 @@ class TestMkdir(RealFTPTest):
         self.assertTrue(dir_name in files)
         # Try to remove a non-empty directory.
         self.cleaner.add_file(file_name)
-        non_empty = host.file(file_name, "w")
+        non_empty = host.open(file_name, "w")
         non_empty.close()
         self.assertRaises(ftputil.error.PermanentError, host.rmdir, dir_name)
         # Remove file.
@@ -440,7 +440,7 @@ class TestStat(RealFTPTest):
         # Make a directory and a file in it.
         self.cleaner.add_dir(dir_name)
         host.mkdir(dir_name)
-        fobj = host.file(file_name, "wb")
+        fobj = host.open(file_name, "wb")
         fobj.write("abc\x12\x34def\t")
         fobj.close()
         # Do some stats
@@ -727,7 +727,7 @@ class TestOther(RealFTPTest):
         # Test for issues #17 and #51,
         # http://ftputil.sschwarzer.net/trac/ticket/17 and
         # http://ftputil.sschwarzer.net/trac/ticket/51 .
-        file1 = self.host.file("debian-keyring.tar.gz", 'rb')
+        file1 = self.host.open("debian-keyring.tar.gz", 'rb')
         time.sleep(1)
         # Depending on the FTP server, this might return a status code
         # unexpected by `ftplib` or block the socket connection until
@@ -736,10 +736,10 @@ class TestOther(RealFTPTest):
 
     def test_subsequent_reading(self):
         # Opening a file for reading
-        file1 = self.host.file("debian-keyring.tar.gz", 'rb')
+        file1 = self.host.open("debian-keyring.tar.gz", 'rb')
         file1.close()
         # Make sure that there are no problems if the connection is reused.
-        file2 = self.host.file("debian-keyring.tar.gz", 'rb')
+        file2 = self.host.open("debian-keyring.tar.gz", 'rb')
         file2.close()
         self.assertTrue(file1._session is file2._session)
 
@@ -778,7 +778,7 @@ class TestOther(RealFTPTest):
             with ftputil.FTPHost(server, user, password) as host:
                 for j in range(10):
                     stat_result = host.stat("CONTENTS")
-                    with host.file("CONTENTS") as fobj:
+                    with host.open("CONTENTS") as fobj:
                         data = fobj.read()
 
     def test_garbage_collection(self):
