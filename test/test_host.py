@@ -273,7 +273,7 @@ class TestUploadAndDownload(unittest.TestCase):
 
     def test_ascii_upload(self):
         """Test ASCII mode upload."""
-        local_source = '__test_source'
+        local_source = '_test_source_'
         data = ascii_data()
         self.generate_ascii_file(data, local_source)
         # Upload
@@ -481,8 +481,8 @@ class TestAcceptEitherUnicodeOrBytes(unittest.TestCase):
         """Test whether `upload` accepts either unicode or bytes."""
         host = self.host
         # The source file needs to be present in the current directory.
-        host.upload("Makefile", "target")
-        host.upload("Makefile", ftputil.tool.as_bytes("target"))
+        host.upload("Makefile", "target", "b")
+        host.upload("Makefile", ftputil.tool.as_bytes("target"), "b")
 
     def test_download(self):
         """Test whether `download` accepts either unicode or bytes."""
