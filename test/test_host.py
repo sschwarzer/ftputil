@@ -489,45 +489,43 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
         host.download(ftputil.tool.as_bytes("source"), local_file_name, "b")
         os.remove(local_file_name)
 
+    def _test_method_with_single_path_argument(self, method, path):
+        method(path)
+        method(ftputil.tool.as_bytes(path))
+
     def test_chdir(self):
         """Test whether `chdir` accepts either unicode or bytes."""
-        self.host.chdir("/home/file_name_test/ö")
-        self.host.chdir(ftputil.tool.as_bytes("/home/file_name_test/ö"))
+        self._test_method_with_single_path_argument(
+          self.host.chdir, "/home/file_name_test/ö")
 
     def test_mkdir(self):
         """Test whether `mkdir` accepts either unicode or bytes."""
-        host = self.host
         # This directory exists already, but this shouldn't matter
         # for the test.
-        host.mkdir("/home/file_name_test/ä")
-        host.mkdir(ftputil.tool.as_bytes("/home/file_name_test/ä"))
+        self._test_method_with_single_path_argument(
+          self.host.mkdir, "/home/file_name_test/ä")
 
     def test_makedirs(self):
         """Test whether `makedirs` accepts either unicode or bytes."""
-        host = self.host
-        host.makedirs("/home/file_name_test/ä")
-        host.makedirs(ftputil.tool.as_bytes("/home/file_name_test/ä"))
+        self._test_method_with_single_path_argument(
+          self.host.makedirs, "/home/file_name_test/ä")
 
     def test_rmdir(self):
         """Test whether `rmdir` accepts either unicode or bytes."""
-        host = self.host
         empty_directory_as_required_by_rmdir = "/home/file_name_test/empty_ä"
-        host.rmdir(empty_directory_as_required_by_rmdir)
-        host.rmdir(ftputil.tool.as_bytes(empty_directory_as_required_by_rmdir))
+        self._test_method_with_single_path_argument(
+          self.host.rmdir, empty_directory_as_required_by_rmdir)
 
     def test_remove(self):
         """Test whether `remove` accepts either unicode or bytes."""
-        host = self.host
-        host.remove("/home/file_name_test/ö")
-        host.remove(ftputil.tool.as_bytes("/home/file_name_test/ö"))
+        self._test_method_with_single_path_argument(
+          self.host.remove, "/home/file_name_test/ö")
 
     def test_rmtree(self):
         """Test whether `rmtree` accepts either unicode or bytes."""
-        host = self.host
         empty_directory_as_required_by_rmtree = "/home/file_name_test/empty_ä"
-        host.rmtree(empty_directory_as_required_by_rmtree)
-        host.rmtree(ftputil.tool.as_bytes(
-                      empty_directory_as_required_by_rmtree))
+        self._test_method_with_single_path_argument(
+          self.host.rmtree, empty_directory_as_required_by_rmtree)
 
     def test_rename(self):
         """Test whether `rename` accepts either unicode or bytes."""
@@ -558,22 +556,19 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
 
     def test_lstat(self):
         """Test whether `lstat` accepts either unicode or bytes."""
-        host = self.host
-        host.lstat("/home/file_name_test/ä")
-        host.lstat(ftputil.tool.as_bytes("/home/file_name_test/ä"))
+        self._test_method_with_single_path_argument(
+          self.host.lstat, "/home/file_name_test/ä")
 
     def test_stat(self):
         """Test whether `stat` accepts either unicode or bytes."""
-        host = self.host
-        host.stat("/home/file_name_test/ä")
-        host.stat(ftputil.tool.as_bytes("/home/file_name_test/ä"))
+        self._test_method_with_single_path_argument(
+          self.host.stat, "/home/file_name_test/ä")
 
     def test_walk(self):
         """Test whether `walk` accepts either unicode or bytes."""
-        host = self.host
-        # Ignore result.
-        host.walk("/home/file_name_test/ä")
-        host.walk(ftputil.tool.as_bytes("/home/file_name_test/ä"))
+        # We're not interested in the return value of `walk`.
+        self._test_method_with_single_path_argument(
+          self.host.walk, "/home/file_name_test/ä")
 
     def test_chmod(self):
         """Test whether `chmod` accepts either unicode or bytes."""
@@ -581,8 +576,9 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
         # The `voidcmd` implementation in `MockSession` would raise an
         # exception for the `CHMOD` command.
         host._session.voidcmd = host._session._ignore_arguments
-        host.chmod("/home/file_name_test/ä", 0o755)
-        host.chmod(ftputil.tool.as_bytes("/home/file_name_test/ä"), 0o755)
+        path = "/home/file_name_test/ä"
+        host.chmod(path, 0o755)
+        host.chmod(ftputil.tool.as_bytes(path), 0o755)
 
 
 if __name__ == '__main__':
