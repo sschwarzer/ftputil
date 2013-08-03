@@ -475,11 +475,19 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
 
     def test_upload(self):
         """Test whether `upload` accepts either unicode or bytes."""
-        pass
+        host = self.host
+        # The source file needs to be present in the current directory.
+        host.upload("Makefile", "target")
+        host.upload("Makefile", ftputil.tool.as_bytes("target"))
 
     def test_download(self):
         """Test whether `download` accepts either unicode or bytes."""
-        pass
+        host = test_base.ftp_host_factory(
+                 session_factory=BinaryDownloadMockSession)
+        local_file_name = "_local_target_"
+        host.download("source", local_file_name, "b")
+        host.download(ftputil.tool.as_bytes("source"), local_file_name, "b")
+        os.remove(local_file_name)
 
     def test_chdir(self):
         """Test whether `chdir` accepts either unicode or bytes."""
@@ -562,7 +570,10 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
 
     def test_walk(self):
         """Test whether `walk` accepts either unicode or bytes."""
-        pass
+        host = self.host
+        # Ignore result.
+        host.walk("/home/file_name_test/ä")
+        host.walk(ftputil.tool.as_bytes("/home/file_name_test/ä"))
 
     def test_chmod(self):
         """Test whether `chmod` accepts either unicode or bytes."""
