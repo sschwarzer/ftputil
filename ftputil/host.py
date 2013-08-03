@@ -155,7 +155,8 @@ class FTPHost(object):
         # Be explicit.
         return None
 
-    def file(self, path, mode='r'):
+    def open(self, path, mode="r", buffering=None, encoding=None, errors=None,
+             newline=None):
         """
         Return an open file(-like) object which is associated with
         this `FTPHost` object.
@@ -186,13 +187,14 @@ class FTPHost(object):
             raise ftputil.error.FTPIOError("remote directory '{0}' doesn't "
                     "exist or has insufficient access rights".
                     format(effective_dir))
-        host._file._open(effective_file, mode)
-        if 'w' in mode:
+        host._file._open(effective_file, mode=mode, buffering=buffering,
+                         encoding=encoding, errors=errors, newline=newline)
+        if "w" in mode:
             # Invalidate cache entry because size and timestamps will change.
             self.stat_cache.invalidate(effective_path)
         return host._file
 
-    open = file
+    file = open
 
     def close(self):
         """Close host connection."""
