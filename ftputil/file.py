@@ -43,10 +43,6 @@ class _FTPFile(object):
         addition has the `readable`, `readinto` and `writable` methods
         that `BufferedReader` or `BufferedWriter` require.
         """
-        # The `socket.makefile` return value under Python 3 already
-        # has all the required attributes.
-        if ftputil.compat.python_version == 3:
-            return fobj
         # I tried to assign the missing methods as bound methods
         # directly to `fobj`, but this seemingly isn't possible with
         # the file object returned from `socket.makefile`.
@@ -116,16 +112,18 @@ class _FTPFile(object):
         # The actual file object.
         fobj = self._conn.makefile(makefile_mode)
         if is_read_mode:
-            # See implementation of `_wrapped_file`.
-            fobj = self._wrapped_file(fobj, is_readable=True)
+            if ftputil.compat.python_version == 2:
+                # See implementation of `_wrapped_file`.
+                fobj = self._wrapped_file(fobj, is_readable=True)
             fobj = io.BufferedReader(fobj)
         else:
-            # See implementation of `_wrapped_file`.
-            fobj = self._wrapped_file(fobj, is_writable=True)
+            if ftputil.compat.python_version == 2:
+                # See implementation of `_wrapped_file`.
+                fobj = self._wrapped_file(fobj, is_writable=True)
             fobj = io.BufferedWriter(fobj)
         if not is_bin_mode:
             fobj = io.TextIOWrapper(fobj, encoding=encoding,
-                                        errors=errors, newline=newline)
+                                    errors=errors, newline=newline)
         self._fobj = fobj
         # This comes last so that `close` won't try to close `_FTPFile`
         # objects without `_conn` and `_fo` attributes in case of an error.
