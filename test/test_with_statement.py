@@ -9,8 +9,8 @@ import unittest
 import ftputil.error
 
 from test import test_base
-from test.test_ftputil import FailOnLoginSession
 from test.test_file import InaccessibleDirSession, ReadMockSession
+from test.test_host import FailOnLoginSession
 
 
 # Exception raised by client code, i. e. code using ftputil. Used to
