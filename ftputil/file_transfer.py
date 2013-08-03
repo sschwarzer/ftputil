@@ -1,4 +1,4 @@
-# Copyright (C) 2010, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 """
@@ -90,7 +90,7 @@ class RemoteFile(object):
 def source_is_newer_than_target(source_file, target_file):
     """
     Return `True` if the source is newer than the target, else `False`.
-    
+
     Both arguments are `LocalFile` or `RemoteFile` objects.
 
     It's assumed that the actual modification time is
@@ -119,7 +119,8 @@ def source_is_newer_than_target(source_file, target_file):
 
 
 def chunks(fobj, max_chunk_size=MAX_COPY_CHUNK_SIZE):
-    """Return an iterator which yields the contents of the file object.
+    """
+    Return an iterator which yields the contents of the file object.
 
     For each iteration, at most `max_chunk_size` bytes are read from
     `fobj` and yielded as a byte string. If the file object is
@@ -179,4 +180,3 @@ def copy_file(source_file, target_file, conditional, callback):
         source_fobj.close()
     # Transfer accomplished
     return True
-
