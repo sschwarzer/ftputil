@@ -537,8 +537,8 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
 
     def test_mkdir(self):
         """Test whether `mkdir` accepts either unicode or bytes."""
-        # This directory exists already, but this shouldn't matter
-        # for the test.
+        # This directory exists already in the mock session, but this
+        # shouldn't matter for the test.
         self._test_method_with_single_path_argument(
           self.host.mkdir, "/home/file_name_test/ä")
 
