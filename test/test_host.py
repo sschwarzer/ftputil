@@ -562,7 +562,12 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
 
     def test_chmod(self):
         """Test whether `chmod` accepts either unicode or bytes."""
-        pass
+        host = self.host
+        # The `voidcmd` implementation in `MockSession` would raise an
+        # exception for the `CHMOD` command.
+        host._session.voidcmd = host._session._ignore_arguments
+        host.chmod("/home/file_name_test/ä", 0o755)
+        host.chmod(ftputil.tool.as_bytes("/home/file_name_test/ä"), 0o755)
 
 
 if __name__ == '__main__':
