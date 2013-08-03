@@ -506,7 +506,9 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
 
     def test_remove(self):
         """Test whether `remove` accepts either unicode or bytes."""
-        pass
+        host = self.host
+        host.remove("/home/file_name_test/ö")
+        host.remove(ftputil.tool.as_bytes("/home/file_name_test/ö"))
 
     def test_rmtree(self):
         """Test whether `rmtree` accepts either unicode or bytes."""
@@ -514,7 +516,7 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
 
     def test_rename(self):
         """Test whether `rename` accepts either unicode or bytes."""
-        # It's possible to mix argument types.
+        # It's possible to mix argument types, as for `os.rename`.
         pass
 
     def test_listdir(self):
