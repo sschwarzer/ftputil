@@ -60,11 +60,8 @@ class _FTPFile(object):
         self._session = host._session
         # The file is still closed.
         self.closed = True
-        # Overwritten later in `_open`.
-        self._bin_mode = None
         self._conn = None
-        self._read_mode = None
-        self._fo = None
+        self._fobj = None
 
     def _open(self, path, mode, buffering=None, encoding=None, errors=None,
               newline=None):
@@ -88,16 +85,16 @@ class _FTPFile(object):
         if "b" in mode and "t" in mode:
             # Raise a `ValueError` like Python would.
             raise ValueError("can't have text and binary mode at once")
-        # Remember convenience variables instead of the mode itself.
-        self._bin_mode = 'b' in mode
-        self._read_mode = 'r' in mode
+        # Convenience variables
+        is_bin_mode = "b" in mode
+        is_read_mode = "r" in mode
         # Always use binary mode (see above).
         transfer_type = "I"
         command = 'TYPE {0}'.format(transfer_type)
         with ftputil.error.ftplib_error_to_ftp_io_error:
             self._session.voidcmd(command)
         # Make transfer command.
-        command_type = ('STOR', 'RETR')[self._read_mode]
+        command_type = ('STOR', 'RETR')[is_read_mode]
         command = '{0} {1}'.format(command_type, path)
         # Force to binary regardless of transfer type (see above).
         makefile_mode = mode
@@ -109,14 +106,15 @@ class _FTPFile(object):
         with ftputil.error.ftplib_error_to_ftp_io_error:
             self._conn = self._session.transfercmd(command)
         # The actual file object.
-        self._fo = self._conn.makefile(makefile_mode)
-        if self._read_mode:
-            self._fo = io.BufferedReader(self._fo)
+        fobj = self._conn.makefile(makefile_mode)
+        if is_read_mode:
+            fobj = io.BufferedReader(fobj)
         else:
-            self._fo = io.BufferedWriter(self._fo)
-        if not self._bin_mode:
-            self._fo = io.TextIOWrapper(self._fo, encoding=encoding,
+            fobj = io.BufferedWriter(fobj)
+        if not is_bin_mode:
+            fobj = io.TextIOWrapper(fobj, encoding=encoding,
                                         errors=errors, newline=newline)
+        self._fobj = fobj
         # This comes last so that `close` won't try to close `_FTPFile`
         # objects without `_conn` and `_fo` attributes in case of an error.
         self.closed = False
@@ -164,10 +162,10 @@ class _FTPFile(object):
         Handle requests for attributes unknown to `_FTPFile` objects:
         delegate the requests to the contained file object.
         """
-        if attr_name in ("encoding flush isatty fileno read readlines seek "
-                         "tell truncate name softspace write writelines".
-                         split()):
-            return getattr(self._fo, attr_name)
+        if attr_name in ("encoding flush isatty fileno read readline "
+                         "readlines seek tell truncate name softspace "
+                         "write writelines".split()):
+            return getattr(self._fobj, attr_name)
         raise AttributeError(
               "'FTPFile' object has no attribute '{0}'".format(attr_name))
 
@@ -183,8 +181,8 @@ class _FTPFile(object):
         # otherwise Python raises an `UnboundLocalError`.
         old_timeout = self._session.sock.gettimeout()
         try:
-            self._fo.close()
-            self._fo = None
+            self._fobj.close()
+            self._fobj = None
             with ftputil.error.ftplib_error_to_ftp_io_error:
                 self._conn.close()
             # Set a timeout to prevent waiting until server timeout
