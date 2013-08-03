@@ -138,6 +138,9 @@ class MockSession(object):
         path = ftputil.tool.as_unicode(path)
         self.current_dir = self._transform_path(path)
 
+    def delete(self, path):
+        pass
+
     def mkd(self, path):
         pass
 
