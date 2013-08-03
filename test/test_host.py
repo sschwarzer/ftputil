@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 
 import ftplib
+import itertools
 import os
 import posixpath
 import random
@@ -488,13 +489,15 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
     def test_mkdir(self):
         """Test whether `mkdir` accepts either unicode or bytes."""
         host = self.host
-        host.mkdir("/home/file_name_test/ö")
+        # This directory exists already, but this shouldn't matter
+        # for the test.
+        host.mkdir("/home/file_name_test/ä")
         host.mkdir(ftputil.tool.as_bytes("/home/file_name_test/ä"))
 
     def test_makedirs(self):
         """Test whether `makedirs` accepts either unicode or bytes."""
         host = self.host
-        host.makedirs("/home/file_name_test/ö")
+        host.makedirs("/home/file_name_test/ä")
         host.makedirs(ftputil.tool.as_bytes("/home/file_name_test/ä"))
 
     def test_rmdir(self):
@@ -512,12 +515,20 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
 
     def test_rmtree(self):
         """Test whether `rmtree` accepts either unicode or bytes."""
-        pass
+        host = self.host
+        empty_directory_as_required_by_rmtree = "/home/file_name_test/empty_ä"
+        host.rmtree(empty_directory_as_required_by_rmtree)
+        host.rmtree(ftputil.tool.as_bytes(
+                      empty_directory_as_required_by_rmtree))
 
     def test_rename(self):
         """Test whether `rename` accepts either unicode or bytes."""
         # It's possible to mix argument types, as for `os.rename`.
-        pass
+        path_as_unicode = "/home/file_name_test/ä"
+        path_as_bytes = ftputil.tool.as_bytes(path_as_unicode)
+        paths = [path_as_unicode, path_as_bytes]
+        for source_path, target_path in itertools.product(paths, paths):
+            self.host.rename(source_path, target_path)
 
     def test_listdir(self):
         """Test whether `listdir` accepts either unicode or bytes."""

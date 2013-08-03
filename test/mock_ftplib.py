@@ -138,10 +138,10 @@ class MockSession(object):
         path = ftputil.tool.as_unicode(path)
         self.current_dir = self._transform_path(path)
 
-    def _ignore_path(self, path):
+    def _ignore_arguments(self, *args, **kwargs):
         pass
 
-    delete = mkd = rmd = _ignore_path
+    delete = mkd = rename = rmd = _ignore_arguments
 
     def dir(self, *args):
         """
