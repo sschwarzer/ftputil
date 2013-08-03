@@ -69,6 +69,10 @@ class _FTPFile(object):
         addition has the `readable`, `readinto` and `writable` methods
         that `BufferedReader` or `BufferedWriter` require.
         """
+        # The `socket.makefile` return value under Python 3 already
+        # has all the required attributes.
+        if ftputil.compat.python_version == 3:
+            return fobj
         # I tried to assign the missing methods as bound methods
         # directly to `fobj`, but this seemingly isn't possible with
         # the file object returned from `socket.makefile`.
