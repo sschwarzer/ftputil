@@ -62,8 +62,6 @@ class _FTPFile(object):
         self.closed = True
         # Overwritten later in `_open`.
         self._bin_mode = None
-        #TODO: Allow encoding to be set in `_open`.
-        self._encoding = "utf-8"
         self._conn = None
         self._read_mode = None
         self._fo = None
@@ -166,8 +164,9 @@ class _FTPFile(object):
         Handle requests for attributes unknown to `_FTPFile` objects:
         delegate the requests to the contained file object.
         """
-        if attr_name in ("flush isatty fileno read readlines seek tell "
-                         "truncate name softspace write writelines".split()):
+        if attr_name in ("encoding flush isatty fileno read readlines seek "
+                         "tell truncate name softspace write writelines".
+                         split()):
             return getattr(self._fo, attr_name)
         raise AttributeError(
               "'FTPFile' object has no attribute '{0}'".format(attr_name))
