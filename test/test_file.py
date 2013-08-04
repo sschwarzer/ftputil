@@ -130,7 +130,10 @@ class TestFileOperations(unittest.TestCase):
         # This corresponds to the byte stream, so expect a `bytes` object.
         expected_data = b" \r\nline 2\r\nline 3"
         self.assertEqual(child_data, expected_data)
-# 
+
+    # TODO: Add tests with given encoding and line ending conversion,
+    # and possibly buffering.
+
 #     def test_ascii_writelines(self):
 #         """Write ASCII text with `writelines`."""
 #         host = test_base.ftp_host_factory()
