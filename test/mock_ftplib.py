@@ -93,7 +93,7 @@ class MockSession(object):
     unit tests.
     """
     # Used by `MockSession.cwd` and `MockSession.pwd`
-    current_dir = '/home/sschwarzer'
+    current_dir = "/home/sschwarzer"
 
     # Used by `MockSession.dir`. This is a mapping from absolute path
     # to the multi-line string that would show up in an FTP
@@ -101,9 +101,9 @@ class MockSession(object):
     dir_contents = {}
 
     # File content to be used (indirectly) with `transfercmd`.
-    mock_file_content = b''
+    mock_file_content = b""
 
-    def __init__(self, host='', user='', password=''):
+    def __init__(self, host="", user="", password=""):
         self.closed = 0
         # Count successful `transfercmd` invocations to ensure that
         # each has a corresponding `voidresp`.
@@ -114,11 +114,11 @@ class MockSession(object):
     def voidcmd(self, cmd):
         if DEBUG:
             print(cmd)
-        if cmd == 'STAT':
-            return 'MockSession server awaiting your commands ;-)'
-        elif cmd.startswith('TYPE '):
+        if cmd == "STAT":
+            return "MockSession server awaiting your commands ;-)"
+        elif cmd.startswith("TYPE "):
             return
-        elif cmd.startswith('SITE CHMOD'):
+        elif cmd.startswith("SITE CHMOD"):
             raise ftplib.error_perm("502 command not implemented")
         else:
             raise ftplib.error_perm
@@ -127,7 +127,7 @@ class MockSession(object):
         return self.current_dir
 
     def _remove_trailing_slash(self, path):
-        if path != '/' and path.endswith('/'):
+        if path != "/" and path.endswith("/"):
             path = path[:-1]
         return path
 
@@ -162,7 +162,7 @@ class MockSession(object):
         path = self._transform_path(path)
         if path not in self.dir_contents:
             raise ftplib.error_perm
-        dir_lines = self.dir_contents[path].split('\n')
+        dir_lines = self.dir_contents[path].split("\n")
         for line in dir_lines:
             if callback is None:
                 print(line)
@@ -172,7 +172,7 @@ class MockSession(object):
     def voidresp(self):
         assert self._transfercmds == 1
         self._transfercmds = self._transfercmds - 1
-        return '2xx'
+        return "2xx"
 
     def transfercmd(self, cmd):
         """
@@ -189,7 +189,7 @@ class MockSession(object):
             raise ftplib.error_perm
         # Fail if path isn't available (this name is hard-coded here
         # and has to be used for the corresponding tests).
-        if (cmd, path) == ('RETR', 'notthere'):
+        if (cmd, path) == ("RETR", "notthere"):
             raise ftplib.error_perm
         assert self._transfercmds == 0
         self._transfercmds = self._transfercmds + 1
@@ -204,10 +204,10 @@ class MockSession(object):
 class MockUnixFormatSession(MockSession):
 
     dir_contents = {
-      '/': """\
+      "/": """\
 drwxr-xr-x   2 45854    200           512 May  4  2000 home""",
 
-      '/home': """\
+      "/home": """\
 drwxr-sr-x   2 45854    200           512 May  4  2000 sschwarzer
 -rw-r--r--   1 45854    200          4605 Jan 19  1970 older
 -rw-r--r--   1 45854    200          4605 Jan 19  2020 newer
@@ -216,11 +216,11 @@ lrwxrwxrwx   1 45854    200            15 Jan 19  2002 bad_link -> python/bad_li
 drwxr-sr-x   2 45854    200           512 May  4  2000 dir with spaces
 drwxr-sr-x   2 45854    200           512 May  4  2000 file_name_test""",
 
-      '/home/python': """\
+      "/home/python": """\
 lrwxrwxrwx   1 45854    200             7 Jan 19  2002 link_link -> ../link
 lrwxrwxrwx   1 45854    200            14 Jan 19  2002 bad_link -> /home/bad_link""",
 
-      '/home/sschwarzer': """\
+      "/home/sschwarzer": """\
 total 14
 drwxr-sr-x   2 45854    200           512 May  4  2000 chemeng
 drwxr-sr-x   2 45854    200           512 Jan  3 17:17 download
@@ -232,49 +232,49 @@ drwxr-sr-x   2 45854    200           512 May 25  2000 publications
 drwxr-sr-x   2 45854    200           512 Jan 20 16:12 python
 drwxr-sr-x   6 45854    200           512 Sep 20  1999 scios2""",
 
-      '/home/dir with spaces': """\
+      "/home/dir with spaces": """\
 total 1
 -rw-r--r--   1 45854    200          4604 Jan 19 23:11 file with spaces""",
 
-      '/home/file_name_test': """\
+      "/home/file_name_test": """\
 drwxr-sr-x   2 45854    200           512 May 29  2000 ä
 drwxr-sr-x   2 45854    200           512 May 29  2000 empty_ä
 -rw-r--r--   1 45854    200          4604 Jan 19 23:11 ö
 lrwxrwxrwx   2 45854    200             6 May 29  2000 ü -> ä""",
 
-      '/home/file_name_test/ä': """\
+      "/home/file_name_test/ä": """\
 -rw-r--r--   1 45854    200          4604 Jan 19 23:11 ö
 -rw-r--r--   1 45854    200          4604 Jan 19 23:11 o""",
 
-      '/home/file_name_test/empty_ä': """\
+      "/home/file_name_test/empty_ä": """\
 """,
       # Fail when trying to write to this directory (the content isn't
       # relevant).
-      'sschwarzer': "",
+      "sschwarzer": "",
     }
 
 
 class MockMSFormatSession(MockSession):
 
     dir_contents = {
-      '/': """\
+      "/": """\
 10-23-01  03:25PM       <DIR>          home""",
 
-      '/home': """\
+      "/home": """\
 10-23-01  03:25PM       <DIR>          msformat""",
 
-      '/home/msformat': """\
+      "/home/msformat": """\
 10-23-01  03:25PM       <DIR>          WindowsXP
 12-07-01  02:05PM       <DIR>          XPLaunch
 07-17-00  02:08PM             12266720 abcd.exe
 07-17-00  02:08PM                89264 O2KKeys.exe""",
 
-      '/home/msformat/XPLaunch': """\
+      "/home/msformat/XPLaunch": """\
 10-23-01  03:25PM       <DIR>          WindowsXP
 12-07-01  02:05PM       <DIR>          XPLaunch
 12-07-01  02:05PM       <DIR>          empty
 07-17-00  02:08PM             12266720 abcd.exe
 07-17-00  02:08PM                89264 O2KKeys.exe""",
 
-      '/home/msformat/XPLaunch/empty': "total 0",
+      "/home/msformat/XPLaunch/empty": "total 0",
     }

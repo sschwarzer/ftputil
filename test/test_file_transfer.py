@@ -112,5 +112,5 @@ class TestChunkwiseTransfer(unittest.TestCase):
         self.assertRaises(FailingStringIO.expected_exception, next, iterator)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

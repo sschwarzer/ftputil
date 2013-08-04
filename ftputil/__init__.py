@@ -10,18 +10,18 @@ FTPHost objects
     return file-objects corresponding to remote files.
 
     # Example session
-    host = ftputil.FTPHost('ftp.domain.com', 'me', 'secret')
-    print host.getcwd()  # e. g. '/home/me'
-    source = host.open('sourcefile', 'r')
-    host.mkdir('newdir')
-    host.chdir('newdir')
-    target = host.open('targetfile', 'w')
+    host = ftputil.FTPHost("ftp.domain.com", "me", "secret")
+    print host.getcwd()  # e. g. "/home/me"
+    source = host.open("sourcefile", "r")
+    host.mkdir("newdir")
+    host.chdir("newdir")
+    target = host.open("targetfile", "w")
     host.copyfileobj(source, target)
     source.close()
     target.close()
-    host.remove('targetfile')
+    host.remove("targetfile")
     host.chdir(host.pardir)
-    host.rmdir('newdir')
+    host.rmdir("newdir")
     host.close()
 
     There are also shortcuts for uploads and downloads:
@@ -29,7 +29,7 @@ FTPHost objects
     host.upload(local_file, remote_file)
     host.download(remote_file, local_file)
 
-    Both accept an additional mode parameter. If it is 'b', the
+    Both accept an additional mode parameter. If it is "b", the
     transfer mode will be for binary files.
 
     For even more functionality refer to the documentation in

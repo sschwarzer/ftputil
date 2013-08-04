@@ -55,7 +55,7 @@ def binary_data():
 #
 class FailOnLoginSession(mock_ftplib.MockSession):
 
-    def __init__(self, host='', user='', password=''):
+    def __init__(self, host="", user="", password=""):
         raise ftplib.error_perm
 
 
@@ -118,10 +118,10 @@ class TimeShiftMockSession(mock_ftplib.MockSession):
 #
 class FailingUploadAndDownloadFTPHost(ftputil.FTPHost):
 
-    def upload(self, source, target, mode=''):
+    def upload(self, source, target, mode=""):
         assert False, "`FTPHost.upload` should not have been called"
 
-    def download(self, source, target, mode=''):
+    def download(self, source, target, mode=""):
         assert False, "`FTPHost.download` should not have been called"
 
 
@@ -261,7 +261,7 @@ class TestRecursiveListingForDotAsPath(unittest.TestCase):
         host = test_base.ftp_host_factory(
                  session_factory=RecursiveListingForDotAsPathSession)
         files = host.listdir(host.curdir)
-        self.assertEqual(files, ['bin', 'dev', 'etc', 'pub', 'usr'])
+        self.assertEqual(files, ["bin", "dev", "etc", "pub", "usr"])
         host.close()
 
 
@@ -275,16 +275,16 @@ class TestUploadAndDownload(unittest.TestCase):
 
     def test_ascii_upload(self):
         """Test ASCII mode upload."""
-        local_source = '_test_source_'
+        local_source = "_test_source_"
         data = ascii_data()
         self.generate_ascii_file(data, local_source)
         # Upload.
         host = test_base.ftp_host_factory()
-        host.upload(local_source, 'dummy')
+        host.upload(local_source, "dummy")
         # Check uploaded content. The data which was uploaded has its
         # line endings converted so the conversion must also be
         # applied to `data`.
-        remote_file_content = mock_ftplib.content_of('dummy')
+        remote_file_content = mock_ftplib.content_of("dummy")
         self.assertEqual(ftputil.tool.as_bytes(data.replace("\r", os.linesep)),
                          remote_file_content)
         # Clean up
@@ -292,44 +292,44 @@ class TestUploadAndDownload(unittest.TestCase):
 
     def test_binary_download(self):
         """Test binary mode download."""
-        local_target = '__test_target'
+        local_target = "_test_target_"
         host = test_base.ftp_host_factory(
                  session_factory=BinaryDownloadMockSession)
         # Download
-        host.download('dummy', local_target, 'b')
+        host.download("dummy", local_target, "b")
         # Read file and compare
-        with open(local_target, 'rb') as fobj:
+        with open(local_target, "rb") as fobj:
             data = fobj.read()
-        remote_file_content = mock_ftplib.content_of('dummy')
+        remote_file_content = mock_ftplib.content_of("dummy")
         self.assertEqual(data, remote_file_content)
         # Clean up
         os.unlink(local_target)
 
     def test_conditional_upload(self):
         """Test conditional ASCII mode upload."""
-        local_source = '__test_source'
+        local_source = "_test_source_"
         data = ascii_data()
         self.generate_ascii_file(data, local_source)
         # Target is newer, so don't upload.
         host = test_base.ftp_host_factory(
                  ftp_host_class=FailingUploadAndDownloadFTPHost)
-        flag = host.upload_if_newer(local_source, '/home/newer')
+        flag = host.upload_if_newer(local_source, "/home/newer")
         self.assertEqual(flag, False)
         # Target is older, so upload.
         host = test_base.ftp_host_factory()
-        flag = host.upload_if_newer(local_source, '/home/older')
+        flag = host.upload_if_newer(local_source, "/home/older")
         self.assertEqual(flag, True)
         # Check uploaded content. The data which was uploaded has its
         # line endings converted so the conversion must also be
-        # applied to 'data'.
-        remote_file_content = mock_ftplib.content_of('older')
+        # applied to `data`.
+        remote_file_content = mock_ftplib.content_of("older")
         self.assertEqual(ftputil.tool.as_bytes(data.replace("\r", os.linesep)),
                          remote_file_content)
         # Target doesn't exist, so upload.
         host = test_base.ftp_host_factory()
-        flag = host.upload_if_newer(local_source, '/home/notthere')
+        flag = host.upload_if_newer(local_source, "/home/notthere")
         self.assertEqual(flag, True)
-        remote_file_content = mock_ftplib.content_of('notthere')
+        remote_file_content = mock_ftplib.content_of("notthere")
         self.assertEqual(ftputil.tool.as_bytes(data.replace("\r", os.linesep)),
                          remote_file_content)
         # Clean up.
@@ -340,10 +340,10 @@ class TestUploadAndDownload(unittest.TestCase):
         Compare content of downloaded file with its source, then
         delete the local target file.
         """
-        with open(filename, 'rb') as fobj:
+        with open(filename, "rb") as fobj:
             data = fobj.read()
         # The name `newer` is used by all callers, so use it here, too.
-        remote_file_content = mock_ftplib.content_of('newer')
+        remote_file_content = mock_ftplib.content_of("newer")
         self.assertEqual(data, remote_file_content)
         # Clean up
         os.unlink(filename)
@@ -353,36 +353,36 @@ class TestUploadAndDownload(unittest.TestCase):
         Test conditional binary mode download when no target file
         exists.
         """
-        local_target = '__test_target'
+        local_target = "__test_target"
         # Target does not exist, so download.
         host = test_base.ftp_host_factory(
                  session_factory=BinaryDownloadMockSession)
-        flag = host.download_if_newer('/home/newer', local_target, 'b')
+        flag = host.download_if_newer("/home/newer", local_target, "b")
         self.assertEqual(flag, True)
         self.compare_and_delete_downloaded_data(local_target)
 
     def test_conditional_download_with_older_target(self):
         """Test conditional binary mode download with newer source file."""
-        local_target = '__test_target'
+        local_target = "__test_target"
         # Make target file.
-        open(local_target, 'w').close()
+        open(local_target, "w").close()
         # Source is newer (date in 2020), so download.
         host = test_base.ftp_host_factory(
                  session_factory=BinaryDownloadMockSession)
-        flag = host.download_if_newer('/home/newer', local_target, 'b')
+        flag = host.download_if_newer("/home/newer", local_target, "b")
         self.assertEqual(flag, True)
         self.compare_and_delete_downloaded_data(local_target)
 
     def test_conditional_download_with_newer_target(self):
         """Test conditional binary mode download with older source file."""
-        local_target = '__test_target'
+        local_target = "__test_target"
         # Make target file.
-        open(local_target, 'w').close()
+        open(local_target, "w").close()
         # Source is older (date in 1970), so don't download.
         host = test_base.ftp_host_factory(
                  ftp_host_class=FailingUploadAndDownloadFTPHost,
                  session_factory=BinaryDownloadMockSession)
-        flag = host.download_if_newer('/home/older', local_target, 'b')
+        flag = host.download_if_newer("/home/older", local_target, "b")
         self.assertEqual(flag, False)
         # Remove target file
         os.unlink(local_target)
@@ -588,7 +588,7 @@ class TestAcceptEitherUnicodeOrBytes(unittest.TestCase):
           self.host.walk, "/home/file_name_test/ä")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
     import __main__
     # unittest.main(__main__,

@@ -14,7 +14,7 @@ import os
 #TODO Think a bit more about the API before making it public.
 # # Only `chunks` should be used by clients of the ftputil library. Any
 # #  other functionality is supposed to be used via `FTPHost` objects.
-# __all__ = ['chunks']
+# __all__ = ["chunks"]
 __all__ = []
 
 # Maximum size of chunk in `FTPHost.copyfileobj` in bytes.

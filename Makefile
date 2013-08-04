@@ -36,7 +36,7 @@ TEST_FILES=$(shell ls -1 ${TEST_DIR}/test_*.py | \
 # Patch various files to refer to a new version.
 patch:
 	@echo "Patching files"
-	${SED} "s/^__version__ = '.*'/__version__ = \'`cat VERSION`\'/" \
+	${SED} "s/^__version__ = '.*'/__version__ = \"`cat VERSION`\"/" \
 		${SOURCE_DIR}/ftputil_version.py
 	${SED} "s/^:Version:   .*/:Version:   ${VERSION}/" \
 		${DOC_DIR}/ftputil.txt

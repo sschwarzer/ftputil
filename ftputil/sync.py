@@ -21,7 +21,7 @@ import shutil
 from ftputil import FTPHost
 import ftputil.error
 
-__all__ = ['FTPHost', 'LocalHost', 'Syncer']
+__all__ = ["FTPHost", "LocalHost", "Syncer"]
 
 
 # Used for copying file objects; value is 64 KB.
