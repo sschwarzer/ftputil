@@ -134,64 +134,64 @@ class TestFileOperations(unittest.TestCase):
     # TODO: Add tests with given encoding and line ending conversion,
     # and possibly buffering.
 
-#     def test_ascii_writelines(self):
-#         """Write ASCII text with `writelines`."""
-#         host = test_base.ftp_host_factory()
-#         data = [' \n', 'line 2\n', 'line 3']
-#         backup_data = data[:]
-#         output = host.open('dummy', 'w')
-#         output.writelines(data)
-#         output.close()
-#         child_data = mock_ftplib.content_of('dummy')
-#         expected_data = ' \r\nline 2\r\nline 3'
-#         self.assertEqual(child_data, expected_data)
-#         # Ensure that the original data was not modified.
-#         self.assertEqual(data, backup_data)
-# 
-#     def test_binary_readline(self):
-#         """Read binary data with `readline`."""
-#         host = test_base.ftp_host_factory(session_factory=ReadMockSession)
-#         input_ = host.open('dummy', 'rb')
-#         data = input_.readline(3)
-#         self.assertEqual(data, 'lin')
-#         data = input_.readline(10)
-#         self.assertEqual(data, 'e 1\r\n')
-#         data = input_.readline(13)
-#         self.assertEqual(data, 'another line\r')
-#         data = input_.readline()
-#         self.assertEqual(data, '\n')
-#         data = input_.readline()
-#         self.assertEqual(data, 'yet another line')
-#         data = input_.readline()
-#         self.assertEqual(data, '')
-#         input_.close()
-# 
-#     def test_ascii_readline(self):
-#         """Read ASCII text with `readline`."""
-#         host = test_base.ftp_host_factory(session_factory=ReadMockSession)
-#         input_ = host.open('dummy', 'r')
-#         data = input_.readline(3)
-#         self.assertEqual(data, 'lin')
-#         data = input_.readline(10)
-#         self.assertEqual(data, 'e 1\n')
-#         data = input_.readline(13)
-#         self.assertEqual(data, 'another line\n')
-#         data = input_.readline()
-#         self.assertEqual(data, 'yet another line')
-#         data = input_.readline()
-#         self.assertEqual(data, '')
-#         input_.close()
-# 
-#     def test_ascii_readlines(self):
-#         """Read ASCII text with `readlines`."""
-#         host = test_base.ftp_host_factory(session_factory=ReadMockSession)
-#         input_ = host.open('dummy', 'r')
-#         data = input_.read(3)
-#         self.assertEqual(data, 'lin')
-#         data = input_.readlines()
-#         self.assertEqual(data, ['e 1\n', 'another line\n',
-#                                 'yet another line'])
-#         input_.close()
+    def test_ascii_writelines(self):
+        """Write ASCII text with `writelines`."""
+        host = test_base.ftp_host_factory()
+        data = [' \n', 'line 2\n', 'line 3']
+        backup_data = data[:]
+        output = host.open('dummy', 'w', newline="\r\n")
+        output.writelines(data)
+        output.close()
+        child_data = mock_ftplib.content_of('dummy')
+        expected_data = b' \r\nline 2\r\nline 3'
+        self.assertEqual(child_data, expected_data)
+        # Ensure that the original data was not modified.
+        self.assertEqual(data, backup_data)
+
+    def test_binary_readline(self):
+        """Read binary data with `readline`."""
+        host = test_base.ftp_host_factory(session_factory=ReadMockSession)
+        input_ = host.open('dummy', 'rb')
+        data = input_.readline(3)
+        self.assertEqual(data, b'lin')
+        data = input_.readline(10)
+        self.assertEqual(data, b'e 1\r\n')
+        data = input_.readline(13)
+        self.assertEqual(data, b'another line\r')
+        data = input_.readline()
+        self.assertEqual(data, b'\n')
+        data = input_.readline()
+        self.assertEqual(data, b'yet another line')
+        data = input_.readline()
+        self.assertEqual(data, b'')
+        input_.close()
+
+    def test_ascii_readline(self):
+        """Read ASCII text with `readline`."""
+        host = test_base.ftp_host_factory(session_factory=ReadMockSession)
+        input_ = host.open('dummy', 'r')
+        data = input_.readline(3)
+        self.assertEqual(data, 'lin')
+        data = input_.readline(10)
+        self.assertEqual(data, 'e 1\n')
+        data = input_.readline(13)
+        self.assertEqual(data, 'another line\n')
+        data = input_.readline()
+        self.assertEqual(data, 'yet another line')
+        data = input_.readline()
+        self.assertEqual(data, '')
+        input_.close()
+
+    def test_ascii_readlines(self):
+        """Read ASCII text with `readlines`."""
+        host = test_base.ftp_host_factory(session_factory=ReadMockSession)
+        input_ = host.open('dummy', 'r')
+        data = input_.read(3)
+        self.assertEqual(data, 'lin')
+        data = input_.readlines()
+        self.assertEqual(data, ['e 1\n', 'another line\n',
+                                'yet another line'])
+        input_.close()
 
     def test_binary_iterator(self):
         """
