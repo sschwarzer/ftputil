@@ -119,52 +119,6 @@ class _FTPFile(object):
         self._conn = None
         self._fobj = None
 
-    def _wrapped_file(self, fobj, is_readable=False, is_writable=False):
-        """
-        Return a new file-like object which wraps `fobj` and in
-        addition has the `readable`, `readinto` and `writable` methods
-        that `BufferedReader` or `BufferedWriter` require.
-        """
-        # I tried to assign the missing methods as bound methods
-        # directly to `fobj`, but this seemingly isn't possible with
-        # the file object returned from `socket.makefile`.
-        class Wrapper(io.RawIOBase):
-            def __init__(self, fobj):
-                super(Wrapper, self).__setattr__("_fobj", fobj)
-            def readable(self):
-                return is_readable
-            def writable(self):
-                return is_writable
-            def readinto(self, bytearray_):
-                data = self._fobj.read(len(bytearray_))
-                bytearray_[:len(data)] = data
-                return len(data)
-            def write(self, bytes_):
-                # `BufferedWriter` expects the number of written bytes
-                # as return value. Since we don't really know how many
-                # bytes are written, return the length of the full
-                # data, but also call `flush` to increase the chance
-                # that actually all bytes are written.
-                print("=== type(bytes):", type(bytes_))
-                # Use slice in case we get a `memoryview` object.
-                self._fobj.write(bytes_[:])
-                self._fobj.flush()
-                return len(bytes_)
-            def __getattr__(self, name):
-                if name == "__IOBase_closed":
-                    result = super(Wrapper, self).__getattr__(name)
-                    return result
-                else:
-                    result = getattr(self._fobj, name)
-                    return result
-            def __setattr__(self, name, value):
-                if name == "__IOBase_closed":
-                    # Delegate to this (`RawIOBase`) instance.
-                    return super(Wrapper, self).__setattr__(name, value)
-                else:
-                    return setattr(self._fobj, name, value)
-        return Wrapper(fobj)
-
     def _open(self, path, mode, buffering=None, encoding=None, errors=None,
               newline=None):
         """
