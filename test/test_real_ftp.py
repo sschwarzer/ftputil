@@ -3,7 +3,7 @@
 # Copyright (C) 2003-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
-# Execute a test on a real FTP server (other tests use a mock server)
+# Execute tests on a real FTP server (other tests use a mock server).
 
 from __future__ import absolute_import
 from __future__ import unicode_literals
@@ -505,6 +505,8 @@ class TestStat(RealFTPTest):
         host1.stat_cache.invalidate(absolute_path)
         self.assertRaises(ftputil.error.PermanentError,
                           host1.stat, "_testfile_")
+        host1.close()
+        host2.close()
 
     def test_cache_auto_resizing(self):
         """Test if the cache is resized appropriately."""
@@ -606,12 +608,12 @@ class TestUploadAndDownload(RealFTPTest):
             host.download(FILENAME, FILENAME, 'b', callback=test_callback)
             # Construct a list of data chunks we expect.
             expected_chunks_list = []
-            downloaded_fobj = open(FILENAME, 'rb')
-            while True:
-                chunk = downloaded_fobj.read(MAX_COPY_CHUNK_SIZE)
-                if not chunk:
-                    break
-                expected_chunks_list.append(chunk)
+            with open(FILENAME, "rb") as downloaded_fobj:
+                while True:
+                    chunk = downloaded_fobj.read(MAX_COPY_CHUNK_SIZE)
+                    if not chunk:
+                        break
+                    expected_chunks_list.append(chunk)
             # Examine data collected by callback function.
             self.assertEqual(len(transferred_chunks_list), chunk_count)
             self.assertEqual(transferred_chunks_list, expected_chunks_list)
@@ -632,6 +634,7 @@ class TestFTPFiles(RealFTPTest):
         file_obj = host.open(REMOTE_FILENAME, 'rb')
         self.assertEqual(len(host._children), 2)
         self.assertTrue(file_obj._host is host._children[1])
+        file_obj1.close()
 
     def test_no_timed_out_children(self):
         REMOTE_FILENAME = "debian-keyring.tar.gz"
@@ -813,4 +816,4 @@ minutes because it has to wait to test the timezone calculation.
     server, user, password = get_login_data()
     unittest.main()
     import __main__
-    #unittest.main(__main__, "TestRename.test_rename_with_spaces_in_directory")
+    #unittest.main(__main__, "TestStat.test_stat")
