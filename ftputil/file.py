@@ -127,11 +127,14 @@ class _FTPFile(object):
         Contrary to the `open` builtin, this method returns `None`,
         instead this file object is modified in-place.
         """
-        # Python 3.x's `socket.makefile` supports the same interface
-        # as the new `open` builtin, but Python 2.x supports a mode,
-        # but neither buffering nor encoding/decoding. Therefore, to
-        # make the code work on Python 2.x _and_ 3.x, create an
-        # unbuffered binary file and possibly wrap it.
+        # Python 3's `socket.makefile` supports the same interface as
+        # the new `open` builtin, but Python 2 supports only a mode,
+        # but doesn't return an object with the proper interface to
+        # wrap it in `io.TextIOWrapper`.
+        #
+        # Therefore, to make the code work on Python 2 _and_ 3, use
+        # `socket.makefile` to always create a binary file and under
+        # Python 2 wrap it in an adapter class.
         #
         # Check mode.
         if "a" in mode:
@@ -160,8 +163,8 @@ class _FTPFile(object):
         # Get connection and file object.
         with ftputil.error.ftplib_error_to_ftp_io_error:
             self._conn = self._session.transfercmd(command)
-        # The actual file object. Under Python 3, this will already
-        # be wrapped by a `BufferedReader` or `BufferedWriter`.
+        # The file object. Under Python 3, this will already be a
+        # `BufferedReader` or `BufferedWriter` object.
         fobj = self._conn.makefile(makefile_mode)
         if ftputil.compat.python_version == 2:
             if is_read_mode:
@@ -173,7 +176,8 @@ class _FTPFile(object):
                                     errors=errors, newline=newline)
         self._fobj = fobj
         # This comes last so that `close` won't try to close `_FTPFile`
-        # objects without `_conn` and `_fo` attributes in case of an error.
+        # objects without `_conn` and `_fobj` attributes in case of an
+        # error.
         self.closed = False
 
     def __iter__(self):
