@@ -92,14 +92,14 @@ class TestParsers(unittest.TestCase):
                                                                   "../os2"
           ]
         expected_stat_results = [
-          [17901, None, None, 2, '45854', '200', 512, None,
+          [17901, None, None, 2, "45854", "200", 512, None,
            (2000, 5, 4, 0, 0, 0), None, "chemeng link", "chemeng target"],
-          [33188, None, None, 1, '45854', '200', 4604, None,
+          [33188, None, None, 1, "45854", "200", 4604, None,
            (self._expected_year(), 12, 19, 23, 11, 0), None,
            "index.html", None],
-          [17901, None, None, 2, '45854', '200', 512, None,
+          [17901, None, None, 2, "45854", "200", 512, None,
            (2000, 5, 29, 0, 0, 0), None, "os2", None],
-          [41471, None, None, 2, '45854', '200', 512, None,
+          [41471, None, None, 2, "45854", "200", 512, None,
            (2000, 5, 29, 0, 0, 0), None, "osup", "../os2"]
           ]
         self._test_valid_lines(ftputil.stat.UnixParser, lines,
@@ -138,14 +138,14 @@ class TestParsers(unittest.TestCase):
           "lrwxrwxrwx   2   200           512 May 29  2000 osup -> ../os2"
           ]
         expected_stat_results = [
-          [17901, None, None, 2, None, '200', 512, None,
+          [17901, None, None, 2, None, "200", 512, None,
            (2000, 5, 4, 0, 0, 0), None, "chemeng link", "chemeng target"],
-          [33188, None, None, 1, None, '200', 4604, None,
+          [33188, None, None, 1, None, "200", 4604, None,
            (self._expected_year(), 12, 19, 23, 11, 0), None,
            "index.html", None],
-          [17901, None, None, 2, None, '200', 512, None,
+          [17901, None, None, 2, None, "200", 512, None,
            (2000, 5, 29, 0, 0, 0), None, "os2", None],
-          [41471, None, None, 2, None, '200', 512, None,
+          [41471, None, None, 2, None, "200", 512, None,
            (2000, 5, 29, 0, 0, 0), None, "osup", "../os2"]
           ]
         self._test_valid_lines(ftputil.stat.UnixParser, lines,
@@ -294,9 +294,9 @@ class TestLstatAndStat(unittest.TestCase):
     def test_failing_lstat(self):
         """Test whether `lstat` fails for a nonexistent path."""
         self.assertRaises(ftputil.error.PermanentError,
-                          self.stat._lstat, '/home/sschw/notthere')
+                          self.stat._lstat, "/home/sschw/notthere")
         self.assertRaises(ftputil.error.PermanentError,
-                          self.stat._lstat, '/home/sschwarzer/notthere')
+                          self.stat._lstat, "/home/sschwarzer/notthere")
 
     def test_lstat_for_root(self):
         """
@@ -306,36 +306,36 @@ class TestLstatAndStat(unittest.TestCase):
         the output of an FTP `LIST` command. Unfortunately, it's not
         possible to do this for the root directory `/`.
         """
-        self.assertRaises(ftputil.error.RootDirError, self.stat._lstat, '/')
+        self.assertRaises(ftputil.error.RootDirError, self.stat._lstat, "/")
         try:
-            self.stat._lstat('/')
+            self.stat._lstat("/")
         except ftputil.error.RootDirError as exc:
             self.assertFalse(isinstance(exc, ftputil.error.FTPOSError))
 
     def test_lstat_one_unix_file(self):
         """Test `lstat` for a file described in Unix-style format."""
-        stat_result = self.stat._lstat('/home/sschwarzer/index.html')
+        stat_result = self.stat._lstat("/home/sschwarzer/index.html")
         # Second form is needed for Python 3
-        self.assertTrue(oct(stat_result.st_mode) in ('0100644', '0o100644'))
+        self.assertTrue(oct(stat_result.st_mode) in ("0100644", "0o100644"))
         self.assertEqual(stat_result.st_size, 4604)
         self.assertEqual(stat_result._st_mtime_precision, 60)
 
     def test_lstat_one_ms_file(self):
         """Test `lstat` for a file described in DOS-style format."""
         self.stat = test_stat(session_factory=mock_ftplib.MockMSFormatSession)
-        stat_result = self.stat._lstat('/home/msformat/abcd.exe')
+        stat_result = self.stat._lstat("/home/msformat/abcd.exe")
         self.assertEqual(stat_result._st_mtime_precision, 60)
 
     def test_lstat_one_unix_dir(self):
         """Test `lstat` for a directory described in Unix-style format."""
-        stat_result = self.stat._lstat('/home/sschwarzer/scios2')
+        stat_result = self.stat._lstat("/home/sschwarzer/scios2")
         # Second form is needed for Python 3
-        self.assertTrue(oct(stat_result.st_mode) in ('042755', '0o42755'))
+        self.assertTrue(oct(stat_result.st_mode) in ("042755", "0o42755"))
         self.assertEqual(stat_result.st_ino, None)
         self.assertEqual(stat_result.st_dev, None)
         self.assertEqual(stat_result.st_nlink, 6)
-        self.assertEqual(stat_result.st_uid, '45854')
-        self.assertEqual(stat_result.st_gid, '200')
+        self.assertEqual(stat_result.st_uid, "45854")
+        self.assertEqual(stat_result.st_gid, "200")
         self.assertEqual(stat_result.st_size, 512)
         self.assertEqual(stat_result.st_atime, None)
         self.assertTrue(stat_result.st_mtime ==
@@ -343,35 +343,35 @@ class TestLstatAndStat(unittest.TestCase):
         self.assertEqual(stat_result.st_ctime, None)
         self.assertEqual(stat_result._st_mtime_precision, 24*60*60)
         self.assertTrue(stat_result ==
-          (17901, None, None, 6, '45854', '200', 512, None,
+          (17901, None, None, 6, "45854", "200", 512, None,
            stat_tuple_to_seconds((1999, 9, 20, 0, 0, 0)), None))
 
     def test_lstat_one_ms_dir(self):
         """Test `lstat` for a directory described in DOS-style format."""
         self.stat = test_stat(session_factory=mock_ftplib.MockMSFormatSession)
-        stat_result = self.stat._lstat('/home/msformat/WindowsXP')
+        stat_result = self.stat._lstat("/home/msformat/WindowsXP")
         self.assertEqual(stat_result._st_mtime_precision, 60)
 
     def test_lstat_via_stat_module(self):
         """Test `lstat` indirectly via `stat` module."""
-        stat_result = self.stat._lstat('/home/sschwarzer/')
+        stat_result = self.stat._lstat("/home/sschwarzer/")
         self.assertTrue(stat.S_ISDIR(stat_result.st_mode))
 
     def test_stat_following_link(self):
         """Test `stat` when invoked on a link."""
         # Simple link
-        stat_result = self.stat._stat('/home/link')
+        stat_result = self.stat._stat("/home/link")
         self.assertEqual(stat_result.st_size, 4604)
         # Link pointing to a link
-        stat_result = self.stat._stat('/home/python/link_link')
+        stat_result = self.stat._stat("/home/python/link_link")
         self.assertEqual(stat_result.st_size, 4604)
-        stat_result = self.stat._stat('../python/link_link')
+        stat_result = self.stat._stat("../python/link_link")
         self.assertEqual(stat_result.st_size, 4604)
         # Recursive link structures
         self.assertRaises(ftputil.error.PermanentError,
-                          self.stat._stat, '../python/bad_link')
+                          self.stat._stat, "../python/bad_link")
         self.assertRaises(ftputil.error.PermanentError,
-                          self.stat._stat, '/home/bad_link')
+                          self.stat._stat, "/home/bad_link")
 
     #
     # Test automatic switching of Unix/MS parsers
@@ -433,19 +433,19 @@ class TestListdir(unittest.TestCase):
     def test_failing_listdir(self):
         """Test failing `FTPHost.listdir`."""
         self.assertRaises(ftputil.error.PermanentError,
-                          self.stat._listdir, 'notthere')
+                          self.stat._listdir, "notthere")
 
     def test_succeeding_listdir(self):
         """Test succeeding `FTPHost.listdir`."""
         # Do we have all expected "files"?
-        self.assertEqual(len(self.stat._listdir('.')), 9)
+        self.assertEqual(len(self.stat._listdir(".")), 9)
         # Have they the expected names?
-        expected = ('chemeng download image index.html os2 '
-                    'osup publications python scios2').split()
-        remote_file_list = self.stat._listdir('.')
+        expected = ("chemeng download image index.html os2 "
+                    "osup publications python scios2").split()
+        remote_file_list = self.stat._listdir(".")
         for file in expected:
             self.assertTrue(file in remote_file_list)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -95,8 +95,8 @@ class TestStatCache(unittest.TestCase):
         self.assertRaises(ValueError, host.stat_cache.resize, 0)
         # If bug #38 is present, this raises an `IndexError`.
         items = host.listdir(host.curdir)
-        self.assertEqual(items[:3], ['chemeng', 'download', 'image'])
+        self.assertEqual(items[:3], ["chemeng", "download", "image"])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

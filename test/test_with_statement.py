@@ -37,7 +37,7 @@ class TestHostContextManager(unittest.TestCase):
             # We arrived here, that's fine. Because the `FTPHost` object
             # wasn't successfully constructed, the assignment to `host`
             # shouldn't have happened.
-            self.assertFalse('host' in locals())
+            self.assertFalse("host" in locals())
         else:
             raise self.failureException("ftputil.error.FTPOSError not raised")
 
@@ -57,10 +57,10 @@ class TestFileContextManager(unittest.TestCase):
     def test_normal_operation(self):
         with test_base.ftp_host_factory(
                session_factory=ReadMockSession) as host:
-            with host.open('dummy', 'r') as f:
+            with host.open("dummy", "r") as f:
                 self.assertEqual(f.closed, False)
                 data = f.readline()
-                self.assertEqual(data, 'line 1\n')
+                self.assertEqual(data, "line 1\n")
                 self.assertEqual(f.closed, False)
             self.assertEqual(f.closed, True)
 
@@ -70,12 +70,12 @@ class TestFileContextManager(unittest.TestCase):
             try:
                 # This should fail since the directory isn't accessible
                 # by definition.
-                with host.open('/inaccessible/new_file', 'w') as f:
+                with host.open("/inaccessible/new_file", "w") as f:
                     pass
             except ftputil.error.FTPIOError:
                 # The file construction shouldn't have succeeded, so
                 # `f` should be absent from the local namespace.
-                self.assertFalse('f' in locals())
+                self.assertFalse("f" in locals())
             else:
                 raise self.failureException(
                         "ftputil.error.FTPIOError not raised")
@@ -84,7 +84,7 @@ class TestFileContextManager(unittest.TestCase):
         with test_base.ftp_host_factory(
                session_factory=ReadMockSession) as host:
             try:
-                with host.open('dummy', 'r') as f:
+                with host.open("dummy", "r") as f:
                     self.assertEqual(f.closed, False)
                     raise ClientCodeException()
             except ClientCodeException:
@@ -93,5 +93,5 @@ class TestFileContextManager(unittest.TestCase):
                 raise self.failureException("ClientCodeException not raised")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -18,7 +18,7 @@ import ftputil.stat_cache
 
 
 # These can be used to write custom parsers.
-__all__ = ['StatResult', 'Parser', 'UnixParser', 'MSParser']
+__all__ = ["StatResult", "Parser", "UnixParser", "MSParser"]
 
 
 class StatResult(tuple):
@@ -31,9 +31,9 @@ class StatResult(tuple):
     # pylint: disable=R0924
 
     _index_mapping = {
-      'st_mode':  0, 'st_ino':   1, 'st_dev':    2, 'st_nlink':    3,
-      'st_uid':   4, 'st_gid':   5, 'st_size':   6, 'st_atime':    7,
-      'st_mtime': 8, 'st_ctime': 9, '_st_name': 10, '_st_target': 11}
+      "st_mode":  0, "st_ino":   1, "st_dev":    2, "st_nlink":    3,
+      "st_uid":   4, "st_gid":   5, "st_size":   6, "st_atime":    7,
+      "st_mtime": 8, "st_ctime": 9, "_st_name": 10, "_st_target": 11}
 
     def __init__(self, sequence):
         # Don't call `__init__` via `super`. Construction from a
@@ -65,9 +65,9 @@ class Parser(object):
 
     # Map month abbreviations to month numbers.
     _month_numbers = {
-      'jan':  1, 'feb':  2, 'mar':  3, 'apr':  4,
-      'may':  5, 'jun':  6, 'jul':  7, 'aug':  8,
-      'sep':  9, 'oct': 10, 'nov': 11, 'dec': 12}
+      "jan":  1, "feb":  2, "mar":  3, "apr":  4,
+      "may":  5, "jun":  6, "jul":  7, "aug":  8,
+      "sep":  9, "oct": 10, "nov": 11, "dec": 12}
 
     _total_regex = re.compile(r"^total\s+\d+")
 
@@ -121,20 +121,20 @@ class Parser(object):
         st_mode = 0
         #TODO Add support for "S" and sticky bit ("t", "T").
         for bit in mode_string[1:10]:
-            bit = (bit != '-')
+            bit = (bit != "-")
             st_mode = (st_mode << 1) + bit
-        if mode_string[3] == 's':
+        if mode_string[3] == "s":
             st_mode = st_mode | stat.S_ISUID
-        if mode_string[6] == 's':
+        if mode_string[6] == "s":
             st_mode = st_mode | stat.S_ISGID
-        file_type_to_mode = {'b': stat.S_IFBLK, 'c': stat.S_IFCHR,
-                             'd': stat.S_IFDIR, 'l': stat.S_IFLNK,
-                             'p': stat.S_IFIFO, 's': stat.S_IFSOCK,
-                             '-': stat.S_IFREG,
+        file_type_to_mode = {"b": stat.S_IFBLK, "c": stat.S_IFCHR,
+                             "d": stat.S_IFDIR, "l": stat.S_IFLNK,
+                             "p": stat.S_IFIFO, "s": stat.S_IFSOCK,
+                             "-": stat.S_IFREG,
                              # Ignore types which `ls` can't make sense of
                              # (assuming the FTP server returns listings
                              # like `ls` does).
-                             '?': 0,
+                             "?": 0,
                             }
         file_type = mode_string[0]
         if file_type in file_type_to_mode:
@@ -186,7 +186,7 @@ class Parser(object):
             st_mtime_precision = 24 * 60 * 60
         else:
             # `year_or_time` is a time hh:mm.
-            hour, minute = year_or_time.split(':')
+            hour, minute = year_or_time.split(":")
             year, hour, minute = None, int(hour), int(minute)
             # Try the current year
             year = time.localtime()[0]
@@ -243,7 +243,7 @@ class Parser(object):
         # support for `with_precision` for a derived class, please
         # send a mail (see ftputil.txt/html).
         try:
-            month, day, year = [int(part) for part in date.split('-')]
+            month, day, year = [int(part) for part in date.split("-")]
             if year >= 1000:
                 # We have a four-digit year, so no need for heuristics.
                 pass
@@ -256,9 +256,9 @@ class Parser(object):
         except (ValueError, IndexError):
             raise ftputil.error.ParserError("invalid time string '{0}'".
                                             format(time_))
-        if hour == 12 and am_pm == 'A':
+        if hour == 12 and am_pm == "A":
             hour = 0
-        if hour != 12 and am_pm == 'P':
+        if hour != 12 and am_pm == "P":
             hour = hour + 12
         st_mtime = time.mktime( (year, month, day,
                                  hour, minute, 0, 0, 0, -1) )
@@ -336,9 +336,9 @@ class UnixParser(Parser):
             # If we have more than one arrow we can't tell where the link
             # name ends and the target name starts.
             raise ftputil.error.ParserError(
-                  'name "{0}" contains more than one "->"'.format(name))
+                    '''name '{0}' contains more than one "->"'''.format(name))
         elif name.count(" -> ") == 1:
-            st_name, st_target = name.split(' -> ')
+            st_name, st_target = name.split(" -> ")
         else:
             st_name, st_target = name, None
         stat_result = StatResult(
@@ -508,7 +508,7 @@ class _Stat(object):
         # Note: (l)stat works by going one directory up and parsing
         # the output of an FTP `LIST` command. Unfortunately, it is
         # not possible to do this for the root directory `/`.
-        if path == '/':
+        if path == "/":
             raise ftputil.error.RootDirError(
                   "can't stat remote root directory")
         dirname, basename = self._path.split(path)

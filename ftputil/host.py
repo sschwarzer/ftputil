@@ -18,7 +18,7 @@ import ftputil.path
 import ftputil.stat
 import ftputil.tool
 
-__all__ = ['FTPHost']
+__all__ = ["FTPHost"]
 
 
 #####################################################################
@@ -39,7 +39,7 @@ class FTPHost(object):
     # request would be made on the `_session` of the object host:
     #
     #   host = FTPHost(ftp_server, user, password)
-    #   f = host.open('index.html')
+    #   f = host.open("index.html")
     #   host.getcwd()   # would block!
     #
     # On the other hand, the initially constructed host object will
@@ -75,7 +75,7 @@ class FTPHost(object):
         # Set curdir, pardir etc. for the remote host. RFC 959 states
         # that this is, strictly speaking, dependent on the server OS
         # but it seems to work at least with Unix and Windows servers.
-        self.curdir, self.pardir, self.sep = '.', '..', '/'
+        self.curdir, self.pardir, self.sep = ".", "..", "/"
         # Set default time shift (used in `upload_if_newer` and
         # `download_if_newer`).
         self.set_time_shift(0.0)
@@ -113,7 +113,7 @@ class FTPHost(object):
         # If a session factory has been given on the instantiation of
         # this `FTPHost` object, use the same factory for this
         # `FTPHost` object's child sessions.
-        factory = kwargs.pop('session_factory', ftplib.FTP)
+        factory = kwargs.pop("session_factory", ftplib.FTP)
         # pylint: disable=W0142
         with ftputil.error.ftplib_error_to_ftp_os_error:
             return factory(*args, **kwargs)
@@ -348,11 +348,11 @@ class FTPHost(object):
         # on the FTP host, then close it.
         try:
             # May raise `FTPIOError` if directory isn't writable.
-            file_ = self.open(helper_file_name, 'w')
+            file_ = self.open(helper_file_name, "w")
             file_.close()
         except ftputil.error.FTPIOError:
             raise ftputil.error.TimeShiftError(
-                    '''couldn't write helper file in directory "{0}"'''.
+                    """couldn't write helper file in directory '{0}'""".
                     format(self.getcwd()))
         # If everything worked up to here it should be possible to stat
         # and then remove the just-written file.
@@ -404,8 +404,8 @@ class FTPHost(object):
         Copy data from file-like object `source` to file-like object
         `target`.
         """
-        if 'length' in kwargs:
-            max_chunk_size = kwargs['length']
+        if "length" in kwargs:
+            max_chunk_size = kwargs["length"]
             warnings.warn(("Parameter name `length` will be removed in "
                            "ftputil 2.6, use `max_chunk_size` instead"),
                           DeprecationWarning, stacklevel=2)
@@ -416,10 +416,10 @@ class FTPHost(object):
         """Return modes for source and target file."""
         #XXX Should we allow mode "a" at all? We don't support appending!
         # Invalid mode values are handled when a file object is made.
-        if mode == 'b':
-            return 'rb', 'wb'
+        if mode == "b":
+            return "rb", "wb"
         else:
-            return 'r', 'w'
+            return "r", "w"
 
     def _upload_files(self, source_path, target_path, mode):
         """
@@ -436,18 +436,18 @@ class FTPHost(object):
                                                        target_mode)
         return source_file, target_file
 
-    def upload(self, source, target, mode='', callback=None):
+    def upload(self, source, target, mode="", callback=None):
         """
         Upload a file from the local source (name) to the remote
-        target (name). The argument `mode` is an empty string or 'a' for
-        text copies, or 'b' for binary copies.
+        target (name). The argument `mode` is an empty string or "a" for
+        text copies, or "b" for binary copies.
         """
         target = ftputil.tool.as_unicode(target)
         source_file, target_file = self._upload_files(source, target, mode)
         ftputil.file_transfer.copy_file(source_file, target_file,
                                         conditional=False, callback=callback)
 
-    def upload_if_newer(self, source, target, mode='', callback=None):
+    def upload_if_newer(self, source, target, mode="", callback=None):
         """
         Upload a file only if it's newer than the target on the
         remote host or if the target file does not exist. See the
@@ -475,18 +475,18 @@ class FTPHost(object):
         target_file = ftputil.file_transfer.LocalFile(target_path, target_mode)
         return source_file, target_file
 
-    def download(self, source, target, mode='', callback=None):
+    def download(self, source, target, mode="", callback=None):
         """
         Download a file from the remote source (name) to the local
-        target (name). The argument mode is an empty string or 'a' for
-        text copies, or 'b' for binary copies.
+        target (name). The argument mode is an empty string or "a" for
+        text copies, or "b" for binary copies.
         """
         source = ftputil.tool.as_unicode(source)
         source_file, target_file = self._download_files(source, target, mode)
         ftputil.file_transfer.copy_file(source_file, target_file,
                                         conditional=False, callback=callback)
 
-    def download_if_newer(self, source, target, mode='', callback=None):
+    def download_if_newer(self, source, target, mode="", callback=None):
         """
         Download a file only if it's newer than the target on the
         local host or if the target file does not exist. See the

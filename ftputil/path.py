@@ -180,10 +180,10 @@ class _Path(object):
         Directory tree walk with callback function.
 
         For each directory in the directory tree rooted at top
-        (including top itself, but excluding '.' and '..'), call
+        (including top itself, but excluding "." and ".."), call
         func(arg, dirname, fnames). dirname is the name of the
         directory, and fnames a list of the names of the files and
-        subdirectories in dirname (excluding '.' and '..').  func may
+        subdirectories in dirname (excluding "." and "..").  func may
         modify the fnames list in-place (e.g. via del or slice
         assignment), and walk will only recurse into the
         subdirectories whose names remain in fnames; this can be used

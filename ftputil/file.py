@@ -149,12 +149,12 @@ class _FTPFile(object):
         is_read_mode = "r" in mode
         # Always use binary mode (see above).
         transfer_type = "I"
-        command = 'TYPE {0}'.format(transfer_type)
+        command = "TYPE {0}".format(transfer_type)
         with ftputil.error.ftplib_error_to_ftp_io_error:
             self._session.voidcmd(command)
         # Make transfer command.
-        command_type = ('STOR', 'RETR')[is_read_mode]
-        command = '{0} {1}'.format(command_type, path)
+        command_type = ("STOR", "RETR")[is_read_mode]
+        command = "{0} {1}".format(command_type, path)
         # Force to binary regardless of transfer type (see above).
         makefile_mode = mode
         makefile_mode = makefile_mode.replace("t", "")

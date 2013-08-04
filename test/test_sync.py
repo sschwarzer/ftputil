@@ -128,5 +128,5 @@ class TestUploadFromWindows(unittest.TestCase):
         syncer.sync(local_root, "not_used_by_ArgumentCheckingFTPHost")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
