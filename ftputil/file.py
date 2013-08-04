@@ -228,7 +228,7 @@ class _FTPFile(object):
                          "write writelines".split()):
             return getattr(self._fobj, attr_name)
         raise AttributeError(
-              "'FTPFile' object has no attribute '{0}'".format(attr_name))
+                "'FTPFile' object has no attribute '{0}'".format(attr_name))
 
     # TODO: Implement `__dir__`? (See
     # http://docs.python.org/py3k/whatsnew/2.6.html#other-language-changes )
