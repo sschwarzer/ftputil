@@ -85,16 +85,32 @@ class BufferedReaderWriter(io.BufferedIOBase):
     def flush(self):
         self.raw.flush()
 
+    # Derived from `socket.py` in Python 2.6 and 2.7.
+    def _write_buffer_size(self):
+        """Return current size of the write buffer in bytes."""
+        if hasattr(self.raw, "_wbuf_len"):
+            # Python 2.6.3 - 2.7.5
+            return self.raw._wbuf_len
+        elif hasattr(self.raw, "_get_wbuf_len"):
+            # Python 2.6 - 2.6.2. (Strictly speaking, all other
+            # Python 2.6 versions have a `_get_wbuf_len` method, but
+            # for 2.6.3 and up it returns `_wbuf_len`).
+            return self.raw._get_wbuf_len()
+        else:
+            # Fallback. In the context of `write` this means the file
+            # appears to be unbuffered.
+            return 0
+
     def write(self, bytes_or_bytearray):
         # `BufferedWriter.write` has to return the number of written
-        # bytes. Since we don't really know how many bytes got
-        # actually written, return the length of the full data, but
-        # also call `flush` to increase the chance that all bytes are
-        # written.
+        # bytes, but files returned from `socket.makefile` in Python 2
+        # return `None`. Hence provide a workaround.
+        old_buffer_byte_count = self._write_buffer_size()
+        added_byte_count = len(bytes_or_bytearray)
         self.raw.write(bytes_or_bytearray)
-        # TODO: Measure impact of flushing for many small writes.
-        self.flush()
-        return len(bytes_or_bytearray)
+        new_buffer_byte_count = self._write_buffer_size()
+        return (old_buffer_byte_count + added_byte_count -
+                new_buffer_byte_count)
 
     def writelines(self, lines):
         self.raw.writelines(lines)
