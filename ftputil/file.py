@@ -6,6 +6,7 @@
 ftputil.file - support for file-like objects on FTP servers
 """
 
+from __future__ import print_function
 from __future__ import unicode_literals
 
 import io
@@ -16,6 +17,87 @@ import ftputil.error
 
 # This module shouldn't be used by clients of the ftputil library.
 __all__ = []
+
+
+class BufferedReaderWriter(io.BufferedIOBase):
+    """
+    Adapt a file object returned from `socket.makefile` to the
+    interfaces of `io.BufferedReader` or `io.BufferedWriter`, so that
+    the new object can be wrapped by `io.TextIOWrapper`.
+
+    This is only needed with Python 2, since in Python 3
+    `socket.makefile` already returns a `BufferedReader` or
+    `BufferedWriter` object (depending on mode).
+    """
+
+    def __init__(self, fobj, is_readable=False, is_writable=False):
+        # This is the return value of `socket.makefile` and is already
+        # buffered.
+        self.raw = fobj
+        self._is_readable = is_readable
+        self._is_writable = is_writable
+
+    @property
+    def closed(self):
+        return self.raw.closed
+
+    def close(self):
+        self.raw.close()
+
+    def fileno(self):
+        return self.raw.fileno()
+
+    def isatty(self):
+        # It's highly unlikely that this is interactive.
+        return False
+
+    def seekable(self):
+        return False
+
+    #
+    # Interface for `BufferedReader`
+    #
+    def readable(self):
+        return self._is_readable
+
+    def read(self, *arg):
+        return self.raw.read(*arg)
+
+    read1 = read
+
+    def readline(self, *arg):
+        return self.raw.readline(*arg)
+
+    def readlines(self, *arg):
+        return self.raw.readlines(*arg)
+
+    def readinto(self, bytearray_):
+        data = self.raw.read(len(bytearray_))
+        bytearray_[:len(data)] = data
+        return len(data)
+
+    #
+    # Interface for `BufferedWriter`
+    #
+    def writable(self):
+        return self._is_writable
+
+    def flush(self):
+        self.raw.flush()
+
+    def write(self, bytes_or_bytearray):
+        # `BufferedWriter.write` has to return the number of written
+        # bytes. Since we don't really know how many bytes got
+        # actually written, return the length of the full data, but
+        # also call `flush` to increase the chance that all bytes are
+        # written.
+        self.raw.write(bytes_or_bytearray)
+        # TODO: Measure impact of flushing for many small writes.
+        self.flush()
+        return len(bytes_or_bytearray)
+
+    def writelines(self, lines):
+        self.raw.writelines(lines)
 
 
 class _FTPFile(object):
@@ -57,8 +139,24 @@ class _FTPFile(object):
                 data = self._fobj.read(len(bytearray_))
                 bytearray_[:len(data)] = data
                 return len(data)
+            def write(self, bytes_):
+                # `BufferedWriter` expects the number of written bytes
+                # as return value. Since we don't really know how many
+                # bytes are written, return the length of the full
+                # data, but also call `flush` to increase the chance
+                # that actually all bytes are written.
+                print("=== type(bytes):", type(bytes_))
+                # Use slice in case we get a `memoryview` object.
+                self._fobj.write(bytes_[:])
+                self._fobj.flush()
+                return len(bytes_)
             def __getattr__(self, name):
-                return getattr(self._fobj, name)
+                if name == "__IOBase_closed":
+                    result = super(Wrapper, self).__getattr__(name)
+                    return result
+                else:
+                    result = getattr(self._fobj, name)
+                    return result
             def __setattr__(self, name, value):
                 if name == "__IOBase_closed":
                     # Delegate to this (`RawIOBase`) instance.
@@ -102,25 +200,20 @@ class _FTPFile(object):
         command = '{0} {1}'.format(command_type, path)
         # Force to binary regardless of transfer type (see above).
         makefile_mode = mode
-        if "t" in mode:
-            makefile_mode = makefile_mode.replace("t", "")
+        makefile_mode = makefile_mode.replace("t", "")
         if not "b" in makefile_mode:
             makefile_mode += "b"
         # Get connection and file object.
         with ftputil.error.ftplib_error_to_ftp_io_error:
             self._conn = self._session.transfercmd(command)
-        # The actual file object.
+        # The actual file object. Under Python 3, this will already
+        # be wrapped by a `BufferedReader` or `BufferedWriter`.
         fobj = self._conn.makefile(makefile_mode)
-        if is_read_mode:
-            if ftputil.compat.python_version == 2:
-                # See implementation of `_wrapped_file`.
-                fobj = self._wrapped_file(fobj, is_readable=True)
-            fobj = io.BufferedReader(fobj)
-        else:
-            if ftputil.compat.python_version == 2:
-                # See implementation of `_wrapped_file`.
-                fobj = self._wrapped_file(fobj, is_writable=True)
-            fobj = io.BufferedWriter(fobj)
+        if ftputil.compat.python_version == 2:
+            if is_read_mode:
+                fobj = BufferedReaderWriter(fobj, is_readable=True)
+            else:
+                fobj = BufferedReaderWriter(fobj, is_writable=True)
         if not is_bin_mode:
             fobj = io.TextIOWrapper(fobj, encoding=encoding,
                                     errors=errors, newline=newline)
