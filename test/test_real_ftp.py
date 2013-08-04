@@ -126,13 +126,13 @@ class RealFTPTest(unittest.TestCase):
         file_ = self.host.open(path, 'wb')
         # Write something. Otherwise the FTP server might not update
         # the time of last modification if the file existed before.
-        file_.write("\n")
+        file_.write(b"\n")
         file_.close()
 
     def make_local_file(self):
         """Create a file on the local host (= on the client side)."""
         fobj = open('_local_file_', 'wb')
-        fobj.write("abc\x12\x34def\t")
+        fobj.write(b"abc\x12\x34def\t")
         fobj.close()
 
 
@@ -441,7 +441,7 @@ class TestStat(RealFTPTest):
         self.cleaner.add_dir(dir_name)
         host.mkdir(dir_name)
         fobj = host.open(file_name, "wb")
-        fobj.write("abc\x12\x34def\t")
+        fobj.write(b"abc\x12\x34def\t")
         fobj.close()
         # Do some stats
         # - dir
