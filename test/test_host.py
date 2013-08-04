@@ -35,11 +35,13 @@ def random_data(pool, size=10000):
 
 def ascii_data():
     r"""
-    Return a _byte_ string of "normal" ASCII characters, including `\n`.
+    Return a unicode string of "normal" ASCII characters, including `\r`.
     """
     pool = list(range(32, 128))
-    pool.append(ord("\n"))
-    return random_data(pool)
+    # The idea is to have the "\r" converted to "\n" during the later
+    # text write and check this conversion.
+    pool.append(ord("\r"))
+    return ftputil.tool.as_unicode(random_data(pool))
 
 
 def binary_data():
@@ -276,15 +278,15 @@ class TestUploadAndDownload(unittest.TestCase):
         local_source = '_test_source_'
         data = ascii_data()
         self.generate_ascii_file(data, local_source)
-        # Upload
+        # Upload.
         host = test_base.ftp_host_factory()
         host.upload(local_source, 'dummy')
         # Check uploaded content. The data which was uploaded has its
         # line endings converted so the conversion must also be
         # applied to `data`.
-        data = data.replace('\n', '\r\n')
         remote_file_content = mock_ftplib.content_of('dummy')
-        self.assertEqual(data, remote_file_content)
+        self.assertEqual(ftputil.tool.as_bytes(data.replace("\r", os.linesep)),
+                         remote_file_content)
         # Clean up
         os.unlink(local_source)
 
@@ -320,16 +322,17 @@ class TestUploadAndDownload(unittest.TestCase):
         # Check uploaded content. The data which was uploaded has its
         # line endings converted so the conversion must also be
         # applied to 'data'.
-        data = data.replace('\n', '\r\n')
         remote_file_content = mock_ftplib.content_of('older')
-        self.assertEqual(data, remote_file_content)
-        # Target doesn't exist, so upload
+        self.assertEqual(ftputil.tool.as_bytes(data.replace("\r", os.linesep)),
+                         remote_file_content)
+        # Target doesn't exist, so upload.
         host = test_base.ftp_host_factory()
         flag = host.upload_if_newer(local_source, '/home/notthere')
         self.assertEqual(flag, True)
         remote_file_content = mock_ftplib.content_of('notthere')
-        self.assertEqual(data, remote_file_content)
-        # Clean up
+        self.assertEqual(ftputil.tool.as_bytes(data.replace("\r", os.linesep)),
+                         remote_file_content)
+        # Clean up.
         os.unlink(local_source)
 
     def compare_and_delete_downloaded_data(self, filename):
@@ -589,4 +592,4 @@ if __name__ == '__main__':
     unittest.main()
     import __main__
     # unittest.main(__main__,
-    #   "TestTimeShift.test_synchronize_times")
+    #   "TestUploadAndDownload.test_conditional_upload")
