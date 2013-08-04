@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2011, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 from __future__ import unicode_literals
@@ -131,8 +131,7 @@ class TestFileOperations(unittest.TestCase):
         expected_data = b" \r\nline 2\r\nline 3"
         self.assertEqual(child_data, expected_data)
 
-    # TODO: Add tests with given encoding and line ending conversion,
-    # and possibly buffering.
+    # TODO: Add tests with given encoding and possibly buffering.
 
     def test_ascii_writelines(self):
         """Write ASCII text with `writelines`."""
