@@ -7,6 +7,7 @@ file_transfer.py - upload, download and generic file copy
 
 from __future__ import unicode_literals
 
+import io
 import os
 
 
@@ -49,7 +50,7 @@ class LocalFile(object):
 
     def fobj(self):
         """Return a file object for the name/path in the constructor."""
-        return open(self.name, self.mode)
+        return io.open(self.name, self.mode)
 
 
 class RemoteFile(object):
