@@ -189,7 +189,7 @@ class _FTPFile(object):
         Return the next line or raise `StopIteration`, if there are
         no more.
         """
-        # Apply implicit line ending conversion.
+        # Apply implicit line ending conversion for text files.
         line = self.readline()
         if line:
             return line
