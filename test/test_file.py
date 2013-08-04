@@ -192,34 +192,34 @@ class TestFileOperations(unittest.TestCase):
 #         self.assertEqual(data, ['e 1\n', 'another line\n',
 #                                 'yet another line'])
 #         input_.close()
-# 
-#     def test_binary_iterator(self):
-#         """
-#         Test the iterator interface of `FTPFile` objects (with newline
-#         conversion).
-#         """
-#         host = test_base.ftp_host_factory(session_factory=ReadMockSession)
-#         input_ = host.open('dummy')
-#         input_iterator = iter(input_)
-#         self.assertEqual(next(input_iterator), "line 1\n")
-#         self.assertEqual(next(input_iterator), "another line\n")
-#         self.assertEqual(next(input_iterator), "yet another line")
-#         self.assertRaises(StopIteration, input_iterator.__next__)
-#         input_.close()
-# 
-#     def test_ascii_iterator(self):
-#         """
-#         Test the iterator interface of `FTPFile` objects (without
-#         newline conversion.
-#         """
-#         host = test_base.ftp_host_factory(session_factory=ReadMockSession)
-#         input_ = host.open('dummy', 'rb')
-#         input_iterator = iter(input_)
-#         self.assertEqual(next(input_iterator), "line 1\r\n")
-#         self.assertEqual(next(input_iterator), "another line\r\n")
-#         self.assertEqual(next(input_iterator), "yet another line")
-#         self.assertRaises(StopIteration, input_iterator.__next__)
-#         input_.close()
+
+    def test_binary_iterator(self):
+        """
+        Test the iterator interface of `FTPFile` objects (without
+        newline conversion.
+        """
+        host = test_base.ftp_host_factory(session_factory=ReadMockSession)
+        input_ = host.open('dummy', 'rb')
+        input_iterator = iter(input_)
+        self.assertEqual(next(input_iterator), b"line 1\r\n")
+        self.assertEqual(next(input_iterator), b"another line\r\n")
+        self.assertEqual(next(input_iterator), b"yet another line")
+        self.assertRaises(StopIteration, input_iterator.__next__)
+        input_.close()
+
+    def test_ascii_iterator(self):
+        """
+        Test the iterator interface of `FTPFile` objects (with newline
+        conversion).
+        """
+        host = test_base.ftp_host_factory(session_factory=ReadMockSession)
+        input_ = host.open('dummy')
+        input_iterator = iter(input_)
+        self.assertEqual(next(input_iterator), "line 1\n")
+        self.assertEqual(next(input_iterator), "another line\n")
+        self.assertEqual(next(input_iterator), "yet another line")
+        self.assertRaises(StopIteration, input_iterator.__next__)
+        input_.close()
 
     def test_read_unknown_file(self):
         """Test whether reading a file which isn't there fails."""
