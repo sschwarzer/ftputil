@@ -48,7 +48,7 @@ class BufferedReaderWriter(io.BufferedIOBase):
         return self.raw.fileno()
 
     def isatty(self):
-        # It's highly unlikely that this is interactive.
+        # It's highly unlikely that this file is interactive.
         return False
 
     def seekable(self):
