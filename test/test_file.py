@@ -51,7 +51,7 @@ class TestFileOperations(unittest.TestCase):
                           "/inaccessible/new_file", "w")
 
     def test_caching(self):
-        """Test whether `_FTPFile` cache of `FTPHost` object works."""
+        """Test whether `FTPFile` cache of `FTPHost` object works."""
         host = test_base.ftp_host_factory()
         self.assertEqual(len(host._children), 0)
         path1 = "path1"

@@ -29,11 +29,11 @@ class FTPHost(object):
 
     # Implementation notes:
     #
-    # Upon every request of a file (`_FTPFile` object) a new FTP
+    # Upon every request of a file (`FTPFile` object) a new FTP
     # session is created ("cloned"), leading to a child session of
     # the `FTPHost` object from which the file is requested.
     #
-    # This is needed because opening an `_FTPFile` will make the
+    # This is needed because opening an `FTPFile` will make the
     # local session object wait for the completion of the transfer.
     # In fact, code like this would block indefinitely, if the `RETR`
     # request would be made on the `_session` of the object host:
@@ -43,8 +43,8 @@ class FTPHost(object):
     #   host.getcwd()   # would block!
     #
     # On the other hand, the initially constructed host object will
-    # store references to already established `_FTPFile` objects and
-    # reuse an associated connection if its associated `_FTPFile`
+    # store references to already established `FTPFile` objects and
+    # reuse an associated connection if its associated `FTPFile`
     # has been closed.
 
     def __init__(self, *args, **kwargs):
@@ -68,7 +68,7 @@ class FTPHost(object):
         # Associated `FTPHost` objects for data transfer.
         self._children = []
         # This is only set to something else than `None` if this
-        # instance represents an `_FTPFile`.
+        # instance represents an `FTPFile`.
         self._file = None
         # Now opened.
         self.closed = False
@@ -169,7 +169,7 @@ class FTPHost(object):
         if host is None:
             host = self._copy()
             self._children.append(host)
-            host._file = ftputil.file._FTPFile(host)
+            host._file = ftputil.file.FTPFile(host)
         basedir = self.getcwd()
         # Prepare for changing the directory (see whitespace workaround
         # in method `_dir`).
@@ -200,7 +200,7 @@ class FTPHost(object):
             return
         # Close associated children.
         for host in self._children:
-            # Children have a `_file` attribute which is an `_FTPFile` object.
+            # Children have a `_file` attribute which is an `FTPFile` object.
             host._file.close()
             host.close()
         # Now deal with ourself.
