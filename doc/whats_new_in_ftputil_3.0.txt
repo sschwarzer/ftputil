@@ -1,0 +1,29 @@
+.. Copyright (C) 2013, Stefan Schwarzer
+
+What's new in ftputil 3.0?
+==========================
+
+* Support for Python 3
+
+* *Dropped* support for Python 2.4 and 2.5
+
+* Unicode strings are preferred
+
+* *Paths* (*not* contents) use latin-1 encoding when sent/received
+  over socket (compatibility with ftplib in Python 3)
+
+* New file semantics (like ``io`` module)
+
+* `FTPHost.file` is gone; it's always `FTPHost.open`
+  (maybe defer this to 3.1?)
+
+* Some module names changed
+  ftp_error -> error
+  ftp_stat -> stat
+  ftp_sync -> sync
+
+
+Not yet implemented but considered
+----------------------------------
+
+* Uploads and downloads are always binary
