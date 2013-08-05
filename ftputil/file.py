@@ -19,7 +19,7 @@ import ftputil.error
 __all__ = []
 
 
-class BufferedReaderWriter(io.BufferedIOBase):
+class BufferedIO(io.BufferedIOBase):
     """
     Adapt a file object returned from `socket.makefile` to the
     interfaces of `io.BufferedReader` or `io.BufferedWriter`, so that
@@ -185,9 +185,9 @@ class _FTPFile(object):
         fobj = self._conn.makefile(makefile_mode)
         if ftputil.compat.python_version == 2:
             if is_read_mode:
-                fobj = BufferedReaderWriter(fobj, is_readable=True)
+                fobj = BufferedIO(fobj, is_readable=True)
             else:
-                fobj = BufferedReaderWriter(fobj, is_writable=True)
+                fobj = BufferedIO(fobj, is_writable=True)
         if not is_bin_mode:
             fobj = io.TextIOWrapper(fobj, encoding=encoding,
                                     errors=errors, newline=newline)
