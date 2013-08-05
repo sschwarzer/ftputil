@@ -86,6 +86,7 @@ class BufferedReaderWriter(io.BufferedIOBase):
         self.raw.flush()
 
     # Derived from `socket.py` in Python 2.6 and 2.7.
+    # There doesn't seem to be a public API for this.
     def _write_buffer_size(self):
         """Return current size of the write buffer in bytes."""
         if hasattr(self.raw, "_wbuf_len"):
