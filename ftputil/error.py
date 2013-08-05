@@ -134,7 +134,7 @@ class FtplibErrorToFTPOSError(object):
         if isinstance(exc_value, ftplib.error_temp):
             raise TemporaryError(*exc_value.args)
         elif isinstance(exc_value, ftplib.error_perm):
-            # If `exc_value.args` is present, assume it's a byte or
+            # If `exc_value.args[0]` is present, assume it's a byte or
             # unicode string.
             if exc_value.args and exc_value.args[0].startswith("502"):
                 raise CommandNotImplementedError(*exc_value.args)
