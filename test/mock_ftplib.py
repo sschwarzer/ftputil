@@ -37,8 +37,8 @@ def content_of(path):
 
 class MockFile(io.BytesIO, object):
     """
-    Mock class for the file objects _contained in_ `_FTPFile` objects
-    (not `_FTPFile` objects themselves!).
+    Mock class for the file objects _contained in_ `FTPFile` objects
+    (not `FTPFile` objects themselves!).
 
     Contrary to `StringIO.StringIO` instances, `MockFile` objects can
     be queried for their contents after they have been closed.
@@ -108,7 +108,7 @@ class MockSession(object):
         # Count successful `transfercmd` invocations to ensure that
         # each has a corresponding `voidresp`.
         self._transfercmds = 0
-        # Dummy, only for getting/setting timeout in `_FTPFile.close`
+        # Dummy, only for getting/setting timeout in `FTPFile.close`
         self.sock = MockSocket("", "")
 
     def voidcmd(self, cmd):

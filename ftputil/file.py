@@ -117,7 +117,7 @@ class BufferedIO(io.BufferedIOBase):
         self.raw.writelines(lines)
 
 
-class _FTPFile(object):
+class FTPFile(object):
     """
     Represents a file-like object associated with an FTP host. File
     and socket are closed appropriately if the `close` method is
@@ -192,7 +192,7 @@ class _FTPFile(object):
             fobj = io.TextIOWrapper(fobj, encoding=encoding,
                                     errors=errors, newline=newline)
         self._fobj = fobj
-        # This comes last so that `close` won't try to close `_FTPFile`
+        # This comes last so that `close` won't try to close `FTPFile`
         # objects without `_conn` and `_fobj` attributes in case of an
         # error.
         self.closed = False
@@ -237,7 +237,7 @@ class _FTPFile(object):
     #
     def __getattr__(self, attr_name):
         """
-        Handle requests for attributes unknown to `_FTPFile` objects:
+        Handle requests for attributes unknown to `FTPFile` objects:
         delegate the requests to the contained file object.
         """
         if attr_name in ("encoding flush isatty fileno read readline "
@@ -280,7 +280,7 @@ class _FTPFile(object):
                   error_code not in ("150", "426", "450", "451"):
                     raise
         finally:
-            # Restore timeout for socket of `_FTPFile`'s `ftplib.FTP`
+            # Restore timeout for socket of `FTPFile`'s `ftplib.FTP`
             # object in case the connection is reused later.
             self._session.sock.settimeout(old_timeout)
             # If something went wrong before, the file is probably
