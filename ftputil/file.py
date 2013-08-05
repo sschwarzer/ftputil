@@ -162,7 +162,7 @@ class _FTPFile(object):
             # Raise a `ValueError` like Python would.
             raise ValueError("can't have text and binary mode at once")
         # Convenience variables
-        is_bin_mode = "b" in mode
+        is_binary_mode = "b" in mode
         is_read_mode = "r" in mode
         # Always use binary mode (see above).
         transfer_type = "I"
@@ -188,7 +188,7 @@ class _FTPFile(object):
                 fobj = BufferedIO(fobj, is_readable=True)
             else:
                 fobj = BufferedIO(fobj, is_writable=True)
-        if not is_bin_mode:
+        if not is_binary_mode:
             fobj = io.TextIOWrapper(fobj, encoding=encoding,
                                     errors=errors, newline=newline)
         self._fobj = fobj
