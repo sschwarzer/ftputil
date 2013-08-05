@@ -10,19 +10,16 @@ FTPHost objects
     return file-objects corresponding to remote files.
 
     # Example session
-    host = ftputil.FTPHost("ftp.domain.com", "me", "secret")
-    print host.getcwd()  # e. g. "/home/me"
-    source = host.open("sourcefile", "r")
-    host.mkdir("newdir")
-    host.chdir("newdir")
-    target = host.open("targetfile", "w")
-    host.copyfileobj(source, target)
-    source.close()
-    target.close()
-    host.remove("targetfile")
-    host.chdir(host.pardir)
-    host.rmdir("newdir")
-    host.close()
+    with ftputil.FTPHost("ftp.domain.com", "me", "secret") as host:
+        print host.getcwd()  # e. g. "/home/me"
+        host.mkdir("newdir")
+        host.chdir("newdir")
+        with host.open("sourcefile", "r") as source:
+            with host.open("targetfile", "w") as target:
+                host.copyfileobj(source, target)
+        host.remove("targetfile")
+        host.chdir(host.pardir)
+        host.rmdir("newdir")
 
     There are also shortcuts for uploads and downloads:
 
