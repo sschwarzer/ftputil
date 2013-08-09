@@ -14,8 +14,10 @@ SOURCE_DIR=${PROJECT_DIR}/ftputil
 
 DOC_DIR=${PROJECT_DIR}/doc
 STYLESHEET_PATH=${DOC_DIR}/default.css
-DOC_SOURCES=$(subst d/,${DOC_DIR}/, d/ftputil.txt)
-DOC_TARGETS=$(subst d/,${DOC_DIR}/, d/ftputil.html)
+DOC_SOURCES=$(subst d/,${DOC_DIR}/, d/ftputil.txt \
+			  d/whats_new_in_ftputil_3.0.txt)
+DOC_TARGETS=$(subst d/,${DOC_DIR}/, d/ftputil.html \
+			  d/whats_new_in_ftputil_3.0.html)
 
 SED=sed -i'' -r -e
 
