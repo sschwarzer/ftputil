@@ -52,8 +52,8 @@ return strings (for example, ``FTPHost.path.abspath`` or
 ``FTPHost.listdir``), return the same string type they got.
 
 
-*Dropped* support for Python 2.4 and 2.5
-----------------------------------------
+Dropped support for Python 2.4 and 2.5
+--------------------------------------
 
 To make it easier to use the same code for Python 2 and 3, I decided
 to use the Python 3 features backported to Python 2.6. In other words,
@@ -107,7 +107,7 @@ Module and method name changes
 In earlier ftputil versions, most module names had a redundant
 ``ftp_`` prefix. In ftputil 3.0, this prefix is removed. Of the
 module names that are part of the public ftputil API, this affects
-only ``ftputil.error`` and ``ftputil.stat``. 
+only ``ftputil.error`` and ``ftputil.stat``.
 
 In Python 2.7, ``file`` became an alias for ``open``, and previous
 ftputil versions also had an ``FTPHost.file`` besides the
@@ -158,4 +158,3 @@ used the ``FTPHost.set_parser`` method, you can ignore this section.
 Porting to ftputil 3.0
 ----------------------
 
-* 
