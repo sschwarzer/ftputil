@@ -6,9 +6,6 @@
 :Summary:   high-level FTP client library for Python
 :Keywords:  FTP, ``ftplib`` substitute, virtual filesystem, pure Python
 :Author:    Stefan Schwarzer <sschwarzer@sschwarzer.net>
-:`Russian translation`__ (for ftputil 2.1): Anton Stepanov <antymail@mail.ru>
-
-.. __: ftputil_ru.html
 
 .. contents::
 
