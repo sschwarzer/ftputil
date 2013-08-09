@@ -546,14 +546,14 @@ class TestUploadAndDownload(RealFTPTest):
         time.sleep(65)
         try:
             self.cleaner.add_file(remote_file)
-            host.upload(local_file, remote_file, "b")
+            host.upload(local_file, remote_file)
             # Retry; shouldn't be uploaded
-            uploaded = host.upload_if_newer(local_file, remote_file, "b")
+            uploaded = host.upload_if_newer(local_file, remote_file)
             self.assertEqual(uploaded, False)
             # Rewrite the local file.
             self.make_local_file()
             # Retry; should be uploaded now
-            uploaded = host.upload_if_newer(local_file, remote_file, "b")
+            uploaded = host.upload_if_newer(local_file, remote_file)
             self.assertEqual(uploaded, True)
         finally:
             # Clean up
@@ -567,7 +567,7 @@ class TestUploadAndDownload(RealFTPTest):
         # Make a remote file.
         self.make_remote_file(remote_file)
         # File should be downloaded as it's not present yet.
-        downloaded = host.download_if_newer(remote_file, local_file, "b")
+        downloaded = host.download_if_newer(remote_file, local_file)
         self.assertEqual(downloaded, True)
         try:
             # If the remote file, taking the datetime precision into
@@ -578,14 +578,14 @@ class TestUploadAndDownload(RealFTPTest):
             fobj = open(local_file, "w")
             fobj.close()
             # Local file is present and newer, so shouldn't download.
-            downloaded = host.download_if_newer(remote_file, local_file, "b")
+            downloaded = host.download_if_newer(remote_file, local_file)
             self.assertEqual(downloaded, False)
             # Re-make the remote file.
             self.make_remote_file(remote_file)
             # Local file is present but possibly older (taking the
             # possible deviation because of the precision into account),
             # so should download.
-            downloaded = host.download_if_newer(remote_file, local_file, "b")
+            downloaded = host.download_if_newer(remote_file, local_file)
             self.assertEqual(downloaded, True)
         finally:
             # Clean up.
@@ -605,7 +605,7 @@ class TestUploadAndDownload(RealFTPTest):
         def test_callback(chunk):
             transferred_chunks_list.append(chunk)
         try:
-            host.download(FILENAME, FILENAME, "b", callback=test_callback)
+            host.download(FILENAME, FILENAME, callback=test_callback)
             # Construct a list of data chunks we expect.
             expected_chunks_list = []
             with open(FILENAME, "rb") as downloaded_fobj:
