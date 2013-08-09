@@ -13,13 +13,14 @@ Summary
 
 ftputil 3.0 adds support for Python 3. To make it easier to have
 the same API for Python 2 and 3, I changed some of the APIs.
-At this occasion, I cleaned up a few things, similar to the change
+
+At this occasion, I cleaned up a few things, similar to the move
 from Python 2 to Python 3, so you might need to adapt your code
 to be able to run it with ftputil 3.0.
 
 
-Note on string types
---------------------
+Notes on string types
+---------------------
 
 Both Python 2 and 3 have two "string" types where one type represents a
 sequence of bytes and the other type character (text) data.
@@ -40,7 +41,7 @@ Table?
 Support for Python 3
 --------------------
 
-This release adds support for Python 3.0 and up.
+This ftputil release adds support for Python 3.0 and up.
 
 Python 2 and 3 are supported with the same source code. Also, the
 API including the sematics is the same. As usual for Python 3 code,
@@ -48,7 +49,7 @@ unicode is somewhat preferred over byte strings. On the other hand,
 in line with the file system APIs of both Python 2 and 3, most methods
 take either byte strings or unicode strings. Methods that take and
 return strings (for example, ``FTPHost.path.abspath`` or
-``FTPHost.listdir``, return the same string type they got.
+``FTPHost.listdir``), return the same string type they got.
 
 
 *Dropped* support for Python 2.4 and 2.5
@@ -56,7 +57,7 @@ return strings (for example, ``FTPHost.path.abspath`` or
 
 To make it easier to use the same code for Python 2 and 3, I decided
 to use the Python 3 features backported to Python 2.6. In other words,
-ftputil 3.0 no longer works with Python 2.4 and 2.5.
+ftputil 3.0 doesn't work with Python 2.4 and 2.5.
 
 
 Encoding of remote file content
@@ -100,15 +101,6 @@ Note that it's still recommended that you use only ASCII characters in
 names of remote directories and files.
 
 
-Custom parsers receive lines as unicode strings
------------------------------------------------
-
-Custom parsers, as described in the documentation, receive a text
-line for each directory entry in the methods ``ignores_line`` and
-``parse_line``. In previous ftputil versions, the ``line`` arguments
-were byte strings. Now they're unicode strings.
-
-
 Module and method name changes
 ------------------------------
 
@@ -150,6 +142,20 @@ I assume that the cases where you want a mixed binary/text mode
 transfer should be *very* rare.
 
 
+Custom parsers receive lines as unicode strings
+-----------------------------------------------
+
+Custom parsers, as described in the documentation, receive a text
+line for each directory entry in the methods ``ignores_line`` and
+``parse_line``. In previous ftputil versions, the ``line`` arguments
+were byte strings. Now they're unicode strings.
+
+If you aren't sure what this is about, this may help: If you never
+used the ``FTPHost.set_parser`` method, you can ignore this section.
+:-)
+
+
 Porting to ftputil 3.0
 ----------------------
 
+* 
