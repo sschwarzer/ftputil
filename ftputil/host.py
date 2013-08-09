@@ -399,29 +399,15 @@ class FTPHost(object):
     # is used as a keyword argument.
     def copyfileobj(self, source, target,
                     max_chunk_size=ftputil.file_transfer.MAX_COPY_CHUNK_SIZE,
-                    callback=None, **kwargs):
+                    callback=None):
         """
         Copy data from file-like object `source` to file-like object
         `target`.
         """
-        if "length" in kwargs:
-            max_chunk_size = kwargs["length"]
-            warnings.warn(("Parameter name `length` will be removed in "
-                           "ftputil 2.6, use `max_chunk_size` instead"),
-                          DeprecationWarning, stacklevel=2)
         ftputil.file_transfer.copyfileobj(source, target, max_chunk_size,
                                           callback)
 
-    def __get_modes(self, mode):
-        """Return modes for source and target file."""
-        #XXX Should we allow mode "a" at all? We don't support appending!
-        # Invalid mode values are handled when a file object is made.
-        if mode == "b":
-            return "rb", "wb"
-        else:
-            return "r", "w"
-
-    def _upload_files(self, source_path, target_path, mode):
+    def _upload_files(self, source_path, target_path):
         """
         Return a `LocalFile` and `RemoteFile` as source and target,
         respectively.
@@ -429,39 +415,48 @@ class FTPHost(object):
         The strings `source_path` and `target_path` are the (absolute
         or relative) paths of the local and the remote file, respectively.
         """
-        source_mode, target_mode = self.__get_modes(mode)
-        source_file = ftputil.file_transfer.LocalFile(source_path, source_mode)
+        source_file = ftputil.file_transfer.LocalFile(source_path, "rb")
         # Passing `self` (the `FTPHost` instance) here is correct.
-        target_file = ftputil.file_transfer.RemoteFile(self, target_path,
-                                                       target_mode)
+        target_file = ftputil.file_transfer.RemoteFile(self, target_path, "wb")
         return source_file, target_file
 
-    def upload(self, source, target, mode="", callback=None):
+    def upload(self, source, target, callback=None):
         """
         Upload a file from the local source (name) to the remote
-        target (name). The argument `mode` is an empty string or "a" for
-        text copies, or "b" for binary copies.
+        target (name).
+
+        If a callable `callback` is given, it's called after every
+        chunk of transferred data. The chunk size is a constant
+        defined in `file_transfer`. The callback will be called with a
+        single argument, the data chunk that was transferred before
+        the callback was called.
         """
         target = ftputil.tool.as_unicode(target)
-        source_file, target_file = self._upload_files(source, target, mode)
+        source_file, target_file = self._upload_files(source, target)
         ftputil.file_transfer.copy_file(source_file, target_file,
                                         conditional=False, callback=callback)
 
-    def upload_if_newer(self, source, target, mode="", callback=None):
+    def upload_if_newer(self, source, target, callback=None):
         """
         Upload a file only if it's newer than the target on the
         remote host or if the target file does not exist. See the
         method `upload` for the meaning of the parameters.
 
         If an upload was necessary, return `True`, else return `False`.
+
+        If a callable `callback` is given, it's called after every
+        chunk of transferred data. The chunk size is a constant
+        defined in `file_transfer`. The callback will be called with a
+        single argument, the data chunk that was transferred before
+        the callback was called.
         """
         target = ftputil.tool.as_unicode(target)
-        source_file, target_file = self._upload_files(source, target, mode)
+        source_file, target_file = self._upload_files(source, target)
         return ftputil.file_transfer.copy_file(source_file, target_file,
                                                conditional=True,
                                                callback=callback)
 
-    def _download_files(self, source_path, target_path, mode):
+    def _download_files(self, source_path, target_path):
         """
         Return a `RemoteFile` and `LocalFile` as source and target,
         respectively.
@@ -469,24 +464,27 @@ class FTPHost(object):
         The strings `source_path` and `target_path` are the (absolute
         or relative) paths of the remote and the local file, respectively.
         """
-        source_mode, target_mode = self.__get_modes(mode)
-        source_file = ftputil.file_transfer.RemoteFile(self, source_path,
-                                                       source_mode)
-        target_file = ftputil.file_transfer.LocalFile(target_path, target_mode)
+        source_file = ftputil.file_transfer.RemoteFile(self, source_path, "rb")
+        target_file = ftputil.file_transfer.LocalFile(target_path, "wb")
         return source_file, target_file
 
-    def download(self, source, target, mode="", callback=None):
+    def download(self, source, target, callback=None):
         """
         Download a file from the remote source (name) to the local
-        target (name). The argument mode is an empty string or "a" for
-        text copies, or "b" for binary copies.
+        target (name).
+
+        If a callable `callback` is given, it's called after every
+        chunk of transferred data. The chunk size is a constant
+        defined in `file_transfer`. The callback will be called with a
+        single argument, the data chunk that was transferred before
+        the callback was called.
         """
         source = ftputil.tool.as_unicode(source)
-        source_file, target_file = self._download_files(source, target, mode)
+        source_file, target_file = self._download_files(source, target)
         ftputil.file_transfer.copy_file(source_file, target_file,
                                         conditional=False, callback=callback)
 
-    def download_if_newer(self, source, target, mode="", callback=None):
+    def download_if_newer(self, source, target, callback=None):
         """
         Download a file only if it's newer than the target on the
         local host or if the target file does not exist. See the
@@ -494,9 +492,15 @@ class FTPHost(object):
 
         If a download was necessary, return `True`, else return
         `False`.
+
+        If a callable `callback` is given, it's called after every
+        chunk of transferred data. The chunk size is a constant
+        defined in `file_transfer`. The callback will be called with a
+        single argument, the data chunk that was transferred before
+        the callback was called.
         """
         source = ftputil.tool.as_unicode(source)
-        source_file, target_file = self._download_files(source, target, mode)
+        source_file, target_file = self._download_files(source, target)
         return ftputil.file_transfer.copy_file(source_file, target_file,
                                                conditional=True,
                                                callback=callback)
