@@ -42,7 +42,6 @@ patch:
 		${DOC_DIR}/ftputil.txt
 	${SED} "s/^:Date:      .*/:Date:      `date +"%Y-%m-%d"`/" \
 		${DOC_DIR}/ftputil.txt
-	#TODO Add rules for Russian translation.
 	${SED} "s/^Version: .*/Version: ${VERSION}/" PKG-INFO
 	${SED} "s/(\/wiki\/Download\/ftputil-).*(\.tar\.gz)/\1${VERSION}\2/" \
 		PKG-INFO
