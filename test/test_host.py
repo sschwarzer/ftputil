@@ -331,7 +331,7 @@ class TestUploadAndDownload(unittest.TestCase):
         Test conditional binary mode download when no target file
         exists.
         """
-        local_target = "__test_target"
+        local_target = "_test_target_"
         # Target does not exist, so download.
         host = test_base.ftp_host_factory(
                  session_factory=BinaryDownloadMockSession)
@@ -341,7 +341,7 @@ class TestUploadAndDownload(unittest.TestCase):
 
     def test_conditional_download_with_older_target(self):
         """Test conditional binary mode download with newer source file."""
-        local_target = "__test_target"
+        local_target = "_test_target_"
         # Make target file.
         open(local_target, "w").close()
         # Source is newer (date in 2020), so download.
@@ -353,7 +353,7 @@ class TestUploadAndDownload(unittest.TestCase):
 
     def test_conditional_download_with_newer_target(self):
         """Test conditional binary mode download with older source file."""
-        local_target = "__test_target"
+        local_target = "_test_target_"
         # Make target file.
         open(local_target, "w").close()
         # Source is older (date in 1970), so don't download.
