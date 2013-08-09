@@ -1,29 +1,155 @@
-.. Copyright (C) 2013, Stefan Schwarzer
-
 What's new in ftputil 3.0?
 ==========================
 
-* Support for Python 3
+:Version:   3.0
+:Date:      2013-08-09
+:Author:    Stefan Schwarzer <sschwarzer@sschwarzer.net>
 
-* *Dropped* support for Python 2.4 and 2.5
-
-* Unicode strings are preferred
-
-* *Paths* (*not* contents) use latin-1 encoding when sent/received
-  over socket (compatibility with ftplib in Python 3)
-
-* New file semantics (like ``io`` module)
-
-* `FTPHost.file` is gone; it's always `FTPHost.open`
-  (maybe defer this to 3.1?)
-
-* Some module names changed
-  ftp_error -> error
-  ftp_stat -> stat
-  ftp_sync -> sync
+.. contents::
 
 
-Not yet implemented but considered
-----------------------------------
+Summary
+-------
 
-* Uploads and downloads are always binary
+ftputil 3.0 adds support for Python 3. To make it easier to have
+the same API for Python 2 and 3, I changed some of the APIs.
+At this occasion, I cleaned up a few things, similar to the change
+from Python 2 to Python 3, so you might need to adapt your code
+to be able to run it with ftputil 3.0.
+
+
+Note on string types
+--------------------
+
+Both Python 2 and 3 have two "string" types where one type represents a
+sequence of bytes and the other type character (text) data.
+
+The binary type is called ``str`` in Python 2 and ``bytes`` in Python
+3. The text type is called ``unicode`` in Python 2 and ``str`` in
+Python 3.
+
+So both lines of Python have an ``str`` type, but in Python 2 it's
+the byte type and in Python 3 the text type. The ``str`` type is
+also what you get when you write a literal string without any
+prefixes. For example ``"Python"`` is a binary string in Python 2
+and a text (unicode) type in Python 3.
+
+Table?
+
+
+Support for Python 3
+--------------------
+
+This release adds support for Python 3.0 and up.
+
+Python 2 and 3 are supported with the same source code. Also, the
+API including the sematics is the same. As usual for Python 3 code,
+unicode is somewhat preferred over byte strings. On the other hand,
+in line with the file system APIs of both Python 2 and 3, most methods
+take either byte strings or unicode strings. Methods that take and
+return strings (for example, ``FTPHost.path.abspath`` or
+``FTPHost.listdir``, return the same string type they got.
+
+
+*Dropped* support for Python 2.4 and 2.5
+----------------------------------------
+
+To make it easier to use the same code for Python 2 and 3, I decided
+to use the Python 3 features backported to Python 2.6. In other words,
+ftputil 3.0 no longer works with Python 2.4 and 2.5.
+
+
+Encoding of remote file content
+-------------------------------
+
+Traditionally, "text mode" for FTP transfers meant translation to
+``\r\n`` newlines, even for transfers from a Unix client to a Unix
+server. Since this presumably most of the time is neither the expected
+nor the desired behavior, the ``FTPHost.open`` method now has the
+API and semantics of the built-in ``open`` function in Python 3. If
+you want the same API for *local* files in Python 2.6 and 2.7, you
+can use the ``open`` function from the ``io`` module.
+
+Thus, when opening remote files in binary mode, the new API does *not*
+accept an encoding argument. On the other hand, opening a file in text
+mode, always implies an encoding step when writing and decoding step
+when reading files. If the ``encoding`` argument isn't specified, it
+defaults to UTF-8.
+
+Also as with Python 3's ``open``, opening a file in binary mode for
+reading will give you byte string data. If you write to a file opened
+in binary mode, you must write byte strings. Along the same lines,
+files opened in text mode will give you unicode strings when read,
+and require unicode strings to be passed to write operations.
+
+Table?
+
+
+Directory and file names use latin-1 encoding
+---------------------------------------------
+
+The encoding for the *names* of directories, files and links
+is latin-1 (ISO-8859-1) now. (Note that this is nothing to
+do with the encoding of file *contents*, see previous section.)
+Previously, no explicit decoding was done. ftputil now uses latin-1,
+which is the same encoding Python's ``ftplib.FTP`` class uses. This
+makes sure you can access remote paths with ftputil you created with
+ftplib and vice versa.
+
+Note that it's still recommended that you use only ASCII characters in
+names of remote directories and files.
+
+
+Custom parsers receive lines as unicode strings
+-----------------------------------------------
+
+Custom parsers, as described in the documentation, receive a text
+line for each directory entry in the methods ``ignores_line`` and
+``parse_line``. In previous ftputil versions, the ``line`` arguments
+were byte strings. Now they're unicode strings.
+
+
+Module and method name changes
+------------------------------
+
+In earlier ftputil versions, most module names had a redundant
+``ftp_`` prefix. In ftputil 3.0, this prefix is removed. Of the
+module names that are part of the public ftputil API, this affects
+only ``ftputil.error`` and ``ftputil.stat``. 
+
+In Python 2.7, ``file`` became an alias for ``open``, and previous
+ftputil versions also had an ``FTPHost.file`` besides the
+``FTPHost.open`` method. In Python 3.0, the ``file`` builtin was
+removed. In the same way, ftputil 3.0 also drops the ``FTPHost.file``
+alias.
+
+
+Uploads and downloads are always binary
+---------------------------------------
+
+The ``FTPHost`` methods for downloading and uploading files
+(``download``, ``download_if_newer``, ``upload`` and
+``upload_if_newer``) now always use binary mode; a ``mode`` argument
+is no longer allowed. This behavior should cover almost all use cases.
+
+If you really want to do a transfer involving files opened in text
+mode, you can still do::
+
+    import ftputil.file_transfer
+
+    with FTPHost.open("source.txt", encoding="UTF-8") as source,
+         FTPHost.open("target.txt", encoding="latin1") as target:
+        ftputil.file_transfer.copyfileobj(source, target)
+
+Note that it's not possibly anymore to open one file in binary
+mode and the other file in text mode and transfer data between
+them with ``copyfileobj``. For example, opening the source in
+binary mode will read byte strings, but a target file opened in
+text mode will only allow writing of unicode strings. Then again,
+I assume that the cases where you want a mixed binary/text mode
+transfer should be *very* rare.
+
+
+Porting to ftputil 3.0
+----------------------
+
