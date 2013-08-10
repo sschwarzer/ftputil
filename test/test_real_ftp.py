@@ -764,6 +764,41 @@ class TestOther(RealFTPTest):
         host.chdir("rootdir1")
         self.assertRaises(ftputil.error.TimeShiftError, host.synchronize_times)
 
+    def test_bytes_file_name(self):
+        """
+        Test whether a UTF-8 file name can be sent and retrieved when
+        encoded explicitly.
+        """
+        # This test below would fail under Python 2 and I have no idea
+        # how to make it work there without modifying `ftplib`.
+        if ftputil.compat.python_version == 2:
+            return
+        #
+        host = self.host
+        # This requires an existing file with an UTF-8 encoded name on
+        # the remote file system. Note: If the remote file system
+        # doesn't use UTF-8, the test will probably succeed anyway.
+        FILENAME = "_ütf8_file_näme_♯♭_"
+        bytes_file_name = FILENAME.encode("UTF-8")
+        self.cleaner.add_file(bytes_file_name)
+        # Write under name `bytes_file_name`
+        with host.open(bytes_file_name, "w", encoding="UTF-8") as fobj:
+            fobj.write(FILENAME)
+        # Try to retrieve file with `listdir`.
+        items = host.listdir(b".")
+        self.assertTrue(bytes_file_name in items)
+        #  When getting a directory listing for a unicode directory,
+        #  ftputil will implicitly assume the encoding is latin-1 and
+        #  won't decode the file name to something different from
+        #  `bytes_file_name`.
+        items = host.listdir(".")
+        self.assertFalse(FILENAME in items)
+        # Re-open file.
+        with host.open(bytes_file_name, "r", encoding="UTF-8") as fobj:
+            data = fobj.read()
+        # Not the point of this test, but an additional sanity check
+        self.assertEqual(data, FILENAME)
+
     def test_list_a_option(self):
         # For this test to pass, the server must _not_ list "hidden"
         # files by default but instead only when the `LIST` `-a`
@@ -816,4 +851,4 @@ minutes because it has to wait to test the timezone calculation.
     server, user, password = get_login_data()
     unittest.main()
     import __main__
-    #unittest.main(__main__, "TestStat.test_stat")
+    #unittest.main(__main__, "TestOther.test_bytes_file_name")
