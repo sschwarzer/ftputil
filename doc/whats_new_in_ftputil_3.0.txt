@@ -184,14 +184,17 @@ Porting to ftputil 3.0
   may need to change your code to adapt to the changes in newline
   conversion, encoding and string type (see above sections).
 
-In the root directory of the installed ftputil package is a script
-``find_invalid_code.py`` which, given a start directory as argument,
-will scan the directory tree for code that may need to be fixed. Note
-that this script uses very simple heuristics, so it may miss some
-problematic code or list perfectly valid code.
+.. Note::
 
-You may want to change the regular expression string ``HOST_REGEX``
-for the names you usually use for ``FTPHost`` objects.
+    In the root directory of the installed ftputil package is a script
+    ``find_invalid_code.py`` which, given a start directory as
+    argument, will scan the directory tree for code that may need to
+    be fixed. Note that this script uses very simple heuristics, so it
+    may miss some problematic code or list perfectly valid code.
+
+    You may want to change the regular expression string
+    ``HOST_REGEX`` for the names you usually use for ``FTPHost``
+    objects.
 
 
 FAQ
