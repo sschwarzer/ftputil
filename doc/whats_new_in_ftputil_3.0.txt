@@ -177,8 +177,8 @@ Porting to ftputil 3.0
   ``import ftputil.stat``
 
   Moreover, you might need to change your ``ignores_line`` or
-  ``parse_line`` calls if they rely on the ``line`` argument being
-  byte strings.
+  ``parse_line`` calls if they rely on their ``line`` argument being a
+  byte string.
 
 - If you use remote files, especially ones opened in text mode, you
   may need to change your code to adapt to the changes in newline
@@ -188,7 +188,7 @@ Porting to ftputil 3.0
 
     In the root directory of the installed ftputil package is a script
     ``find_invalid_code.py`` which, given a start directory as
-    argument, will scan the directory tree for code that may need to
+    argument, will scan that directory tree for code that may need to
     be fixed. Note that this script uses very simple heuristics, so it
     may miss some problematic code or list perfectly valid code.
 
