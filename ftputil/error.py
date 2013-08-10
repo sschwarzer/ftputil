@@ -58,7 +58,7 @@ class FTPError(Exception):
             self.errno = int(self.strerror[:3])
         except (TypeError, IndexError, ValueError):
             self.errno = None
-        self.filename = None
+        self.file_name = None
 
     def __str__(self):
         return "{0}\nDebugging info: {1}".format(self.strerror,
