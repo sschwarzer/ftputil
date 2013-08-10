@@ -109,7 +109,7 @@ def print_results():
             last_message = feature.message
         locations = feature.locations
         if not locations:
-            print("   no deprecated code found")
+            print("   no deprecated/invalid code found")
             continue
         for file_name in sorted(locations.keys()):
             print(file_name)
