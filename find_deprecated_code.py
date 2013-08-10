@@ -57,10 +57,10 @@ deprecated_features = [
                     re.compile(r"\bftputil\s*?\.\s*?[A-Za-z]+Error\b")),
   DeprecatedFeature("Possible use(s) of ftp_error module",
                     re.compile(r"\bftp_error\b")),
-  DeprecatedFeature("Possible use(s) of FTPHost.file",
-                    re.compile(r"\b(h|host|ftp|ftphost|ftp_host)\.file\(")),
   DeprecatedFeature("Possible use(s) of ftp_stat module",
                     re.compile(r"\bftp_stat\b")),
+  DeprecatedFeature("Possible use(s) of FTPHost.file",
+                    re.compile(r"\b(h|host|ftp|ftphost|ftp_host)\.file\(")),
   DeprecatedFeature("Possible use(s) of xreadline method of FTP file objects",
                     re.compile(r"\.\s*?xreadlines\b")),
 ]
