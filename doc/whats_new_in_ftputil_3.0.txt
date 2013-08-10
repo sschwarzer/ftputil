@@ -168,6 +168,56 @@ used the ``FTPHost.set_parser`` method, you can ignore this section.
 Porting to ftputil 3.0
 ----------------------
 
+- It's likely that you catch an ftputil exception here and there.
+  In that case, you need to change
+
+  ``import ftputil.ftp_error``
+
+  to
+
+  ``import ftputil.error``
+
+- If you use the download or upload methods, you need to remove
+  the ``mode`` argument from the call. If you used something
+  else than ``"b"`` for binary mode, which I assume to be unlikely,
+  you'll need to adapt the code that calls the download or upload
+  methods.
+
+- If you use custom parsers, you'll need to change
+
+  ``import ftputil.ftp_stat``
+
+  to
+
+  ``import ftputil.stat``
+
+  Moreover, you might need to change your ``ignores_line`` or
+  ``parse_line`` calls if they rely on the ``line`` argument being
+  byte strings.
+
+- If you use remote files, especially ones opened in text mode, you
+  may need to change your code to adapt to the changes in newline
+  conversion, encoding and string type (see above sections).
+
+- If you use directory or file names containing non-ASCII characters,
+  there are several possibilities:
+
+  - Generally, using anything than 7-bit ASCII characters for
+    directory entries via FTP is error-prone. So, if you can, you
+    should convert directory and file names to contain only 7-bit
+    ASCII characters. Best do this in a shell, logged into the server.
+    If that's not feasible, please read on.
+
+  - If the remote file system encoding is latin-1 (ISO-8859-1), and
+    the FTP server doesn't do any conversions on its own, you should
+    be fine as latin-1 is the new default encoding for directory and
+    file names.
+
+  - If the remote file system encoding is anything else than latin-1
+    and you use the characters above character code 127, you need to
+    "pre-encode" the directory and file names and pass them as byte
+    strings like this::
+
 
 FAQ
 ---
@@ -194,10 +244,10 @@ Actually, I had at first planned to implement this but dropped the
 idea because it has several problems:
 
 - Basically, I would have to support two APIs for the same set of
-  methods. I can imagine that some things are simplified by just using
-  ``str`` to convert to the "right" string type automatically, but I
-  assume these easy ways out would be rather the exception than the
-  rule.
+  methods. I can imagine that some things can be simplified by just
+  using ``str`` to convert to the "right" string type automatically,
+  but I assume these easy ways out would be rather the exception than
+  the rule. I'd expect a maintenance nightmare.
 
 - Using two different APIs might require people to change their code
   if they move from using ftputil 3.x in Python 2 to using it in
@@ -206,7 +256,7 @@ idea because it has several problems:
 - Developers who want to support both Python 2 and 3 with the same
   source code (as I do now in ftputil) would "inherit" the "dual API"
   and would have to use different wrapper code depending on the Python
-  version that is run.
+  version their code is run under.
 
 For these reasons, I `ended up`_ choosing the same API semantics for
 Python 2 and 3.
