@@ -63,6 +63,10 @@ deprecated_features = [
                     r"\bftp_stat\b"),
   DeprecatedFeature("Possible use(s) of FTPHost.file",
                     r"\b(h|host|ftp|ftphost|ftp_host)\.file\("),
+  DeprecatedFeature("Possible use(s) of byte string in ignores_line",
+                    r"\bdef ignores_line\("),
+  DeprecatedFeature("Possible use(s) of byte string in parse_line",
+                    r"\bdef parse_line\("),
   DeprecatedFeature("Possible use(s) of xreadline method of FTP file objects",
                     r"\.\s*?xreadlines\b"),
 ]
