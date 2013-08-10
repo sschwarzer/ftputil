@@ -114,7 +114,7 @@ class Syncer(object):
     def _fix_sep_for_target(self, path):
         """
         Return the string `path` with appropriate path separators for
-        the target filesystem.
+        the target file system.
         """
         return path.replace(self._source.sep, self._target.sep)
 
@@ -132,15 +132,15 @@ class Syncer(object):
         - incomplete error handling
         """
         self._mkdir(target_dir)
-        for dirpath, dirnames, filenames in self._source.walk(source_dir):
-            for dirname in dirnames:
-                inner_source_dir = self._source.path.join(dirpath, dirname)
+        for dirpath, dir_names, file_names in self._source.walk(source_dir):
+            for dir_name in dir_names:
+                inner_source_dir = self._source.path.join(dirpath, dir_name)
                 inner_target_dir = inner_source_dir.replace(source_dir,
                                                             target_dir, 1)
                 inner_target_dir = self._fix_sep_for_target(inner_target_dir)
                 self._mkdir(inner_target_dir)
-            for filename in filenames:
-                source_file = self._source.path.join(dirpath, filename)
+            for file_name in file_names:
+                source_file = self._source.path.join(dirpath, file_name)
                 target_file = source_file.replace(source_dir, target_dir, 1)
                 target_file = self._fix_sep_for_target(target_file)
                 self._sync_file(source_file, target_file)

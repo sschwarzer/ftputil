@@ -268,9 +268,9 @@ class TestRecursiveListingForDotAsPath(unittest.TestCase):
 class TestUploadAndDownload(unittest.TestCase):
     """Test ASCII upload and binary download as examples."""
 
-    def generate_file(self, data, filename):
+    def generate_file(self, data, file_name):
         """Generate a local data file."""
-        with open(filename, "wb") as source_file:
+        with open(file_name, "wb") as source_file:
             source_file.write(data)
 
     def test_download(self):
@@ -313,18 +313,18 @@ class TestUploadAndDownload(unittest.TestCase):
         # Clean up.
         os.unlink(local_source)
 
-    def compare_and_delete_downloaded_data(self, filename):
+    def compare_and_delete_downloaded_data(self, file_name):
         """
         Compare content of downloaded file with its source, then
         delete the local target file.
         """
-        with open(filename, "rb") as fobj:
+        with open(file_name, "rb") as fobj:
             data = fobj.read()
         # The name `newer` is used by all callers, so use it here, too.
         remote_file_content = mock_ftplib.content_of("newer")
         self.assertEqual(data, remote_file_content)
         # Clean up
-        os.unlink(filename)
+        os.unlink(file_name)
 
     def test_conditional_download_without_target(self):
         """

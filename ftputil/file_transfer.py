@@ -44,7 +44,7 @@ class LocalFile(object):
 
     def mtime_precision(self):
         """Return the precision of the last modification time in seconds."""
-        # Assume modification timestamps for local filesystems are
+        # Assume modification timestamps for local file systems are
         # at least precise up to a second.
         return 1.0
 

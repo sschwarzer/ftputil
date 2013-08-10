@@ -182,7 +182,7 @@ class FTPHost(object):
             # This will fail if the directory isn't accesible at all.
             host.chdir(effective_dir)
         except ftputil.error.PermanentError:
-            # Similarly to a failed `file` in a local filesystem,
+            # Similarly to a failed `file` in a local file system,
             # raise an `IOError`, not an `OSError`.
             raise ftputil.error.FTPIOError("remote directory '{0}' doesn't "
                     "exist or has insufficient access rights".

@@ -593,10 +593,10 @@ class TestUploadAndDownload(RealFTPTest):
 
     def test_callback_with_transfer(self):
         host = self.host
-        FILENAME = "debian-keyring.tar.gz"
+        FILE_NAME = "debian-keyring.tar.gz"
         # Default chunk size as in `FTPHost.copyfileobj`
         MAX_COPY_CHUNK_SIZE = ftputil.file_transfer.MAX_COPY_CHUNK_SIZE
-        file_size = host.path.getsize(FILENAME)
+        file_size = host.path.getsize(FILE_NAME)
         chunk_count, remainder = divmod(file_size, MAX_COPY_CHUNK_SIZE)
         # Add one chunk for remainder.
         chunk_count += 1
@@ -605,10 +605,10 @@ class TestUploadAndDownload(RealFTPTest):
         def test_callback(chunk):
             transferred_chunks_list.append(chunk)
         try:
-            host.download(FILENAME, FILENAME, callback=test_callback)
+            host.download(FILE_NAME, FILE_NAME, callback=test_callback)
             # Construct a list of data chunks we expect.
             expected_chunks_list = []
-            with open(FILENAME, "rb") as downloaded_fobj:
+            with open(FILE_NAME, "rb") as downloaded_fobj:
                 while True:
                     chunk = downloaded_fobj.read(MAX_COPY_CHUNK_SIZE)
                     if not chunk:
@@ -618,39 +618,39 @@ class TestUploadAndDownload(RealFTPTest):
             self.assertEqual(len(transferred_chunks_list), chunk_count)
             self.assertEqual(transferred_chunks_list, expected_chunks_list)
         finally:
-            os.unlink(FILENAME)
+            os.unlink(FILE_NAME)
 
 
 class TestFTPFiles(RealFTPTest):
 
     def test_only_closed_children(self):
-        REMOTE_FILENAME = "debian-keyring.tar.gz"
+        REMOTE_FILE_NAME = "debian-keyring.tar.gz"
         host = self.host
-        file_obj1 = host.open(REMOTE_FILENAME, "rb")
-        file_obj2 = host.open(REMOTE_FILENAME, "rb")
+        file_obj1 = host.open(REMOTE_FILE_NAME, "rb")
+        file_obj2 = host.open(REMOTE_FILE_NAME, "rb")
         file_obj2.close()
         # This should re-use the second child because the first isn't
         # closed but the second is.
-        file_obj = host.open(REMOTE_FILENAME, "rb")
+        file_obj = host.open(REMOTE_FILE_NAME, "rb")
         self.assertEqual(len(host._children), 2)
         self.assertTrue(file_obj._host is host._children[1])
         file_obj1.close()
 
     def test_no_timed_out_children(self):
-        REMOTE_FILENAME = "debian-keyring.tar.gz"
+        REMOTE_FILE_NAME = "debian-keyring.tar.gz"
         host = self.host
-        file_obj1 = host.open(REMOTE_FILENAME, "rb")
+        file_obj1 = host.open(REMOTE_FILE_NAME, "rb")
         file_obj1.close()
         # Monkey-patch file to simulate an FTP server timeout below.
         def timed_out_pwd():
             raise ftplib.error_temp("simulated timeout")
         file_obj1._host._session.pwd = timed_out_pwd
         # Try to get a file - which shouldn't be the timed-out file.
-        file_obj2 = host.open(REMOTE_FILENAME, "rb")
+        file_obj2 = host.open(REMOTE_FILE_NAME, "rb")
         self.assertTrue(file_obj1 is not file_obj2)
         # Re-use closed and not timed-out child session.
         file_obj2.close()
-        file_obj3 = host.open(REMOTE_FILENAME, "rb")
+        file_obj3 = host.open(REMOTE_FILE_NAME, "rb")
         file_obj3.close()
         self.assertTrue(file_obj2 is file_obj3)
 
@@ -778,12 +778,12 @@ class TestOther(RealFTPTest):
         # This requires an existing file with an UTF-8 encoded name on
         # the remote file system. Note: If the remote file system
         # doesn't use UTF-8, the test will probably succeed anyway.
-        FILENAME = "_ütf8_file_näme_♯♭_"
-        bytes_file_name = FILENAME.encode("UTF-8")
+        FILE_NAME = "_ütf8_file_näme_♯♭_"
+        bytes_file_name = FILE_NAME.encode("UTF-8")
         self.cleaner.add_file(bytes_file_name)
         # Write under name `bytes_file_name`
         with host.open(bytes_file_name, "w", encoding="UTF-8") as fobj:
-            fobj.write(FILENAME)
+            fobj.write(FILE_NAME)
         # Try to retrieve file with `listdir`.
         items = host.listdir(b".")
         self.assertTrue(bytes_file_name in items)
@@ -792,12 +792,12 @@ class TestOther(RealFTPTest):
         #  won't decode the file name to something different from
         #  `bytes_file_name`.
         items = host.listdir(".")
-        self.assertFalse(FILENAME in items)
+        self.assertFalse(FILE_NAME in items)
         # Re-open file.
         with host.open(bytes_file_name, "r", encoding="UTF-8") as fobj:
             data = fobj.read()
         # Not the point of this test, but an additional sanity check
-        self.assertEqual(data, FILENAME)
+        self.assertEqual(data, FILE_NAME)
 
     def test_list_a_option(self):
         # For this test to pass, the server must _not_ list "hidden"
