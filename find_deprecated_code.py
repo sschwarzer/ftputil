@@ -14,18 +14,6 @@ Usage: %s start_dir
 
 where start_dir is the starting directory which will be scanned
 recursively for offending code.
-
-Currently, these deprecated features are examined:
-
-- You should no longer use the exceptions via the ftputil module but
-  via the ftp_error module. So, for example, instead of
-  ftputil.PermanentError write ftp_error.PermanentError.
-
-- Don't use the xreadlines method of FTP file objects (as returned by
-  FTPHost.file = FTPHost.open). Instead use
-
-  for line in ftp_host.open(path):
-      ...
 """
 
 from __future__ import absolute_import
