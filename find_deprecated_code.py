@@ -71,6 +71,10 @@ deprecated_features = [
                     r"\bdef ignores_line\("),
   DeprecatedFeature("Possible use(s) of byte string in parse_line",
                     r"\bdef parse_line\("),
+  DeprecatedFeature("Possible use(s) download with text mode",
+                    r"{0}\.download(_if_newer)?\(".format(HOST_REGEX)),
+  DeprecatedFeature("Possible use(s) upload with text mode",
+                    r"{0}\.upload(_if_newer)?\(".format(HOST_REGEX)),
   DeprecatedFeature("Possible use(s) of xreadline method of FTP file objects",
                     r"\.\s*?xreadlines\b"),
 ]
