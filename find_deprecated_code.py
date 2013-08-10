@@ -6,13 +6,14 @@
 
 """\
 This script scans a directory tree for files which contain code which
-is deprecated in ftputil %s and above (and even much longer). The
-script uses simple heuristics, so it may miss occurences of deprecated
-usage or print some inappropriate lines of your files.
+is deprecated or invalid in ftputil %s and above (and even much
+longer). The script uses simple heuristics, so it may miss occurences
+of deprecated/invalid usage or print some inappropriate lines of your
+files.
 
 Usage: %s start_dir
 
-where start_dir is the starting directory which will be scanned
+where 'start_dir' is the starting directory which will be scanned
 recursively for offending code.
 """
 
@@ -31,7 +32,7 @@ __doc__ = __doc__ % (ftputil.version.__version__,
                      os.path.basename(sys.argv[0]))
 
 
-class DeprecatedFeature(object):
+class InvalidFeature(object):
 
     def __init__(self, message, regex):
         self.message = message
@@ -44,27 +45,27 @@ class DeprecatedFeature(object):
 
 HOST_REGEX = r"\b(h|host|ftp|ftphost|ftp_host)\b"
 
-deprecated_features = [
-  DeprecatedFeature("Possible use(s) of FTP exceptions via ftputil module",
-                    r"\bftputil\s*?\.\s*?[A-Za-z]+Error\b"),
-  DeprecatedFeature("Possible use(s) of ftp_error module",
-                    r"\bftp_error\b"),
-  DeprecatedFeature("Possible use(s) of ftp_stat module",
-                    r"\bftp_stat\b"),
-  DeprecatedFeature("Possible use(s) of FTPHost.file",
-                    r"{0}\.file\(".format(HOST_REGEX)),
-  DeprecatedFeature("Possible use(s) of FTPHost.open with text mode",
-                    r"{0}\.open\(.*[\"'](r|w)t?[\"']".format(HOST_REGEX)),
-  DeprecatedFeature("Possible use(s) of byte string in ignores_line",
-                    r"\bdef ignores_line\("),
-  DeprecatedFeature("Possible use(s) of byte string in parse_line",
-                    r"\bdef parse_line\("),
-  DeprecatedFeature("Possible use(s) download with text mode",
-                    r"{0}\.download(_if_newer)?\(".format(HOST_REGEX)),
-  DeprecatedFeature("Possible use(s) upload with text mode",
-                    r"{0}\.upload(_if_newer)?\(".format(HOST_REGEX)),
-  DeprecatedFeature("Possible use(s) of xreadline method of FTP file objects",
-                    r"\.\s*?xreadlines\b"),
+invalid_features = [
+  InvalidFeature("Possible use(s) of FTP exceptions via ftputil module",
+                 r"\bftputil\s*?\.\s*?[A-Za-z]+Error\b"),
+  InvalidFeature("Possible use(s) of ftp_error module",
+                 r"\bftp_error\b"),
+  InvalidFeature("Possible use(s) of ftp_stat module",
+                 r"\bftp_stat\b"),
+  InvalidFeature("Possible use(s) of FTPHost.file",
+                 r"{0}\.file\(".format(HOST_REGEX)),
+  InvalidFeature("Possible use(s) of FTPHost.open with text mode",
+                 r"{0}\.open\(.*[\"'](r|w)t?[\"']".format(HOST_REGEX)),
+  InvalidFeature("Possible use(s) of byte string in ignores_line",
+                 r"\bdef ignores_line\("),
+  InvalidFeature("Possible use(s) of byte string in parse_line",
+                 r"\bdef parse_line\("),
+  InvalidFeature("Possible use(s) download with text mode",
+                 r"{0}\.download(_if_newer)?\(".format(HOST_REGEX)),
+  InvalidFeature("Possible use(s) upload with text mode",
+                 r"{0}\.upload(_if_newer)?\(".format(HOST_REGEX)),
+  InvalidFeature("Possible use(s) of xreadline method of FTP file objects",
+                 r"\.\s*?xreadlines\b"),
 ]
 
 
@@ -76,7 +77,7 @@ def scan_file(file_name):
     """
     with open(file_name) as fobj:
         for index, line in enumerate(fobj, start=1):
-            for feature in deprecated_features:
+            for feature in invalid_features:
                 if feature.regex.search(line):
                     locations = feature.locations
                     locations.setdefault(file_name, [])
@@ -89,7 +90,7 @@ def print_results():
     scanned.
     """
     last_message = ""
-    for feature in deprecated_features:
+    for feature in invalid_features:
         if feature.message != last_message:
             print()
             print(70 * "-")
@@ -98,7 +99,7 @@ def print_results():
             last_message = feature.message
         locations = feature.locations
         if not locations:
-            print("   no deprecated/invalid code found")
+            print("   no invalid code found")
             continue
         for file_name in sorted(locations.keys()):
             print(file_name)
