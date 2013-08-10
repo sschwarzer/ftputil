@@ -54,6 +54,8 @@ class DeprecatedFeature(object):
         self.locations = {}
 
 
+HOST_REGEX = r"\b(h|host|ftp|ftphost|ftp_host)\b"
+
 deprecated_features = [
   DeprecatedFeature("Possible use(s) of FTP exceptions via ftputil module",
                     r"\bftputil\s*?\.\s*?[A-Za-z]+Error\b"),
@@ -62,7 +64,9 @@ deprecated_features = [
   DeprecatedFeature("Possible use(s) of ftp_stat module",
                     r"\bftp_stat\b"),
   DeprecatedFeature("Possible use(s) of FTPHost.file",
-                    r"\b(h|host|ftp|ftphost|ftp_host)\.file\("),
+                    r"{0}\.file\(".format(HOST_REGEX)),
+  DeprecatedFeature("Possible use(s) of FTPHost.open with text mode",
+                    r"{0}\.open\(.*[\"'](r|w)t?[\"']".format(HOST_REGEX)),
   DeprecatedFeature("Possible use(s) of byte string in ignores_line",
                     r"\bdef ignores_line\("),
   DeprecatedFeature("Possible use(s) of byte string in parse_line",
