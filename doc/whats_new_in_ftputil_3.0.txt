@@ -91,21 +91,6 @@ operations.
 Table?
 
 
-Directory and file names use latin-1 encoding
----------------------------------------------
-
-The encoding for the *names* of directories, files and links
-is latin-1 (ISO-8859-1) now. (Note that this is nothing to
-do with the encoding of file *contents*, see previous section.)
-Previously, no explicit decoding was done. ftputil now uses latin-1,
-which is the same encoding Python 3's ``ftplib.FTP`` class uses. This
-makes sure you can access remote paths with ftputil you created with
-ftplib and vice versa.
-
-Note that it's still recommended that you use only ASCII characters in
-names of remote directories and files.
-
-
 Module and method name changes
 ------------------------------
 
@@ -198,25 +183,6 @@ Porting to ftputil 3.0
 - If you use remote files, especially ones opened in text mode, you
   may need to change your code to adapt to the changes in newline
   conversion, encoding and string type (see above sections).
-
-- If you use directory or file names containing non-ASCII characters,
-  there are several possibilities:
-
-  - Generally, using anything than 7-bit ASCII characters for
-    directory entries via FTP is error-prone. So, if you can, you
-    should convert directory and file names to contain only 7-bit
-    ASCII characters. Best do this in a shell, logged into the server.
-    If that's not feasible, please read on.
-
-  - If the remote file system encoding is latin-1 (ISO-8859-1), and
-    the FTP server doesn't do any conversions on its own, you should
-    be fine as latin-1 is the new default encoding for directory and
-    file names.
-
-  - If the remote file system encoding is anything else than latin-1
-    and you use the characters above character code 127, you need to
-    "pre-encode" the directory and file names and pass them as byte
-    strings like this::
 
 
 FAQ
