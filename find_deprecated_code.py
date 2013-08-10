@@ -47,6 +47,8 @@ class DeprecatedFeature(object):
 
     def __init__(self, message, regex):
         self.message = message
+        if not isinstance(regex, re.compile("").__class__):
+            regex = re.compile(regex)
         self.regex = regex
         # Map file name to a list of line numbers (starting at 1).
         self.locations = {}
@@ -54,15 +56,15 @@ class DeprecatedFeature(object):
 
 deprecated_features = [
   DeprecatedFeature("Possible use(s) of FTP exceptions via ftputil module",
-                    re.compile(r"\bftputil\s*?\.\s*?[A-Za-z]+Error\b")),
+                    r"\bftputil\s*?\.\s*?[A-Za-z]+Error\b"),
   DeprecatedFeature("Possible use(s) of ftp_error module",
-                    re.compile(r"\bftp_error\b")),
+                    r"\bftp_error\b"),
   DeprecatedFeature("Possible use(s) of ftp_stat module",
-                    re.compile(r"\bftp_stat\b")),
+                    r"\bftp_stat\b"),
   DeprecatedFeature("Possible use(s) of FTPHost.file",
-                    re.compile(r"\b(h|host|ftp|ftphost|ftp_host)\.file\(")),
+                    r"\b(h|host|ftp|ftphost|ftp_host)\.file\("),
   DeprecatedFeature("Possible use(s) of xreadline method of FTP file objects",
-                    re.compile(r"\.\s*?xreadlines\b")),
+                    r"\.\s*?xreadlines\b"),
 ]
 
 
