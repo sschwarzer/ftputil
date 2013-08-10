@@ -55,8 +55,6 @@ class DeprecatedFeature(object):
 deprecated_features = [
   DeprecatedFeature("Possible use(s) of FTP exceptions via ftputil module",
                     re.compile(r"\bftputil\s*?\.\s*?[A-Za-z]+Error\b")),
-  DeprecatedFeature("Possible use(s) of `FTPHost` class",
-                    re.compile(r"\bFTPHost\b")),
   DeprecatedFeature("Possible use(s) of ftp_error module",
                     re.compile(r"\bftp_error\b")),
   DeprecatedFeature("Possible use(s) of ftp_stat module",
