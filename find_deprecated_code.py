@@ -117,7 +117,9 @@ def print_results():
             for line_number, line in locations[file_name]:
                 print("%5d: %s" % (line_number, line))
     print()
-    print("Please check your code also by other means.")
+    print("===========================================")
+    print("Please check your code also by other means!")
+    print("===========================================")
 
 
 def main(start_dir):
