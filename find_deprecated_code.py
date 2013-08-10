@@ -104,6 +104,7 @@ def print_results():
     for feature in deprecated_features:
         if feature.message != last_message:
             print()
+            print(70 * "-")
             print(feature.message, "...")
             print()
             last_message = feature.message
