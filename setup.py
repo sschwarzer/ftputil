@@ -20,7 +20,10 @@ _version = open("VERSION").read().strip()
 
 
 doc_files = [os.path.join("doc", name)
-             for name in ["ftputil.txt", "ftputil.html", "README.txt"]]
+             for name in ["ftputil.txt", "ftputil.html",
+                          "whats_new_in_ftputil_3.0.txt",
+                          "whats_new_in_ftputil_3.0.html",
+                          "README.txt"]]
 
 doc_files_are_present = all((os.path.exists(doc_file)
                             for doc_file in doc_files))
