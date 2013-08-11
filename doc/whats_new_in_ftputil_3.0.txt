@@ -192,21 +192,6 @@ Porting to ftputil 3.0
 FAQ
 ---
 
-Why don't you use the six_ module to be able to support Python 2.4 and 2.5?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. _six: https://pypi.python.org/pypi/six/
-
-There are two reasons:
-
-- ftputil so far has no dependencies other than the Python standard
-  library, and I think that's a nice feature.
-
-- Although ``six`` makes it easier to support Python 2.4/2.5 and
-  Python 3 at the same time, the resulting code is somewhat ugly. I
-  wanted a code base that feels more like "modern Python"; I wanted to
-  use the Python 3 features backported to Python 2.6 and 2.7.
-
 Why don't you use a "Python 2 API" for Python 2 and a "Python 3 API" for Python 3?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -238,6 +223,21 @@ For these reasons, I `ended up`_ choosing the same API semantics for
 Python 2 and 3.
 
 .. _`ended up`: https://groups.google.com/forum/?fromgroups=#!topic/comp.lang.python/XKof6DpNyH4
+
+Why don't you use the six_ module to be able to support Python 2.4 and 2.5?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. _six: https://pypi.python.org/pypi/six/
+
+There are two reasons:
+
+- ftputil so far has no dependencies other than the Python standard
+  library, and I think that's a nice feature.
+
+- Although ``six`` makes it easier to support Python 2.4/2.5 and
+  Python 3 at the same time, the resulting code is somewhat ugly. I
+  wanted a code base that feels more like "modern Python"; I wanted to
+  use the Python 3 features backported to Python 2.6 and 2.7.
 
 Why don't you use 2to3_ to generate the Python 3 version of ftputil?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
