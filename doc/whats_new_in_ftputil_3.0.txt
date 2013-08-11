@@ -219,7 +219,7 @@ unicode type in Python 3. Similarly, under Python 2 a text file opened
 for writing could accept both byte strings and unicode strings in the
 ``write*`` methods.)
 
-Actually, I had at first planned to implement this but dropped the
+Actually, I had at first thought of implementing this but dropped the
 idea because it has several problems:
 
 - Basically, I would have to support two APIs for the same set of
