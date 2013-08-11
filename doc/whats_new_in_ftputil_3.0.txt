@@ -209,6 +209,8 @@ That said, best practices nowadays are:
   decode it as *soon* as possible when *reading* data. Encode the data
   as *late* as possible when *writing* data.
 
+Yes, I know that's not much more specific.
+
 
 Why don't you use a "Python 2 API" for Python 2 and a "Python 3 API" for Python 3?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
