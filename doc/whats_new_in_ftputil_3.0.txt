@@ -122,6 +122,8 @@ mode, you can still do::
 
     import ftputil.file_transfer
 
+    ...
+
     with FTPHost.open("source.txt", "r", encoding="UTF-8") as source, \
          FTPHost.open("target.txt", "w", encoding="latin1") as target:
         ftputil.file_transfer.copyfileobj(source, target)
@@ -204,8 +206,8 @@ That said, best practices nowadays are:
   3 the ``str`` type.
 
 - Whenever you deal with binary data which is actually character data,
-  decode it as *soon* as possible when reading data. Encode the data
-  as *late* as possible when writing data.
+  decode it as *soon* as possible when *reading* data. Encode the data
+  as *late* as possible when *writing* data.
 
 
 Why don't you use a "Python 2 API" for Python 2 and a "Python 3 API" for Python 3?
