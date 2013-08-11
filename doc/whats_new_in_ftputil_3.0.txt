@@ -226,7 +226,7 @@ idea because it has several problems:
   methods. I can imagine that some things can be simplified by just
   using ``str`` to convert to the "right" string type automatically,
   but I assume these opportunities would be rather the exception than
-  the rule. I'd expect a maintenance nightmare.
+  the rule. I'd certainly not look forward to maintaining such code.
 
 - Using two different APIs might require people to change their code
   if they move from using ftputil 3.x in Python 2 to using it in
