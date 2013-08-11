@@ -192,6 +192,22 @@ Porting to ftputil 3.0
 FAQ
 ---
 
+The advice to "adapt code to the new string types" is rather vague. Can't you be more specific?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It's difficult to be more specific without knowing your application.
+
+That said, best practices nowadays are:
+
+- If you're dealing with character data, use unicode strings whenever
+  possible. In Python 2, this means the ``unicode`` type and in Python
+  3 the ``str`` type.
+
+- Whenever you deal with binary data which is actually character data,
+  decode it as *soon* as possible when reading data. Encode the data
+  as *late* as possible when writing data.
+
+
 Why don't you use a "Python 2 API" for Python 2 and a "Python 3 API" for Python 3?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
