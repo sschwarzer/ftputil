@@ -143,7 +143,7 @@ line for each directory entry in the methods ``ignores_line`` and
 ``parse_line``. In previous ftputil versions, the ``line`` arguments
 were byte strings; now they're unicode strings.
 
-.. _documentation: http://ftputil.sschwarzer.net/documentation
+.. _documentation: http://ftputil.sschwarzer.net/documentation#writing-directory-parsers
 
 If you aren't sure what this is about, this may help: If you never
 used the ``FTPHost.set_parser`` method, you can ignore this section.
@@ -154,47 +154,39 @@ Porting to ftputil 3.0
 ----------------------
 
 - It's likely that you catch an ftputil exception here and there.
-  In that case, you need to change
-
-  ``import ftputil.ftp_error``
-
-  to
-
-  ``import ftputil.error``
+  In that case, you need to change ``import ftputil.ftp_error``
+  to ``import ftputil.error`` and modify the uses of the module
+  accordingly. If you used ``from ftputil import ftp_error``, you can
+  change this to ``from ftputil import error as ftp_error`` without
+  changing the code using the module.
 
 - If you use the download or upload methods, you need to remove
   the ``mode`` argument from the call. If you used something
-  else than ``"b"`` for binary mode, which I assume to be unlikely,
+  else than ``"b"`` for binary mode (which I assume to be unlikely),
   you'll need to adapt the code that calls the download or upload
   methods.
 
-- If you use custom parsers, you'll need to change
-
-  ``import ftputil.ftp_stat``
-
-  to
-
-  ``import ftputil.stat``
-
-  Moreover, you might need to change your ``ignores_line`` or
-  ``parse_line`` calls if they rely on their ``line`` argument being a
-  byte string.
+- If you use custom parsers, you'll need to change ``import
+  ftputil.ftp_stat`` to ``import ftputil.stat`` and adapt your code in
+  the module. Moreover, you might need to change your ``ignores_line``
+  or ``parse_line`` calls if they rely on their ``line`` argument
+  being a byte string.
 
 - If you use remote files, especially ones opened in text mode, you
   may need to change your code to adapt to the changes in newline
-  conversion, encoding and string type (see above sections).
+  conversion, encoding and/or string type (see above sections).
 
 .. Note::
 
     In the root directory of the installed ftputil package is a script
     ``find_invalid_code.py`` which, given a start directory as
     argument, will scan that directory tree for code that may need to
-    be fixed. Note that this script uses very simple heuristics, so it
+    be fixed. However, this script uses very simple heuristics, so it
     may miss some problematic code or list perfectly valid code.
 
-    You may want to change the regular expression string
-    ``HOST_REGEX`` for the names you usually use for ``FTPHost``
-    objects.
+    In particular, you may want to change the regular expression
+    string ``HOST_REGEX`` for the names you usually use for
+    ``FTPHost`` objects.
 
 
 FAQ
