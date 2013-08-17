@@ -28,19 +28,16 @@ Examples::
     import ftputil
 
     # Download some files from the login directory.
-    host = ftputil.FTPHost("ftp.domain.com", "user", "password")
-    names = host.listdir(host.curdir)
-    for name in names:
-        if host.path.isfile(name):
-            host.download(name, name, "b")  # remote, local, binary mode
-
-    # Make a new directory and copy a remote file into it.
-    host.mkdir("newdir")
-    source = host.open("index.html", "r")         # file-like object
-    target = host.open("newdir/index.html", "w")  # file-like object
-    host.copyfileobj(source, target)  # similar to shutil.copyfileobj
-    source.close()
-    target.close()
+    with ftputil.FTPHost("ftp.domain.com", "user", "password") as host:
+        names = host.listdir(host.curdir)
+        for name in names:
+            if host.path.isfile(name):
+                host.download(name, name)  # remote, local
+        # Make a new directory and copy a remote file into it.
+        host.mkdir("newdir")
+        with host.open("index.html", "rb") as source:
+            with host.open("newdir/index.html", "wb") as target:
+                host.copyfileobj(source, target)  # similar to shutil.copyfileobj
 
 Also, there are `FTPHost.lstat`_ and `FTPHost.stat`_ to request size and
 modification time of a file. The latter can also follow links, similar
@@ -293,13 +290,15 @@ class::
     EXAMPLE_PORT = 50001
 
     class MySession(ftplib.FTP):
+
         def __init__(self, host, userid, password, port):
             """Act like ftplib.FTP's constructor but connect to another port."""
             ftplib.FTP.__init__(self)
             self.connect(host, port)
             self.login(userid, password)
 
-    # Try not to use MySession() as factory, - use the class itself.
+    # Try _not_ to use an instance `MySession()` as factory, -
+    # use the class itself.
     host = ftputil.FTPHost(host, userid, password,
                            port=EXAMPLE_PORT, session_factory=MySession)
     # Use `host` as usual.
