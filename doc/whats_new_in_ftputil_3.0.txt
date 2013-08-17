@@ -8,17 +8,6 @@ What's new in ftputil 3.0?
 .. contents::
 
 
-Summary
--------
-
-ftputil 3.0 adds support for Python 3. To make it easier to have
-the same API for Python 2 and 3, I changed some of them.
-
-At this occasion, I cleaned up a few things, similar to the move
-from Python 2 to Python 3, so you might need to adapt your code
-to be able to run it with ftputil 3.0.
-
-
 Support for Python 3
 --------------------
 
