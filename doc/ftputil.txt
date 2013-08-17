@@ -1366,7 +1366,7 @@ Please send an email with your problem report or question to the
 Bugs and limitations
 --------------------
 
-- ``ftputil`` needs at least Python 2.4 to work.
+- ``ftputil`` needs at least Python 2.6 to work.
 
 - Whether ``ftputil`` "sees" "hidden" directory and file names (i. e.
   names starting with a dot) depends on the configuration of the FTP
