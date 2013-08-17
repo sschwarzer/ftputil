@@ -36,8 +36,8 @@ Examples::
 
     # Make a new directory and copy a remote file into it.
     host.mkdir('newdir')
-    source = host.file('index.html', 'r')         # file-like object
-    target = host.file('newdir/index.html', 'w')  # file-like object
+    source = host.open('index.html', 'r')         # file-like object
+    target = host.open('newdir/index.html', 'w')  # file-like object
     host.copyfileobj(source, target)  # similar to shutil.copyfileobj
     source.close()
     target.close()
@@ -74,7 +74,7 @@ to `os.stat`_. `FTPHost.walk`_ and `FTPHost.path.walk`_ work, too.
   network access (also applies to ``exists``, ``getmtime`` etc.).
 
 * Read files from and write files to remote hosts via
-  file-like objects (``FTPHost.file``; the generated file-like objects
+  file-like objects (``FTPHost.open``; the generated file-like objects
   have many common methods like ``read``, ``readline``, ``readlines``,
   ``write``, ``writelines``, ``close`` and can do automatic line
   ending conversions on the fly, i. e. text/binary mode).
@@ -178,7 +178,7 @@ and are described here:
 
   denotes an I/O error on the remote host. This appears
   mainly with file-like objects which are retrieved by invoking
-  ``FTPHost.file`` (``FTPHost.open`` is an alias). Compare
+  ``FTPHost.open``. Compare
 
   ::
 
@@ -1006,20 +1006,16 @@ Construction
 Basics
 ``````
 
-``FTPFile`` objects are returned by a call to ``FTPHost.file`` or
+``FTPFile`` objects are returned by a call to ``FTPHost.open`` or
 ``FTPHost.open``, never use the constructor directly.
 
-- ``FTPHost.file(path, mode='r')``
+- ``FTPHost.open(path, mode='r')``
 
   returns a file-like object that refers to the path on the remote
   host. This path may be absolute or relative to the current directory
   on the remote host (this directory can be determined with the getcwd
   method). As with local file objects the default mode is "r", i. e.
   reading text files. Valid modes are "r", "rb", "w", and "wb".
-
-- ``FTPHost.open(path, mode='r')``
-
-  is an alias for ``file`` (see above).
 
 Support for the ``with`` statement
 ``````````````````````````````````
@@ -1036,7 +1032,7 @@ constructor::
     # Get an ``FTPHost`` object from somewhere.
     ...
 
-    with host.file("new_file", "w") as f:
+    with host.open("new_file", "w") as f:
         f.write("This is some text.")
 
 At the end of the ``with`` block, the file will be closed
@@ -1068,7 +1064,7 @@ supported as well, i. e. you can use a loop to read a file line by
 line::
 
     host = ftputil.FTPHost(...)
-    input_file = host.file("some_file")
+    input_file = host.open("some_file")
     for line in input_file:
         # Do something with the line, e. g.
         print line.strip().replace("ftplib", "ftputil")
