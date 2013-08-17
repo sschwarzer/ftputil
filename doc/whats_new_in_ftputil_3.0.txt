@@ -88,8 +88,6 @@ same lines, files opened in text mode will give you unicode strings
 when read, and require unicode strings to be passed to write
 operations.
 
-Table?
-
 
 Module and method name changes
 ------------------------------
