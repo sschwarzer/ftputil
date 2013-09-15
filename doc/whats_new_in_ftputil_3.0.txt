@@ -8,8 +8,8 @@ What's new in ftputil 3.0?
 .. contents::
 
 
-Support for Python 3
---------------------
+Added support for Python 3
+--------------------------
 
 This ftputil release adds support for Python 3.0 and up.
 
@@ -57,12 +57,12 @@ Newlines and encoding of remote file content
 --------------------------------------------
 
 Traditionally, "text mode" for FTP transfers meant translation to
-``\r\n`` newlines, even for transfers from a Unix client to a Unix
-server. Since this presumably most of the time is neither the expected
-nor the desired behavior, the ``FTPHost.open`` method now has the
-API and semantics of the built-in ``open`` function in Python 3. If
-you want the same API for *local* files in Python 2.6 and 2.7, you
-can use the ``open`` function from the ``io`` module.
+``\r\n`` newlines, even between transfers of Unix clients and Unix
+servers. Since this presumably most of the time is neither the expected
+nor the desired behavior, the ``FTPHost.open`` method now has the API
+and semantics of the built-in ``open`` function in Python 3. If you
+want the same API for *local* files in Python 2.6 and 2.7, you can use
+the ``open`` function from the ``io`` module.
 
 Thus, when opening remote files in *binary* mode, the new API does
 *not* accept an encoding argument. On the other hand, opening a file
@@ -94,8 +94,8 @@ are no longer ``file`` instances. Along the same lines, ftputil 3.0
 also drops the ``FTPHost.file`` alias and requires ``FTPHost.open``.
 
 
-Uploads and downloads are always binary
----------------------------------------
+Upload and download modes
+-------------------------
 
 The ``FTPHost`` methods for downloading and uploading files
 (``download``, ``download_if_newer``, ``upload`` and
@@ -115,7 +115,7 @@ mode, you can still do::
          FTPHost.open("target.txt", "w", encoding="latin1") as target:
         ftputil.file_transfer.copyfileobj(source, target)
 
-Note that it's not possibly anymore to open one file in binary
+Note that it's not possible anymore to open one file in binary
 mode and the other file in text mode and transfer data between
 them with ``copyfileobj``. For example, opening the source in
 binary mode will read byte strings, but a target file opened in
@@ -254,7 +254,7 @@ Why don't you use 2to3_ to generate the Python 3 version of ftputil?
 I had considered this when I started adapting the ftputil source code
 for Python 3. On the other hand, although using 2to3 used to be the
 recommended approach for Python 3 support, even `rather large
-projects`_ have chose the route of having one code base and using it
+projects`_ have chosen the route of having one code base and using it
 unmodified for Python 2 and 3.
 
 .. _`rather large projects`: https://docs.djangoproject.com/en/dev/topics/python3/
