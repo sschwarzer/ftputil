@@ -1421,7 +1421,7 @@ References
 
 - Postel J, Reynolds J. 1985. `RFC 959 - File Transfer Protocol (FTP)`_.
 
-- Van Rossum G, Drake Jr FL. 2003. `Python Library Reference`_.
+- Van Rossum G et al. 2013. `Python Library Reference`_.
 
 .. _`Endo-Testing: Unit Testing with Mock Objects`:
    http://www.connextra.com/aboutUs/mockobjects.pdf
