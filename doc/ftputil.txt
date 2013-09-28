@@ -940,7 +940,7 @@ Other methods
   ``shutil.copyfileobj`` is the default buffer size. Note that
   arbitrary file-like objects can be used as arguments (e. g. local
   files, remote FTP files).
-  
+
   However, the interfaces of ``source`` and ``target`` have to match;
   the string type read from ``source`` must be an accepted string type
   when written to ``target``. For example, if you open ``source`` in
@@ -1006,16 +1006,46 @@ Construction
 Basics
 ``````
 
-``FTPFile`` objects are returned by a call to ``FTPHost.open`` or
-``FTPHost.open``, never use the constructor directly.
+``FTPFile`` objects are returned by a call to ``FTPHost.open``;
+never use the constructor directly.
 
-- ``FTPHost.open(path, mode="r")``
+The API of remote file-like objects are is modeled after the API of
+the io_ module in Python 3, which has also been backported to Python
+2.6 and 2.7.
+
+.. _io: http://docs.python.org/library/io.html
+
+- ``FTPHost.open(path, mode="r", buffering=None, encoding=None,
+  errors=None, newline=None)``
 
   returns a file-like object that refers to the path on the remote
   host. This path may be absolute or relative to the current directory
-  on the remote host (this directory can be determined with the getcwd
-  method). As with local file objects the default mode is "r", i. e.
-  reading text files. Valid modes are "r", "rb", "w", and "wb".
+  on the remote host (this directory can be determined with the
+  ``getcwd`` method). As with local file objects, the default mode is
+  "r", i. e. reading text files. Valid modes are "r", "rb", "w", and
+  "wb".
+
+  If a file is opened in binary mode, you *must not* specify an
+  encoding. On the other hand, if you open a file in text mode, an
+  encoding is used. By default, this is the return value of
+  ``locale.getpreferredencoding``, but you can (and probably should)
+  specify a distinct encoding.
+
+  If you open a file in binary mode, the read and write operations use
+  byte strings (``str`` in Python 2, ``bytes`` in Python 3). That is,
+  read operations return byte strings and write operations only accept
+  byte strings.
+
+  Similarly, text files always work with unicode strings (``unicode``
+  in Python 2, ``str`` in Python 3). Here, read operations return
+  unicode strings and write operations only accept unicode strings.
+
+  The arguments ``errors`` and ``newline`` have the same semantics as
+  in `io.open`_. The argument ``buffering`` currently is ignored.
+  It's only there for compatibility with the ``io.open`` interface.
+
+.. _`io.open`: http://docs.python.org/library/io.html#io.open
+
 
 Support for the ``with`` statement
 ``````````````````````````````````
@@ -1027,8 +1057,8 @@ Support for the ``with`` statement
     # Get an ``FTPHost`` object.
     ...
 
-    with host.open("new_file", "w") as f:
-        f.write("This is some text.")
+    with host.open("new_file", "w") as fobj:
+        fobj.write("This is some text.")
 
 At the end of the ``with`` block, the file will be closed
 automatically.
@@ -1056,20 +1086,16 @@ objects of a local disk file system. The iterator protocol is
 supported as well, i. e. you can use a loop to read a file line by
 line::
 
-    host = ftputil.FTPHost(...)
-    input_file = host.open("some_file")
-    for line in input_file:
-        # Do something with the line, e. g.
-        print line.strip().replace("ftplib", "ftputil")
-    input_file.close()
+    with ftputil.FTPHost(...) as host:
+        with host.open("some_file") as input_file:
+            for line in input_file:
+                # Do something with the line, e. g.
+                print line.strip().replace("ftplib", "ftputil")
 
 For more on file objects, see the section `File objects`_ in the
 Python Library Reference.
 
 .. _`file objects`: http://www.python.org/doc/current/lib/bltin-file-objects.html
-
-Note that ``ftputil`` supports both binary mode and text mode with the
-appropriate line ending conversions.
 
 
 Writing directory parsers
