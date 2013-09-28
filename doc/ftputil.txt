@@ -238,6 +238,25 @@ and are described here:
   hour.
 
 
+Directory and file names
+------------------------
+
+Methods that take names of directories and files can take either byte
+strings (``str`` on Python 2, ``bytes`` on Python 3) or unicode
+strings (``unicode`` on Python 2, ``str`` on Python 3).
+
+Byte strings will be sent to the FTP server as-is. Unicode strings
+will be encoded with the encoding returned from
+``locale.getpreferredencoding``. This is the same semantics as for
+locally used names in Python 3.
+
+Methods that take and return a directory or file name will return the
+same string type as they're given. For example, if the argument to
+``FTPHost.path.abspath`` is a byte string, you'll get a byte string
+back. This behavior is the same as for the local file system API in
+Python 2 and 3.
+
+
 ``FTPHost`` objects
 -------------------
 
