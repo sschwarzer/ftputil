@@ -174,14 +174,14 @@ and are described here:
 - ``FTPIOError``
 
   denotes an I/O error on the remote host. This appears
-  mainly with file-like objects which are retrieved by invoking
+  mainly with file-like objects that are retrieved by calling
   ``FTPHost.open``. Compare
 
   ::
 
     >>> try:
     ...     f = open("not_there")
-    ... except IOError, obj:
+    ... except IOError as obj:
     ...     print obj.errno
     ...     print obj.strerror
     ...
@@ -195,7 +195,7 @@ and are described here:
     >>> host = ftputil.FTPHost("host", "user", "password")
     >>> try:
     ...     f = host.open("not_there")
-    ... except IOError, obj:
+    ... except IOError as obj:
     ...     print obj.errno
     ...     print obj.strerror
     ...
