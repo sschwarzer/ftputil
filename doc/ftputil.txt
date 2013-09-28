@@ -212,14 +212,9 @@ and are described here:
 
 - ``InaccessibleLoginDirError``
 
-  This exception is only raised if *both* of the following conditions
-  are met:
-
-  - The directory in which "you" are placed upon login is not
-    accessible, i. e. a ``chdir`` call with the directory as
-    argument would fail.
-
-  - You try to access a path which contains whitespace.
+  This exception is raised if the directory in which "you" are placed
+  upon login is not accessible, i. e. a ``chdir`` call with the
+  directory as argument would fail.
 
 - ``ParserError``
 
