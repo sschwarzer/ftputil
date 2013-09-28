@@ -1230,11 +1230,11 @@ Where can I get the latest version?
 
 See the `download page`_. Announcements will be sent to the `mailing
 list`_. Announcements on major updates will also be posted to the
-newsgroup `comp.lang.python`_ .
+newsgroup `comp.lang.python.announce`_ .
 
 .. _`download page`: http://ftputil.sschwarzer.net/download
 .. _`mailing list`: http://ftputil.sschwarzer.net/mailinglist
-.. _`comp.lang.python`: news:comp.lang.python
+.. _`comp.lang.python.announce`: news:comp.lang.python.announce
 
 Is there a mailing list on ``ftputil``?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1243,7 +1243,7 @@ Yes, please visit http://ftputil.sschwarzer.net/mailinglist to
 subscribe or read the archives.
 
 Though you can *technically* post without subscribing first I can't
-recommend that: The mails from non-subscribers have to be approved by
+recommend it: The mails from non-subscribers have to be approved by
 me and because the arriving mails contain *lots* of spam, I rarely go
 through these mails.
 
@@ -1296,8 +1296,8 @@ factory" in ``ftputil.FTPHost``'s constructor::
                            session_factory=SSLFTPSession)
     # Use `host` as usual.
 
-If you work with Python 2.7 or the upcoming 3.2 release, you can use a
-similar recipe with the new class ``FTP_TLS`` in the ``ftplib``
+If you work with Python 2.7 or 3.2 and later, you can use a
+similar recipe with the class ``FTP_TLS`` in the ``ftplib``
 module. Note that you need to call ``prot_p`` on the ``FTP_TLS``
 instance to actually use a secure transfer. This makes it still
 necessary to define a session class similar to the one above.
@@ -1311,31 +1311,12 @@ By default, an instantiated ``FTPHost`` object connects on the usual
 FTP ports. If you have to use a different port, refer to the
 section `FTPHost construction`_.
 
-You can use the same approach to connect in active or passive mode, as
-you like.
+You can use the same approach to connect in active or passive mode.
 
-How to switch between active and passive connections?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+How do I set active or passive mode?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Use a wrapper class for ``ftplib.FTP``, as described in section
-`FTPHost construction`_::
-
-    import ftplib
-
-    class ActiveFTPSession(ftplib.FTP):
-        def __init__(self, host, userid, password):
-            """
-            Act like ftplib.FTP's constructor but use active mode
-            explicitly.
-            """
-            ftplib.FTP.__init__(self)
-            self.connect(host, port)
-            self.login(userid, password)
-            # See http://docs.python.org/lib/ftp-objects.html
-            self.set_pasv(False)
-
-Use this class as the ``session_factory`` argument in ``FTPHost``'s
-constructor.
+See the previous question and answer.
 
 How can I debug an FTP connection problem?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1362,21 +1343,12 @@ server is in a different time zone than the client on which
 ``ftputil`` runs. Please see the section on `time zone correction`_.
 It may even be sufficient to call `synchronize_times`_.
 
-I tried to upload or download a file and it's corrupt
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Perhaps you used the upload or download methods without a ``mode``
-argument. For compatibility with Python's code for local file systems,
-``ftputil`` defaults to ASCII/text mode which will try to convert
-presumable line endings and thus corrupt binary files. Pass "b" as the
-``mode`` argument (see `Uploading and downloading files`_).
-
 When I use ``ftputil``, all I get is a ``ParserError`` exception
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The FTP server you connect to may use a directory format that
 ``ftputil`` doesn't understand. You can either write and
-`plug in an own parser`_, or preferably ask on the `mailing list`_ for
+`plug in an own parser`_ or ask on the `mailing list`_ for
 help.
 
 .. _`plug in an own parser`: `Writing directory parsers`_
@@ -1418,17 +1390,13 @@ Bugs and limitations
   ``FTPHost`` instances as long as no instance is shared with other
   threads.
 
-- ``FTPFile`` objects in text mode *may not* support charsets with
-  more than one byte per character. Please e-mail your experiences to
-  the mailing list (see above), if you work with multibyte text
-  streams in FTP sessions.
-
 - Currently, it is not possible to continue an interrupted upload or
   download. Contact me if this causes problems for you.
 
-- There's exactly one cache for lstat results for each ``FTPHost``
+- There's exactly one cache for ``lstat`` results for each ``FTPHost``
   object, i. e. there's no sharing of cache results determined by
-  several ``FTPHost`` objects.
+  several ``FTPHost`` objects. See `Local caching of file system
+  information`_ for the reasons.
 
 
 Files
