@@ -1403,8 +1403,9 @@ Files
 -----
 
 If not overwritten via installation options, the ``ftputil`` files
-reside in the ``ftputil`` package. The documentation in
-`reStructuredText`_ and in HTML format is in the same directory.
+reside in the ``ftputil`` package. There's also documentation in
+`reStructuredText`_ and in HTML format. The locations of these
+files after installation is system-dependent.
 
 .. _`reStructuredText`: http://docutils.sourceforge.net/rst.html
 
