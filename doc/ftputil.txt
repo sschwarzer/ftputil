@@ -734,7 +734,7 @@ after calling
 the cache can be accessed as ``host.stat_cache``.
 
 While ``ftputil`` usually manages the cache quite well, there are two
-possible reasons that may suggest modifying cache parameters.
+possible reasons for modifying cache parameters.
 
 The first is when the number of possible entries is too low. You may
 notice that when you are processing very large directories and the
@@ -771,30 +771,28 @@ the remote server changes after a stat result has been retrieved; the
 client, when looking at the cached stat data, will use obsolete
 information.
 
-There are two ways to get such out-of-date stat data. The first
-happens when an ``FTPHost`` instance modifies a file path for which it
-has a cache entry, e. g. by calling ``remove`` or ``rmdir``. Such
-changes are handled transparently; the path will be deleted from the
-cache. A different matter are changes unknown to the ``FTPHost``
+There are two potential ways to get such out-of-date stat data. The
+first happens when an ``FTPHost`` instance modifies a file path for
+which it has a cache entry, e. g. by calling ``remove`` or ``rmdir``.
+Such changes are handled transparently; the path will be deleted from
+the cache. A different matter are changes unknown to the ``FTPHost``
 object which inspects its cache. Obviously, for example, these are
 changes by programs running on the remote host. On the other hand,
 cache inconsistencies can also occur if two ``FTPHost`` objects change
 a file system simultaneously::
 
-    host1 = ftputil.FTPHost(server, user1, password1)
-    host2 = ftputil.FTPHost(server, user1, password1)
-    try:
+    with (
+      ftputil.FTPHost(server, user1, password1) as host1,
+      ftputil.FTPHost(server, user1, password1) as host2
+    ):
         stat_result1 = host1.stat("some_file")
         stat_result2 = host2.stat("some_file")
         host2.remove("some_file")
         # `host1` will still see the obsolete cache entry!
         print host1.stat("some_file")
         # Will raise an exception since an `FTPHost` object
-        #  knows of its own changes.
+        # knows of its own changes.
         print host2.stat("some_file")
-    finally:
-        host1.close()
-        host2.close()
 
 At first sight, it may appear to be a good idea to have a shared cache
 among several ``FTPHost`` objects. After some thinking, this turns out
@@ -805,24 +803,22 @@ write/read accesses to a server, you have to handle them explicitly.
 The most useful tool for this is the ``invalidate`` method. In the
 example above, it could be used like this::
 
-    host1 = ftputil.FTPHost(server, user1, password1)
-    host2 = ftputil.FTPHost(server, user1, password1)
-    try:
+    with (
+      ftputil.FTPHost(server, user1, password1) as host1,
+      ftputil.FTPHost(server, user1, password1) as host2
+    ):
         stat_result1 = host1.stat("some_file")
         stat_result2 = host2.stat("some_file")
         host2.remove("some_file")
         # Invalidate using an absolute path.
         absolute_path = host1.path.abspath(
-                        host1.path.join(host1.curdir, "some_file"))
+                          host1.path.join(host1.getcwd(), "some_file"))
         host1.stat_cache.invalidate(absolute_path)
-        # Will now raise an exception as it should
+        # Will now raise an exception as it should.
         print host1.stat("some_file")
         # Would raise an exception since an `FTPHost` object
-        #  knows of its own changes, even without `invalidate`
+        # knows of its own changes, even without `invalidate`.
         print host2.stat("some_file")
-    finally:
-        host1.close()
-        host2.close()
 
 The method ``invalidate`` can be used on any *absolute* path, be it a
 directory, a file or a link.
@@ -892,8 +888,8 @@ Other methods
 - ``close()``
 
   closes the connection to the remote host. After this, no more
-  interaction with the FTP server is possible without using a new
-  ``FTPHost`` object.
+  interaction with the FTP server is possible with this ``FTPHost``
+  object.
 
 - ``rename(source, target)``
 
@@ -910,9 +906,7 @@ Other methods
   for the owner, but not writable for the group and others. If you
   want to use such octal values, rely on Python's support for them::
 
-    host.chmod("some_directory", 0755)
-
-  *Note the leading zero.*
+    host.chmod("some_directory", 0o755)
 
   Not all FTP servers support the ``chmod`` command. In case of
   an exception, how do you know if the path doesn't exist or if
@@ -926,7 +920,7 @@ Other methods
 
     host = ftputil.FTPHost(server, user, password)
     try:
-        host.chmod("some_file", 0644)
+        host.chmod("some_file", 0o644)
     except ftputil.error.CommandNotImplementedError:
         # `chmod` not supported
         ...
@@ -941,12 +935,21 @@ Other methods
 
 - ``copyfileobj(source, target, length=64*1024)``
 
-  copies the contents from the file-like object source to the
-  file-like object target. The only difference to
+  copies the contents from the file-like object ``source`` to the
+  file-like object ``target``. The only difference to
   ``shutil.copyfileobj`` is the default buffer size. Note that
   arbitrary file-like objects can be used as arguments (e. g. local
-  files, remote FTP files). See `File-like objects`_ for construction
-  and use of remote file-like objects.
+  files, remote FTP files).
+  
+  However, the interfaces of ``source`` and ``target`` have to match;
+  the string type read from ``source`` must be an accepted string type
+  when written to ``target``. For example, if you open ``source`` in
+  Python 3 as a local text file and ``target`` as a remote file object
+  in binary mode, the transfer will fail since ``source.read`` gives
+  unicode strings whereas ``target.write`` only accepts byte strings.
+
+  See `File-like objects`_ for the construction and use of remote
+  file-like objects.
 
 .. _`set_parser`:
 
@@ -956,9 +959,7 @@ Other methods
   in a parser *instance*, not the class.
 
   An `extra section`_ shows how to write own parsers if the default
-  parsers in ``ftputil`` don't work for you. Possibly you are lucky
-  and someone has already written a parser you can use. Please ask on
-  the `mailing list`_.
+  parsers in ``ftputil`` don't work for you.
 
 .. _`extra section`: `Writing directory parsers`_
 
@@ -980,21 +981,20 @@ Other methods
   a timeout for a reason. A timeout prevents running out of server
   connections because of clients that never disconnect on their own.
 
-  Note that the ``keep_alive`` method does not affect the "hidden" FTP
-  connections established by ``FTPHost.open``. You *can't* use
-  ``keep_alive`` to avoid a timeout in a stalling transfer like
-  this::
+  Note that the ``keep_alive`` method does *not* affect the "hidden"
+  FTP connections established by ``FTPHost.open`` (see below). You
+  *can't* use ``keep_alive`` to avoid a timeout in a stalling transfer
+  like this::
 
-      host = ftputil.FTPHost(server, userid, password)
-      fobj = host.open("some_remote_file", "rb")
-      data = fobj.read(100)
-      # _Futile_ attempt to avoid file connection timeout
-      for i in xrange(15):
-          time.sleep(60)
-          host.keep_alive()
-      # Will raise an `ftputil.error.TemporaryError`
-      data += fobj.read()
-      fobj.close()
+      with ftputil.FTPHost(server, userid, password) as host:
+          fobj = host.open("some_remote_file", "rb")
+          data = fobj.read(100)
+          # _Futile_ attempt to avoid file connection timeout.
+          for i in xrange(15):
+              time.sleep(60)
+              host.keep_alive()
+          # Will raise an `ftputil.error.TemporaryError`.
+          data += fobj.read()
 
 
 File-like objects
