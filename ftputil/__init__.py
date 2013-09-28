@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2013, Stefan Schwarzer
+# Copyright (C) 2002-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 """
