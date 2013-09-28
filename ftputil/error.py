@@ -14,7 +14,6 @@ ftputil.error - exception classes and wrappers
 from __future__ import unicode_literals
 
 import ftplib
-import sys
 
 import ftputil.version
 
