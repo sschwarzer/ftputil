@@ -1046,6 +1046,12 @@ the io_ module in Python 3, which has also been backported to Python
 
 .. _`io.open`: http://docs.python.org/library/io.html#io.open
 
+Note that the semantics of "text mode" has changed fundamentally from
+ftputil 2.8 and earlier. Previously, "text mode" implied converting
+newline characters to ``\r\n`` when writing remote files and
+converting newlines to ``\n`` when reading remote files. This is
+in line with the "text mode" notion of FTP command line clients.
+Now, "text mode" follows the semantics in Python's ``io`` module.
 
 Support for the ``with`` statement
 ``````````````````````````````````
