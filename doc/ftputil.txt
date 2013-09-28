@@ -1101,11 +1101,13 @@ Python Library Reference.
 Writing directory parsers
 -------------------------
 
-``ftputil`` recognizes the two most widely-used FTP directory formats
-(Unix and MS style) and adjusts itself automatically. However, if your
-server uses a format which is different from the two provided by
-``ftputil``, you can plug in a custom parser and have it used by
-a single method call.
+``ftputil`` recognizes the two most widely-used FTP directory formats,
+Unix and MS style, and adjusts itself automatically. Almost every FTP
+server uses one of these formats.
+
+However, if your server uses a format which is different from the two
+provided by ``ftputil``, you can plug in a custom parser with a single
+method call and have ``ftputil`` use this parser.
 
 For this, you need to write a parser class by inheriting from the
 class ``Parser`` in the ``ftputil.stat`` module. Here's an example::
@@ -1118,6 +1120,7 @@ class ``Parser`` in the ``ftputil.stat`` module. Here's an example::
         Parse the default format of the FTP server of the XYZ
         corporation.
         """
+
         def parse_line(self, line, time_shift=0.0):
             """
             Parse a `line` from the directory listing and return a
@@ -1129,7 +1132,7 @@ class ``Parser`` in the ``ftputil.stat`` module. Here's an example::
             `ftputil.stat.UnixParser` for an example.
             """
             # Split the `line` argument and examine it further; if
-            #  something goes wrong, raise an `ftputil.error.ParserError`.
+            # something goes wrong, raise an `ftputil.error.ParserError`.
             ...
             # Make a `StatResult` object from the parts above.
             stat_result = ftputil.stat.StatResult(...)
@@ -1140,7 +1143,7 @@ class ``Parser`` in the ``ftputil.stat`` module. Here's an example::
             return stat_result
 
         # Define `ignores_line` only if the default in the base class
-        #  doesn't do enough!
+        # doesn't do enough!
         def ignores_line(self, line):
             """
             Return a true value if the line should be ignored. For
@@ -1158,8 +1161,8 @@ A ``StatResult`` object is similar to the value returned by
 ::
 
     stat_result = StatResult(
-                  (st_mode, st_ino, st_dev, st_nlink, st_uid,
-                   st_gid, st_size, st_atime, st_mtime, st_ctime) )
+                    (st_mode, st_ino, st_dev, st_nlink, st_uid,
+                     st_gid, st_size, st_atime, st_mtime, st_ctime))
     stat_result._st_name = ...
     stat_result._st_target = ...
     stat_result._st_mtime_precision = ...
@@ -1194,7 +1197,7 @@ Parser classes can use several helper methods which are defined in
 the class ``Parser``:
 
 - ``parse_unix_mode`` parses strings like "drwxr-xr-x" and returns
-  an appropriate ``st_mode`` value.
+  an appropriate ``st_mode`` integer value.
 
 - ``parse_unix_time`` returns a float number usable for the
   ``st_...time`` values by parsing arguments like "Nov"/"23"/"02:33" or
@@ -1216,7 +1219,7 @@ To actually *use* the parser, call the method `set_parser`_ of the
 
 If you can't write a parser or don't want to, please ask on the
 `ftputil mailing list`_. Possibly someone has already written a parser
-for your server or can help to do it.
+for your server or can help with it.
 
 
 FAQ / Tips and tricks
