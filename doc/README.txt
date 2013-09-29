@@ -15,28 +15,34 @@ in different timezones.
 What's new?
 -----------
 
-Since version 2.7.1 the following changed:
+Note: This version of ftputil is _not_ backward-compatible
+with earlier versions. See the links below for information
+on adapting existing client code.
 
-- After some discussion [1] I decided to remove the auto-probing
-  before using the `-a` option for `LIST` [2] to find "hidden" files
-  and directories. The option is used by default now, without probing
-  for exceptions. If this new approach causes problems, you can use
+Since version 2.8 the following changed:
 
-    ftp_host = ftputil.FTPHost(...)
-    ftp_host.use_list_a_option = False
+- This version adds Python 3 compatibility! :-)
 
-- Several bugs were fixed. [3]
+  The same source is used for Python 2.x and Python 3.x.
 
-- The mailing lists have moved to
+  I had to change the API to find a good compromise for
+  both Python versions. This means this version is _not_
+  backward-compatible with earlier ftputil versions.
 
-    ftputil@lists.sschwarzer.net
-    ftputil-tickets@lists.sschwarzer.net
+- ftputil now requires at least Python 2.6.
 
-  The ftputil list [4] requires a subscription before you can post.
-  The ftputil-tickets list [5] is read-only anyway.
+- Remote file-like objects use the same semantics as Python's
+  `io` module. (This is the same as for the built-in `open`
+  function in Python 3.)
 
-  Thanks to Codespeak.net for having hosted the lists for almost
-  ten years. :-)
+- `ftputil.ftp_error` was renamed to `ftputil.error`.
+
+- For custom parsers, import `ftputil.parser` instead of
+  `ftputil.stat`.
+
+For more information please read
+http://ftputil.sschwarzer.net/trac/wiki/WhatsNewInFtputil3.0
+http://ftputil.sschwarzer.net/trac/wiki/PreReleaseDocumentation
 
 Documentation
 -------------
@@ -48,7 +54,7 @@ ftputil.txt).
 Prerequisites
 -------------
 
-To use ftputil, you need Python, at least version 2.4. Python is a
+To use ftputil, you need Python, at least version 2.6. Python is a
 programming language, available from http://www.python.org for free.
 
 Installation
