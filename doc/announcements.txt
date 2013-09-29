@@ -1,3 +1,55 @@
+ftputil 3.0a1 is now available from
+http://ftputil.sschwarzer.net/download .
+
+Changes since version 2.8
+-------------------------
+
+Note: This version of ftputil is _not_ backward-compatible
+with earlier versions.See the links below for information
+on adapting existing client code.
+
+- This version adds Python 3 compatibility! :-)
+
+  The same source is used for Python 2.x and Python 3.x.
+
+  I had to change the API to find a good compromise for
+  both Python versions.
+
+- ftputil now requires at least Python 2.6.
+
+- Remote file-like objects use the same semantics as Python's
+  `io` module. (This is the same as for the built-in `open`
+  function in Python 3.)
+
+- `ftputil.ftp_error` was renamed to `ftputil.error`.
+
+- For custom parsers, import `ftputil.parser` instead of
+  `ftputil.stat`.
+
+For more information please read
+http://ftputil.sschwarzer.net/trac/wiki/WhatsNewInFtputil3.0
+http://ftputil.sschwarzer.net/trac/wiki/PreReleaseDocumentation
+
+What is ftputil?
+----------------
+
+ftputil is a high-level FTP client library for the Python programming
+language. ftputil implements a virtual file system for accessing FTP
+servers, that is, it can generate file-like objects for remote files.
+The library supports many functions similar to those in the os,
+os.path and shutil modules. ftputil has convenience functions for
+conditional uploads and downloads, and handles FTP clients and servers
+in different timezones.
+
+License
+-------
+
+ftputil is Open Source software, released under the revised BSD
+license (see http://opensource.org/licenses/BSD-3-Clause ).
+
+Stefan
+
+----------------------------------------------------------------------
 ftputil 2.8 is now available from
 http://ftputil.sschwarzer.net/download .
 
