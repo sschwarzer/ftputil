@@ -2,7 +2,7 @@ What's new in ftputil 3.0?
 ==========================
 
 :Version:   3.0
-:Date:      2013-08-09
+:Date:      2013-09-29
 :Author:    Stefan Schwarzer <sschwarzer@sschwarzer.net>
 
 .. contents::
@@ -178,8 +178,8 @@ Porting to ftputil 3.0
     ``FTPHost`` objects.
 
 
-FAQ
----
+Questions and answers
+---------------------
 
 The advice to "adapt code to the new string types" is rather vague. Can't you be more specific?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
