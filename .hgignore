@@ -20,3 +20,6 @@ MANIFEST
 # Not supposed to be under version control
 private/**
 
+# Eclipse/PyDev project files.
+.project
+.pydevproject
