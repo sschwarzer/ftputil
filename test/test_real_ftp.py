@@ -11,32 +11,16 @@ from __future__ import unicode_literals
 import ftplib
 import functools
 import gc
-import getpass
 import operator
 import os
 import time
 import unittest
 import stat
-import sys
 
-import ftputil
 import ftputil.compat
 import ftputil.error
 import ftputil.file_transfer
-import ftputil.stat
 import ftputil.stat_cache
-
-
-def get_login_data():
-    """
-    Return a three-element tuple consisting of server name, user id
-    and password.
-    """
-    #server   = ftputil.compat.input("Server: ")
-    #user     = ftputil.compat.input("User: ")
-    #password = getpass.getpass()
-    #return server, user, password
-    return "localhost", "ftptest", "d605581757de5eb56d568a4419f4126e"
 
 
 def utc_local_time_shift():
@@ -110,7 +94,10 @@ class Cleaner(object):
 class RealFTPTest(unittest.TestCase):
 
     def setUp(self):
-        self.host = ftputil.FTPHost(server, user, password)
+        # Server, username, password.
+        self.login_data = ("localhost", "ftptest",
+                            "d605581757de5eb56d568a4419f4126e")
+        self.host = ftputil.FTPHost(*self.login_data)
         self.cleaner = Cleaner(self.host)
 
     def tearDown(self):
@@ -488,8 +475,8 @@ class TestStat(RealFTPTest):
 
     def test_concurrent_access(self):
         self.make_remote_file("_testfile_")
-        host1 = ftputil.FTPHost(server, user, password)
-        host2 = ftputil.FTPHost(server, user, password)
+        host1 = ftputil.FTPHost(*self.login_data)
+        host2 = ftputil.FTPHost(*self.login_data)
         stat_result1 = host1.stat("_testfile_")
         stat_result2 = host2.stat("_testfile_")
         self.assertEqual(stat_result1, stat_result2)
@@ -513,7 +500,7 @@ class TestStat(RealFTPTest):
         host = self.host
         cache = host.stat_cache._cache
         # Make sure the cache size isn't adjusted towards smaller values.
-        entries = host.listdir("walk_test")
+        unused_entries = host.listdir("walk_test")
         self.assertEqual(cache.size,
                          ftputil.stat_cache.StatCache._DEFAULT_CACHE_SIZE)
         # Make the cache very small initially and see if it gets resized.
@@ -597,7 +584,7 @@ class TestUploadAndDownload(RealFTPTest):
         # Default chunk size as in `FTPHost.copyfileobj`
         MAX_COPY_CHUNK_SIZE = ftputil.file_transfer.MAX_COPY_CHUNK_SIZE
         file_size = host.path.getsize(FILE_NAME)
-        chunk_count, remainder = divmod(file_size, MAX_COPY_CHUNK_SIZE)
+        chunk_count, _ = divmod(file_size, MAX_COPY_CHUNK_SIZE)
         # Add one chunk for remainder.
         chunk_count += 1
         # Define a callback that just collects all data passed to it.
@@ -812,12 +799,12 @@ class TestOther(RealFTPTest):
         self.assertFalse(".hidden" in directory_entries)
 
     def _make_objects_to_be_garbage_collected(self):
-        for i in range(10):
-            with ftputil.FTPHost(server, user, password) as host:
-                for j in range(10):
-                    stat_result = host.stat("CONTENTS")
+        for _ in range(10):
+            with ftputil.FTPHost(*self.login_data) as host:
+                for _ in range(10):
+                    unused_stat_result = host.stat("CONTENTS")
                     with host.open("CONTENTS") as fobj:
-                        data = fobj.read()
+                        unused_data = fobj.read()
 
     def test_garbage_collection(self):
         """Test whether there are cycles which prevent garbage collection."""
@@ -833,22 +820,9 @@ if __name__ == "__main__":
     print("""\
 Test real FTP access.
 
-This test writes some files and directories on the local client and the
-remote server. Thus, you may want to skip this test by pressing [Ctrl-C].
-If the test should run, provide the login data for the remote server in
-function `get_login_data` in `test_real_ftp.py` and restart this test.
-
-You'll need write access in the login directory. This test can take a few
-minutes because it has to wait to test the timezone calculation.
-""")
-    try:
-        ftputil.compat.input(
-          "[Return] to continue, or [Ctrl-C] to skip test. ")
-    except KeyboardInterrupt:
-        print("\nTest aborted.")
-        sys.exit()
-    # Get login data only once, not for each test
-    server, user, password = get_login_data()
+This test writes some files and directories on the local client and
+the remote server. You'll need write access in the login directory.
+This test can take a few minutes because it has to wait to test the
+timezone calculation.
+    """)
     unittest.main()
-    import __main__
-    #unittest.main(__main__, "TestOther.test_bytes_file_name")
