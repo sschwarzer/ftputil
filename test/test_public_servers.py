@@ -158,8 +158,7 @@ class TestPublicServers(unittest.TestCase):
         finally:
             host.close()
 
-    @unittest.skipIf(test.skip_long_running_test_condition(),
-                     "skipping long-running test")
+    @test.skip_long_running_test
     def test_servers(self):
         """
         Test all servers in `self.servers`.
