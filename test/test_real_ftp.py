@@ -22,6 +22,8 @@ import ftputil.error
 import ftputil.file_transfer
 import ftputil.stat_cache
 
+import test
+
 
 def utc_local_time_shift():
     """
@@ -521,6 +523,8 @@ class TestUploadAndDownload(RealFTPTest):
         self.host.synchronize_times()
         self.assertEqual(self.host.time_shift(), EXPECTED_TIME_SHIFT)
 
+    @unittest.skipIf(test.skip_long_running_test_condition(),
+                     "skipping long-running test")
     def test_upload(self):
         host = self.host
         host.synchronize_times()
@@ -546,6 +550,8 @@ class TestUploadAndDownload(RealFTPTest):
             # Clean up
             os.unlink(local_file)
 
+    @unittest.skipIf(test.skip_long_running_test_condition(),
+                     "skipping long-running test")
     def test_download(self):
         host = self.host
         host.synchronize_times()

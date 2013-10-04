@@ -11,6 +11,8 @@ import unittest
 
 import ftputil
 
+import test
+
 
 def email_address():
     """
@@ -51,7 +53,7 @@ def ftp_client_listing(server, directory):
         # Change to this directory before calling "dir".
         commands.insert(1, "cd {0}".format(directory))
     input_ = "\n".join(commands)
-    stdout, stderr = ftp_popen.communicate(input_)
+    stdout, unused_stderr = ftp_popen.communicate(input_)
     # Collect the directory/file names from the listing's text
     names = []
     for line in stdout.strip().split("\n"):
@@ -156,6 +158,8 @@ class TestPublicServers(unittest.TestCase):
         finally:
             host.close()
 
+    @unittest.skipIf(test.skip_long_running_test_condition(),
+                     "skipping long-running test")
     def test_servers(self):
         """
         Test all servers in `self.servers`.
