@@ -113,7 +113,7 @@ class MockSession(object):
         # each has a corresponding `voidresp`.
         self._transfercmds = 0
         # Dummy, only for getting/setting timeout in `FTPFile.close`
-        self.sock = MockSocket("", "")
+        self.sock = MockSocket("", b"")
 
     def voidcmd(self, cmd):
         if DEBUG:
