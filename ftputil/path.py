@@ -11,6 +11,7 @@ from __future__ import unicode_literals
 import posixpath
 import stat
 
+import ftputil.compat
 import ftputil.error
 import ftputil.tool
 
