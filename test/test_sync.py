@@ -8,7 +8,6 @@ import io
 import ntpath
 import os
 import shutil
-import sys
 import unittest
 
 import ftputil
