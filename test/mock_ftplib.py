@@ -107,8 +107,8 @@ class MockSession(object):
 
     def __init__(self, host="", user="", password=""):
         self.closed = 0
-        # Cached directory.
-        self.current_dir = None
+        # Copy default from class.
+        self.current_dir = self.__class__.current_dir
         # Count successful `transfercmd` invocations to ensure that
         # each has a corresponding `voidresp`.
         self._transfercmds = 0
