@@ -172,7 +172,7 @@ class MockSession(object):
 
     def voidresp(self):
         assert self._transfercmds == 1
-        self._transfercmds = self._transfercmds - 1
+        self._transfercmds -= 1
         return "2xx"
 
     def transfercmd(self, cmd):
@@ -193,7 +193,7 @@ class MockSession(object):
         if (cmd, path) == ("RETR", "notthere"):
             raise ftplib.error_perm
         assert self._transfercmds == 0
-        self._transfercmds = self._transfercmds + 1
+        self._transfercmds += 1
         return MockSocket(path, self.mock_file_content)
 
     def close(self):
