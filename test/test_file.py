@@ -37,7 +37,7 @@ class InaccessibleDirSession(mock_ftplib.MockSession):
         if dir in (self._login_dir, self._login_dir + "/"):
             raise ftplib.error_perm
         else:
-            super(InaccessibleDirSession, self).pwd(dir)
+            super(InaccessibleDirSession, self).cwd(dir)
 
 
 class TestFileOperations(unittest.TestCase):
