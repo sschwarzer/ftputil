@@ -47,6 +47,7 @@ class MockFile(io.BytesIO, object):
     def __init__(self, path, content=b""):
         global mock_files
         mock_files[path] = self
+        self._value_after_close = ""
         self._super = super(MockFile, self)
         self._super.__init__(content)
 
@@ -106,6 +107,8 @@ class MockSession(object):
 
     def __init__(self, host="", user="", password=""):
         self.closed = 0
+        # Cached directory.
+        self.current_dir = None
         # Count successful `transfercmd` invocations to ensure that
         # each has a corresponding `voidresp`.
         self._transfercmds = 0
