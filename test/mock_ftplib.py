@@ -43,6 +43,7 @@ class MockFile(io.BytesIO, object):
     Contrary to `StringIO.StringIO` instances, `MockFile` objects can
     be queried for their contents after they have been closed.
     """
+
     def __init__(self, path, content=b""):
         global mock_files
         mock_files[path] = self
