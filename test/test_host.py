@@ -15,6 +15,7 @@ import unittest
 import ftputil
 import ftputil.compat
 import ftputil.error
+import ftputil.tool
 import ftputil.stat
 
 from test import mock_ftplib
