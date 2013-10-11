@@ -41,13 +41,7 @@ class FTPError(Exception):
     """General ftputil error class."""
 
     def __init__(self, *args):
-        try:
-            # Works only for new style-classes (Python 2.5+). Before,
-            # `Exception` was a classic class.
-            super(FTPError, self).__init__(*args)
-        except TypeError:
-            # Fallback to old approach.
-            Exception.__init__(self, *args)
+        super(FTPError, self).__init__(*args)
         # Don't use `args[0]` directly because `args` may be empty.
         if args:
             self.strerror = self.args[0]
