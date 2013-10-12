@@ -259,7 +259,7 @@ class Parser(object):
         if hour == 12 and am_pm == "A":
             hour = 0
         if hour != 12 and am_pm == "P":
-            hour = hour + 12
+            hour += 12
         st_mtime = time.mktime( (year, month, day,
                                  hour, minute, 0, 0, 0, -1) )
         return st_mtime
