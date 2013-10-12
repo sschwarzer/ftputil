@@ -211,7 +211,7 @@ class Parser(object):
                 st_mtime = time.mktime( (year-1, month, day,
                                          hour, minute, 0, 0, 0, -1) )
         if with_precision:
-            return (st_mtime, st_mtime_precision)
+            return st_mtime, st_mtime_precision
         else:
             return st_mtime
 
