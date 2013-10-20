@@ -27,9 +27,6 @@ class StatResult(tuple):
     `os.(l)stat`.
     """
 
-    # Disable "Badly implemented container" warning.
-    # pylint: disable=R0924
-
     _index_mapping = {
       "st_mode":  0, "st_ino":   1, "st_dev":    2, "st_nlink":    3,
       "st_uid":   4, "st_gid":   5, "st_size":   6, "st_atime":    7,
@@ -40,7 +37,7 @@ class StatResult(tuple):
         # sequence is implicitly handled by `tuple.__new__`, not
         # `tuple.__init__`. As a by-product, this avoids a
         # `DeprecationWarning` in Python 2.6+ .
-        # pylint: disable=W0231, W0613
+        # pylint: disable=super-init-not-called
         #
         # These may be overwritten in a `Parser.parse_line` method.
         self._st_name = ""
@@ -233,9 +230,9 @@ class Parser(object):
         If this method can not make sense of the given arguments, it
         raises an `ftputil.error.ParserError`.
         """
-        # Don't complain about unused `time_shift` argument
+        # Don't complain about unused `time_shift` argument.
+        # pylint: disable=unused-argument
         #
-        # pylint: disable=W0613
         # For the time being, I don't add a `with_precision`
         # parameter as in the Unix parser because the precision for
         # the DOS format is always a minute and can be set in
@@ -574,10 +571,7 @@ class _Stat(object):
                 return lstat_result
             # If we stat'ed a link, calculate a normalized path for
             # the file the link points to.
-            #
-            # We don't use `basename`.
-            # pylint: disable=W0612
-            dirname, basename = self._path.split(path)
+            dirname, unused_basename = self._path.split(path)
             path = self._path.join(dirname, lstat_result._st_target)
             path = self._path.abspath(self._path.normpath(path))
             # Check for cyclic structure.

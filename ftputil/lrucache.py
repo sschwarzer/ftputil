@@ -153,7 +153,7 @@ class LRUCache(object):
 
         The `size` attribute of the cache isn't modified.
         """
-        # pylint: disable=W0201
+        # pylint: disable=attribute-defined-outside-init
         self.__heap = []
         self.__dict = {}
         self.__counter = 0
