@@ -2,7 +2,7 @@
 # Copyright (C) 2008-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
-# pylint: disable=W0622
+# pylint: disable=redefined-builtin
 
 """\
 This script scans a directory tree for files which contain code which
@@ -117,7 +117,7 @@ def main(start_dir):
     of deprecated features, if any were found.
     """
     # `dir_names` isn't used here
-    # pylint: disable=W0612
+    # pylint: disable=unused-variable
     for dir_path, dir_names, file_names in os.walk(start_dir):
         for file_name in file_names:
             abs_name = os.path.abspath(os.path.join(dir_path, file_name))

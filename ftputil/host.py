@@ -113,7 +113,6 @@ class FTPHost(object):
         # this `FTPHost` object, use the same factory for this
         # `FTPHost` object's child sessions.
         factory = kwargs.pop("session_factory", ftplib.FTP)
-        # pylint: disable=W0142
         with ftputil.error.ftplib_error_to_ftp_os_error:
             return factory(*args, **kwargs)
 
@@ -266,7 +265,7 @@ class FTPHost(object):
         The time shift is measured in seconds.
         """
         # Implicitly set via `set_time_shift` call in constructor
-        # pylint: disable=W0201
+        # pylint: disable=attribute-defined-outside-init
         self._time_shift = time_shift
 
     def time_shift(self):
@@ -580,7 +579,7 @@ class FTPHost(object):
           self.path.normpath(self.path.join(self._cached_current_dir, path))
 
     # Ignore unused argument `mode`
-    # pylint: disable=W0613
+    # pylint: disable=unused-argument
     def mkdir(self, path, mode=None):
         """
         Make the directory path on the remote host. The argument
@@ -595,7 +594,7 @@ class FTPHost(object):
         self._robust_ftp_command(command, path)
 
     # Ignore unused argument `mode`
-    # pylint: disable=W0613
+    # pylint: disable=unused-argument
     def makedirs(self, path, mode=None):
         """
         Make the directory `path`, but also make not yet existing
@@ -702,14 +701,12 @@ class FTPHost(object):
         if ignore_errors:
             def new_onerror(*args):
                 """Do nothing."""
-                # Ignore unused arguments
-                # pylint: disable=W0613
+                # pylint: disable=unused-argument
                 pass
         elif onerror is None:
             def new_onerror(*args):
                 """Re-raise exception."""
-                # Ignore unused arguments
-                # pylint: disable=W0613
+                # pylint: disable=unused-argument
                 raise
         else:
             new_onerror = onerror
@@ -776,7 +773,6 @@ class FTPHost(object):
             def callback(line):
                 """Callback function."""
                 lines.append(ftputil.tool.as_unicode(line))
-            # pylint: disable=W0142
             with ftputil.error.ftplib_error_to_ftp_os_error:
                 if self.use_list_a_option:
                     self._session.dir("-a", path, callback)
@@ -897,7 +893,7 @@ class FTPHost(object):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         # We don't need the `exc_*` arguments here.
-        # pylint: disable=W0613
+        # pylint: disable=unused-argument
         self.close()
         # Be explicit.
         return False

@@ -37,8 +37,9 @@ class StatCache(object):
     include some or many already expired entries.
     """
 
-    # Disable "Badly implemented container" warning.
-    # pylint: disable=R0924
+    # Disable "Badly implemented container" warning because of
+    # "missing" `__delitem__`.
+    # pylint: disable=incomplete-protocol
 
     # Default number of cache entries
     _DEFAULT_CACHE_SIZE = 5000
@@ -52,8 +53,6 @@ class StatCache(object):
 
     def enable(self):
         """Enable storage of stat results."""
-        # `enable` is called by `__init__`, so it's not set outside `__init__`
-        # pylint: disable=W0201
         self._enabled = True
 
     def disable(self):
@@ -65,8 +64,8 @@ class StatCache(object):
         stored before calling `disable` can still be retrieved unless
         disturbed by a `resize` command or normal cache expiration.
         """
-        # `enable` is called by `__init__`, so it's not set outside `__init__`
-        # pylint: disable=W0201
+        # `_enabled` is set via calling `enable` in the constructor.
+        # pylint: disable=attribute-defined-outside-init
         self._enabled = False
 
     def resize(self, new_size):
@@ -108,8 +107,6 @@ class StatCache(object):
                                       format(path))
         try:
             del self._cache[path]
-        # Don't complain about lazy except clause
-        # pylint: disable=W0704
         except ftputil.lrucache.CacheKeyError:
             # Ignore errors
             pass
