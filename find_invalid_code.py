@@ -123,7 +123,7 @@ def main(start_dir):
     """
     # Deliberately shadow global `start_dir`.
     # pylint: disable=redefined-outer-name
-    for dir_path, _, file_names in os.walk(start_dir):
+    for dir_path, _dirnames, file_names in os.walk(start_dir):
         for file_name in file_names:
             abs_name = os.path.abspath(os.path.join(dir_path, file_name))
             if file_name.endswith(".py"):
