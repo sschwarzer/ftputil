@@ -33,7 +33,12 @@ __doc__ = __doc__ % (ftputil.version.__version__,
 
 
 class InvalidFeature(object):
+    """
+    Store message, regex and locations of a single now invalid
+    feature.
+    """
 
+    # pylint: disable=too-few-public-methods
     def __init__(self, message, regex):
         self.message = message
         if not isinstance(regex, re.compile("").__class__):
@@ -116,9 +121,9 @@ def main(start_dir):
     Scan a directory tree starting at `start_dir` and print uses
     of deprecated features, if any were found.
     """
-    # `dir_names` isn't used here
-    # pylint: disable=unused-variable
-    for dir_path, dir_names, file_names in os.walk(start_dir):
+    # Deliberately shadow global `start_dir`.
+    # pylint: disable=redefined-outer-name
+    for dir_path, _, file_names in os.walk(start_dir):
         for file_name in file_names:
             abs_name = os.path.abspath(os.path.join(dir_path, file_name))
             if file_name.endswith(".py"):
