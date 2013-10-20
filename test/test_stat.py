@@ -110,6 +110,8 @@ class TestParsers(unittest.TestCase):
           # Not intended to be parsed. Should have been filtered out by
           # `ignores_line`.
           "total 14",
+          # Invalid month abbreviation
+          "drwxr-sr-x   2 45854    200           512 Max  4  2000 chemeng",
           # Incomplete mode
           "drwxr-sr-    2 45854    200           512 May  4  2000 chemeng",
           # Invalid first letter in mode
