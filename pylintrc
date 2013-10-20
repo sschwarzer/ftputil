@@ -39,7 +39,7 @@ load-plugins=
 # no Warning level messages displayed, use"--disable=all --enable=classes
 # --disable=W"
 #disable=
-disable=invalid-name
+disable=invalid-name, star-args
 
 
 [REPORTS]
