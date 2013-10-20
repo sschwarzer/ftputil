@@ -29,6 +29,9 @@ class _Path(object):
     Hint: substitute `os` with the `FTPHost` object.
     """
 
+    # `_Path` needs to provide all methods of `os.path`.
+    # pylint: disable=too-many-instance-attributes
+
     def __init__(self, host):
         self._host = host
         # Delegate these to the `posixpath` module.
@@ -83,7 +86,8 @@ class _Path(object):
         """
         return self._host.stat(path).st_size
 
-    def join(self, *paths):
+    @staticmethod
+    def join(*paths):
         """
         Join the path component from `paths` and return the joined
         path.

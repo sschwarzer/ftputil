@@ -25,6 +25,7 @@ if python_version == 2:
     bytes_type = str
 
     def bytes_from_ints(int_list):
+        """Return a `bytes` object from a list of integers."""
         return b"".join((chr(i) for i in int_list))
 
 else:
