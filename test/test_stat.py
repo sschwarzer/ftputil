@@ -17,7 +17,7 @@ from test import test_base
 from test import mock_ftplib
 
 
-def test_stat(session_factory):
+def _test_stat(session_factory):
     host = test_base.ftp_host_factory(session_factory=session_factory)
     stat = ftputil.stat._Stat(host)
     # Use Unix format parser explicitly. This doesn't exclude switching
@@ -289,7 +289,7 @@ class TestLstatAndStat(unittest.TestCase):
         # Unix format, so make this the default. Tests which need
         # the MS format can overwrite `self.stat` later.
         self.stat = \
-          test_stat(session_factory=mock_ftplib.MockUnixFormatSession)
+          _test_stat(session_factory=mock_ftplib.MockUnixFormatSession)
 
     def test_failing_lstat(self):
         """Test whether `lstat` fails for a nonexistent path."""
@@ -322,7 +322,7 @@ class TestLstatAndStat(unittest.TestCase):
 
     def test_lstat_one_ms_file(self):
         """Test `lstat` for a file described in DOS-style format."""
-        self.stat = test_stat(session_factory=mock_ftplib.MockMSFormatSession)
+        self.stat = _test_stat(session_factory=mock_ftplib.MockMSFormatSession)
         stat_result = self.stat._lstat("/home/msformat/abcd.exe")
         self.assertEqual(stat_result._st_mtime_precision, 60)
 
@@ -348,7 +348,7 @@ class TestLstatAndStat(unittest.TestCase):
 
     def test_lstat_one_ms_dir(self):
         """Test `lstat` for a directory described in DOS-style format."""
-        self.stat = test_stat(session_factory=mock_ftplib.MockMSFormatSession)
+        self.stat = _test_stat(session_factory=mock_ftplib.MockMSFormatSession)
         stat_result = self.stat._lstat("/home/msformat/WindowsXP")
         self.assertEqual(stat_result._st_mtime_precision, 60)
 
@@ -378,7 +378,7 @@ class TestLstatAndStat(unittest.TestCase):
     #
     def test_parser_switching_with_permanent_error(self):
         """Test non-switching of parser format with `PermanentError`."""
-        self.stat = test_stat(session_factory=mock_ftplib.MockMSFormatSession)
+        self.stat = _test_stat(session_factory=mock_ftplib.MockMSFormatSession)
         self.assertEqual(self.stat._allow_parser_switching, True)
         # With these directory contents, we get a `ParserError` for
         # the Unix parser first, so `_allow_parser_switching` can be
@@ -399,7 +399,7 @@ class TestLstatAndStat(unittest.TestCase):
 
     def test_parser_switching_to_ms(self):
         """Test switching of parser from Unix to MS format."""
-        self.stat = test_stat(session_factory=mock_ftplib.MockMSFormatSession)
+        self.stat = _test_stat(session_factory=mock_ftplib.MockMSFormatSession)
         self.assertEqual(self.stat._allow_parser_switching, True)
         self.assertTrue(isinstance(self.stat._parser, ftputil.stat.UnixParser))
         # Parsing the directory `/home/msformat` with the Unix parser
@@ -412,7 +412,7 @@ class TestLstatAndStat(unittest.TestCase):
 
     def test_parser_switching_regarding_empty_dir(self):
         """Test switching of parser if a directory is empty."""
-        self.stat = test_stat(session_factory=mock_ftplib.MockMSFormatSession)
+        self.stat = _test_stat(session_factory=mock_ftplib.MockMSFormatSession)
         self.assertEqual(self.stat._allow_parser_switching, True)
         # When the directory we're looking into doesn't give us any
         # lines we can't decide whether the first parser worked,
@@ -428,7 +428,7 @@ class TestListdir(unittest.TestCase):
 
     def setUp(self):
         self.stat = \
-          test_stat(session_factory=mock_ftplib.MockUnixFormatSession)
+          _test_stat(session_factory=mock_ftplib.MockUnixFormatSession)
 
     def test_failing_listdir(self):
         """Test failing `FTPHost.listdir`."""
