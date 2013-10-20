@@ -2,6 +2,12 @@
 # Copyright (C) 2008, Roger Demetrescu <roger.demetrescu@gmail.com>
 # See the file LICENSE for licensing terms.
 
+"""
+`FTPHost` is the central class of the `ftputil` library.
+
+See `__init__.py` for an example.
+"""
+
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
@@ -18,6 +24,12 @@ import ftputil.stat
 import ftputil.tool
 
 __all__ = ["FTPHost"]
+
+
+# The "protected" attributes PyLint talks about aren't intended for
+# clients of the library. `FTPHost` objects need to use some of these
+# library-internal attributes though.
+# pylint: disable=protected-access
 
 
 #####################################################################
@@ -164,6 +176,8 @@ class FTPHost(object):
         This method tries to reuse a child but will generate a new one
         if none is available.
         """
+        # Support the same arguments as `io.open`.
+        # pylint: disable=too-many-arguments
         path = ftputil.tool.as_unicode(path)
         host = self._available_child()
         if host is None:
@@ -275,7 +289,8 @@ class FTPHost(object):
         """
         return self._time_shift
 
-    def __rounded_time_shift(self, time_shift):
+    @staticmethod
+    def __rounded_time_shift(time_shift):
         """
         Return the given time shift in seconds, but rounded to
         full hours. The argument is also assumed to be given in
@@ -397,7 +412,8 @@ class FTPHost(object):
     # This code doesn't complain if the chunk size is passed as a
     # positional argument but emits a deprecation warning if `length`
     # is used as a keyword argument.
-    def copyfileobj(self, source, target,
+    @staticmethod
+    def copyfileobj(source, target,
                     max_chunk_size=ftputil.file_transfer.MAX_COPY_CHUNK_SIZE,
                     callback=None):
         """

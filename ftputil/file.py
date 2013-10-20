@@ -31,6 +31,9 @@ class BufferedIO(io.BufferedIOBase):
     """
 
     def __init__(self, fobj, is_readable=False, is_writable=False):
+        # Don't call baseclass constructor for this adapter.
+        # pylint: disable=super-init-not-called
+        #
         # This is the return value of `socket.makefile` and is already
         # buffered.
         self.raw = fobj
@@ -39,6 +42,7 @@ class BufferedIO(io.BufferedIOBase):
 
     @property
     def closed(self):
+        # pylint: disable=missing-docstring
         return self.raw.closed
 
     def close(self):
@@ -89,6 +93,7 @@ class BufferedIO(io.BufferedIOBase):
     # There doesn't seem to be a public API for this.
     def _write_buffer_size(self):
         """Return current size of the write buffer in bytes."""
+        # pylint: disable=protected-access
         if hasattr(self.raw, "_wbuf_len"):
             # Python 2.6.3 - 2.7.5
             return self.raw._wbuf_len
@@ -130,6 +135,7 @@ class FTPFile(object):
     def __init__(self, host):
         """Construct the file(-like) object."""
         self._host = host
+        # pylint: disable=protected-access
         self._session = host._session
         # The file is still closed.
         self.closed = True
@@ -144,6 +150,12 @@ class FTPFile(object):
         Contrary to the `open` builtin, this method returns `None`,
         instead this file object is modified in-place.
         """
+        # We use the same arguments as in `io.open`.
+        # pylint: disable=too-many-arguments
+        #
+        # `buffering` argument isn't used at this time.
+        # pylint: disable=unused-argument
+        #
         # Python 3's `socket.makefile` supports the same interface as
         # the new `open` builtin, but Python 2 supports only a mode,
         # but doesn't return an object with the proper interface to
