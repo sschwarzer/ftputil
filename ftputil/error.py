@@ -5,11 +5,7 @@
 ftputil.error - exception classes and wrappers
 """
 
-# "Too many ancestors"
-# pylint: disable = R0901
-#
-# "Used * or ** magic"
-# pylint: disable = W0142
+# pylint: disable=too-many-ancestors
 
 from __future__ import unicode_literals
 

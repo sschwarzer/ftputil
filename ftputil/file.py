@@ -227,7 +227,7 @@ class FTPFile(object):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         # We don't need the `exc_*` arguments here
-        # pylint: disable=W0613
+        # pylint: disable=unused-argument
         self.close()
         # Be explicit
         return False
