@@ -25,5 +25,8 @@ private/**
 .pydevproject
 .settings/**
 
+# Tox test directory
+.tox/**
+
 # PyCharm project files.
 .idea/**
