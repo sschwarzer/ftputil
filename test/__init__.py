@@ -1,5 +1,12 @@
+"""
+Setup for unit tests.
+"""
+
 import os
 import unittest
+
+
+__all__ = ["skip_long_running_test"]
 
 
 def skip_long_running_test_condition():
