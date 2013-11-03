@@ -24,9 +24,6 @@ if python_version == 2:
     unicode_type = unicode
     bytes_type = str
 
-    # Non-evaluating input
-    input = raw_input
-
     def bytes_from_ints(int_list):
         """Return a `bytes` object from a list of integers."""
         return b"".join((chr(i) for i in int_list))
@@ -37,8 +34,6 @@ else:
 
     unicode_type = str
     bytes_type = bytes
-
-    input = input
 
     bytes_from_ints = bytes
 
