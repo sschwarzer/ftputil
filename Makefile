@@ -69,7 +69,7 @@ pylint:
 	pylint --rcfile=pylintrc ${PYLINT_OPTS} ${SOURCE_DIR}/*.py | less
 
 # Prepare everything for making a distribution tarball.
-dist: clean patch test pylint docs
+dist: clean patch pylint docs
 	${PYTHON_BINARY} setup.py sdist
 
 extdist: test dist register
