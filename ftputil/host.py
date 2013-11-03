@@ -136,13 +136,17 @@ class FTPHost(object):
 
     def _available_child(self):
         """
-        Return an available `FTPHost` child (i. e. one whose
-        `_file` object is closed and doesn't have a timed-out
-        server connection) from the pool of children or `None`
-        if there aren't any.
+        Return an available (i. e. one whose `_file` object is closed
+        and doesn't have a timed-out server connection) child
+        (`FTPHost` object) from the pool of children or `None` if
+        there aren't any.
         """
-        child_indices_to_delete = []
-        for index, host in enumerate(self._children):
+        #TODO: Currently timed-out child sessions aren't removed and
+        # may collect over time. In very busy or long running
+        # processes, this might slow down an application because the
+        # same stale child sessions have to be processed again and
+        # again.
+        for host in self._children:
             # Test for timeouts only after testing for a closed file:
             # - If a file isn't closed, save time; don't bother to access
             #   the remote server.
@@ -154,17 +158,11 @@ class FTPHost(object):
                     host._session.pwd()
                 # Timed-out sessions raise `error_temp`.
                 except ftplib.error_temp:
-                    child_indices_to_delete.append(index)
                     continue
                 else:
                     # Everything's ok; use this `FTPHost` instance.
                     return host
-        # Remove timed-out children. Work from the end to the start
-        # of the list so that the previously collected indices remain
-        # valid while modifying the list in-place.
-        for index in reversed(child_indices_to_delete):
-            del self._children[index]
-        # No available child found.
+        # Be explicit.
         return None
 
     def open(self, path, mode="r", buffering=None, encoding=None, errors=None,
