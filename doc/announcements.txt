@@ -1,4 +1,4 @@
-ftputil 3.0a1 is now available from
+ftputil 3.0b is now available from
 http://ftputil.sschwarzer.net/download .
 
 Changes since version 2.8
