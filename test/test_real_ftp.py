@@ -112,17 +112,15 @@ class RealFTPTest(unittest.TestCase):
     def make_remote_file(self, path):
         """Create a file on the FTP host."""
         self.cleaner.add_file(path)
-        file_ = self.host.open(path, "wb")
-        # Write something. Otherwise the FTP server might not update
-        # the time of last modification if the file existed before.
-        file_.write(b"\n")
-        file_.close()
+        with self.host.open(path, "wb") as file_:
+            # Write something. Otherwise the FTP server might not update
+            # the time of last modification if the file existed before.
+            file_.write(b"\n")
 
     def make_local_file(self):
         """Create a file on the local host (= on the client side)."""
-        fobj = open("_local_file_", "wb")
-        fobj.write(b"abc\x12\x34def\t")
-        fobj.close()
+        with open("_local_file_", "wb") as fobj:
+            fobj.write(b"abc\x12\x34def\t")
 
 
 class TestMkdir(RealFTPTest):
@@ -429,9 +427,8 @@ class TestStat(RealFTPTest):
         # Make a directory and a file in it.
         self.cleaner.add_dir(dir_name)
         host.mkdir(dir_name)
-        fobj = host.open(file_name, "wb")
-        fobj.write(b"abc\x12\x34def\t")
-        fobj.close()
+        with host.open(file_name, "wb") as fobj:
+            fobj.write(b"abc\x12\x34def\t")
         # Do some stats
         # - dir
         dir_stat = host.stat(dir_name)
@@ -477,25 +474,23 @@ class TestStat(RealFTPTest):
 
     def test_concurrent_access(self):
         self.make_remote_file("_testfile_")
-        host1 = ftputil.FTPHost(*self.login_data)
-        host2 = ftputil.FTPHost(*self.login_data)
-        stat_result1 = host1.stat("_testfile_")
-        stat_result2 = host2.stat("_testfile_")
-        self.assertEqual(stat_result1, stat_result2)
-        host2.remove("_testfile_")
-        # Can still get the result via `host1`
-        stat_result1 = host1.stat("_testfile_")
-        self.assertEqual(stat_result1, stat_result2)
-        # Stat'ing on `host2` gives an exception.
-        self.assertRaises(ftputil.error.PermanentError,
-                          host2.stat, "_testfile_")
-        # Stat'ing on `host1` after invalidation
-        absolute_path = host1.path.join(host1.getcwd(), "_testfile_")
-        host1.stat_cache.invalidate(absolute_path)
-        self.assertRaises(ftputil.error.PermanentError,
-                          host1.stat, "_testfile_")
-        host1.close()
-        host2.close()
+        with ftputil.FTPHost(*self.login_data) as host1:
+            with ftputil.FTPHost(*self.login_data) as host2:
+                stat_result1 = host1.stat("_testfile_")
+                stat_result2 = host2.stat("_testfile_")
+                self.assertEqual(stat_result1, stat_result2)
+                host2.remove("_testfile_")
+                # Can still get the result via `host1`
+                stat_result1 = host1.stat("_testfile_")
+                self.assertEqual(stat_result1, stat_result2)
+                # Stat'ing on `host2` gives an exception.
+                self.assertRaises(ftputil.error.PermanentError,
+                                  host2.stat, "_testfile_")
+                # Stat'ing on `host1` after invalidation
+                absolute_path = host1.path.join(host1.getcwd(), "_testfile_")
+                host1.stat_cache.invalidate(absolute_path)
+                self.assertRaises(ftputil.error.PermanentError,
+                                  host1.stat, "_testfile_")
 
     def test_cache_auto_resizing(self):
         """Test if the cache is resized appropriately."""
@@ -566,8 +561,9 @@ class TestUploadAndDownload(RealFTPTest):
             # again. To prevent this, wait a bit over a minute (the
             # remote precision), then "touch" the local file.
             time.sleep(65)
-            fobj = open(local_file, "w")
-            fobj.close()
+            # Create empty file.
+            with open(local_file, "w") as fobj:
+                pass
             # Local file is present and newer, so shouldn't download.
             downloaded = host.download_if_newer(remote_file, local_file)
             self.assertEqual(downloaded, False)
@@ -617,32 +613,32 @@ class TestFTPFiles(RealFTPTest):
     def test_only_closed_children(self):
         REMOTE_FILE_NAME = "debian-keyring.tar.gz"
         host = self.host
-        file_obj1 = host.open(REMOTE_FILE_NAME, "rb")
-        file_obj2 = host.open(REMOTE_FILE_NAME, "rb")
-        file_obj2.close()
-        # This should re-use the second child because the first isn't
-        # closed but the second is.
-        file_obj = host.open(REMOTE_FILE_NAME, "rb")
-        self.assertEqual(len(host._children), 2)
-        self.assertTrue(file_obj._host is host._children[1])
-        file_obj1.close()
+        with host.open(REMOTE_FILE_NAME, "rb") as file_obj1:
+            # Create empty file and close it.
+            with host.open(REMOTE_FILE_NAME, "rb") as file_obj2:
+                pass
+            # This should re-use the second child because the first isn't
+            # closed but the second is.
+            with host.open(REMOTE_FILE_NAME, "rb") as file_obj:
+                self.assertEqual(len(host._children), 2)
+                self.assertTrue(file_obj._host is host._children[1])
 
     def test_no_timed_out_children(self):
         REMOTE_FILE_NAME = "debian-keyring.tar.gz"
         host = self.host
-        file_obj1 = host.open(REMOTE_FILE_NAME, "rb")
-        file_obj1.close()
+        # Implicitly create child host object.
+        with host.open(REMOTE_FILE_NAME, "rb") as file_obj1:
+            pass
         # Monkey-patch file to simulate an FTP server timeout below.
         def timed_out_pwd():
             raise ftplib.error_temp("simulated timeout")
         file_obj1._host._session.pwd = timed_out_pwd
         # Try to get a file - which shouldn't be the timed-out file.
-        file_obj2 = host.open(REMOTE_FILE_NAME, "rb")
-        self.assertTrue(file_obj1 is not file_obj2)
+        with host.open(REMOTE_FILE_NAME, "rb") as file_obj2:
+            self.assertTrue(file_obj1 is not file_obj2)
         # Re-use closed and not timed-out child session.
-        file_obj2.close()
-        file_obj3 = host.open(REMOTE_FILE_NAME, "rb")
-        file_obj3.close()
+        with host.open(REMOTE_FILE_NAME, "rb") as file_obj3:
+            pass
         self.assertTrue(file_obj2 is file_obj3)
 
 
@@ -730,11 +726,11 @@ class TestOther(RealFTPTest):
 
     def test_subsequent_reading(self):
         # Opening a file for reading
-        file1 = self.host.open("debian-keyring.tar.gz", "rb")
-        file1.close()
+        with self.host.open("debian-keyring.tar.gz", "rb") as file1:
+            pass
         # Make sure that there are no problems if the connection is reused.
-        file2 = self.host.open("debian-keyring.tar.gz", "rb")
-        file2.close()
+        with self.host.open("debian-keyring.tar.gz", "rb") as file2:
+            pass
         self.assertTrue(file1._session is file2._session)
 
     def test_names_with_spaces(self):
