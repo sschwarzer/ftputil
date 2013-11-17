@@ -78,6 +78,7 @@ extdist: test dist register
 register:
 	@echo "Registering new version with PyPI"
 	${PYTHON_BINARY} setup.py register
+	${PYTHON_BINARY} setup.py sdist upload
 
 # Remove files with `orig` suffix (caused by `hg revert`).
 cleanorig:
