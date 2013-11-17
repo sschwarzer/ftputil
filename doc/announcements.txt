@@ -27,7 +27,7 @@ on adapting existing client code.
   `ftputil.stat`.
 
 For more information please read
-http://ftputil.sschwarzer.net/trac/wiki/documentation
+http://ftputil.sschwarzer.net/trac/wiki/Documentation
 http://ftputil.sschwarzer.net/trac/wiki/WhatsNewInFtputil3.0
 
 What is ftputil?
