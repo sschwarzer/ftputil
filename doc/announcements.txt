@@ -1,4 +1,4 @@
-ftputil 3.0b is now available from
+ftputil 3.0 is now available from
 http://ftputil.sschwarzer.net/download .
 
 Changes since version 2.8
@@ -27,8 +27,8 @@ on adapting existing client code.
   `ftputil.stat`.
 
 For more information please read
+http://ftputil.sschwarzer.net/trac/wiki/documentation
 http://ftputil.sschwarzer.net/trac/wiki/WhatsNewInFtputil3.0
-http://ftputil.sschwarzer.net/trac/wiki/PreReleaseDocumentation
 
 What is ftputil?
 ----------------
