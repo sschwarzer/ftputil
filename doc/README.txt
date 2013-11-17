@@ -41,8 +41,8 @@ Since version 2.8 the following changed:
   `ftputil.stat`.
 
 For more information please read
+http://ftputil.sschwarzer.net/trac/wiki/Documentation
 http://ftputil.sschwarzer.net/trac/wiki/WhatsNewInFtputil3.0
-http://ftputil.sschwarzer.net/trac/wiki/PreReleaseDocumentation
 
 Documentation
 -------------
