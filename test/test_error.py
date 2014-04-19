@@ -45,7 +45,7 @@ class TestErrorConversion(unittest.TestCase):
                              isinstance(exc.args[0], ftplib.error_perm))
         else:
             # We shouldn't come here.
-            self.assertTrue(False)
+            self.fail()
 
     def test_ftplib_error_to_ftp_io_error(self):
         """
@@ -60,7 +60,7 @@ class TestErrorConversion(unittest.TestCase):
                              isinstance(exc.args[0], ftplib.error_perm))
         else:
             # We shouldn't come here.
-            self.assertTrue(False)
+            self.fail()
 
 
 if __name__ == "__main__":
