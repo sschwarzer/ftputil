@@ -1,5 +1,5 @@
 # encoding: utf-8
-# Copyright (C) 2002-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2014, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 from __future__ import unicode_literals
@@ -7,6 +7,7 @@ from __future__ import unicode_literals
 import ftplib
 import itertools
 import os
+import pickle
 import posixpath
 import random
 import time
@@ -565,6 +566,16 @@ class TestAcceptEitherUnicodeOrBytes(unittest.TestCase):
         # We're not interested in the return value of `walk`.
         self._test_method_with_single_path_argument(
           self.host.walk, "/home/file_name_test/ä")
+
+
+class TestFailingPickling(unittest.TestCase):
+
+    def test_failing_pickling(self):
+        """Test if pickling (intentionally) isn't supported."""
+        with test_base.ftp_host_factory() as host:
+            self.assertRaises(pickle.PicklingError, pickle.dumps, host)
+            with host.open("/home/sschwarzer/index.html") as file_obj:
+                self.assertRaises(pickle.PicklingError, pickle.dumps, file_obj)
 
 
 if __name__ == "__main__":
