@@ -131,7 +131,10 @@ class FtplibErrorToFTPOSError(object):
         elif isinstance(exc_value, ftplib.error_perm):
             # If `exc_value.args[0]` is present, assume it's a byte or
             # unicode string.
-            if exc_value.args and exc_value.args[0].startswith("502"):
+            if (
+              exc_value.args and
+              ftputil.tool.as_unicode(exc_value.args[0]).startswith("502")
+            ):
                 raise CommandNotImplementedError(*exc_value.args)
             else:
                 raise PermanentError(*exc_value.args)
