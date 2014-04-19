@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2014, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # Copyright (C) 2008, Roger Demetrescu <roger.demetrescu@gmail.com>
 # See the file LICENSE for licensing terms.
 
@@ -10,6 +10,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import io
+import pickle
 
 import ftputil.compat
 import ftputil.error
@@ -300,3 +301,6 @@ class FTPFile(object):
             # either, so we consider the file closed for practical
             # purposes.
             self.closed = True
+
+    def __getstate__(self):
+        raise pickle.PicklingError("pickling is deliberately unsupported")

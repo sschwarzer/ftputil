@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2014, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # Copyright (C) 2008, Roger Demetrescu <roger.demetrescu@gmail.com>
 # See the file LICENSE for licensing terms.
 
@@ -12,6 +12,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import ftplib
+import pickle
 import stat
 import sys
 import time
@@ -896,6 +897,9 @@ class FTPHost(object):
                                       format(mode, path))
         self._robust_ftp_command(command, path)
         self.stat_cache.invalidate(path)
+
+    def __getstate__(self):
+        raise pickle.PicklingError("pickling is deliberately unsupported")
 
     #
     # Context manager methods
