@@ -47,6 +47,23 @@ class TestErrorConversion(unittest.TestCase):
             # We shouldn't come here.
             self.fail()
 
+    def test_ftplib_error_to_ftp_os_error_non_ascii_server_message(self):
+        """
+        Test that we don't get a `UnicodeDecodeError` if the server
+        sends a message containing non-ASCII characters.
+        """
+        # See ticket #77.
+        message = \
+          ftputil.tool.as_bytes("Não é possível criar um arquivo já existente.")
+        try:
+            with ftputil.error.ftplib_error_to_ftp_os_error:
+                raise ftplib.error_perm(message)
+        # We expect a `PermanentError`.
+        except ftputil.error.PermanentError:
+            pass
+        except UnicodeDecodeError:
+            self.fail()
+
     def test_ftplib_error_to_ftp_io_error(self):
         """
         Ensure the `ftplib` exception isn't used as `FTPIOError`
