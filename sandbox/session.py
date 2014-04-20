@@ -17,7 +17,7 @@ except ImportError:
 
 
 def session_factory(base_class=ftplib.FTP, port=21, use_passive_mode=None,
-                    encrypt_data_channel=None):
+                    encrypt_data_channel=None, debug_level=None):
     """
     Create and return a session factory according to the keyword
     arguments.
@@ -38,6 +38,9 @@ def session_factory(base_class=ftplib.FTP, port=21, use_passive_mode=None,
     encrypt_data_channel: If `True`, call the `prot_p` method of the
     base class. If `False` or `None` (`None` is the default), don't
     call the method.
+
+    debug_level: Debug level (integer) to be set on a session
+    instance. The default is `None`, meaning no debugging output.
 
     This function should work the base classes for `ftplib.FTP`,
     `ftplib.FTP_TLS` and `M2Crypto.ftpslib.FTP_TLS` with TLS security.
@@ -63,6 +66,8 @@ def session_factory(base_class=ftplib.FTP, port=21, use_passive_mode=None,
             if self._use_m2crypto_ftpslib():
                 self.auth_tls()
                 self._fix_socket()
+            if debug_level is not None:
+                self.set_debuglevel(debug_level)
             self.login(user, password)
             if use_passive_mode is not None:
                 self.set_pasv(use_passive_mode)
