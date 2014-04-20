@@ -39,6 +39,11 @@ def session_factory(base_class=ftplib.FTP, port=21, use_passive_mode=None,
     base class. If `False` or `None` (`None` is the default), don't
     call the method.
 
+    This function should work the base classes for `ftplib.FTP`,
+    `ftplib.FTP_TLS` and `M2Crypto.ftpslib.FTP_TLS` with TLS security.
+    Other base classes should work if they use the same API as
+    `ftplib.FTP`.
+
     Usage example:
 
       my_session_factory = session_factory(
