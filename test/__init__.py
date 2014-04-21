@@ -2,6 +2,8 @@
 Setup for unit tests.
 """
 
+from __future__ import unicode_literals
+
 import os
 import unittest
 
