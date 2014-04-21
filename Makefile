@@ -33,7 +33,8 @@ TEST_FILES=$(shell ls -1 ${TEST_DIR}/test_*.py | \
 		   ${TEST_DIR}/test_real_ftp.py \
 		   ${TEST_DIR}/test_public_servers.py
 
-.PHONY: dist extdist test pylint docs clean register patch
+.PHONY: dist extdist test tox_test find_missing_unicode_literals pylint \
+	docs clean cleanorig upload patch remove_from_env
 
 # Patch various files to refer to a new version.
 patch:
