@@ -33,7 +33,8 @@ TEST_FILES=$(shell ls -1 ${TEST_DIR}/test_*.py | \
 		   ${TEST_DIR}/test_real_ftp.py \
 		   ${TEST_DIR}/test_public_servers.py
 
-.PHONY: dist extdist test tox_test find_missing_unicode_literals pylint \
+.PHONY: dist extdist test tox_test coverage pylint \
+	find_missing_unicode_literals \
 	docs clean cleanorig upload patch remove_from_env
 
 # Patch various files to refer to a new version.
@@ -69,6 +70,9 @@ test:
 tox_test:
 	# Gets settings from `tox.ini`
 	tox
+
+coverage:
+	py.test --cov ftputil --cov-report html test
 
 pylint:
 	pylint --rcfile=pylintrc ${PYLINT_OPTS} ${SOURCE_DIR}/*.py | less
