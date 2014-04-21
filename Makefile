@@ -65,6 +65,10 @@ test:
 		PYTHONPATH=${PYTHONPATH} ${PYTHON_BINARY} $$file ; \
 	done
 
+tox-test:
+	# Gets settings from `tox.ini`
+	tox
+
 pylint:
 	pylint --rcfile=pylintrc ${PYLINT_OPTS} ${SOURCE_DIR}/*.py | less
 
