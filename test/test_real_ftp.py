@@ -20,6 +20,7 @@ import stat
 import ftputil.compat
 import ftputil.error
 import ftputil.file_transfer
+import ftputil.session
 import ftputil.stat_cache
 
 import test
@@ -814,6 +815,26 @@ class TestOther(RealFTPTest):
         gc.collect()
         objects_after_test = len(gc.garbage)
         self.assertFalse(objects_after_test - objects_before_test)
+
+    @unittest.skipIf(ftputil.compat.python_version > 2,
+                     "test requires M2Crypto which only works on Python 2")
+    def test_m2crypto_session(self):
+        """
+        Test if a session with `M2Crypto.ftpslib.FTP_TLS` is set up
+        correctly and works with unicode input.
+        """
+        # See ticket #78.
+        #
+        # M2Crypto is only available for Python 2.
+        import M2Crypto
+        factory = ftputil.session.session_factory(
+                    base_class=M2Crypto.ftpslib.FTP_TLS,
+                    encrypt_data_channel=True)
+        with ftputil.FTPHost(*self.login_data, session_factory=factory) as host:
+            # Test if unicode argument works.
+            files = host.listdir(".")
+        self.assertTrue("CONTENTS" in files)
+
 
 
 if __name__ == "__main__":
