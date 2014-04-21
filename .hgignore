@@ -28,5 +28,9 @@ private/**
 # Tox test directory
 .tox/**
 
+# Coverage report files.
+.coverage
+htmlcov/**
+
 # PyCharm project files.
 .idea/**
