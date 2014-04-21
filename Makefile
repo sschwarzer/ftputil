@@ -65,12 +65,16 @@ test:
 		PYTHONPATH=${PYTHONPATH} ${PYTHON_BINARY} $$file ; \
 	done
 
-tox-test:
+tox_test:
 	# Gets settings from `tox.ini`
 	tox
 
 pylint:
 	pylint --rcfile=pylintrc ${PYLINT_OPTS} ${SOURCE_DIR}/*.py | less
+
+find_missing_unicode_literals:
+	find ftputil test -name "*.py" \
+	  -exec grep -L "from __future__ import unicode_literals" {} \;
 
 # Prepare everything for making a distribution tarball.
 dist: clean patch pylint docs
