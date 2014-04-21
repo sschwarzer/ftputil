@@ -16,6 +16,9 @@ except ImportError:
     M2Crypto = None
 
 
+__all__ = ["session_factory"]
+
+
 def session_factory(base_class=ftplib.FTP, port=21, use_passive_mode=None,
                     encrypt_data_channel=None, debug_level=None):
     """
