@@ -5,6 +5,8 @@ Session factory factory (the two "factory" are intential :-) )
 for ftputil.
 """
 
+from __future__ import unicode_literals
+
 import ftplib
 
 import ftputil.tool
