@@ -78,10 +78,10 @@ dist: clean patch pylint docs
 
 extdist: test dist register
 
-# Register package on PyPI.
-register:
-	@echo "Registering new version with PyPI"
-	${PYTHON_BINARY} setup.py register
+# Upload package to PyPI.
+upload:
+	@echo "Uploading new version to PyPI"
+	${PYTHON_BINARY} setup.py upload
 
 # Remove files with `orig` suffix (caused by `hg revert`).
 cleanorig:
