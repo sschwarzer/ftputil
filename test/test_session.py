@@ -19,15 +19,12 @@ class MockSession(object):
 
     def __init__(self):
         self.calls = []
-    
+
     def add_call(self, *args):
         self.calls.append(args)
 
     def connect(self, host, port):
         self.add_call("connect", host, port)
-
-    def auth_tls(self):
-        self.add_call("auth_tls")
 
     def _fix_socket(self):
         self.add_call("_fix_socket")
@@ -40,6 +37,12 @@ class MockSession(object):
 
     def set_pasv(self, flag):
         self.add_call("set_pasv", flag)
+
+
+class EncryptedMockSession(MockSession):
+
+    def auth_tls(self):
+        self.add_call("auth_tls")
 
     def prot_p(self):
         self.add_call("prot_p")
@@ -89,12 +92,26 @@ class TestSessionFactory(unittest.TestCase):
 
     def test_encrypt_data_channel(self):
         """Test request to call `prot_p` with `encrypt_data_channel`."""
-        factory = ftputil.session.session_factory(base_class=MockSession,
-                                                  encrypt_data_channel=True)
+        # With encrypted data channel (default for encrypted session).
+        factory = ftputil.session.session_factory(
+                    base_class=EncryptedMockSession)
         session = factory("host", "user", "password")
         self.assertEqual(session.calls, [("connect", "host", 21),
                                          ("login", "user", "password"),
                                          ("prot_p",)])
+        #
+        factory = ftputil.session.session_factory(
+                    base_class=EncryptedMockSession, encrypt_data_channel=True)
+        session = factory("host", "user", "password")
+        self.assertEqual(session.calls, [("connect", "host", 21),
+                                         ("login", "user", "password"),
+                                         ("prot_p",)])
+        # Without encrypted data channel.
+        factory = ftputil.session.session_factory(
+                    base_class=EncryptedMockSession, encrypt_data_channel=False)
+        session = factory("host", "user", "password")
+        self.assertEqual(session.calls, [("connect", "host", 21),
+                                         ("login", "user", "password")])
 
     def test_debug_level(self):
         """Test setting the debug level on the session."""
@@ -107,7 +124,8 @@ class TestSessionFactory(unittest.TestCase):
 
     def test_m2crypto_session(self):
         """Test call sequence for M2Crypto session."""
-        factory = ftputil.session.session_factory(base_class=MockSession)
+        factory = \
+          ftputil.session.session_factory(base_class=EncryptedMockSession)
         # Return `True` to fake that this is a session deriving from
         # `M2Crypto.ftpslib.FTP_TLS`.
         factory._use_m2crypto_ftpslib = lambda self: True
@@ -119,7 +137,8 @@ class TestSessionFactory(unittest.TestCase):
         self.assertEqual(session.calls, [("connect", "host", 21),
                                          ("auth_tls",),
                                          ("_fix_socket",),
-                                         ("login", "user", "password")])
+                                         ("login", "user", "password"),
+                                         ("prot_p",)])
 
 
 if __name__ == "__main__":
