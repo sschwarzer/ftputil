@@ -10,7 +10,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import io
-import pickle
 
 import ftputil.compat
 import ftputil.error
@@ -303,4 +302,4 @@ class FTPFile(object):
             self.closed = True
 
     def __getstate__(self):
-        raise pickle.PicklingError("pickling is deliberately unsupported")
+        raise TypeError("cannot serialize FTPFile object")
