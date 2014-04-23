@@ -573,9 +573,9 @@ class TestFailingPickling(unittest.TestCase):
     def test_failing_pickling(self):
         """Test if pickling (intentionally) isn't supported."""
         with test_base.ftp_host_factory() as host:
-            self.assertRaises(pickle.PicklingError, pickle.dumps, host)
+            self.assertRaises(TypeError, pickle.dumps, host)
             with host.open("/home/sschwarzer/index.html") as file_obj:
-                self.assertRaises(pickle.PicklingError, pickle.dumps, file_obj)
+                self.assertRaises(TypeError, pickle.dumps, file_obj)
 
 
 if __name__ == "__main__":

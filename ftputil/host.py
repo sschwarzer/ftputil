@@ -12,7 +12,6 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import ftplib
-import pickle
 import stat
 import sys
 import time
@@ -899,7 +898,7 @@ class FTPHost(object):
         self.stat_cache.invalidate(path)
 
     def __getstate__(self):
-        raise pickle.PicklingError("pickling is deliberately unsupported")
+        raise TypeError("cannot serialize FTPHost object")
 
     #
     # Context manager methods
