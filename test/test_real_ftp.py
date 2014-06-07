@@ -391,6 +391,47 @@ class TestWalk(RealFTPTest):
           ]
         self._walk_test(expected_result, top="walk_test", topdown=False)
 
+    def test_walk_following_links(self):
+        # Preparation: build tree in directory `walk_test`.
+        expected_result = [
+          ("walk_test",
+           ["dir1", "dir2", "dir3"],
+           ["file4"]),
+
+          ("walk_test/dir1",
+           ["dir11", "dir12"],
+           []),
+
+          ("walk_test/dir1/dir11",
+           [],
+           []),
+
+          ("walk_test/dir1/dir12",
+           ["dir123"],
+           ["file121", "file122"]),
+
+          ("walk_test/dir1/dir12/dir123",
+           [],
+           ["file1234"]),
+
+          ("walk_test/dir2",
+           [],
+           []),
+
+          ("walk_test/dir3",
+           ["dir31", "dir32"],
+           ["file31", "file32"]),
+
+          ("walk_test/dir3/dir31",
+           [],
+           []),
+
+          ("walk_test/dir3/dir32",
+           [],
+           ["file1234"]),
+          ]
+        self._walk_test(expected_result, top="walk_test", followlinks=True)
+
 
 class TestRename(RealFTPTest):
 
