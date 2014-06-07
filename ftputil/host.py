@@ -302,10 +302,10 @@ class FTPHost(object):
         # Use a positive value for rounding.
         absolute_time_shift = abs(time_shift)
         signum = time_shift / absolute_time_shift
-        # Round it to hours. This code should also work for later Python
-        # versions because of the explicit `int`.
-        absolute_rounded_time_shift = \
-          int( (absolute_time_shift + 30*minute) / hour ) * hour
+        # Round absolute time shift to 15-minute units.
+        absolute_rounded_time_shift = (
+          int( (absolute_time_shift + (7.5*minute)) / (15.0*minute) ) *
+          (15.0*minute))
         # Return with correct sign.
         return signum * absolute_rounded_time_shift
 
@@ -325,13 +325,13 @@ class FTPHost(object):
             raise ftputil.error.TimeShiftError(
                   "time shift abs({0:.2f} s) > 1 day".format(time_shift))
         # Test 2: Fail if the deviation between given time shift and
-        #         full hours is greater than a certain limit.
+        #         15-minute units is greater than a certain limit.
         maximum_deviation = 5 * minute
         if abs(time_shift - self.__rounded_time_shift(time_shift)) > \
            maximum_deviation:
             raise ftputil.error.TimeShiftError(
                     "time shift ({0:.2f} s) deviates more than {1:d} s "
-                    "from full hours".format(
+                    "from 15-minute units".format(
                       time_shift, int(maximum_deviation)))
 
     def synchronize_times(self):
