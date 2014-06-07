@@ -323,31 +323,31 @@ class TestWalk(RealFTPTest):
           ("walk_test",
            ["dir1", "dir2", "dir3"],
            ["file4"]),
-
+          #
           ("walk_test/dir1",
            ["dir11", "dir12"],
            []),
-
+          #
           ("walk_test/dir1/dir11",
            [],
            []),
-
+          #
           ("walk_test/dir1/dir12",
            ["dir123"],
            ["file121", "file122"]),
-
+          #
           ("walk_test/dir1/dir12/dir123",
            [],
            ["file1234"]),
-
+          #
           ("walk_test/dir2",
            [],
            []),
-
+          #
           ("walk_test/dir3",
            ["dir31", "dir32"],
            ["file31", "file32"]),
-
+          #
           ("walk_test/dir3/dir31",
            [],
            []),
@@ -360,31 +360,31 @@ class TestWalk(RealFTPTest):
           ("walk_test/dir1/dir11",
            [],
            []),
-
+          #
           ("walk_test/dir1/dir12/dir123",
            [],
            ["file1234"]),
-
+          #
           ("walk_test/dir1/dir12",
            ["dir123"],
            ["file121", "file122"]),
-
+          #
           ("walk_test/dir1",
            ["dir11", "dir12"],
            []),
-
+          #
           ("walk_test/dir2",
            [],
            []),
-
+          #
           ("walk_test/dir3/dir31",
            [],
            []),
-
+          #
           ("walk_test/dir3",
            ["dir31", "dir32"],
            ["file31", "file32"]),
-
+          #
           ("walk_test",
            ["dir1", "dir2", "dir3"],
            ["file4"])
@@ -397,35 +397,35 @@ class TestWalk(RealFTPTest):
           ("walk_test",
            ["dir1", "dir2", "dir3"],
            ["file4"]),
-
+          #
           ("walk_test/dir1",
            ["dir11", "dir12"],
            []),
-
+          #
           ("walk_test/dir1/dir11",
            [],
            []),
-
+          #
           ("walk_test/dir1/dir12",
            ["dir123"],
            ["file121", "file122"]),
-
+          #
           ("walk_test/dir1/dir12/dir123",
            [],
            ["file1234"]),
-
+          #
           ("walk_test/dir2",
            [],
            []),
-
+          #
           ("walk_test/dir3",
            ["dir31", "dir32"],
            ["file31", "file32"]),
-
+          #
           ("walk_test/dir3/dir31",
            [],
            []),
-
+          #
           ("walk_test/dir3/dir32",
            [],
            ["file1234"]),
