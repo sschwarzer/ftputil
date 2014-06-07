@@ -345,10 +345,10 @@ class TestWalk(RealFTPTest):
            []),
 
           ("walk_test/dir3",
-           ["dir33"],
+           ["dir31"],
            ["file31", "file32"]),
 
-          ("walk_test/dir3/dir33",
+          ("walk_test/dir3/dir31",
            [],
            []),
           ]
@@ -377,12 +377,12 @@ class TestWalk(RealFTPTest):
            [],
            []),
 
-          ("walk_test/dir3/dir33",
+          ("walk_test/dir3/dir31",
            [],
            []),
 
           ("walk_test/dir3",
-           ["dir33"],
+           ["dir31"],
            ["file31", "file32"]),
 
           ("walk_test",
