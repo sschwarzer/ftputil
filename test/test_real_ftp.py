@@ -306,10 +306,20 @@ class TestRemoval(RealFTPTest):
 
 class TestWalk(RealFTPTest):
 
+    def _walk_test(self, expected_result, **walk_kwargs):
+        """Walk the directory and test results."""
+        # Collect data using `walk`.
+        actual_result = []
+        for items in self.host.walk(**walk_kwargs):
+            actual_result.append(items)
+        # Compare with expected results.
+        self.assertEqual(len(actual_result), len(expected_result))
+        for index, _ in enumerate(actual_result):
+            self.assertEqual(actual_result[index], expected_result[index])
+
     def test_walk_topdown(self):
         # Preparation: build tree in directory `walk_test`.
-        host = self.host
-        expected = [
+        expected_result = [
           ("walk_test",
            ["dir1", "dir2", "dir3"],
            ["file4"]),
@@ -342,19 +352,11 @@ class TestWalk(RealFTPTest):
            [],
            []),
           ]
-        # Collect data using `walk`.
-        actual = []
-        for items in host.walk("walk_test"):
-            actual.append(items)
-        # Compare with expected results.
-        self.assertEqual(len(actual), len(expected))
-        for index, _ in enumerate(actual):
-            self.assertEqual(actual[index], expected[index])
+        self._walk_test(expected_result, top="walk_test")
 
     def test_walk_depth_first(self):
         # Preparation: build tree in directory `walk_test`
-        host = self.host
-        expected = [
+        expected_result = [
           ("walk_test/dir1/dir11",
            [],
            []),
@@ -387,14 +389,7 @@ class TestWalk(RealFTPTest):
            ["dir1", "dir2", "dir3"],
            ["file4"])
           ]
-        # Collect data using `walk`.
-        actual = []
-        for items in host.walk("walk_test", topdown=False):
-            actual.append(items)
-        # Compare with expected results.
-        self.assertEqual(len(actual), len(expected))
-        for index, _ in enumerate(actual):
-            self.assertEqual(actual[index], expected[index])
+        self._walk_test(expected_result, top="walk_test", topdown=False)
 
 
 class TestRename(RealFTPTest):
