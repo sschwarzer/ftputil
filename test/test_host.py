@@ -12,6 +12,7 @@ import posixpath
 import random
 import time
 import unittest
+import warnings
 
 import ftputil
 import ftputil.compat
@@ -380,12 +381,12 @@ class TestTimeShift(unittest.TestCase):
           (      0,           0),
           (      0.1,         0),
           (     -0.1,         0),
-          (   1500,           0),
-          (  -1500,           0),
-          (   1800,        3600),
-          (  -1800,       -3600),
-          (   2000,        3600),
-          (  -2000,       -3600),
+          (   1500,        1800),
+          (  -1500,       -1800),
+          (   1800,        1800),
+          (  -1800,       -1800),
+          (   2000,        1800),
+          (  -2000,       -1800),
           ( 5*3600-100,  5*3600),
           (-5*3600+100, -5*3600)]
         for time_shift, expected_time_shift in test_data:
@@ -406,23 +407,34 @@ class TestTimeShift(unittest.TestCase):
                           25*3600)
         self.assertRaises(ftputil.error.TimeShiftError, assert_time_shift,
                           -25*3600)
-        # Invalid time shift (too large deviation from full hours unacceptable)
+        # Invalid time shift (too large deviation from 15-minute units
+        # is unacceptable)
         self.assertRaises(ftputil.error.TimeShiftError, assert_time_shift,
-                          10*60)
+                          8*60)
         self.assertRaises(ftputil.error.TimeShiftError, assert_time_shift,
-                          -3600-10*60)
+                          -3600-8*60)
 
     def test_synchronize_times(self):
         """Test time synchronization with server."""
         host = test_base.ftp_host_factory(ftp_host_class=TimeShiftFTPHost,
                                           session_factory=TimeShiftMockSession)
-        # Valid time shift
-        host.path.set_mtime(time.time() + 3630)
-        host.synchronize_times()
-        self.assertEqual(host.time_shift(), 3600)
-        # Invalid time shift
-        host.path.set_mtime(time.time() + 3600+10*60)
-        self.assertRaises(ftputil.error.TimeShiftError, host.synchronize_times)
+        # Valid time shifts
+        test_data = [
+          (60*60+30,  60*60),
+          (60*60-100, 60*60),
+          (30*60+100, 30*60),
+          (45*60-100, 45*60),
+        ]
+        for measured_time_shift, expected_time_shift in test_data:
+            host.path.set_mtime(time.time() + measured_time_shift)
+            host.synchronize_times()
+            self.assertEqual(host.time_shift(), expected_time_shift)
+        # Invalid time shifts
+        measured_time_shifts = [60*60+8*60, 45*60-6*60]
+        for measured_time_shift in measured_time_shifts:
+            host.path.set_mtime(time.time() + measured_time_shift)
+            self.assertRaises(ftputil.error.TimeShiftError,
+                              host.synchronize_times)
 
     def test_synchronize_times_for_server_in_east(self):
         """Test for timestamp correction (see ticket #55)."""
