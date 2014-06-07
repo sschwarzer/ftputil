@@ -305,6 +305,27 @@ class TestRemoval(RealFTPTest):
 
 
 class TestWalk(RealFTPTest):
+    """
+    Walk the directory tree
+
+      walk_test
+      ├── dir1
+      │   ├── dir11
+      │   └── dir12
+      │       ├── dir123
+      │       │   └── file1234
+      │       ├── file121
+      │       └── file122
+      ├── dir2
+      ├── dir3
+      │   ├── dir31
+      │   ├── dir32 -> ../dir1/dir12/dir123
+      │   ├── file31
+      │   └── file32
+      └── file4
+
+    and check if the results are the expected ones.
+    """
 
     def _walk_test(self, expected_result, **walk_kwargs):
         """Walk the directory and test results."""
