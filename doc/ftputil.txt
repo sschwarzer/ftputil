@@ -866,13 +866,13 @@ Iteration over directories
 
 .. _`FTPHost.walk`:
 
-- ``walk(top, topdown=True, onerror=None)``
+- ``walk(top, topdown=True, onerror=None, followlinks=False)``
 
   iterates over a directory tree, similar to `os.walk`_. Actually,
   ``FTPHost.walk`` uses the code from Python with just the necessary
   modifications, so see the linked documentation.
 
-.. _`os.walk`: http://www.python.org/doc/current/lib/module-os.html#os.walk
+.. _`os.walk`: https://docs.python.org/2/library/os.html#os.walk
 
 .. _`FTPHost.path.walk`:
 
