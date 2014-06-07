@@ -1269,46 +1269,89 @@ to the `ftputil mailing list`_. In *either* case you *must not*
 include confidential information (user id, password, file names, etc.)
 in the problem report! Be careful!
 
-Does ``ftputil`` support SSL?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Does ``ftputil`` support SSL/TLS?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``ftputil`` has no *built-in* SSL support. On the other hand,
-you can use M2Crypto_ (in the source code archive, look for the
-file ``M2Crypto/ftpslib.py``) which has a class derived from
-``ftplib.FTP`` that supports SSL. You then can use a class
-(not an object of it) similar to the following as a "session
-factory" in ``ftputil.FTPHost``'s constructor::
+``ftputil`` has no *built-in* SSL/TLS support.
+
+On the other hand, there are two ways to get TLS support with
+ftputil:
+
+- In Python 2.7 and Python 3.2 and up, the ``ftplib`` library has a
+  class ``FTP_TLS`` that you can use for the ``session_factory``
+  keyword argument in the ``FTPHost`` constructor. You can't use the
+  class directly though if you need additional setup code in
+  comparison to ``ftplib.FTP``, for example calling ``prot_p``, to
+  secure the data connection. In that case, create your own session
+  factory by inheriting from ``ftplib.FTP_TLS``::
+
+    import ftplib
 
     import ftputil
 
-    from M2Crypto import ftpslib
 
-    class SSLFTPSession(ftpslib.FTP_TLS):
+    class FTPTLSSession(ftplib.FTP_TLS):
 
-        def __init__(self, host, userid, password):
-            """
-            Use M2Crypto's `FTP_TLS` class to establish an
-            SSL connection.
-            """
-            ftpslib.FTP_TLS.__init__(self)
-            # Do anything necessary to set up the SSL connection.
-            ...
+        def __init__(self, host, user, password):
+            ftplib.FTP_TLS.__init__(self)
             self.connect(host, port)
-            self.login(userid, password)
-            ...
+            self.login(user, password)
+            # Set up encrypted data connection.
+            self.prot_p()
 
-    # Note the `session_factory` parameter.
-    host = ftputil.FTPHost(host, userid, password,
-                           session_factory=SSLFTPSession)
+    # Note the `session_factory` parameter. Pass the class, not
+    # an instance.
+    host = ftputil.FTPHost(host, user, password,
+                           session_factory=FTPTLSSession)
     # Use `host` as usual.
 
-If you work with Python 2.7 or 3.2 and later, you can use a
-similar recipe with the class ``FTP_TLS`` in the ``ftplib``
-module. Note that you need to call ``prot_p`` on the ``FTP_TLS``
-instance to actually use a secure transfer. This makes it still
-necessary to define a session class similar to the one above.
+- If you need to work with Python 2.6, you can use the
+  ``ftpslib.FTP_TLS`` class from the M2Crypto_ project. Again, you
+  can't use the class directly but need a recipe similar to that
+  above.
 
-.. _M2Crypto: http://wiki.osafoundation.org/bin/view/Projects/MeTooCrypto#Downloads
+  Unfortunately, ``M2Crypto.ftpslib.FTP_TLS`` (at least in version
+  0.22.3) doesn't work correctly if you pass unicode strings to its
+  methods. Since ``ftputil`` does exactly that at some point (even if
+  you used byte strings in ``ftputil`` calls) you need a workaround in
+  the session factory class::
+
+    import M2Crypto
+
+    import ftputil
+    import ftputil.tool
+
+
+    class M2CryptoSession(M2Crypto.ftpslib.FTP_TLS):
+
+        def __init__(self, host, user, password):
+            M2Crypto.ftpslib.FTP_TLS.__init__(self)
+            # Change the port number if needed.
+            self.connect(host, 21)
+            self.auth_tls()
+            self.login(user, password)
+            self.prot_p()
+            self._fix_socket()
+
+        def _fix_socket(self):
+            """
+            Change the socket object so that arguments to `sendall`
+            are converted to byte strings before being used.
+            """
+            original_sendall = self.sock.sendall
+            # Bound method, therefore no `self` argument.
+            def sendall(data):
+                data = ftputil.tool.as_bytes(data)
+                return original_sendall(data)
+            self.sock.sendall = sendall
+
+    # Note the `session_factory` parameter. Pass the class, not
+    # an instance.
+    host = ftputil.FTPHost(host, user, password,
+                           session_factory=M2CryptoSession)
+    # Use `host` as usual.
+
+.. _M2Crypto: https://github.com/martinpaljak/M2Crypto
 
 How do I connect to a non-default port?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
