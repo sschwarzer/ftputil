@@ -276,15 +276,12 @@ Basics
 The first four parameters are strings with the same meaning as for the
 FTP class in the ``ftplib`` module.
 
-Support for the ``with`` statement
-``````````````````````````````````
-
-``FTPHost`` objects can be used in the ``with`` statement::
+``FTPHost`` objects can also be used in a ``with`` statement::
 
     import ftputil
 
-    with ftputil.FTPHost(host, user, password) as host:
-        print host.listdir(host.curdir)
+    with ftputil.FTPHost(host, user, password) as ftp_host:
+        print ftp_host.listdir(ftp_host.curdir)
 
 After the ``with`` block, the ``FTPHost`` instance and the
 associated FTP sessions will be closed automatically.
