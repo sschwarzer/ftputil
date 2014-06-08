@@ -955,7 +955,8 @@ Other methods
 
   closes the connection to the remote host. After this, no more
   interaction with the FTP server is possible with this ``FTPHost``
-  object.
+  object. Usually you don't need to close an ``FTPHost`` instance
+  with ``close`` if you set up the instance in a ``with`` statement.
 
 - ``rename(source, target)``
 
