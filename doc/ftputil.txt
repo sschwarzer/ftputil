@@ -287,8 +287,8 @@ connection.
 
 In fact, all positional and keyword arguments other than
 ``session_factory`` are passed to the factory to generate a new
-background session. This happens for every remote file that is opened;
-see below.
+background session. This also happens for every remote file that is
+opened; see below.
 
 This functionality of the constructor also allows to wrap
 ``ftplib.FTP`` objects to do something that wouldn't be possible with
@@ -296,8 +296,8 @@ the ``ftplib.FTP`` constructor alone.
 
 As an example, assume you want to connect to another than the default
 port, but ``ftplib.FTP`` only offers this by means of its ``connect``
-method, not via its constructor. The solution is to use a wrapper
-class::
+method, not via its constructor. One solution is to use a custom
+class as a session factory::
 
     import ftplib
     import ftputil
@@ -312,17 +312,86 @@ class::
             self.connect(host, port)
             self.login(userid, password)
 
-    # Try _not_ to use an instance `MySession()` as factory, -
+    # Try _not_ to use an _instance_ `MySession()` as factory, -
     # use the class itself.
-    host = ftputil.FTPHost(host, userid, password,
-                           port=EXAMPLE_PORT, session_factory=MySession)
-    # Use `host` as usual.
+    with ftputil.FTPHost(host, userid, password, port=EXAMPLE_PORT,
+                         session_factory=MySession) as ftp_host:
+        # Use `ftp_host` as usual.
+        ...
 
 On login, the format of the directory listings (needed for stat'ing
 files and directories) should be determined automatically. If not,
 please `file a bug report`_.
 
 .. _`file a bug report`: http://ftputil.sschwarzer.net/issuetrackernotes
+
+For the most common uses you don't need to create your own session
+factory class though. The ``ftputil.session`` module has a function
+``session_factory`` that can create session factories for a variety
+of parameters::
+
+    session_factory(base_class=ftplib.FTP,
+                    port=21,
+                    use_passive_mode=None,
+                    encrypt_data_channel=True,
+                    debug_level=None)
+
+with
+
+- ``base_class`` is a base class to inherit a new session factory
+  class from. By default, this is ``ftplib.FTP`` from the Python
+  standard library.
+
+- ``port`` is the command channel port. The default is 21, used in most
+  FTP server configurations.
+
+- ``use_passive_mode`` is either a boolean that determines whether
+  passive mode should be used or ``None``. ``None`` means to let the
+  base class choose active or passive mode.
+
+- ``encrypt_data_channel`` defines whether to encrypt the data channel
+  for secure connections. This is only supported for the base classes
+  ``ftplib.FTP_TLS`` and ``M2Crypto.ftpslib.FTP_TLS``, otherwise the
+  the parameter is ignored.
+
+- ``debug_level`` sets the debug level for FTP session instances. The
+  semantics is defined by the base class. For example, a debug level
+  of 2 causes the most verbose output for Python's ``ftplib.FTP``
+  class.
+
+All of these parameters can be combined. For example, you could use
+
+::
+
+    import ftplib
+
+    import ftputil
+    import ftputil.session
+
+
+    my_session_factory = ftputil.session.session_factory(
+                           base_class=ftpslib.FTP_TLS,
+                           port=31,
+                           encrypt_data_channel=True,
+                           debug_level=2)
+
+    with ftputil.FTPHost(host, user, password,
+                         session_factory=my_session_factory) as ftp_host:
+        ...
+
+to create and use a session factory derived from ``ftplib.FTP_TLS``
+that connects on command channel 31, will encrypt the data channel and
+print output for debug level 2.
+
+Note: Generally, you can achieve everything you can do with
+``ftputil.session.session_factory`` with an explicit session factory
+as described at the start of this section. However, the class
+``M2Crypto.ftpslib.FTP_TLS`` has a limitation so that you can't use
+it with ftputil out of the box. The function ``session_factory``
+contains a workaround for this limitation. For details refer to `this
+bug report`_.
+
+.. _`this bug report`: http://ftputil.sschwarzer.net/trac/ticket/78
 
 Support for the ``with`` statement
 ``````````````````````````````````
