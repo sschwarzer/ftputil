@@ -1074,7 +1074,7 @@ Basics
 ``````
 
 ``FTPFile`` objects are returned by a call to ``FTPHost.open``;
-never use the constructor directly.
+never use the ``FTPFile`` constructor directly.
 
 The API of remote file-like objects are is modeled after the API of
 the io_ module in Python 3, which has also been backported to Python
@@ -1120,20 +1120,16 @@ converting newlines to ``\n`` when reading remote files. This is
 in line with the "text mode" notion of FTP command line clients.
 Now, "text mode" follows the semantics in Python's ``io`` module.
 
-Support for the ``with`` statement
-``````````````````````````````````
-
-``FTPFile`` objects can be used with the ``with`` statement::
+``FTPHost.open`` can also be used in a ``with`` statement::
 
     import ftputil
 
-    # Get an ``FTPHost`` object.
-    ...
+    with ftputil.FTPHost(...) as ftp_host:
+        ...
+        with ftp_host.open("new_file", "w", encoding="utf8") as fobj:
+            fobj.write("This is some text.")
 
-    with host.open("new_file", "w") as fobj:
-        fobj.write("This is some text.")
-
-At the end of the ``with`` block, the file will be closed
+At the end of the ``with`` block, the remote file will be closed
 automatically.
 
 If something goes wrong during the construction of the file or in the
