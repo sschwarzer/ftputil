@@ -1345,8 +1345,13 @@ ftputil:
   keyword argument in the ``FTPHost`` constructor. You can't use the
   class directly though if you need additional setup code in
   comparison to ``ftplib.FTP``, for example calling ``prot_p``, to
-  secure the data connection. In that case, create your own session
-  factory by inheriting from ``ftplib.FTP_TLS``::
+  secure the data connection. On the other hand,
+  `ftputil.session.session_factory`_ can be used to create a custom
+  session factory.
+  
+  If you have other requirements that ``session_factory`` can't
+  fulfill, you may create your own session factory by inheriting from
+  ``ftplib.FTP_TLS``::
 
     import ftplib
 
@@ -1361,16 +1366,20 @@ ftputil:
             self.login(user, password)
             # Set up encrypted data connection.
             self.prot_p()
+            ...
 
     # Note the `session_factory` parameter. Pass the class, not
     # an instance.
-    host = ftputil.FTPHost(host, user, password,
-                           session_factory=FTPTLSSession)
-    # Use `host` as usual.
+    with ftputil.FTPHost(host, user, password,
+                         session_factory=FTPTLSSession) as ftp_host:
+        # Use `ftp_host` as usual.
+
+.. _`ftputil.session.session_factory`: `Session factories`_
 
 - If you need to work with Python 2.6, you can use the
   ``ftpslib.FTP_TLS`` class from the M2Crypto_ project. Again, you
-  can't use the class directly but need a recipe similar to that
+  can't use the class directly but need to use
+  ``ftputil.session.session_factory`` or a recipe similar to that
   above.
 
   Unfortunately, ``M2Crypto.ftpslib.FTP_TLS`` (at least in version
@@ -1395,6 +1404,7 @@ ftputil:
             self.login(user, password)
             self.prot_p()
             self._fix_socket()
+            ...
 
         def _fix_socket(self):
             """
@@ -1410,9 +1420,12 @@ ftputil:
 
     # Note the `session_factory` parameter. Pass the class, not
     # an instance.
-    host = ftputil.FTPHost(host, user, password,
-                           session_factory=M2CryptoSession)
-    # Use `host` as usual.
+    with ftputil.FTPHost(host, user, password,
+                         session_factory=M2CryptoSession) as ftp_host:
+        # Use `ftp_host` as usual.
+
+  That said, ``session_factory`` has this workaround built in, so
+  normally you don't need to define the session factory yourself!
 
 .. _M2Crypto: https://github.com/martinpaljak/M2Crypto
 
@@ -1420,31 +1433,27 @@ How do I connect to a non-default port?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 By default, an instantiated ``FTPHost`` object connects on the usual
-FTP ports. If you have to use a different port, refer to the
-section `FTPHost construction`_.
-
-You can use the same approach to connect in active or passive mode.
+FTP port. If you have to use a different port, refer to the section
+`Session factories`_.
 
 How do I set active or passive mode?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-See the previous question and answer.
+Please see the section `Session factories`_.
 
 How can I debug an FTP connection problem?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Similarly to the tip above, write a session factory which calls
-`ftplib.FTP.set_debuglevel`_ before the actual login.
-
-.. _`ftplib.FTP.set_debuglevel`: http://docs.python.org/library/ftplib.html#ftplib.FTP.set_debuglevel
+You can do this with a session factory. See `Session factories`_.
 
 If you want to change the debug level only temporarily after the
 connection is established, you can reach the `session object`_ as the
-``_session`` attribute of the ``FTPHost`` instance. Note that this
-interface should *only* be used for debugging. Calling arbitrary
+``_session`` attribute of the ``FTPHost`` instance and call
+``_session.set_debuglevel``. Note that the ``_session`` attribute
+should *only* be accessed for debugging. Calling arbitrary
 ``ftplib.FTP`` methods on the session object may *cause* bugs!
 
-.. _`session object`: #session-factories
+.. _`session object`: `Session factories`_
 
 Conditional upload/download to/from a server in a different time zone
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
