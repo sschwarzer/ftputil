@@ -276,6 +276,23 @@ Basics
 The first four parameters are strings with the same meaning as for the
 FTP class in the ``ftplib`` module.
 
+Support for the ``with`` statement
+``````````````````````````````````
+
+``FTPHost`` objects can be used in the ``with`` statement::
+
+    import ftputil
+
+    with ftputil.FTPHost(host, user, password) as host:
+        print host.listdir(host.curdir)
+
+After the ``with`` block, the ``FTPHost`` instance and the
+associated FTP sessions will be closed automatically.
+
+If something goes wrong during the ``FTPHost`` construction or in the
+body of the ``with`` statement, the instance is closed as well.
+Exceptions will be propagated (as with ``try ... finally``).
+
 Session factories
 `````````````````
 
@@ -392,23 +409,6 @@ contains a workaround for this limitation. For details refer to `this
 bug report`_.
 
 .. _`this bug report`: http://ftputil.sschwarzer.net/trac/ticket/78
-
-Support for the ``with`` statement
-``````````````````````````````````
-
-``FTPHost`` objects can be used in the ``with`` statement::
-
-    import ftputil
-
-    with ftputil.FTPHost(host, user, password) as host:
-        print host.listdir(host.curdir)
-
-After the ``with`` block, the ``FTPHost`` instance and the
-associated FTP sessions will be closed automatically.
-
-If something goes wrong during the ``FTPHost`` construction or in the
-body of the ``with`` statement, the instance is closed as well.
-Exceptions will be propagated (as with ``try ... finally``).
 
 Hidden files and directories
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
