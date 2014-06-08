@@ -1049,9 +1049,10 @@ Other methods
   connections because of clients that never disconnect on their own.
 
   Note that the ``keep_alive`` method does *not* affect the "hidden"
-  FTP connections established by ``FTPHost.open`` (see below). You
-  *can't* use ``keep_alive`` to avoid a timeout in a stalling transfer
-  like this::
+  FTP child connections established by ``FTPHost.open`` (see section
+  `FTPHost instances vs. FTP connections`_ for details). You *can't*
+  use ``keep_alive`` to avoid a timeout in a stalling transfer like
+  this::
 
       with ftputil.FTPHost(server, userid, password) as ftp_host:
           with ftp_host.open("some_remote_file", "rb") as fobj:
@@ -1155,7 +1156,7 @@ objects of a local disk file system. The iterator protocol is
 supported as well, i. e. you can use a loop to read a file line by
 line::
 
-    with ftputil.FTPHost(...) as ftp_host:
+    with ftputil.FTPHost(server, user, password) as ftp_host:
         with ftp_host.open("some_file") as input_file:
             for line in input_file:
                 # Do something with the line, e. g.
@@ -1165,6 +1166,107 @@ For more on file objects, see the section `File objects`_ in the
 Python Library Reference.
 
 .. _`file objects`: https://docs.python.org/2.7/library/stdtypes.html#file-objects
+
+
+.. _`child_connections`:
+
+``FTPHost`` instances vs. FTP connections
+-----------------------------------------
+
+This section explains why keeping an ``FTPHost`` instance "alive"
+without timing out sometimes isn't trivial. If you always finish your
+FTP operations in time, you don't need to read this section.
+
+The file transfer protocol is a stateful protocol. That means an FTP
+connection always is in a certain state. Each of these states can only
+change to certain other states under certain conditions triggered by
+the client or the server.
+
+One of the consequences is that a single FTP connection can't be used
+at the same time, say, to transfer data on the FTP data channel and to
+create a directory on the remote host.
+
+For example, consider this::
+
+    >>> import ftplib
+    >>> ftp = ftplib.FTP(server, user, password)
+    >>> ftp.pwd()
+    '/'
+    >>> # Start transfer. `CONTENTS` is a text file on the server.
+    >>> socket = ftp.transfercmd("RETR CONTENTS")
+    >>> socket
+    <socket._socketobject object at 0x7f801a6386e0>
+    >>> ftp.pwd()
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+      File "/usr/lib64/python2.7/ftplib.py", line 578, in pwd
+        return parse257(resp)
+      File "/usr/lib64/python2.7/ftplib.py", line 842, in parse257
+        raise error_reply, resp
+    ftplib.error_reply: 226-File successfully transferred
+    226 0.000 seconds (measured here), 5.60 Mbytes per second
+    >>>
+
+Note that ``ftp`` is a single FTP connection, represented by an
+``ftplib.FTP`` instance, not an ``ftputil.FTPHost`` instance.
+
+On the other hand, consider this::
+
+    >>> import ftputil
+    >>> ftp_host = ftputil.FTPHost(server, user, password)
+    >>> ftp_host.getcwd()
+    >>> fobj = ftp_host.open("CONTENTS")
+    >>> fobj
+    <ftputil.file.FTPFile object at 0x7f8019d3aa50>
+    >>> ftp_host.getcwd()
+    u'/'
+    >>> fobj.readline()
+    u'Contents of FTP test directory\n'
+    >>> fobj.close()
+    >>>
+
+To be able to start a file transfer (i. e. open a remote file for
+reading or writing) and still be able to use other FTP commands,
+ftputil uses a trick. For every remote file, ftputil creates a new FTP
+connection, called a child connection in the ftputil source code.
+(Actually, FTP connections belonging to closed remote files are
+re-used if they haven't timed out yet.)
+
+In most cases this approach isn't noticable by code using ftputil.
+However, the nice abstraction of dealing with a single FTP connection
+falls apart if one of the child connections times out. For example, if
+you open a remote file and work only with the initial "main"
+connection to navigate the file system, the FTP connection for the
+remote file may eventually time out.
+
+While it's often relatively easy to prevent the "main" connection from
+timing out it's unfortunately practically impossible to do this for a
+remote file connection (apart from transferring some data, of course).
+For this reason, `FTPHost.keep_alive`_ affects only the main
+connection. Child connections may still time out if they're idle for
+too long.
+
+.. _`FTPHost.keep_alive`: `keep_alive`_
+
+Some more details:
+
+- A kind of "straightforward" way of keeping the main connection alive
+  would be to call ``ftp_host.getcwd()``. However, this doesn't work
+  because ftputil caches the current directory and returns it without
+  actually contacting the server. That's the main reason why there's
+  a ``keep_alive`` method since it calls ``pwd`` on the FTP connection
+  (i. e. the session object), which isn't a public attribute.
+
+- Some servers define not only an idle timeout but also a transfer
+  timeout. This means the connection times out unless there's some
+  transfer on the data channel for this connection. So ftputil's
+  ``keep_alive`` doesn't prevent this timeout, but an
+  ``ftp_host.listdir(ftp_host.curdir)`` call should do it. However,
+  this transfers the data for the whole directory listing which might
+  take some time if the directory has many entries.
+
+Bottom line: If you can, you should organize your FTP actions so that
+you finish everything before a timeout happens.
 
 
 Writing directory parsers
