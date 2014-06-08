@@ -66,6 +66,8 @@ def session_factory(base_class=ftplib.FTP, port=21, use_passive_mode=None,
         """Session factory class created by `session_factory`."""
 
         def __init__(self, host, user, password):
+            # Don't use `super` in case `base_class` isn't a new-style
+            # class (e. g. `ftplib.FTP` in Python 2).
             base_class.__init__(self)
             self.connect(host, port)
             if self._use_m2crypto_ftpslib():
