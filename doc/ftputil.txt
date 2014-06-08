@@ -396,7 +396,7 @@ bug report`_.
 Support for the ``with`` statement
 ``````````````````````````````````
 
-`FTPHost` objects can be used in the ``with`` statement::
+``FTPHost`` objects can be used in the ``with`` statement::
 
     import ftputil
 
