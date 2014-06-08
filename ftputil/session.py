@@ -47,7 +47,7 @@ def session_factory(base_class=ftplib.FTP, port=21, use_passive_mode=None,
     debug_level: Debug level (integer) to be set on a session
     instance. The default is `None`, meaning no debugging output.
 
-    This function should work the base classes for `ftplib.FTP`,
+    This function should work for the base classes `ftplib.FTP`,
     `ftplib.FTP_TLS` and `M2Crypto.ftpslib.FTP_TLS` with TLS security.
     Other base classes should work if they use the same API as
     `ftplib.FTP`.
