@@ -712,7 +712,7 @@ class TestChmod(RealFTPTest):
         full_mode = self.host.stat(path).st_mode
         # Remove flags we can't set via `chmod`.
         # Allowed flags according to Python documentation
-        # http://docs.python.org/lib/os-file-dir.html .
+        # https://docs.python.org/library/stat.html
         allowed_flags = [stat.S_ISUID, stat.S_ISGID, stat.S_ENFMT,
           stat.S_ISVTX, stat.S_IREAD, stat.S_IWRITE, stat.S_IEXEC,
           stat.S_IRWXU, stat.S_IRUSR, stat.S_IWUSR, stat.S_IXUSR,

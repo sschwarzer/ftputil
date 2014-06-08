@@ -260,7 +260,7 @@ class FTPFile(object):
                 "'FTPFile' object has no attribute '{0}'".format(attr_name))
 
     # TODO: Implement `__dir__`? (See
-    # http://docs.python.org/py3k/whatsnew/2.6.html#other-language-changes )
+    # http://docs.python.org/whatsnew/2.6.html#other-language-changes )
 
     def close(self):
         """Close the `FTPFile`."""
