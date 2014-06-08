@@ -1486,7 +1486,7 @@ Authors
 <sschwarzer@sschwarzer.net>, in part based on suggestions
 from users.
 
-The ``lrucache`` module is written by Evan Prodromou
+The original ``lrucache`` module was written by Evan Prodromou
 <evan@prodromou.name>.
 
 Feedback is appreciated. :-)
