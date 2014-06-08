@@ -15,33 +15,38 @@ in different timezones.
 What's new?
 -----------
 
-Note: This version of ftputil is _not_ backward-compatible
-with earlier versions. See the links below for information
-on adapting existing client code.
+Since version 3.0 the following changed:
 
-Since version 2.8 the following changed:
+- Added support for `followlinks` parameter in `FTPHost.walk`. [1]
 
-- This version adds Python 3 compatibility! :-)
+- Trying to pickle `FTPHost` and `FTPFile` objects now raises explicit
+  `TypeError`s to make clear that not being able to pickle these
+  objects is intentional. [2]
 
-  The same source is used for Python 2.x and Python 3.x.
+- Improved exception messages for socket errors [3].
 
-  I had to change the API to find a good compromise for
-  both Python versions. This means this version is _not_
-  backward-compatible with earlier ftputil versions.
+- Fixed handling of server error messages with non-ASCII characters
+  when running under Python 2.x. [4]
 
-- ftputil now requires at least Python 2.6.
+- Added a generic "session factory factory" to make creation of
+  session factories easier for common use cases (encrypted
+  connections, non-default port, active/passive mode, FTP session
+  debug level and combination of these). [5] This includes a
+  workaround for `M2Crypto.ftpslib.FTP_TLS`; this class won't be
+  usable with ftputil 3.0 and up with just the session factory recipe
+  described in the documentation. [6]
 
-- Remote file-like objects use the same semantics as Python's
-  `io` module. (This is the same as for the built-in `open`
-  function in Python 3.)
+- Don't assume time zone differences to always be full hours, but
+  rather 15-minute units. [8] For example, according to [9], Nepal's
+  time zone is UTC+05:45.
 
-- `ftputil.ftp_error` was renamed to `ftputil.error`.
+- Improved documentation on timeout handling. This includes
+  information on internal creation of additional FTP connections (for
+  remote files, including uploads and downloads). This may help
+  understand better why the `keep_alive` method is limited.
 
-- For custom parsers, import `ftputil.parser` instead of
-  `ftputil.stat`.
-
-For more information please read
-http://ftputil.sschwarzer.net/trac/wiki/Documentation
+Note that ftputil 3.0 broke backward compatibility with ftputil 2.8
+and before. The differences are described here:
 http://ftputil.sschwarzer.net/trac/wiki/WhatsNewInFtputil3.0
 
 Documentation
@@ -120,13 +125,12 @@ Evan Prodromou <evan@bad.dynu.ca> (lrucache module)
 
 Please provide feedback! It's certainly appreciated. :-)
 
-
-[1] http://ftputil.sschwarzer.net/trac/ticket/65
-[2] http://lists.sschwarzer.net/pipermail/ftputil/2012q3/000350.html
-[3] http://ftputil.sschwarzer.net/trac/ticket/39
-    http://ftputil.sschwarzer.net/trac/ticket/65
-    http://ftputil.sschwarzer.net/trac/ticket/66
-    http://ftputil.sschwarzer.net/trac/ticket/67
-    http://ftputil.sschwarzer.net/trac/ticket/69
-[4] http://lists.sschwarzer.net/listinfo/ftputil
-[5] http://lists.sschwarzer.net/listinfo/ftputil-tickets
+[1] http://ftputil.sschwarzer.net/trac/ticket/73
+[2] http://ftputil.sschwarzer.net/trac/ticket/75
+[3] http://ftputil.sschwarzer.net/trac/ticket/76
+[4] http://ftputil.sschwarzer.net/trac/ticket/77
+[5] http://ftputil.sschwarzer.net/trac/ticket/78
+[6] http://ftputil.sschwarzer.net/trac/wiki/Documentation#session-factories
+[7] http://ftputil.sschwarzer.net/trac/ticket/79
+[8] http://ftputil.sschwarzer.net/trac/ticket/81
+[9] http://en.wikipedia.org/wiki/Timezone#List_of_UTC_offsets

@@ -1,3 +1,76 @@
+ftputil 3.1b is now available from
+http://ftputil.sschwarzer.net/download .
+
+Changes since version 3.0
+-------------------------
+
+- Added support for `followlinks` parameter in `FTPHost.walk`. [1]
+
+- Trying to pickle `FTPHost` and `FTPFile` objects now raises explicit
+  `TypeError`s to make clear that not being able to pickle these
+  objects is intentional. [2]
+
+- Improved exception messages for socket errors [3].
+
+- Fixed handling of server error messages with non-ASCII characters
+  when running under Python 2.x. [4]
+
+- Added a generic "session factory factory" to make creation of
+  session factories easier for common use cases (encrypted
+  connections, non-default port, active/passive mode, FTP session
+  debug level and combination of these). [5] This includes a
+  workaround for `M2Crypto.ftpslib.FTP_TLS`; this class won't be
+  usable with ftputil 3.0 and up with just the session factory recipe
+  described in the documentation. [6]
+
+- Don't assume time zone differences to always be full hours, but
+  rather 15-minute units. [8] For example, according to [9], Nepal's
+  time zone is UTC+05:45.
+
+- Improved documentation on timeout handling. This includes
+  information on internal creation of additional FTP connections (for
+  remote files, including uploads and downloads). This may help
+  understand better why the `keep_alive` method is limited.
+
+Note that ftputil 3.0 broke backward compatibility with ftputil 2.8
+and before. The differences are described here:
+http://ftputil.sschwarzer.net/trac/wiki/WhatsNewInFtputil3.0
+
+What is ftputil?
+----------------
+
+ftputil is a high-level FTP client library for the Python programming
+language. ftputil implements a virtual file system for accessing FTP
+servers, that is, it can generate file-like objects for remote files.
+The library supports many functions similar to those in the os,
+os.path and shutil modules. ftputil has convenience functions for
+conditional uploads and downloads, and handles FTP clients and servers
+in different timezones.
+
+See the documentation for details:
+http://ftputil.sschwarzer.net/trac/wiki/Documentation
+
+License
+-------
+
+ftputil is Open Source software, released under the revised BSD
+license (see http://opensource.org/licenses/BSD-3-Clause ).
+
+[1] http://ftputil.sschwarzer.net/trac/ticket/73
+[2] http://ftputil.sschwarzer.net/trac/ticket/75
+[3] http://ftputil.sschwarzer.net/trac/ticket/76
+[4] http://ftputil.sschwarzer.net/trac/ticket/77
+[5] http://ftputil.sschwarzer.net/trac/ticket/78
+[6] http://ftputil.sschwarzer.net/trac/wiki/Documentation#session-factories
+[7] http://ftputil.sschwarzer.net/trac/ticket/79
+[8] http://ftputil.sschwarzer.net/trac/ticket/81
+[9] http://en.wikipedia.org/wiki/Timezone#List_of_UTC_offsets
+
+Have fun! :-)
+
+Stefan
+
+----------------------------------------------------------------------
 ftputil 3.0 is now available from
 http://ftputil.sschwarzer.net/download .
 
