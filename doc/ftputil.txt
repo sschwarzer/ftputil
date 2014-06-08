@@ -17,11 +17,11 @@ The ``ftputil`` module is a high-level interface to the ftplib_
 module. The `FTPHost objects`_ generated from it allow many operations
 similar to those of os_, `os.path`_ and `shutil`_.
 
-.. _ftplib: http://www.python.org/doc/current/lib/module-ftplib.html
-.. _os: http://www.python.org/doc/current/lib/module-os.html
-.. _`os.stat`: http://www.python.org/doc/current/lib/module-os.html#os.stat
-.. _`os.path`: http://www.python.org/doc/current/lib/module-os.path.html
-.. _`shutil`: http://www.python.org/doc/current/lib/module-shutil.html
+.. _ftplib: https://docs.python.org/library/ftplib.html
+.. _os: https://docs.python.org/library/os.html
+.. _`os.stat`: https://docs.python.org/library/os.html#os.stat
+.. _`os.path`: https://docs.python.org/library/os.path.html
+.. _`shutil`: https://docs.python.org/library/shutil.html
 
 Examples::
 
@@ -658,8 +658,8 @@ correction`_).
   from another server type, please write to the `ftputil mailing
   list`_. You may consider `writing your own parser`_.
 
-.. _`os.listdir`: http://www.python.org/doc/current/lib/module-os.html#os.listdir
-.. _`os.lstat`: http://www.python.org/doc/current/lib/module-os.html#os.lstat
+.. _`os.listdir`: https://docs.python.org/library/os.html#os.listdir
+.. _`os.lstat`: https://docs.python.org/library/os.html#os.lstat
 .. _`ftputil mailing list`: http://ftputil.sschwarzer.net/mailinglist
 .. _`writing your own parser`: `Writing directory parsers`_
 
@@ -1101,7 +1101,7 @@ line::
 For more on file objects, see the section `File objects`_ in the
 Python Library Reference.
 
-.. _`file objects`: http://www.python.org/doc/current/lib/bltin-file-objects.html
+.. _`file objects`: https://docs.python.org/2.7/library/stdtypes.html#file-objects
 
 
 Writing directory parsers
@@ -1476,7 +1476,7 @@ References
 .. _`Endo-Testing: Unit Testing with Mock Objects`:
    http://www.connextra.com/aboutUs/mockobjects.pdf
 .. _`RFC 959 - File Transfer Protocol (FTP)`: http://www.ietf.org/rfc/rfc959.txt
-.. _`Python Library Reference`: http://www.python.org/doc/current/lib/lib.html
+.. _`Python Library Reference`: https://docs.python.org/library/index.html
 
 
 Authors
