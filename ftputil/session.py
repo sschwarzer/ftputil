@@ -21,6 +21,10 @@ except ImportError:
 __all__ = ["session_factory"]
 
 
+# In a way, it would be appropriate to call this function
+# `session_factory_factory`, but that's cumbersome to use. Think of
+# the function returning a session factory and the shorter name should
+# be fine.
 def session_factory(base_class=ftplib.FTP, port=21, use_passive_mode=None,
                     encrypt_data_channel=True, debug_level=None):
     """
