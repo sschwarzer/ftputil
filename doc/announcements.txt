@@ -24,7 +24,7 @@ Changes since version 3.0
   described in the documentation. [6]
 
 - Don't assume time zone differences to always be full hours, but
-  rather 15-minute units. [8] For example, according to [9], Nepal's
+  rather 15-minute units. [7] For example, according to [8], Nepal's
   time zone is UTC+05:45.
 
 - Improved documentation on timeout handling. This includes
@@ -62,9 +62,8 @@ license (see http://opensource.org/licenses/BSD-3-Clause ).
 [4] http://ftputil.sschwarzer.net/trac/ticket/77
 [5] http://ftputil.sschwarzer.net/trac/ticket/78
 [6] http://ftputil.sschwarzer.net/trac/wiki/Documentation#session-factories
-[7] http://ftputil.sschwarzer.net/trac/ticket/79
-[8] http://ftputil.sschwarzer.net/trac/ticket/81
-[9] http://en.wikipedia.org/wiki/Timezone#List_of_UTC_offsets
+[7] http://ftputil.sschwarzer.net/trac/ticket/81
+[8] http://en.wikipedia.org/wiki/Timezone#List_of_UTC_offsets
 
 Have fun! :-)
 
