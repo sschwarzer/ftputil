@@ -48,7 +48,7 @@ conditional uploads and downloads, and handles FTP clients and servers
 in different timezones.
 
 See the documentation for details:
-http://ftputil.sschwarzer.net/trac/wiki/Documentation
+http://ftputil.sschwarzer.net/trac/wiki/PreReleaseDocumentation
 
 License
 -------
