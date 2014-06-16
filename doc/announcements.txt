@@ -53,7 +53,7 @@ http://ftputil.sschwarzer.net/trac/wiki/Documentation
 License
 -------
 
-ftputil is Open Source software, released under the revised BSD
+ftputil is open source software, released under the revised BSD
 license (see http://opensource.org/licenses/BSD-3-Clause ).
 
 [1] http://ftputil.sschwarzer.net/trac/ticket/73
