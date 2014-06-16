@@ -112,7 +112,7 @@ without downloading the package explicitly.
 License
 -------
 
-ftputil is Open Source Software. It is distributed under the
+ftputil is open source software. It is distributed under the
 new/modified/revised BSD license (see
 http://opensource.org/licenses/BSD-3-Clause ).
 
