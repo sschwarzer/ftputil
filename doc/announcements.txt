@@ -1,4 +1,4 @@
-ftputil 3.1b is now available from
+ftputil 3.1 is now available from
 http://ftputil.sschwarzer.net/download .
 
 Changes since version 3.0
@@ -48,7 +48,7 @@ conditional uploads and downloads, and handles FTP clients and servers
 in different timezones.
 
 See the documentation for details:
-http://ftputil.sschwarzer.net/trac/wiki/PreReleaseDocumentation
+http://ftputil.sschwarzer.net/trac/wiki/Documentation
 
 License
 -------
