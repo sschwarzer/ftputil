@@ -14,7 +14,7 @@ Added support for Python 3
 This ftputil release adds support for Python 3.0 and up.
 
 Python 2 and 3 are supported with the same source code. Also, the API
-including the sematics is the same. As for Python 3 code, in ftputil
+including the semantics is the same. As for Python 3 code, in ftputil
 3.0 unicode is somewhat preferred over byte strings. On the other
 hand, in line with the file system APIs of both Python 2 and 3,
 methods take either byte strings or unicode strings. Methods that take

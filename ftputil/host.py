@@ -191,7 +191,7 @@ class FTPHost(object):
             effective_path = host.path.join(basedir, path)
         effective_dir, effective_file = host.path.split(effective_path)
         try:
-            # This will fail if the directory isn't accesible at all.
+            # This will fail if the directory isn't accessible at all.
             host.chdir(effective_dir)
         except ftputil.error.PermanentError:
             # Similarly to a failed `file` in a local file system,
@@ -694,7 +694,7 @@ class FTPHost(object):
 
         If `ignore_errors` is set to a true value, errors are ignored.
         If `ignore_errors` is a false value _and_ `onerror` isn't set,
-        all exceptions occuring during the tree iteration and
+        all exceptions occurring during the tree iteration and
         processing are raised. These exceptions are all of type
         `PermanentError`.
 

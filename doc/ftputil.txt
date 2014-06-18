@@ -1232,7 +1232,7 @@ connection, called a child connection in the ftputil source code.
 (Actually, FTP connections belonging to closed remote files are
 re-used if they haven't timed out yet.)
 
-In most cases this approach isn't noticable by code using ftputil.
+In most cases this approach isn't noticeable by code using ftputil.
 However, the nice abstraction of dealing with a single FTP connection
 falls apart if one of the child connections times out. For example, if
 you open a remote file and work only with the initial "main"
