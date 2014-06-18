@@ -82,7 +82,7 @@ class TestErrorConversion(unittest.TestCase):
 
     def test_error_message_reuse(self):
         """
-        Test if the error message string is retained if the caugt
+        Test if the error message string is retained if the caught
         exception has more than one element in `args`.
         """
         # See ticket #76.

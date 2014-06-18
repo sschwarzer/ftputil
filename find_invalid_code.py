@@ -8,7 +8,7 @@
 """\
 This script scans a directory tree for files which contain code which
 is deprecated or invalid in ftputil %s and above (and even much
-longer). The script uses simple heuristics, so it may miss occurences
+longer). The script uses simple heuristics, so it may miss occurrences
 of deprecated/invalid usage or print some inappropriate lines of your
 files.
 
