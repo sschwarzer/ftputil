@@ -34,7 +34,10 @@ def stat_tuple_to_seconds(t):
     """
     assert len(t) == 6, \
            "need a six-element tuple (year, month, day, hour, min, sec)"
-    return time.mktime(t + (0, 0, -1))
+    try:
+        return time.mktime(t + (0, 0, -1))
+    except (OverflowError, ValueError):
+        return 0.0
 
 
 class TestParsers(unittest.TestCase):
@@ -153,6 +156,33 @@ class TestParsers(unittest.TestCase):
            (2000, 5, 29, 0, 0, 0), None, "os2", None],
           [41471, None, None, 2, None, "200", 512, None,
            (2000, 5, 29, 0, 0, 0), None, "osup", "../os2"]
+          ]
+        self._test_valid_lines(ftputil.stat.UnixParser, lines,
+                               expected_stat_results)
+
+    def test_valid_unix_lines_with_1969_dates(self):
+        # See http://ftputil.sschwarzer.net/trac/ticket/83 for a description
+        # of the issue: mirrors.ibiblio.org returns dates before the epoch in
+        # 1969 that make mktime crashes on windows (but not on linux).
+        lines = [
+          "drwxr-sr-x   2 45854    200           512 May  4  1968 "
+            "chemeng link -> chemeng target",
+          "-rw-r--r--   1 45854    200          4604 Dec 31  1969 index.html",
+          "drwxr-sr-x   2 45854    200           512 May 12  1969 os2",
+          "lrwxrwxrwx   2 45854    200           512 May 29  1864 osup -> "
+                                                                  "../os2"
+          ]
+        # get the epoch in a format that matches what we test
+        epoch=  tuple(time.gmtime(0))[:6]
+        expected_stat_results = [
+          [17901, None, None, 2, "45854", "200", 512, None,
+           epoch, None, "chemeng link", "chemeng target"],
+          [33188, None, None, 1, "45854", "200", 4604, None,
+           epoch, None, "index.html", None],
+          [17901, None, None, 2, "45854", "200", 512, None,
+           epoch, None, "os2", None],
+          [41471, None, None, 2, "45854", "200", 512, None,
+           epoch, None, "osup", "../os2"]
           ]
         self._test_valid_lines(ftputil.stat.UnixParser, lines,
                                expected_stat_results)

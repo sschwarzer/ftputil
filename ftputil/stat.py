@@ -187,8 +187,13 @@ class Parser(object):
         if ":" not in year_or_time:
             # `year_or_time` is really a year.
             year, hour, minute = int(year_or_time), 0, 0
-            st_mtime = time.mktime( (year, month, day,
-                                     hour, minute, 0, 0, 0, -1) )
+            try:
+                st_mtime = time.mktime( (year, month, day,
+                                         hour, minute, 0, 0, 0, -1) )
+            except (OverflowError, ValueError):
+                # use the epoch and a year precision if mktime fails
+                st_mtime = 0.0
+                st_mtime_precision = 365 * 12 * 24 * 60 * 60
             # Precise up to a day.
             st_mtime_precision = 24 * 60 * 60
         else:
@@ -197,8 +202,13 @@ class Parser(object):
             year, hour, minute = None, int(hour), int(minute)
             # Try the current year
             year = time.localtime()[0]
-            st_mtime = time.mktime( (year, month, day,
-                                     hour, minute, 0, 0, 0, -1) )
+            try:
+                st_mtime = time.mktime( (year, month, day,
+                                         hour, minute, 0, 0, 0, -1) )
+            except (OverflowError, ValueError):
+                # use the epoch and a year precision if mktime fails
+                st_mtime = 0.0
+                st_mtime_precision = 365 * 12 * 24 * 60 * 60
             # Times are precise up to a minute.
             st_mtime_precision = 60
             # Rhs of comparison: Transform client time to server time
@@ -215,8 +225,13 @@ class Parser(object):
             # can only be exact up to a minute.
             if st_mtime > time.time() + time_shift + st_mtime_precision:
                 # If it's in the future, use previous year.
-                st_mtime = time.mktime( (year-1, month, day,
-                                         hour, minute, 0, 0, 0, -1) )
+                try:
+                    st_mtime = time.mktime( (year-1, month, day,
+                                             hour, minute, 0, 0, 0, -1) )
+                except (OverflowError, ValueError):
+                # use the epoch and a year precision if mktime fails
+                    st_mtime = 0.0
+                    st_mtime_precision = 365 * 12 * 24 * 60 * 60
         if with_precision:
             return st_mtime, st_mtime_precision
         else:
