@@ -56,7 +56,7 @@ __docformat__ = 'reStructuredText en'
 # Default size of a new LRUCache object, if no 'size' argument is given.
 DEFAULT_SIZE = 16
 
-# For Python 2/3 compatibilty
+# For Python 2/3 compatibility
 try:
     long
     int_types = (int, long)

@@ -377,7 +377,7 @@ class MSParser(Parser):
         If the line can't be parsed, raise a `ParserError`.
 
         The parameter `time_shift` isn't used in this method but is
-        listed for compatibilty with the base class.
+        listed for compatibility with the base class.
         """
         # The local variables are rather simple.
         # pylint: disable=too-many-locals
