@@ -174,7 +174,7 @@ class Parser(object):
 
         - "May 26  2005" (month name, day of month, year)
 
-        If this method can not make sense of the given arguments, it
+        If this method can't make sense of the given arguments, it
         raises an `ftputil.error.ParserError`.
         """
         try:
@@ -236,7 +236,7 @@ class Parser(object):
         format "10-23-01 03:25PM" (month-day_of_month-two_digit_year,
         hour:minute, am/pm).
 
-        If this method can not make sense of the given arguments, it
+        If this method can't make sense of the given arguments, it
         raises an `ftputil.error.ParserError`.
         """
         # Derived classes might want to use `self`.
