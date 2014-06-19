@@ -159,7 +159,10 @@ class Parser(object):
         If `with_precision` is true (default: false), return a
         two-element tuple consisting of the floating point number as
         described in the previous paragraph and the precision of the
-        time in seconds. This takes into account that, for example, a
+        time in seconds. The default is `False` for backward
+        compatibility with custom parsers.
+
+        The precision value takes into account that, for example, a
         time string like "May 26  2005" has only a precision of one
         day. This information is important for the `upload_if_newer`
         and `download_if_newer` methods in the `FTPHost` class.
