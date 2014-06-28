@@ -207,7 +207,7 @@ class Parser(object):
             # last addend allows for small deviations between the
             # supposed (rounded) and the actual time shift.
             #
-            # #XXX The downside of this "correction" is that there is
+            # XXX The downside of this "correction" is that there is
             # a one-minute time interval exactly one year ago that
             # may cause that datetime to be recognized as the current
             # datetime, but after all the datetime from the server
