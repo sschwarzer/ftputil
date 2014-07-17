@@ -101,6 +101,8 @@ clean:
 	rm -f ${DOC_TARGETS}
 	# Use absolute path to ensure we delete the right directory.
 	rm -rf ${PROJECT_DIR}/build
+	find ${PROJECT_DIR} -type f -name "*.pyc" | xargs rm
+	find ${PROJECT_DIR} -type d -name "__pycache__" | xargs rmdir
 
 # Help testing test installations. Note that `pip uninstall`
 # doesn't work if the package wasn't installed with pip.
