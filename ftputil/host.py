@@ -41,8 +41,8 @@ class FTPHost(object):
     # Implementation notes:
     #
     # Upon every request of a file (`FTPFile` object) a new FTP
-    # session is created ("cloned"), leading to a child session of
-    # the `FTPHost` object from which the file is requested.
+    # session is created (or reused from a cache), leading to a child
+    # session of the `FTPHost` object from which the file is requested.
     #
     # This is needed because opening an `FTPFile` will make the
     # local session object wait for the completion of the transfer.
