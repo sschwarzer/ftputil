@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2014, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 """
@@ -30,17 +30,23 @@ __all__ = [
   "CommandNotImplementedError",
   "SyncError",
   "FTPIOError",
-  ]
+]
 
 
 class FTPError(Exception):
     """General ftputil error class."""
 
-    def __init__(self, *args):
+    # In Python 2, we can't use a keyword argument after `*args`, so
+    # `pop` from `**kwargs`.
+    def __init__(self, *args, **kwargs):
         super(FTPError, self).__init__(*args)
-        # Don't use `args[0]` directly because `args` may be empty.
-        if args:
-            self.strerror = self.args[0]
+        if "original_exception" in kwargs:
+            self.strerror = ftputil.compat.unicode_type(
+                              kwargs.pop("original_exception"))
+        elif args:
+            # If there was no `original_exception` argument, assume
+            # the first argument is a unicode string.
+            self.strerror = args[0]
         else:
             self.strerror = ""
         try:
@@ -125,12 +131,15 @@ class FtplibErrorToFTPOSError(object):
         elif isinstance(exc_value, ftplib.error_perm):
             # If `exc_value.args[0]` is present, assume it's a byte or
             # unicode string.
-            if exc_value.args and exc_value.args[0].startswith("502"):
+            if (
+              exc_value.args and
+              ftputil.tool.as_unicode(exc_value.args[0]).startswith("502")
+            ):
                 raise CommandNotImplementedError(*exc_value.args)
             else:
                 raise PermanentError(*exc_value.args)
         elif isinstance(exc_value, ftplib.all_errors):
-            raise FTPOSError(*exc_value.args)
+            raise FTPOSError(*exc_value.args, original_exception=exc_value)
         else:
             raise
 

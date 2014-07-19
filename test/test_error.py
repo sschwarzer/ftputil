@@ -1,5 +1,5 @@
 # encoding: utf-8
-# Copyright (C) 2002-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2014, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 from __future__ import unicode_literals
@@ -45,7 +45,24 @@ class TestErrorConversion(unittest.TestCase):
                              isinstance(exc.args[0], ftplib.error_perm))
         else:
             # We shouldn't come here.
-            self.assertTrue(False)
+            self.fail()
+
+    def test_ftplib_error_to_ftp_os_error_non_ascii_server_message(self):
+        """
+        Test that we don't get a `UnicodeDecodeError` if the server
+        sends a message containing non-ASCII characters.
+        """
+        # See ticket #77.
+        message = \
+          ftputil.tool.as_bytes("Não é possível criar um arquivo já existente.")
+        try:
+            with ftputil.error.ftplib_error_to_ftp_os_error:
+                raise ftplib.error_perm(message)
+        # We expect a `PermanentError`.
+        except ftputil.error.PermanentError:
+            pass
+        except UnicodeDecodeError:
+            self.fail()
 
     def test_ftplib_error_to_ftp_io_error(self):
         """
@@ -60,7 +77,22 @@ class TestErrorConversion(unittest.TestCase):
                              isinstance(exc.args[0], ftplib.error_perm))
         else:
             # We shouldn't come here.
-            self.assertTrue(False)
+            self.fail()
+
+    def test_error_message_reuse(self):
+        """
+        Test if the error message string is retained if the caugt
+        exception has more than one element in `args`.
+        """
+        # See ticket #76.
+        try:
+            # Format "host:port" doesn't work.
+            host = ftputil.FTPHost("localhost:21", "", "")
+        except ftputil.error.FTPOSError as exc:
+            # The error message might change for future Python
+            # versions, so possibly relax the assertion later.
+            self.assertTrue("[Errno -2] Name or service not known" in
+                            str(exc))
 
 
 if __name__ == "__main__":

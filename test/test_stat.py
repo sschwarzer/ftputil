@@ -88,6 +88,7 @@ class TestParsers(unittest.TestCase):
           # The year value for this line will change with the actual time.
           "-rw-r--r--   1 45854    200          4604 Dec 19 23:11 index.html",
           "drwxr-sr-x   2 45854    200           512 May 29  2000 os2",
+          "----------   2 45854    200           512 May 29  2000 some_file",
           "lrwxrwxrwx   2 45854    200           512 May 29  2000 osup -> "
                                                                   "../os2"
           ]
@@ -99,6 +100,8 @@ class TestParsers(unittest.TestCase):
            "index.html", None],
           [17901, None, None, 2, "45854", "200", 512, None,
            (2000, 5, 29, 0, 0, 0), None, "os2", None],
+          [32768, None, None, 2, "45854", "200", 512, None,
+           (2000, 5, 29, 0, 0, 0), None, "some_file", None],
           [41471, None, None, 2, "45854", "200", 512, None,
            (2000, 5, 29, 0, 0, 0), None, "osup", "../os2"]
           ]

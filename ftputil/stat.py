@@ -159,7 +159,10 @@ class Parser(object):
         If `with_precision` is true (default: false), return a
         two-element tuple consisting of the floating point number as
         described in the previous paragraph and the precision of the
-        time in seconds. This takes into account that, for example, a
+        time in seconds. The default is `False` for backward
+        compatibility with custom parsers.
+
+        The precision value takes into account that, for example, a
         time string like "May 26  2005" has only a precision of one
         day. This information is important for the `upload_if_newer`
         and `download_if_newer` methods in the `FTPHost` class.
@@ -171,7 +174,7 @@ class Parser(object):
 
         - "May 26  2005" (month name, day of month, year)
 
-        If this method can not make sense of the given arguments, it
+        If this method can't make sense of the given arguments, it
         raises an `ftputil.error.ParserError`.
         """
         try:
@@ -204,7 +207,7 @@ class Parser(object):
             # last addend allows for small deviations between the
             # supposed (rounded) and the actual time shift.
             #
-            # #XXX The downside of this "correction" is that there is
+            # XXX The downside of this "correction" is that there is
             # a one-minute time interval exactly one year ago that
             # may cause that datetime to be recognized as the current
             # datetime, but after all the datetime from the server
@@ -233,7 +236,7 @@ class Parser(object):
         format "10-23-01 03:25PM" (month-day_of_month-two_digit_year,
         hour:minute, am/pm).
 
-        If this method can not make sense of the given arguments, it
+        If this method can't make sense of the given arguments, it
         raises an `ftputil.error.ParserError`.
         """
         # Derived classes might want to use `self`.
@@ -374,7 +377,7 @@ class MSParser(Parser):
         If the line can't be parsed, raise a `ParserError`.
 
         The parameter `time_shift` isn't used in this method but is
-        listed for compatibilty with the base class.
+        listed for compatibility with the base class.
         """
         # The local variables are rather simple.
         # pylint: disable=too-many-locals

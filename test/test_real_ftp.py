@@ -20,6 +20,7 @@ import stat
 import ftputil.compat
 import ftputil.error
 import ftputil.file_transfer
+import ftputil.session
 import ftputil.stat_cache
 
 import test
@@ -304,96 +305,153 @@ class TestRemoval(RealFTPTest):
 
 
 class TestWalk(RealFTPTest):
+    """
+    Walk the directory tree
+
+      walk_test
+      ├── dir1
+      │   ├── dir11
+      │   └── dir12
+      │       ├── dir123
+      │       │   └── file1234
+      │       ├── file121
+      │       └── file122
+      ├── dir2
+      ├── dir3
+      │   ├── dir31
+      │   ├── dir32 -> ../dir1/dir12/dir123
+      │   ├── file31
+      │   └── file32
+      └── file4
+
+    and check if the results are the expected ones.
+    """
+
+    def _walk_test(self, expected_result, **walk_kwargs):
+        """Walk the directory and test results."""
+        # Collect data using `walk`.
+        actual_result = []
+        for items in self.host.walk(**walk_kwargs):
+            actual_result.append(items)
+        # Compare with expected results.
+        self.assertEqual(len(actual_result), len(expected_result))
+        for index, _ in enumerate(actual_result):
+            self.assertEqual(actual_result[index], expected_result[index])
 
     def test_walk_topdown(self):
         # Preparation: build tree in directory `walk_test`.
-        host = self.host
-        expected = [
+        expected_result = [
           ("walk_test",
            ["dir1", "dir2", "dir3"],
            ["file4"]),
-
+          #
           ("walk_test/dir1",
            ["dir11", "dir12"],
            []),
-
+          #
           ("walk_test/dir1/dir11",
            [],
            []),
-
+          #
           ("walk_test/dir1/dir12",
            ["dir123"],
            ["file121", "file122"]),
-
+          #
           ("walk_test/dir1/dir12/dir123",
            [],
            ["file1234"]),
-
+          #
           ("walk_test/dir2",
            [],
            []),
-
+          #
           ("walk_test/dir3",
-           ["dir33"],
+           ["dir31", "dir32"],
            ["file31", "file32"]),
-
-          ("walk_test/dir3/dir33",
+          #
+          ("walk_test/dir3/dir31",
            [],
            []),
           ]
-        # Collect data using `walk`.
-        actual = []
-        for items in host.walk("walk_test"):
-            actual.append(items)
-        # Compare with expected results.
-        self.assertEqual(len(actual), len(expected))
-        for index, _ in enumerate(actual):
-            self.assertEqual(actual[index], expected[index])
+        self._walk_test(expected_result, top="walk_test")
 
     def test_walk_depth_first(self):
         # Preparation: build tree in directory `walk_test`
-        host = self.host
-        expected = [
+        expected_result = [
           ("walk_test/dir1/dir11",
            [],
            []),
-
+          #
           ("walk_test/dir1/dir12/dir123",
            [],
            ["file1234"]),
-
+          #
           ("walk_test/dir1/dir12",
            ["dir123"],
            ["file121", "file122"]),
-
+          #
           ("walk_test/dir1",
            ["dir11", "dir12"],
            []),
-
+          #
           ("walk_test/dir2",
            [],
            []),
-
-          ("walk_test/dir3/dir33",
+          #
+          ("walk_test/dir3/dir31",
            [],
            []),
-
+          #
           ("walk_test/dir3",
-           ["dir33"],
+           ["dir31", "dir32"],
            ["file31", "file32"]),
-
+          #
           ("walk_test",
            ["dir1", "dir2", "dir3"],
            ["file4"])
           ]
-        # Collect data using `walk`.
-        actual = []
-        for items in host.walk("walk_test", topdown=False):
-            actual.append(items)
-        # Compare with expected results.
-        self.assertEqual(len(actual), len(expected))
-        for index, _ in enumerate(actual):
-            self.assertEqual(actual[index], expected[index])
+        self._walk_test(expected_result, top="walk_test", topdown=False)
+
+    def test_walk_following_links(self):
+        # Preparation: build tree in directory `walk_test`.
+        expected_result = [
+          ("walk_test",
+           ["dir1", "dir2", "dir3"],
+           ["file4"]),
+          #
+          ("walk_test/dir1",
+           ["dir11", "dir12"],
+           []),
+          #
+          ("walk_test/dir1/dir11",
+           [],
+           []),
+          #
+          ("walk_test/dir1/dir12",
+           ["dir123"],
+           ["file121", "file122"]),
+          #
+          ("walk_test/dir1/dir12/dir123",
+           [],
+           ["file1234"]),
+          #
+          ("walk_test/dir2",
+           [],
+           []),
+          #
+          ("walk_test/dir3",
+           ["dir31", "dir32"],
+           ["file31", "file32"]),
+          #
+          ("walk_test/dir3/dir31",
+           [],
+           []),
+          #
+          ("walk_test/dir3/dir32",
+           [],
+           ["file1234"]),
+          ]
+        self._walk_test(expected_result, top="walk_test", followlinks=True)
 
 
 class TestRename(RealFTPTest):
@@ -654,7 +712,7 @@ class TestChmod(RealFTPTest):
         full_mode = self.host.stat(path).st_mode
         # Remove flags we can't set via `chmod`.
         # Allowed flags according to Python documentation
-        # http://docs.python.org/lib/os-file-dir.html .
+        # https://docs.python.org/library/stat.html
         allowed_flags = [stat.S_ISUID, stat.S_ISGID, stat.S_ENFMT,
           stat.S_ISVTX, stat.S_IREAD, stat.S_IWRITE, stat.S_IEXEC,
           stat.S_IRWXU, stat.S_IRUSR, stat.S_IWUSR, stat.S_IXUSR,
@@ -814,6 +872,26 @@ class TestOther(RealFTPTest):
         gc.collect()
         objects_after_test = len(gc.garbage)
         self.assertFalse(objects_after_test - objects_before_test)
+
+    @unittest.skipIf(ftputil.compat.python_version > 2,
+                     "test requires M2Crypto which only works on Python 2")
+    def test_m2crypto_session(self):
+        """
+        Test if a session with `M2Crypto.ftpslib.FTP_TLS` is set up
+        correctly and works with unicode input.
+        """
+        # See ticket #78.
+        #
+        # M2Crypto is only available for Python 2.
+        import M2Crypto
+        factory = ftputil.session.session_factory(
+                    base_class=M2Crypto.ftpslib.FTP_TLS,
+                    encrypt_data_channel=True)
+        with ftputil.FTPHost(*self.login_data, session_factory=factory) as host:
+            # Test if unicode argument works.
+            files = host.listdir(".")
+        self.assertTrue("CONTENTS" in files)
+
 
 
 if __name__ == "__main__":

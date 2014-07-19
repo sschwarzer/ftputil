@@ -33,7 +33,9 @@ TEST_FILES=$(shell ls -1 ${TEST_DIR}/test_*.py | \
 		   ${TEST_DIR}/test_real_ftp.py \
 		   ${TEST_DIR}/test_public_servers.py
 
-.PHONY: dist extdist test pylint docs clean register patch
+.PHONY: dist extdist test tox_test coverage pylint \
+	find_missing_unicode_literals \
+	docs clean cleanorig upload patch remove_from_env
 
 # Patch various files to refer to a new version.
 patch:
@@ -65,8 +67,19 @@ test:
 		PYTHONPATH=${PYTHONPATH} ${PYTHON_BINARY} $$file ; \
 	done
 
+tox_test:
+	# Gets settings from `tox.ini`
+	tox
+
+coverage:
+	py.test --cov ftputil --cov-report html test
+
 pylint:
 	pylint --rcfile=pylintrc ${PYLINT_OPTS} ${SOURCE_DIR}/*.py | less
+
+find_missing_unicode_literals:
+	find ftputil test -name "*.py" \
+	  -exec grep -L "from __future__ import unicode_literals" {} \;
 
 # Prepare everything for making a distribution tarball.
 dist: clean patch pylint docs
@@ -74,10 +87,9 @@ dist: clean patch pylint docs
 
 extdist: test dist register
 
-# Register package on PyPI.
-register:
-	@echo "Registering new version with PyPI"
-	${PYTHON_BINARY} setup.py register
+# Upload package to PyPI.
+upload:
+	@echo "Uploading new version to PyPI"
 	${PYTHON_BINARY} setup.py sdist upload
 
 # Remove files with `orig` suffix (caused by `hg revert`).
@@ -89,6 +101,8 @@ clean:
 	rm -f ${DOC_TARGETS}
 	# Use absolute path to ensure we delete the right directory.
 	rm -rf ${PROJECT_DIR}/build
+	find ${PROJECT_DIR} -type f -name "*.pyc" | xargs rm
+	find ${PROJECT_DIR} -type d -name "__pycache__" | xargs rmdir
 
 # Help testing test installations. Note that `pip uninstall`
 # doesn't work if the package wasn't installed with pip.

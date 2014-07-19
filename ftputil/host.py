@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2014, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # Copyright (C) 2008, Roger Demetrescu <roger.demetrescu@gmail.com>
 # See the file LICENSE for licensing terms.
 
@@ -41,8 +41,8 @@ class FTPHost(object):
     # Implementation notes:
     #
     # Upon every request of a file (`FTPFile` object) a new FTP
-    # session is created ("cloned"), leading to a child session of
-    # the `FTPHost` object from which the file is requested.
+    # session is created (or reused from a cache), leading to a child
+    # session of the `FTPHost` object from which the file is requested.
     #
     # This is needed because opening an `FTPFile` will make the
     # local session object wait for the completion of the transfer.
@@ -302,10 +302,10 @@ class FTPHost(object):
         # Use a positive value for rounding.
         absolute_time_shift = abs(time_shift)
         signum = time_shift / absolute_time_shift
-        # Round it to hours. This code should also work for later Python
-        # versions because of the explicit `int`.
-        absolute_rounded_time_shift = \
-          int( (absolute_time_shift + 30*minute) / hour ) * hour
+        # Round absolute time shift to 15-minute units.
+        absolute_rounded_time_shift = (
+          int( (absolute_time_shift + (7.5*minute)) / (15.0*minute) ) *
+          (15.0*minute))
         # Return with correct sign.
         return signum * absolute_rounded_time_shift
 
@@ -325,13 +325,13 @@ class FTPHost(object):
             raise ftputil.error.TimeShiftError(
                   "time shift abs({0:.2f} s) > 1 day".format(time_shift))
         # Test 2: Fail if the deviation between given time shift and
-        #         full hours is greater than a certain limit.
+        #         15-minute units is greater than a certain limit.
         maximum_deviation = 5 * minute
         if abs(time_shift - self.__rounded_time_shift(time_shift)) > \
            maximum_deviation:
             raise ftputil.error.TimeShiftError(
                     "time shift ({0:.2f} s) deviates more than {1:d} s "
-                    "from full hours".format(
+                    "from 15-minute units".format(
                       time_shift, int(maximum_deviation)))
 
     def synchronize_times(self):
@@ -845,11 +845,11 @@ class FTPHost(object):
         path = ftputil.tool.as_unicode(path)
         return self._stat._stat(path, _exception_for_missing_path)
 
-    def walk(self, top, topdown=True, onerror=None):
+    def walk(self, top, topdown=True, onerror=None, followlinks=False):
         """
         Iterate over directory tree and return a tuple (dirpath,
         dirnames, filenames) on each iteration, like the `os.walk`
-        function (see http://docs.python.org/lib/os-file-dir.html ).
+        function (see https://docs.python.org/library/os.html#os.walk ).
         """
         top = ftputil.tool.as_unicode(top)
         # The following code is copied from `os.walk` in Python 2.4
@@ -870,8 +870,8 @@ class FTPHost(object):
             yield top, dirs, nondirs
         for name in dirs:
             path = self.path.join(top, name)
-            if not self.path.islink(path):
-                for item in self.walk(path, topdown, onerror):
+            if followlinks or not self.path.islink(path):
+                for item in self.walk(path, topdown, onerror, followlinks):
                     yield item
         if not topdown:
             yield top, dirs, nondirs
@@ -896,6 +896,9 @@ class FTPHost(object):
                                       format(mode, path))
         self._robust_ftp_command(command, path)
         self.stat_cache.invalidate(path)
+
+    def __getstate__(self):
+        raise TypeError("cannot serialize FTPHost object")
 
     #
     # Context manager methods
