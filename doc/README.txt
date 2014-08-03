@@ -59,23 +59,44 @@ ftputil.txt).
 Prerequisites
 -------------
 
-To use ftputil, you need Python, at least version 2.6. Python is a
-programming language, available from http://www.python.org for free.
+To use ftputil, you need Python, at least version 2.6. Python 3.x
+versions work as well. Python is a programming language, available
+from http://www.python.org for free.
 
 Installation
 ------------
 
-- *If you have an older version of ftputil installed, delete it or
-  move it somewhere else, so that it doesn't conflict with the new
-  version!*
+*If you have an older version of ftputil installed, delete it or
+move it somewhere else, so that it doesn't conflict with the new
+version!*
+
+If you have pip or easy_install available, you can install the current
+version of ftputil directly from the Python Package Index (PyPI)
+without downloading the package explicitly. You'll still need an
+internet connection, of course.
+
+- Just type
+
+    pip install ftputil
+  
+  or
+  
+    easy_install ftputil
+  
+  on the command line, respectively. Unless you're installing ftputil
+  in a virtual environment, you'll probably need root/administrator
+  privileges to do that.
+  
+  Done. :-)
+
+If you don't have pip or easy_install, you need to download a tarball
+from the Python Package Index or from the ftputil website and install
+it:
 
 - Unpack the archive file containing the distribution files. If you
   had an ftputil version 2.8, you would type at the shell prompt:
 
     tar xzf ftputil-2.8.tar.gz
-
-  However, if you read this, you probably unpacked the archive
-  already. ;-)
 
 - Make the directory to where the files were unpacked your current
   directory. Assume that after unpacking, you have a directory
@@ -93,21 +114,6 @@ Installation
 
   If you want to customize the installation paths, please read
   http://docs.python.org/inst/inst.html .
-
-If you have pip or easy_install installed, you can install the current
-version of ftputil directly from the Python Package Index (PyPI)
-without downloading the package explicitly.
-
-- Just type
-
-    pip install ftputil
-
-  or
-
-    easy_install ftputil
-
-  on the command line, respectively. You'll probably need
-  root/administrator privileges to do that (see above).
 
 License
 -------
