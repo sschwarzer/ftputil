@@ -45,7 +45,7 @@ privileges to do that.
   
 Done. :-)
 
-### From archive tarball ###
+### From an archive tarball ###
 
 If you have neither pip nor easy_install, you need to download a tarball
 from the [Python package index](https://pypi.python.org/pypi/ftputil) or from the [ftputil website](http://ftputil.sschwarzer.net/Download) and install it as follows.
