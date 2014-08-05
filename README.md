@@ -8,4 +8,6 @@ os.path and shutil modules. ftputil has convenience functions for
 conditional uploads and downloads, and handles FTP clients and servers
 in different timezones.
 
-This Bitbucket repository is just a mirror of the main website at http://ftputil.sschwarzer.net .
+-----
+
+This Bitbucket repository is just a code mirror of the main website at http://ftputil.sschwarzer.net .
