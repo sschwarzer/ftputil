@@ -706,6 +706,9 @@ correction`_).
     modification timestamp value is not better than days. For newer
     files, the information may be accurate to a minute.
 
+    If the time of the last modification is before the epoch (usually
+    1970-01-01 UTC), set the time of the last modification to 0.0.
+
   - Links can only be recognized on servers that provide this
     information in the ``LIST`` output.
 
