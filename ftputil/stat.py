@@ -216,9 +216,13 @@ class Parser(object):
         try:
             month = self._month_numbers[month_abbreviation.lower()]
         except KeyError:
-            raise ftputil.error.ParserError("invalid month abbreviation '{0}'".
+            raise ftputil.error.ParserError("invalid month abbreviation {0!r}".
                                             format(month_abbreviation))
-        day = int(day)
+        try:
+            day = int(day)
+        except ValueError:
+            raise ftputil.error.ParserError("non-integer day value {0!r}".
+                                            format(day))
         if ":" not in year_or_time:
             # `year_or_time` is really a year.
             year, hour, minute = int(year_or_time), 0, 0
