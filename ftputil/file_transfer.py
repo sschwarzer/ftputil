@@ -11,6 +11,8 @@ from __future__ import unicode_literals
 import io
 import os
 
+import ftputil.stat
+
 
 #TODO Think a bit more about the API before making it public.
 # # Only `chunks` should be used by clients of the ftputil library. Any
@@ -119,11 +121,11 @@ def source_is_newer_than_target(source_file, target_file):
     That is, the latest possible actual source modification time is
     before the first possible actual target modification time.
     """
-    # We don't need special handling for pre-epoch datetimes since
-    # they always result in a modification datetime of 0.0, so the
-    # following algorithm will insist that the file is retransmitted.
-    return (source_file.mtime() + source_file.mtime_precision() >=
-            target_file.mtime())
+    if source_file.mtime_precision() is ftputil.stat.UNKNOWN_PRECISION:
+        return True
+    else:
+        return (source_file.mtime() + source_file.mtime_precision() >=
+                target_file.mtime())
 
 
 def chunks(fobj, max_chunk_size=MAX_COPY_CHUNK_SIZE):
