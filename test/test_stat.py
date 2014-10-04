@@ -124,8 +124,14 @@ class TestParsers(unittest.TestCase):
           "total 14",
           # Invalid month abbreviation
           "drwxr-sr-x   2 45854    200           512 Max  4  2000 chemeng",
-          # Day value is not an integer
+          # Year value isn't an integer
+          "drwxr-sr-x   2 45854    200           512 May  4  abcd chemeng",
+          # Day value isn't an integer
           "drwxr-sr-x   2 45854    200           512 May ab  2000 chemeng",
+          # Hour value isn't an integer
+          "-rw-r--r--   1 45854    200          4604 Dec 19 ab:11 index.html",
+          # Minute value isn't an integer
+          "-rw-r--r--   1 45854    200          4604 Dec 19 23:ab index.html",
           # Day value too large
           "drwxr-sr-x   2 45854    200           512 May 32  2000 chemeng",
           # Incomplete mode
@@ -237,6 +243,14 @@ class TestParsers(unittest.TestCase):
           "07-27-01  11:16AM                      Test",
           # "AM"/"PM" missing
           "07-17-00  02:08             12266720 test.exe",
+          # Year not an int
+          "07-17-ab  02:08AM           12266720 test.exe",
+          # Month not an int
+          "ab-17-00  02:08AM           12266720 test.exe",
+          # Day not an int
+          "07-ab-00  02:08AM           12266720 test.exe",
+          # Hour not an int
+          "07-17-00  ab:08AM           12266720 test.exe",
           # Invalid size value
           "07-17-00  02:08AM           1226672x test.exe"
           ]
