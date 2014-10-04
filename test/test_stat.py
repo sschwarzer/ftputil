@@ -124,6 +124,8 @@ class TestParsers(unittest.TestCase):
           "total 14",
           # Invalid month abbreviation
           "drwxr-sr-x   2 45854    200           512 Max  4  2000 chemeng",
+          # Invalid day value
+          "drwxr-sr-x   2 45854    200           512 May 32  2000 chemeng",
           # Incomplete mode
           "drwxr-sr-    2 45854    200           512 May  4  2000 chemeng",
           # Invalid first letter in mode
@@ -179,7 +181,7 @@ class TestParsers(unittest.TestCase):
           [33188, None, None, 1, "45854", "200", 4604, None,
            EPOCH, None, "index.html", None]
         # Make shallow copies to avoid converting the time tuple more
-        # than once.
+        # than once in _test_valid_lines`.
         expected_stat_results = [expected_stat_result[:],
                                  expected_stat_result[:],
                                  expected_stat_result[:]]

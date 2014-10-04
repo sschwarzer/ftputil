@@ -169,11 +169,10 @@ class Parser(object):
         # For example, day == 32. Not all implementations of `mktime`
         # catch this kind of error.
         except ValueError:
-            invalid_datetime = (
-              "{0:04d}-{1:02d}-{2:02d} {3:02d}:{4:02d}:{5:02d}".format(
-              datetime_tuple))
-            raise ParserError("invalid datetime {0!r}".
-                              format(invalid_datetime))
+            invalid_datetime = ("%04d-%02d-%02d %02d:%02d:%02d" %
+                                datetime_tuple)
+            raise ftputil.error.ParserError("invalid datetime {0!r}".
+                                            format(invalid_datetime))
         try:
             time_float = time.mktime(mktime_tuple)
         except (OverflowError, ValueError):
