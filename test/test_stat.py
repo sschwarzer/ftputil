@@ -27,17 +27,22 @@ def _test_stat(session_factory):
     return stat
 
 
+# Special value to handle special case of datetimes before the epoch.
+EPOCH = time.gmtime(0)[:6]
+
 def stat_tuple_to_seconds(t):
     """
     Return a float number representing the local time associated with
     the six-element tuple `t`.
     """
     assert len(t) == 6, \
-           "need a six-element tuple (year, month, day, hour, min, sec)"
-    try:
-        return time.mktime(t + (0, 0, -1))
-    except (OverflowError, ValueError):
+             "need a six-element tuple (year, month, day, hour, min, sec)"
+    # Do _not_ apply `time.mktime` to the `EPOCH` value below. On some
+    # platforms (e. g. Windows) this might cause an `OverflowError`.
+    if t == EPOCH:
         return 0.0
+    else:
+        return time.mktime(t + (0, 0, -1))
 
 
 class TestParsers(unittest.TestCase):
@@ -160,30 +165,24 @@ class TestParsers(unittest.TestCase):
         self._test_valid_lines(ftputil.stat.UnixParser, lines,
                                expected_stat_results)
 
-    def test_valid_unix_lines_with_1969_dates(self):
-        # See http://ftputil.sschwarzer.net/trac/ticket/83 for a description
-        # of the issue: mirrors.ibiblio.org returns dates before the epoch in
-        # 1969 that make mktime crashes on windows (but not on linux).
+    def test_times_before_the_epoch_for_unix(self):
+        # See http://ftputil.sschwarzer.net/trac/ticket/83 .
+        # `mirrors.ibiblio.org` returns dates before the "epoch" that
+        # cause an `OverflowError` in `mktime` on some platforms,
+        # e. g. Windows.
         lines = [
-          "drwxr-sr-x   2 45854    200           512 May  4  1968 "
-            "chemeng link -> chemeng target",
+          "-rw-r--r--   1 45854    200          4604 May  4  1968 index.html",
           "-rw-r--r--   1 45854    200          4604 Dec 31  1969 index.html",
-          "drwxr-sr-x   2 45854    200           512 May 12  1969 os2",
-          "lrwxrwxrwx   2 45854    200           512 May 29  1864 osup -> "
-                                                                  "../os2"
+          "-rw-r--r--   1 45854    200          4604 May  4  1800 index.html",
           ]
-        # get the epoch in a format that matches what we test
-        epoch=  tuple(time.gmtime(0))[:6]
-        expected_stat_results = [
-          [17901, None, None, 2, "45854", "200", 512, None,
-           epoch, None, "chemeng link", "chemeng target"],
+        expected_stat_result = \
           [33188, None, None, 1, "45854", "200", 4604, None,
-           epoch, None, "index.html", None],
-          [17901, None, None, 2, "45854", "200", 512, None,
-           epoch, None, "os2", None],
-          [41471, None, None, 2, "45854", "200", 512, None,
-           epoch, None, "osup", "../os2"]
-          ]
+           EPOCH, None, "index.html", None]
+        # Make shallow copies to avoid converting the time tuple more
+        # than once.
+        expected_stat_results = [expected_stat_result[:],
+                                 expected_stat_result[:],
+                                 expected_stat_result[:]]
         self._test_valid_lines(ftputil.stat.UnixParser, lines,
                                expected_stat_results)
 
