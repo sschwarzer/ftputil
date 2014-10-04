@@ -103,7 +103,7 @@ class TestParsers(unittest.TestCase):
           "----------   2 45854    200           512 May 29  2000 some_file",
           "lrwxrwxrwx   2 45854    200           512 May 29  2000 osup -> "
                                                                   "../os2"
-          ]
+        ]
         expected_stat_results = [
           [17901, None, None, 2, "45854", "200", 512, None,
            (2000, 5, 4, 0, 0, 0), None, DAY_PRECISION,
@@ -120,7 +120,7 @@ class TestParsers(unittest.TestCase):
           [41471, None, None, 2, "45854", "200", 512, None,
            (2000, 5, 29, 0, 0, 0), None, DAY_PRECISION,
            "osup", "../os2"]
-          ]
+        ]
         self._test_valid_lines(ftputil.stat.UnixParser, lines,
                                expected_stat_results)
 
@@ -154,7 +154,7 @@ class TestParsers(unittest.TestCase):
             "os1 -> os2 -> os3",
           # Missing name
           "-rwxr-sr-x   2 45854    200           51x May  4  2000 ",
-          ]
+        ]
         self._test_invalid_lines(ftputil.stat.UnixParser, lines)
 
     def test_alternative_unix_format(self):
@@ -167,7 +167,7 @@ class TestParsers(unittest.TestCase):
           "-rw-r--r--   1   200          4604 Dec 19 23:11 index.html",
           "drwxr-sr-x   2   200           512 May 29  2000 os2",
           "lrwxrwxrwx   2   200           512 May 29  2000 osup -> ../os2"
-          ]
+        ]
         expected_stat_results = [
           [17901, None, None, 2, None, "200", 512, None,
            (2000, 5, 4, 0, 0, 0), None, DAY_PRECISION,
@@ -181,7 +181,7 @@ class TestParsers(unittest.TestCase):
           [41471, None, None, 2, None, "200", 512, None,
            (2000, 5, 29, 0, 0, 0), None, DAY_PRECISION,
            "osup", "../os2"]
-          ]
+        ]
         self._test_valid_lines(ftputil.stat.UnixParser, lines,
                                expected_stat_results)
 
@@ -194,7 +194,7 @@ class TestParsers(unittest.TestCase):
           "-rw-r--r--   1 45854    200          4604 May  4  1968 index.html",
           "-rw-r--r--   1 45854    200          4604 Dec 31  1969 index.html",
           "-rw-r--r--   1 45854    200          4604 May  4  1800 index.html",
-          ]
+        ]
         expected_stat_result = \
           [33188, None, None, 1, "45854", "200", 4604, None,
            EPOCH, None, DAY_PRECISION, "index.html", None]
@@ -216,7 +216,7 @@ class TestParsers(unittest.TestCase):
           "07-17-00  02:08PM             12266720 test.exe",
           "07-17-09  12:08AM             12266720 test.exe",
           "07-17-09  12:08PM             12266720 test.exe"
-          ]
+        ]
         expected_stat_results = [
           [16640, None, None, None, None, None, None, None,
            (2001, 7, 27, 11, 16, 0), None, MINUTE_PRECISION,
@@ -233,7 +233,7 @@ class TestParsers(unittest.TestCase):
           [33024, None, None, None, None, None, 12266720, None,
            (2009, 7, 17, 12, 8, 0), None, MINUTE_PRECISION,
            "test.exe", None]
-          ]
+        ]
         self._test_valid_lines(ftputil.stat.MSParser, lines,
                                expected_stat_results)
 
@@ -243,7 +243,7 @@ class TestParsers(unittest.TestCase):
           "10-19-2012  03:13PM       <DIR>          SYNCDEST",
           "10-19-2012  03:13PM       <DIR>          SYNCSOURCE",
           "10-19-1968  03:13PM       <DIR>          SYNC"
-          ]
+        ]
         expected_stat_results = [
           [16640, None, None, None, None, None, None, None,
            (2012, 10, 19, 15, 13, 0), None, MINUTE_PRECISION,
@@ -254,7 +254,7 @@ class TestParsers(unittest.TestCase):
           [16640, None, None, None, None, None, None, None,
            EPOCH, None, MINUTE_PRECISION,
            "SYNC", None],
-          ]
+        ]
         self._test_valid_lines(ftputil.stat.MSParser, lines,
                                expected_stat_results)
 
@@ -274,7 +274,7 @@ class TestParsers(unittest.TestCase):
           "07-17-00  ab:08AM           12266720 test.exe",
           # Invalid size value
           "07-17-00  02:08AM           1226672x test.exe"
-          ]
+        ]
         self._test_invalid_lines(ftputil.stat.MSParser, lines)
 
     #
