@@ -13,6 +13,7 @@ import unittest
 import ftputil
 import ftputil.error
 import ftputil.stat
+from ftputil.stat import MINUTE_PRECISION, DAY_PRECISION, UNKNOWN_PRECISION
 
 from test import test_base
 from test import mock_ftplib
@@ -55,8 +56,10 @@ class TestParsers(unittest.TestCase):
         for line, expected_stat_result in zip(lines, expected_stat_results):
             # Convert to list to compare with the list `expected_stat_results`.
             parse_result = parser.parse_line(line)
-            stat_result = list(parse_result) + [parse_result._st_name,
-                                                parse_result._st_target]
+            stat_result = list(parse_result) + \
+                          [parse_result._st_mtime_precision,
+                           parse_result._st_name,
+                           parse_result._st_target]
             # Convert time tuple to seconds.
             expected_stat_result[8] = \
               stat_tuple_to_seconds(expected_stat_result[8])
@@ -103,16 +106,20 @@ class TestParsers(unittest.TestCase):
           ]
         expected_stat_results = [
           [17901, None, None, 2, "45854", "200", 512, None,
-           (2000, 5, 4, 0, 0, 0), None, "chemeng link", "chemeng target"],
+           (2000, 5, 4, 0, 0, 0), None, DAY_PRECISION,
+           "chemeng link", "chemeng target"],
           [33188, None, None, 1, "45854", "200", 4604, None,
-           (self._expected_year(), 12, 19, 23, 11, 0), None,
+           (self._expected_year(), 12, 19, 23, 11, 0), None, MINUTE_PRECISION,
            "index.html", None],
           [17901, None, None, 2, "45854", "200", 512, None,
-           (2000, 5, 29, 0, 0, 0), None, "os2", None],
+           (2000, 5, 29, 0, 0, 0), None, DAY_PRECISION,
+           "os2", None],
           [32768, None, None, 2, "45854", "200", 512, None,
-           (2000, 5, 29, 0, 0, 0), None, "some_file", None],
+           (2000, 5, 29, 0, 0, 0), None, DAY_PRECISION,
+           "some_file", None],
           [41471, None, None, 2, "45854", "200", 512, None,
-           (2000, 5, 29, 0, 0, 0), None, "osup", "../os2"]
+           (2000, 5, 29, 0, 0, 0), None, DAY_PRECISION,
+           "osup", "../os2"]
           ]
         self._test_valid_lines(ftputil.stat.UnixParser, lines,
                                expected_stat_results)
@@ -163,19 +170,22 @@ class TestParsers(unittest.TestCase):
           ]
         expected_stat_results = [
           [17901, None, None, 2, None, "200", 512, None,
-           (2000, 5, 4, 0, 0, 0), None, "chemeng link", "chemeng target"],
+           (2000, 5, 4, 0, 0, 0), None, DAY_PRECISION,
+           "chemeng link", "chemeng target"],
           [33188, None, None, 1, None, "200", 4604, None,
-           (self._expected_year(), 12, 19, 23, 11, 0), None,
+           (self._expected_year(), 12, 19, 23, 11, 0), None, MINUTE_PRECISION,
            "index.html", None],
           [17901, None, None, 2, None, "200", 512, None,
-           (2000, 5, 29, 0, 0, 0), None, "os2", None],
+           (2000, 5, 29, 0, 0, 0), None, DAY_PRECISION,
+           "os2", None],
           [41471, None, None, 2, None, "200", 512, None,
-           (2000, 5, 29, 0, 0, 0), None, "osup", "../os2"]
+           (2000, 5, 29, 0, 0, 0), None, DAY_PRECISION,
+           "osup", "../os2"]
           ]
         self._test_valid_lines(ftputil.stat.UnixParser, lines,
                                expected_stat_results)
 
-    def test_times_before_the_epoch_for_unix(self):
+    def test_pre_epoch_times_for_unix(self):
         # See http://ftputil.sschwarzer.net/trac/ticket/83 .
         # `mirrors.ibiblio.org` returns dates before the "epoch" that
         # cause an `OverflowError` in `mktime` on some platforms,
@@ -187,7 +197,7 @@ class TestParsers(unittest.TestCase):
           ]
         expected_stat_result = \
           [33188, None, None, 1, "45854", "200", 4604, None,
-           EPOCH, None, "index.html", None]
+           EPOCH, None, DAY_PRECISION, "index.html", None]
         # Make shallow copies to avoid converting the time tuple more
         # than once in _test_valid_lines`.
         expected_stat_results = [expected_stat_result[:],
@@ -209,15 +219,20 @@ class TestParsers(unittest.TestCase):
           ]
         expected_stat_results = [
           [16640, None, None, None, None, None, None, None,
-           (2001, 7, 27, 11, 16, 0), None, "Test", None],
+           (2001, 7, 27, 11, 16, 0), None, MINUTE_PRECISION,
+           "Test", None],
           [16640, None, None, None, None, None, None, None,
-           (1995, 10, 23, 15, 25, 0), None, "WindowsXP", None],
+           (1995, 10, 23, 15, 25, 0), None, MINUTE_PRECISION,
+           "WindowsXP", None],
           [33024, None, None, None, None, None, 12266720, None,
-           (2000, 7, 17, 14, 8, 0), None, "test.exe", None],
+           (2000, 7, 17, 14, 8, 0), None, MINUTE_PRECISION,
+           "test.exe", None],
           [33024, None, None, None, None, None, 12266720, None,
-           (2009, 7, 17, 0, 8, 0), None, "test.exe", None],
+           (2009, 7, 17, 0, 8, 0), None, MINUTE_PRECISION,
+           "test.exe", None],
           [33024, None, None, None, None, None, 12266720, None,
-           (2009, 7, 17, 12, 8, 0), None, "test.exe", None]
+           (2009, 7, 17, 12, 8, 0), None, MINUTE_PRECISION,
+           "test.exe", None]
           ]
         self._test_valid_lines(ftputil.stat.MSParser, lines,
                                expected_stat_results)
@@ -231,11 +246,14 @@ class TestParsers(unittest.TestCase):
           ]
         expected_stat_results = [
           [16640, None, None, None, None, None, None, None,
-           (2012, 10, 19, 15, 13, 0), None, "SYNCDEST", None],
+           (2012, 10, 19, 15, 13, 0), None, MINUTE_PRECISION,
+           "SYNCDEST", None],
           [16640, None, None, None, None, None, None, None,
-           (2012, 10, 19, 15, 13, 0), None, "SYNCSOURCE", None],
+           (2012, 10, 19, 15, 13, 0), None, MINUTE_PRECISION,
+           "SYNCSOURCE", None],
           [16640, None, None, None, None, None, None, None,
-           EPOCH, None, "SYNC", None],
+           EPOCH, None, MINUTE_PRECISION,
+           "SYNC", None],
           ]
         self._test_valid_lines(ftputil.stat.MSParser, lines,
                                expected_stat_results)

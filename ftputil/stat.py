@@ -23,6 +23,12 @@ import ftputil.stat_cache
 __all__ = ["StatResult", "Parser", "UnixParser", "MSParser"]
 
 
+# Datetime precision values in seconds.
+MINUTE_PRECISION  = 60
+DAY_PRECISION     = 24 * 60 * 60
+UNKNOWN_PRECISION = None
+
+
 class StatResult(tuple):
     """
     Support class resembling a tuple like that returned from
@@ -48,7 +54,7 @@ class StatResult(tuple):
         # These may be overwritten in a `Parser.parse_line` method.
         self._st_name = ""
         self._st_target = None
-        self._st_mtime_precision = None
+        self._st_mtime_precision = UNKNOWN_PRECISION
 
     def __getattr__(self, attr_name):
         if attr_name in self._index_mapping:
@@ -239,8 +245,7 @@ class Parser(object):
             year, hour, minute = self._as_int(year_or_time, "year"), 0, 0
             st_mtime = self._mktime( (year, month, day,
                                       hour, minute, 0, 0, 0, -1) )
-            # Precise up to a day.
-            st_mtime_precision = 24 * 60 * 60
+            st_mtime_precision = DAY_PRECISION
         else:
             # `year_or_time` is a time hh:mm.
             hour, minute = year_or_time.split(":")
@@ -250,8 +255,7 @@ class Parser(object):
             year = time.localtime()[0]
             st_mtime = self._mktime( (year, month, day,
                                       hour, minute, 0, 0, 0, -1) )
-            # Times are precise up to a minute.
-            st_mtime_precision = 60
+            st_mtime_precision = MINUTE_PRECISION
             # Rhs of comparison: Transform client time to server time
             # (as on the lhs), so both can be compared with respect
             # to the set time shift (see the definition of the time
@@ -479,7 +483,7 @@ class MSParser(Parser):
         stat_result._st_name = name
         stat_result._st_target = None
         # mtime precision in seconds
-        stat_result._st_mtime_precision = 60
+        stat_result._st_mtime_precision = MINUTE_PRECISION
         return stat_result
 
 #
