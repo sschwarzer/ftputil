@@ -1,3 +1,66 @@
+ftputil 3.2 is now available from
+http://ftputil.sschwarzer.net/download .
+
+Changes since version 3.1
+-------------------------
+
+- For some platforms (notably Windows) modification datetimes before
+  the epoch would cause an `OverflowError` [1]. Other platforms could
+  return negative values. Since the Python documentation for the
+  `time` module [2] points out that values before the epoch might
+  cause problems, ftputil now sets the float value for such datetimes
+  to 0.0.
+
+  In theory, this might cause backward compatibility problems, but
+  it's very unlikely since pre-epoch timestamps in directory listings
+  should be very rare.
+
+- On some platforms, the `time.mktime` implementation could behave
+  strange and accept invalid date/time values. For example, a day
+  value of 32 would be accepted and implicitly cause a "wrap" to the
+  next month. Such invalid values now result in a `ParserError`.
+
+- Make error handling more robust where the underlying FTP session
+  factory (for example, `ftplib.FTP`) uses byte strings for exception
+  messages. [3]
+
+- Improved error handling for directory listings. As just one example,
+  previously a non-integer value for a day would unintentionally cause
+  a `ValueError`. Now this causes a `ParserError`.
+
+Note that ftputil 3.0 broke backward compatibility with ftputil 2.8
+and before. The differences are described here:
+http://ftputil.sschwarzer.net/trac/wiki/WhatsNewInFtputil3.0
+
+What is ftputil?
+----------------
+
+ftputil is a high-level FTP client library for the Python programming
+language. ftputil implements a virtual file system for accessing FTP
+servers, that is, it can generate file-like objects for remote files.
+The library supports many functions similar to those in the os,
+os.path and shutil modules. ftputil has convenience functions for
+conditional uploads and downloads, and handles FTP clients and servers
+in different timezones.
+
+See the documentation for details:
+http://ftputil.sschwarzer.net/trac/wiki/Documentation
+
+License
+-------
+
+ftputil is open source software, released under the revised BSD
+license (see http://opensource.org/licenses/BSD-3-Clause ).
+
+[1] http://ftputil.sschwarzer.net/trac/ticket/83
+[2] https://docs.python.org/3/library/time.html
+[3] http://ftputil.sschwarzer.net/trac/ticket/85
+
+Have fun! :-)
+
+Stefan
+
+----------------------------------------------------------------------
 ftputil 3.1 is now available from
 http://ftputil.sschwarzer.net/download .
 
