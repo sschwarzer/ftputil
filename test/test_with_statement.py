@@ -1,5 +1,5 @@
-# Copyright (C) 2008, Roger Demetrescu <roger.demetrescu@gmail.com>
 # Copyright (C) 2008-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
 from __future__ import unicode_literals

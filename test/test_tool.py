@@ -1,4 +1,5 @@
 # Copyright (C) 2013, Stefan Schwarzer
+# and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
 from __future__ import unicode_literals

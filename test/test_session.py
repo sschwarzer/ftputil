@@ -1,4 +1,6 @@
-# Copyright (C) 2014, Stefan Schwarzer
+# Copyright (C) 2014, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# and ftputil contributors (see `doc/contributors.txt`)
+# See the file LICENSE for licensing terms.
 
 """
 Unit tests for session factory helpers.
