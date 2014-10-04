@@ -124,39 +124,6 @@ class TestParsers(unittest.TestCase):
         self._test_valid_lines(ftputil.stat.UnixParser, lines,
                                expected_stat_results)
 
-    def test_invalid_unix_lines(self):
-        lines = [
-          # Not intended to be parsed. Should have been filtered out by
-          # `ignores_line`.
-          "total 14",
-          # Invalid month abbreviation
-          "drwxr-sr-x   2 45854    200           512 Max  4  2000 chemeng",
-          # Year value isn't an integer
-          "drwxr-sr-x   2 45854    200           512 May  4  abcd chemeng",
-          # Day value isn't an integer
-          "drwxr-sr-x   2 45854    200           512 May ab  2000 chemeng",
-          # Hour value isn't an integer
-          "-rw-r--r--   1 45854    200          4604 Dec 19 ab:11 index.html",
-          # Minute value isn't an integer
-          "-rw-r--r--   1 45854    200          4604 Dec 19 23:ab index.html",
-          # Day value too large
-          "drwxr-sr-x   2 45854    200           512 May 32  2000 chemeng",
-          # Incomplete mode
-          "drwxr-sr-    2 45854    200           512 May  4  2000 chemeng",
-          # Invalid first letter in mode
-          "xrwxr-sr-x   2 45854    200           512 May  4  2000 chemeng",
-          # Ditto, plus invalid size value
-          "xrwxr-sr-x   2 45854    200           51x May  4  2000 chemeng",
-          # Is this `os1 -> os2` pointing to `os3`, or `os1` pointing
-          # to `os2 -> os3` or the plain name `os1 -> os2 -> os3`? We
-          # don't know, so we consider the line invalid.
-          "drwxr-sr-x   2 45854    200           512 May 29  2000 "
-            "os1 -> os2 -> os3",
-          # Missing name
-          "-rwxr-sr-x   2 45854    200           51x May  4  2000 ",
-        ]
-        self._test_invalid_lines(ftputil.stat.UnixParser, lines)
-
     def test_alternative_unix_format(self):
         # See http://ftputil.sschwarzer.net/trac/ticket/12 for a
         # description for the need for an alternative format.
@@ -205,6 +172,39 @@ class TestParsers(unittest.TestCase):
                                  expected_stat_result[:]]
         self._test_valid_lines(ftputil.stat.UnixParser, lines,
                                expected_stat_results)
+
+    def test_invalid_unix_lines(self):
+        lines = [
+          # Not intended to be parsed. Should have been filtered out by
+          # `ignores_line`.
+          "total 14",
+          # Invalid month abbreviation
+          "drwxr-sr-x   2 45854    200           512 Max  4  2000 chemeng",
+          # Year value isn't an integer
+          "drwxr-sr-x   2 45854    200           512 May  4  abcd chemeng",
+          # Day value isn't an integer
+          "drwxr-sr-x   2 45854    200           512 May ab  2000 chemeng",
+          # Hour value isn't an integer
+          "-rw-r--r--   1 45854    200          4604 Dec 19 ab:11 index.html",
+          # Minute value isn't an integer
+          "-rw-r--r--   1 45854    200          4604 Dec 19 23:ab index.html",
+          # Day value too large
+          "drwxr-sr-x   2 45854    200           512 May 32  2000 chemeng",
+          # Incomplete mode
+          "drwxr-sr-    2 45854    200           512 May  4  2000 chemeng",
+          # Invalid first letter in mode
+          "xrwxr-sr-x   2 45854    200           512 May  4  2000 chemeng",
+          # Ditto, plus invalid size value
+          "xrwxr-sr-x   2 45854    200           51x May  4  2000 chemeng",
+          # Is this `os1 -> os2` pointing to `os3`, or `os1` pointing
+          # to `os2 -> os3` or the plain name `os1 -> os2 -> os3`? We
+          # don't know, so we consider the line invalid.
+          "drwxr-sr-x   2 45854    200           512 May 29  2000 "
+            "os1 -> os2 -> os3",
+          # Missing name
+          "-rwxr-sr-x   2 45854    200           51x May  4  2000 ",
+        ]
+        self._test_invalid_lines(ftputil.stat.UnixParser, lines)
 
     #
     # Microsoft parser
