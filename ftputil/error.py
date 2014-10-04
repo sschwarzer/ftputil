@@ -17,8 +17,7 @@ import ftputil.version
 # You _can_ import these with `from ftputil.error import *`, - but
 # it's _not_ recommended.
 __all__ = [
-  "FTPError",
-  "InternalError",
+ "InternalError",
   "RootDirError",
   "InaccessibleLoginDirError",
   "TimeShiftError",
@@ -41,17 +40,19 @@ class FTPError(Exception):
     def __init__(self, *args, **kwargs):
         super(FTPError, self).__init__(*args)
         if "original_exception" in kwargs:
-            self.strerror = ftputil.compat.unicode_type(
+            self.strerror = ftputil.tool.as_unicode(
                               kwargs.pop("original_exception"))
         elif args:
             # If there was no `original_exception` argument, assume
-            # the first argument is a unicode string.
-            self.strerror = args[0]
+            # the first argument is a string. It may be a byte string
+            # though.
+            self.strerror = ftputil.tool.as_unicode(args[0])
         else:
             self.strerror = ""
         try:
             self.errno = int(self.strerror[:3])
         except (TypeError, IndexError, ValueError):
+            # TODO: List where all these exceptions may come from.
             self.errno = None
         self.file_name = None
 
@@ -127,7 +128,7 @@ class FtplibErrorToFTPOSError(object):
             # No exception
             return
         if isinstance(exc_value, ftplib.error_temp):
-            raise TemporaryError(*exc_value.args)
+            raise TemporaryError(*exc_value.args, original_exception=exc_value)
         elif isinstance(exc_value, ftplib.error_perm):
             # If `exc_value.args[0]` is present, assume it's a byte or
             # unicode string.
@@ -137,7 +138,8 @@ class FtplibErrorToFTPOSError(object):
             ):
                 raise CommandNotImplementedError(*exc_value.args)
             else:
-                raise PermanentError(*exc_value.args)
+                raise PermanentError(*exc_value.args,
+                                     original_exception=exc_value)
         elif isinstance(exc_value, ftplib.all_errors):
             raise FTPOSError(*exc_value.args, original_exception=exc_value)
         else:
@@ -165,7 +167,7 @@ class FtplibErrorToFTPIOError(object):
             # No exception
             return
         if isinstance(exc_value, ftplib.all_errors):
-            raise FTPIOError(*exc_value.args)
+            raise FTPIOError(*exc_value.args, original_exception=exc_value)
         else:
             raise
 
