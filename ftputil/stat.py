@@ -149,6 +149,21 @@ class Parser(object):
                   "unknown file type character '{0}'".format(file_type))
         return st_mode
 
+    def _as_int(self, int_string, int_description):
+        """
+        Return `int_string` converted to an integer.
+
+        If it can't be converted, raise a `ParserError`, using
+        `int_description` in the error message. For example, if the
+        integer value is a day, pass "day" for `int_description`.
+        """
+        try:
+            return int(int_string)
+        except ValueError:
+            raise ftputil.error.ParserError("non-integer {0} value {1!r}".
+                                            format(int_description,
+                                                   int_string))
+
     def _mktime(self, mktime_tuple):
         """
         Return a float value like `time.mktime` does, but ...
@@ -218,14 +233,10 @@ class Parser(object):
         except KeyError:
             raise ftputil.error.ParserError("invalid month abbreviation {0!r}".
                                             format(month_abbreviation))
-        try:
-            day = int(day)
-        except ValueError:
-            raise ftputil.error.ParserError("non-integer day value {0!r}".
-                                            format(day))
+        day = self._as_int(day, "day")
         if ":" not in year_or_time:
             # `year_or_time` is really a year.
-            year, hour, minute = int(year_or_time), 0, 0
+            year, hour, minute = self._as_int(year_or_time, "year"), 0, 0
             st_mtime = self._mktime( (year, month, day,
                                       hour, minute, 0, 0, 0, -1) )
             # Precise up to a day.
@@ -233,7 +244,8 @@ class Parser(object):
         else:
             # `year_or_time` is a time hh:mm.
             hour, minute = year_or_time.split(":")
-            year, hour, minute = None, int(hour), int(minute)
+            year, hour, minute = (
+              None, self._as_int(hour, "hour"), self._as_int(minute, "minute"))
             # Try the current year
             year = time.localtime()[0]
             st_mtime = self._mktime( (year, month, day,
@@ -291,26 +303,28 @@ class Parser(object):
         # `MSParser.parse_line`. Should you find yourself needing
         # support for `with_precision` for a derived class, please
         # send a mail (see ftputil.txt/html).
+        month, day, year = [self._as_int(part, "year/month/day")
+                            for part in date.split("-")]
+        if year >= 1000:
+            # We have a four-digit year, so no need for heuristics.
+            pass
+        elif year >= 70:
+            year = 1900 + year
+        else:
+            year = 2000 + year
         try:
-            month, day, year = [int(part) for part in date.split("-")]
-            if year >= 1000:
-                # We have a four-digit year, so no need for heuristics.
-                pass
-            elif year >= 70:
-                year = 1900 + year
-            else:
-                year = 2000 + year
             hour, minute, am_pm = time_[0:2], time_[3:5], time_[5]
-            hour, minute = int(hour), int(minute)
-        except (ValueError, IndexError):
+        except IndexError:
             raise ftputil.error.ParserError("invalid time string '{0}'".
                                             format(time_))
+        hour, minute = (
+          self._as_int(hour, "hour"), self._as_int(minute, "minute"))
         if hour == 12 and am_pm == "A":
             hour = 0
         if hour != 12 and am_pm == "P":
             hour += 12
-        st_mtime = time.mktime( (year, month, day,
-                                 hour, minute, 0, 0, 0, -1) )
+        st_mtime = self._mktime( (year, month, day,
+                                  hour, minute, 0, 0, 0, -1) )
         return st_mtime
 
 
