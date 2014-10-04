@@ -15,35 +15,31 @@ in different timezones.
 What's new?
 -----------
 
-Since version 3.0 the following changed:
+Since version 3.1 the following changed:
 
-- Added support for `followlinks` parameter in `FTPHost.walk`. [1]
+- For some platforms (notably Windows) modification datetimes before
+  the epoch would cause an `OverflowError` [1]. Other platforms could
+  return negative values. Since the Python documentation for the
+  `time` module [2] points out that values before the epoch might
+  cause problems, ftputil now sets the float value for such datetimes
+  to 0.0.
 
-- Trying to pickle `FTPHost` and `FTPFile` objects now raises explicit
-  `TypeError`s to make clear that not being able to pickle these
-  objects is intentional. [2]
+  In theory, this might cause backward compatibility problems, but
+  it's very unlikely since pre-epoch timestamps in directory listings
+  should be very rare.
 
-- Improved exception messages for socket errors [3].
+- On some platforms, the `time.mktime` implementation could behave
+  strange and accept invalid date/time values. For example, a day
+  value of 32 would be accepted and implicitly cause a "wrap" to the
+  next month. Such invalid values now result in a `ParserError`.
 
-- Fixed handling of server error messages with non-ASCII characters
-  when running under Python 2.x. [4]
+- Make error handling more robust where the underlying FTP session
+  factory (for example, `ftplib.FTP`) uses byte strings for exception
+  messages. [3]
 
-- Added a generic "session factory factory" to make creation of
-  session factories easier for common use cases (encrypted
-  connections, non-default port, active/passive mode, FTP session
-  debug level and combination of these). [5] This includes a
-  workaround for `M2Crypto.ftpslib.FTP_TLS`; this class won't be
-  usable with ftputil 3.0 and up with just the session factory recipe
-  described in the documentation. [6]
-
-- Don't assume time zone differences to always be full hours, but
-  rather 15-minute units. [8] For example, according to [9], Nepal's
-  time zone is UTC+05:45.
-
-- Improved documentation on timeout handling. This includes
-  information on internal creation of additional FTP connections (for
-  remote files, including uploads and downloads). This may help
-  understand better why the `keep_alive` method is limited.
+- Improved error handling for directory listings. As just one example,
+  previously a non-integer value for a day would unintentionally cause
+  a `ValueError`. Now this causes a `ParserError`.
 
 Note that ftputil 3.0 broke backward compatibility with ftputil 2.8
 and before. The differences are described here:
@@ -129,14 +125,10 @@ Stefan Schwarzer <sschwarzer@sschwarzer.net>
 
 Evan Prodromou <evan@bad.dynu.ca> (lrucache module)
 
+(Also see the file `doc/contributors.txt`.)
+
 Please provide feedback! It's certainly appreciated. :-)
 
-[1] http://ftputil.sschwarzer.net/trac/ticket/73
-[2] http://ftputil.sschwarzer.net/trac/ticket/75
-[3] http://ftputil.sschwarzer.net/trac/ticket/76
-[4] http://ftputil.sschwarzer.net/trac/ticket/77
-[5] http://ftputil.sschwarzer.net/trac/ticket/78
-[6] http://ftputil.sschwarzer.net/trac/wiki/Documentation#session-factories
-[7] http://ftputil.sschwarzer.net/trac/ticket/79
-[8] http://ftputil.sschwarzer.net/trac/ticket/81
-[9] http://en.wikipedia.org/wiki/Timezone#List_of_UTC_offsets
+[1] http://ftputil.sschwarzer.net/trac/ticket/83
+[2] https://docs.python.org/3/library/time.html
+[3] http://ftputil.sschwarzer.net/trac/ticket/85
