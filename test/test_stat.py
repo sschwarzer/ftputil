@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2014, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -164,7 +164,7 @@ class TestParsers(unittest.TestCase):
         ]
         expected_stat_result = \
           [33188, None, None, 1, "45854", "200", 4604, None,
-           EPOCH, None, DAY_PRECISION, "index.html", None]
+           EPOCH, None, UNKNOWN_PRECISION, "index.html", None]
         # Make shallow copies to avoid converting the time tuple more
         # than once in _test_valid_lines`.
         expected_stat_results = [expected_stat_result[:],
@@ -252,7 +252,7 @@ class TestParsers(unittest.TestCase):
            (2012, 10, 19, 15, 13, 0), None, MINUTE_PRECISION,
            "SYNCSOURCE", None],
           [16640, None, None, None, None, None, None, None,
-           EPOCH, None, MINUTE_PRECISION,
+           EPOCH, None, UNKNOWN_PRECISION,
            "SYNC", None],
         ]
         self._test_valid_lines(ftputil.stat.MSParser, lines,
