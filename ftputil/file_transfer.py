@@ -1,4 +1,4 @@
-# Copyright (C) 2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2013-2014, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -119,6 +119,9 @@ def source_is_newer_than_target(source_file, target_file):
     That is, the latest possible actual source modification time is
     before the first possible actual target modification time.
     """
+    # We don't need special handling for pre-epoch datetimes since
+    # they always result in a modification datetime of 0.0, so the
+    # following algorithm will insist that the file is retransmitted.
     return (source_file.mtime() + source_file.mtime_precision() >=
             target_file.mtime())
 
