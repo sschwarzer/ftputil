@@ -124,7 +124,9 @@ class TestParsers(unittest.TestCase):
           "total 14",
           # Invalid month abbreviation
           "drwxr-sr-x   2 45854    200           512 Max  4  2000 chemeng",
-          # Invalid day value
+          # Day value is not an integer
+          "drwxr-sr-x   2 45854    200           512 May ab  2000 chemeng",
+          # Day value too large
           "drwxr-sr-x   2 45854    200           512 May 32  2000 chemeng",
           # Incomplete mode
           "drwxr-sr-    2 45854    200           512 May  4  2000 chemeng",
