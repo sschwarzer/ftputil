@@ -1,5 +1,6 @@
 # encoding: utf-8
 # Copyright (C) 2002-2014, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
 from __future__ import unicode_literals

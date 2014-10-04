@@ -1,6 +1,7 @@
 # encoding: UTF-8
 
 # Copyright (C) 2003-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
 # Execute tests on a real FTP server (other tests use a mock server).
