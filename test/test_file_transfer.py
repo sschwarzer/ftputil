@@ -1,4 +1,4 @@
-# Copyright (C) 2010-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2010-2014, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -10,6 +10,7 @@ import unittest
 
 import ftputil.compat
 import ftputil.file_transfer
+import ftputil.stat
 
 
 class MockFile(object):
@@ -38,6 +39,7 @@ class TestTimestampComparison(unittest.TestCase):
         minute = 60.0 * second
         hour = 60 * minute
         day = 24 * hour
+        unknown = ftputil.stat.UNKNOWN_PRECISION
         # Define input arguments; modification datetimes are in seconds.
         # Fields are source datetime/precision, target datetime/precision,
         # expected comparison result.
@@ -55,6 +57,10 @@ class TestTimestampComparison(unittest.TestCase):
           (10000.0+0.5*hour, hour,      10000.0, day,   True),
           (10000.0+0.2*hour, 0.2*hour,  10000.0, hour,  True),
           (10000.0-0.2*hour, 2*hour,    10000.0, hour,  True),
+          # Unknown precision
+          (1000.0, None,    1000.0, second,  True),
+          (1000.0, second,  1000.0, None,    True),
+          (1000.0, None,    1000.0, None,    True),
         ]
         for (source_mtime, source_mtime_precision,
              target_mtime, target_mtime_precision,
