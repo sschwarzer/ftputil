@@ -40,8 +40,9 @@ class FTPError(Exception):
     def __init__(self, *args, **kwargs):
         super(FTPError, self).__init__(*args)
         if "original_exception" in kwargs:
-            self.strerror = ftputil.tool.as_unicode(
-                              kwargs.pop("original_exception"))
+            # Byte string under Python 2.
+            exception_string = str(kwargs.pop("original_exception"))
+            self.strerror = ftputil.tool.as_unicode(exception_string)
         elif args:
             # If there was no `original_exception` argument, assume
             # the first argument is a string. It may be a byte string
@@ -51,8 +52,8 @@ class FTPError(Exception):
             self.strerror = ""
         try:
             self.errno = int(self.strerror[:3])
-        except (TypeError, IndexError, ValueError):
-            # TODO: List where all these exceptions may come from.
+        except ValueError:
+            # `int()` argument couldn't be converted to an integer.
             self.errno = None
         self.file_name = None
 
