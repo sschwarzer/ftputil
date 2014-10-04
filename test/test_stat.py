@@ -226,13 +226,16 @@ class TestParsers(unittest.TestCase):
         # See http://ftputil.sschwarzer.net/trac/ticket/67
         lines = [
           "10-19-2012  03:13PM       <DIR>          SYNCDEST",
-          "10-19-2012  03:13PM       <DIR>          SYNCSOURCE"
+          "10-19-2012  03:13PM       <DIR>          SYNCSOURCE",
+          "10-19-1968  03:13PM       <DIR>          SYNC"
           ]
         expected_stat_results = [
           [16640, None, None, None, None, None, None, None,
            (2012, 10, 19, 15, 13, 0), None, "SYNCDEST", None],
           [16640, None, None, None, None, None, None, None,
            (2012, 10, 19, 15, 13, 0), None, "SYNCSOURCE", None],
+          [16640, None, None, None, None, None, None, None,
+           EPOCH, None, "SYNC", None],
           ]
         self._test_valid_lines(ftputil.stat.MSParser, lines,
                                expected_stat_results)
