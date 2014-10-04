@@ -125,7 +125,7 @@ Stefan Schwarzer <sschwarzer@sschwarzer.net>
 
 Evan Prodromou <evan@bad.dynu.ca> (lrucache module)
 
-(Also see the file `doc/contributors.txt`.)
+(See also the file `doc/contributors.txt`.)
 
 Please provide feedback! It's certainly appreciated. :-)
 
