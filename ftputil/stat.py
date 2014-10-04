@@ -9,6 +9,7 @@ ftputil.stat - stat result, parsers, and FTP stat'ing for `ftputil`
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import datetime
 import math
 import re
 import stat
@@ -148,6 +149,41 @@ class Parser(object):
                   "unknown file type character '{0}'".format(file_type))
         return st_mode
 
+    def _mktime(self, mktime_tuple):
+        """
+        Return a float value like `time.mktime` does, but ...
+
+        - Raise a `ParserError` if parts of `mktime_tuple` are
+          invalid (say, a day is 32).
+
+        - If the resulting float value would be smaller than 0.0
+          (indicating a time before the "epoch") return a sentinel
+          value of 0.0. Do this also if the native `mktime`
+          implementation would raise an `OverflowError`.
+        """
+        datetime_tuple = mktime_tuple[:6]
+        try:
+            # Only for sanity checks, we're not interested in the
+            # return value.
+            datetime.datetime(*datetime_tuple)
+        # For example, day == 32. Not all implementations of `mktime`
+        # catch this kind of error.
+        except ValueError:
+            invalid_datetime = (
+              "{0:04d}-{1:02d}-{2:02d} {3:02d}:{4:02d}:{5:02d}".format(
+              datetime_tuple))
+            raise ParserError("invalid datetime {0!r}".
+                              format(invalid_datetime))
+        try:
+            time_float = time.mktime(mktime_tuple)
+        except (OverflowError, ValueError):
+            # Sentinel for times before the Epoch, see ticket #83.
+            time_float = 0.0
+        # Don't allow float values smaller than 0.0 because, according
+        # to https://docs.python.org/3.4/library/time.html#module-time ,
+        # these might be undefined for some platforms.
+        return max(0.0, time_float)
+
     def parse_unix_time(self, month_abbreviation, day, year_or_time,
                         time_shift, with_precision=False):
         """
@@ -187,8 +223,8 @@ class Parser(object):
         if ":" not in year_or_time:
             # `year_or_time` is really a year.
             year, hour, minute = int(year_or_time), 0, 0
-            st_mtime = time.mktime( (year, month, day,
-                                     hour, minute, 0, 0, 0, -1) )
+            st_mtime = self._mktime( (year, month, day,
+                                      hour, minute, 0, 0, 0, -1) )
             # Precise up to a day.
             st_mtime_precision = 24 * 60 * 60
         else:
@@ -197,8 +233,8 @@ class Parser(object):
             year, hour, minute = None, int(hour), int(minute)
             # Try the current year
             year = time.localtime()[0]
-            st_mtime = time.mktime( (year, month, day,
-                                     hour, minute, 0, 0, 0, -1) )
+            st_mtime = self._mktime( (year, month, day,
+                                      hour, minute, 0, 0, 0, -1) )
             # Times are precise up to a minute.
             st_mtime_precision = 60
             # Rhs of comparison: Transform client time to server time
@@ -215,8 +251,8 @@ class Parser(object):
             # can only be exact up to a minute.
             if st_mtime > time.time() + time_shift + st_mtime_precision:
                 # If it's in the future, use previous year.
-                st_mtime = time.mktime( (year-1, month, day,
-                                         hour, minute, 0, 0, 0, -1) )
+                st_mtime = self._mktime( (year-1, month, day,
+                                          hour, minute, 0, 0, 0, -1) )
         if with_precision:
             return st_mtime, st_mtime_precision
         else:
