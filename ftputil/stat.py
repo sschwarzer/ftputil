@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2014, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -272,6 +272,11 @@ class Parser(object):
                 # If it's in the future, use previous year.
                 st_mtime = self._mktime( (year-1, month, day,
                                           hour, minute, 0, 0, 0, -1) )
+        # If we had a datetime before the epoch, the resulting value
+        # 0.0 doesn't tell us anything about the precision.
+        if st_mtime == 0.0:
+            st_mtime_precision = UNKNOWN_PRECISION
+        #
         if with_precision:
             return st_mtime, st_mtime_precision
         else:
@@ -483,7 +488,12 @@ class MSParser(Parser):
         stat_result._st_name = name
         stat_result._st_target = None
         # mtime precision in seconds
-        stat_result._st_mtime_precision = MINUTE_PRECISION
+        #  If we had a datetime before the epoch, the resulting value
+        #  0.0 doesn't tell us anything about the precision.
+        if st_mtime == 0.0:
+            stat_result._st_mtime_precision = UNKNOWN_PRECISION
+        else:
+            stat_result._st_mtime_precision = MINUTE_PRECISION
         return stat_result
 
 #
