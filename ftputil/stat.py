@@ -197,10 +197,10 @@ class Parser(object):
         try:
             time_float = time.mktime(mktime_tuple)
         except (OverflowError, ValueError):
-            # Sentinel for times before the Epoch, see ticket #83.
+            # Sentinel for times before the epoch, see ticket #83.
             time_float = 0.0
         # Don't allow float values smaller than 0.0 because, according
-        # to https://docs.python.org/3.4/library/time.html#module-time ,
+        # to https://docs.python.org/3/library/time.html#module-time ,
         # these might be undefined for some platforms.
         return max(0.0, time_float)
 
