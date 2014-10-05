@@ -41,6 +41,9 @@ Since version 3.1 the following changed:
   previously a non-integer value for a day would unintentionally cause
   a `ValueError`. Now this causes a `ParserError`.
 
+- Extracted socket file adapter module [4] so that it can be used
+  by other projects.
+
 Note that ftputil 3.0 broke backward compatibility with ftputil 2.8
 and before. The differences are described here:
 http://ftputil.sschwarzer.net/trac/wiki/WhatsNewInFtputil3.0
@@ -132,3 +135,4 @@ Please provide feedback! It's certainly appreciated. :-)
 [1] http://ftputil.sschwarzer.net/trac/ticket/83
 [2] https://docs.python.org/3/library/time.html
 [3] http://ftputil.sschwarzer.net/trac/ticket/85
+[4] http://ftputil.sschwarzer.net/trac/wiki/SocketFileAdapter
