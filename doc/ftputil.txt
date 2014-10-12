@@ -1662,8 +1662,8 @@ Authors
 -------
 
 ``ftputil`` is written by Stefan Schwarzer
-<sschwarzer@sschwarzer.net>, in part based on suggestions
-from users.
+<sschwarzer@sschwarzer.net> and contributors (see
+``doc/contributors.txt``).
 
 The original ``lrucache`` module was written by Evan Prodromou
 <evan@prodromou.name>.
