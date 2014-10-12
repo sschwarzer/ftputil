@@ -1,10 +1,16 @@
 Planned:
 
-- Support `FTPFile.seek` and `FTPFile.tell` as far as it makes sense.
+- Improve sync code.
 
 
 Ideas for future development:
 
 - See ticket system
+
+- Use `freezegun` module to speed up long-running test for
+  `upload_if_newer` and `download_if_newer`. Note: It won't be
+  possible, to speed up `test_public_servers.py` with this.
+
+- Support `FTPFile.seek` and `FTPFile.tell` as far as it makes sense.
 
 - WebDAV support?
