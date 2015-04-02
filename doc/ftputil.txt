@@ -48,7 +48,9 @@ to `os.stat`_. `FTPHost.walk`_ and `FTPHost.path.walk`_ work, too.
 --------------------
 
 * Method names are familiar from Python's ``os``, ``os.path`` and
-  ``shutil`` modules
+  ``shutil`` modules. For example, use ``os.path.join`` to join
+  paths for a local file system and ``ftp_host.path.join`` to join
+  paths for a remote FTP file system.
 
 * Remote file system navigation (``getcwd``, ``chdir``)
 
