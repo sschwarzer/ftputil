@@ -100,7 +100,7 @@ class TestPublicServers(unittest.TestCase):
     # the root directory.
     servers = [# Posix format
                ("ftp.gnome.org",  "pub"),
-               ("ftp.kde.org",    "pub"),
+               ("ftp.heise.de",   "pub"),
                ("ftp.debian.org", "debian"),
                ("ftp.heanet.ie",  "pub"),
                # DOS/Microsoft format
