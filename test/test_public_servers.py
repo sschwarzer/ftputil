@@ -99,10 +99,10 @@ class TestPublicServers(unittest.TestCase):
     # to exist" under the login directory which is assumed to be
     # the root directory.
     servers = [# Posix format
-               ("ftp.gnome.org",  "pub"),
-               ("ftp.heise.de",   "pub"),
                ("ftp.debian.org", "debian"),
+               ("ftp.gnome.org",  "pub"),
                ("ftp.heanet.ie",  "pub"),
+               ("ftp.heise.de",   "pub"),
                # DOS/Microsoft format
                # ftp.microsoft.com sporadically refuses anonymous access
                # ("530 User cannot log in, home directory inaccessible")
