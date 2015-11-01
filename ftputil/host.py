@@ -20,6 +20,7 @@ import ftputil.error
 import ftputil.file
 import ftputil.file_transfer
 import ftputil.path
+import ftputil.session_adapter
 import ftputil.stat
 import ftputil.tool
 
@@ -125,6 +126,11 @@ class FTPHost(object):
         # this `FTPHost` object, use the same factory for this
         # `FTPHost` object's child sessions.
         factory = kwargs.pop("session_factory", ftplib.FTP)
+        # Adapt session factories so that they accept unicode strings
+        # with non-ASCII characters (as long as the string contains
+        # only code points <= 255). See the docstring in
+        # `session_adapter` for details.
+        factory = ftputil.session_adapter.adapted_session_factory(factory)
         with ftputil.error.ftplib_error_to_ftp_os_error:
             return factory(*args, **kwargs)
 
