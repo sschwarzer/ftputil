@@ -40,6 +40,8 @@ is.) Therefore, this adapter is the only place to deal with the
 preferred string type of `ftplib` under Python 2 vs. Python 3.
 """
 
+from __future__ import unicode_literals
+
 import ftputil.compat
 import ftputil.tool
 
