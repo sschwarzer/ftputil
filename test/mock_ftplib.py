@@ -179,7 +179,7 @@ class MockSession(object):
         self._transfercmds -= 1
         return "2xx"
 
-    def transfercmd(self, cmd):
+    def transfercmd(self, cmd, rest=None):
         """
         Return a `MockSocket` object whose `makefile` method will
         return a mock file object.
