@@ -48,75 +48,76 @@ import ftputil.tool
 __all__ = []
 
 
-# Since ftputil can be used with different session factories, for
-# example `ftplib.FTP`, `ftplib.FTP_TLS` or
-# `M2Crypto.ftpslib.FTP_TLS`), we can't let the adapter inherit
-# from a particular class. Instead, the concrete adapter class must
-# be generated dynamically depending on the used session factory.
+# Shortcut
+as_bytes = ftputil.tool.as_bytes
 
-def adapted_session_factory(session_factory):
+
+# We only have to adapt the methods that are directly called by
+# ftputil and only those that take string arguments.
+#
+# Keep the call signature of each adaptor method the same as the
+# signature of the adapted method so that code that introspects
+# the signature of the method still works.
+
+class SessionAdapter(object):
+
+    def __init__(self, session):
+        self._session = session
+
+    def voidcmd(self, cmd):
+        cmd = as_bytes(cmd)
+        return self._session.voidcmd(cmd)
+
+    def transfercmd(self, cmd, rest=None):
+        cmd = as_bytes(cmd)
+        return self._session.transfercmd(cmd, rest)
+
+    def dir(self, *args):
+        # This is somewhat tricky, since some of the args may not
+        # be strings. The last argument may be a callback.
+        args = list(args)
+        for index, arg in enumerate(args):
+            # Replace only unicode strings with a corresponding
+            # byte string.
+            if isinstance(arg, ftputil.compat.unicode_type):
+                args[index] = as_bytes(arg)
+        return self._session.dir(*args)
+
+    def rename(self, fromname, toname):
+        fromname = as_bytes(fromname)
+        toname = as_bytes(toname)
+        return self._session.rename(fromname, toname)
+
+    def delete(self, filename):
+        filename = as_bytes(filename)
+        return self._session.delete(filename)
+
+    def cwd(self, dirname):
+        dirname = as_bytes(dirname)
+        return self._session.cwd(dirname)
+
+    def mkd(self, dirname):
+        dirname = as_bytes(dirname)
+        return self._session.mkd(dirname)
+
+    def rmd(self, dirname):
+        dirname = as_bytes(dirname)
+        return self._session.rmd(dirname)
+
+    # Dispatch to session itself for methods that don't need string
+    # conversions.
+    def __getattr__(self, name):
+        return getattr(self._session, name)
+
+
+def adapted_session(session):
     """
-    Return an adapted session factory that will work with Python 2's
-    `ftplib.FTP` and compatible factories.
+    Return an adapted session that will work with Python 2's
+    `ftplib.FTP` and compatible sessions.
 
-    Under Python 3 return the passed session factory itself.
+    Under Python 3 return the passed session itself.
     """
-    if ftputil.compat.python_version > 2:
-        return session_factory
-    # We only have to adapt the methods that are directly called by
-    # ftputil and only those that take string arguments.
-    #
-    # Keep the call signature of each adaptor method the same as the
-    # signature of the adapted method so that code that introspects
-    # the signature of the method still works.
-    #
-    # The calls into the session factory's methods don't use `super`
-    # since the factory may not be a new-style class (as in the case
-    # of `ftplib.FTP`).
-
-    # Shortcut
-    as_bytes = ftputil.tool.as_bytes
-
-    class SessionFactory(session_factory):
-
-        def voidcmd(self, cmd):
-            cmd = as_bytes(cmd)
-            return session_factory.voidcmd(self, cmd)
-
-        def transfercmd(self, cmd, rest=None):
-            cmd = as_bytes(cmd)
-            return session_factory.transfercmd(self, cmd, rest)
-
-        def dir(self, *args):
-            # This is somewhat tricky, since some of the args may not
-            # be strings. The last argument may be a callback.
-            args = list(args)
-            for index, arg in enumerate(args):
-                # Replace only unicode strings with a corresponding
-                # byte string.
-                if isinstance(arg, ftputil.compat.unicode_type):
-                    args[index] = as_bytes(arg)
-            return session_factory.dir(self, *args)
-
-        def rename(self, fromname, toname):
-            fromname = as_bytes(fromname)
-            toname = as_bytes(toname)
-            return session_factory.rename(self, fromname, toname)
-
-        def delete(self, filename):
-            filename = as_bytes(filename)
-            return session_factory.delete(self, filename)
-
-        def cwd(self, dirname):
-            dirname = as_bytes(dirname)
-            return session_factory.cwd(self, dirname)
-
-        def mkd(self, dirname):
-            dirname = as_bytes(dirname)
-            return session_factory.mkd(self, dirname)
-
-        def rmd(self, dirname):
-            dirname = as_bytes(dirname)
-            return session_factory.rmd(self, dirname)
-
-    return SessionFactory
+    if ftputil.compat.python_version == 2:
+        return SessionAdapter(session)
+    else:
+        return session
