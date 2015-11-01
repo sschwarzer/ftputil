@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-# Copyright (C) 2003-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2015, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -784,7 +784,7 @@ class TestOther(RealFTPTest):
         file1.close()
 
     def test_subsequent_reading(self):
-        # Opening a file for reading
+        # Open a file for reading.
         with self.host.open("debian-keyring.tar.gz", "rb") as file1:
             pass
         # Make sure that there are no problems if the connection is reused.
@@ -827,7 +827,8 @@ class TestOther(RealFTPTest):
         FILE_NAME = "_ütf8_file_näme_♯♭_"
         bytes_file_name = FILE_NAME.encode("UTF-8")
         self.cleaner.add_file(bytes_file_name)
-        # Write under name `bytes_file_name`
+        # Write under name `bytes_file_name`. The content is rather
+        # irrelevant.
         with host.open(bytes_file_name, "w", encoding="UTF-8") as fobj:
             fobj.write(FILE_NAME)
         # Try to retrieve file with `listdir`.
@@ -844,6 +845,33 @@ class TestOther(RealFTPTest):
             data = fobj.read()
         # Not the point of this test, but an additional sanity check
         self.assertEqual(data, FILE_NAME)
+
+    def test_listdir_with_non_ascii_byte_string(self):
+        """
+        `listdir` should accept byte strings with non-ASCII
+        characters and return non-ASCII characters in directory or
+        file names.
+        """
+        host = self.host
+        path = "äbc".encode("UTF-8")
+        names = host.listdir(path)
+        self.assertEqual(names[0], b"file1")
+        self.assertEqual(names[1], "file1_ö".encode("UTF-8"))
+
+    def test_listdir_with_non_ascii_unicode_string(self):
+        """
+        `listdir` should accept unicode strings with non-ASCII
+        characters and return non-ASCII characters in directory or
+        file names.
+        """
+        host = self.host
+        # `ftplib` under Python 3 only works correctly if the unicode
+        # strings are decoded from latin1. Under Python 2, ftputil
+        # is supposed to provide a compatible interface.
+        path = "äbc".encode("UTF-8").decode("latin1")
+        names = host.listdir(path)
+        self.assertEqual(names[0], "file1")
+        self.assertEqual(names[1], "file1_ö".encode("UTF-8").decode("latin1"))
 
     def test_list_a_option(self):
         # For this test to pass, the server must _not_ list "hidden"
