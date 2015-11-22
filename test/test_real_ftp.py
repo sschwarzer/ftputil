@@ -837,6 +837,18 @@ class TestOther(RealFTPTest):
         self.assertEqual(names[0], "file1")
         self.assertEqual(names[1], "file1_ö".encode("UTF-8").decode("latin1"))
 
+    def test_path_with_non_latin1_unicode_string(self):
+        """
+        ftputil operations shouldn't accept file paths with non-latin1
+        characters.
+        """
+        # Use some musical symbols. These are certainly not latin1.
+        path = "𝄞𝄢"
+        # `UnicodeEncodeError` is also the exception that `ftplib`
+        # raises if it gets a non-latin1 path.
+        with self.assertRaises(UnicodeEncodeError):
+            self.host.mkdir(path)
+
     def test_list_a_option(self):
         # For this test to pass, the server must _not_ list "hidden"
         # files by default but instead only when the `LIST` `-a`
