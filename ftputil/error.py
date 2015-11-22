@@ -12,6 +12,7 @@ from __future__ import unicode_literals
 
 import ftplib
 
+import ftputil.tool
 import ftputil.version
 
 
