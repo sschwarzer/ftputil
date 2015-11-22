@@ -18,7 +18,7 @@ import ftputil.version
 # You _can_ import these with `from ftputil.error import *`, - but
 # it's _not_ recommended.
 __all__ = [
- "InternalError",
+  "InternalError",
   "RootDirError",
   "InaccessibleLoginDirError",
   "TimeShiftError",
