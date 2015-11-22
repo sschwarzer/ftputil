@@ -810,37 +810,6 @@ class TestOther(RealFTPTest):
         host.chdir("rootdir1")
         self.assertRaises(ftputil.error.TimeShiftError, host.synchronize_times)
 
-    def test_bytes_file_name(self):
-        """
-        Test whether a UTF-8 file name can be sent and retrieved when
-        encoded explicitly.
-        """
-        host = self.host
-        # This requires an existing file with an UTF-8 encoded name on
-        # the remote file system. Note: If the remote file system
-        # doesn't use UTF-8, the test will probably succeed anyway.
-        FILE_NAME = "_ütf8_file_näme_♯♭_"
-        bytes_file_name = FILE_NAME.encode("UTF-8")
-        self.cleaner.add_file(bytes_file_name)
-        # Write under name `bytes_file_name`. The content is rather
-        # irrelevant.
-        with host.open(bytes_file_name, "w", encoding="UTF-8") as fobj:
-            fobj.write(FILE_NAME)
-        # Try to retrieve file with `listdir`.
-        items = host.listdir(b".")
-        self.assertTrue(bytes_file_name in items)
-        #  When getting a directory listing for a unicode directory,
-        #  ftputil will implicitly assume the encoding is latin-1 and
-        #  won't decode the file name to something different from
-        #  `bytes_file_name`.
-        items = host.listdir(".")
-        self.assertFalse(FILE_NAME in items)
-        # Re-open file.
-        with host.open(bytes_file_name, "r", encoding="UTF-8") as fobj:
-            data = fobj.read()
-        # Not the point of this test, but an additional sanity check
-        self.assertEqual(data, FILE_NAME)
-
     def test_listdir_with_non_ascii_byte_string(self):
         """
         `listdir` should accept byte strings with non-ASCII
