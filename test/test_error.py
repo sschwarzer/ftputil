@@ -92,8 +92,8 @@ class TestErrorConversion(unittest.TestCase):
         except ftputil.error.FTPOSError as exc:
             # The error message might change for future Python
             # versions, so possibly relax the assertion later.
-            self.assertTrue("[Errno -2] Name or service not known" in
-                            str(exc))
+            self.assertTrue(
+              "[Errno -5] No address associated with hostname" in str(exc))
 
 
 if __name__ == "__main__":
