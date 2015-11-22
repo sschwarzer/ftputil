@@ -815,11 +815,6 @@ class TestOther(RealFTPTest):
         Test whether a UTF-8 file name can be sent and retrieved when
         encoded explicitly.
         """
-        # This test below would fail under Python 2 and I have no idea
-        # how to make it work there without modifying `ftplib`.
-        if ftputil.compat.python_version == 2:
-            return
-        #
         host = self.host
         # This requires an existing file with an UTF-8 encoded name on
         # the remote file system. Note: If the remote file system
