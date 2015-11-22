@@ -80,7 +80,7 @@ class FTPFile(object):
         with ftputil.error.ftplib_error_to_ftp_io_error:
             self._session.voidcmd(command)
         # Make transfer command.
-        command_type = ("STOR", "RETR")[is_read_mode]
+        command_type = "RETR" if is_read_mode else "STOR"
         command = "{0} {1}".format(command_type, path)
         # Force to binary regardless of transfer type (see above).
         makefile_mode = mode
