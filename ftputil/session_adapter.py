@@ -110,16 +110,3 @@ class SessionAdapter(object):
     # conversions.
     def __getattr__(self, name):
         return getattr(self._session, name)
-
-
-def adapted_session(session):
-    """
-    Return an adapted session that will work with Python 2's
-    `ftplib.FTP` and compatible sessions.
-
-    Under Python 3 return the passed session itself.
-    """
-    if ftputil.compat.python_version == 2:
-        return SessionAdapter(session)
-    else:
-        return session
