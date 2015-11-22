@@ -112,7 +112,7 @@ class FTPHost(object):
 
     #
     # Dealing with child sessions and file-like objects
-    #  (rather low-level)
+    # (rather low-level)
     #
     def _make_session(self):
         """
@@ -132,7 +132,9 @@ class FTPHost(object):
         # non-ASCII characters (as long as the string contains only
         # code points <= 255). See the docstring in module
         # `session_adapter` for details.
-        return ftputil.session_adapter.adapted_session(session)
+        if ftputil.compat.python_version == 2:
+            session = ftputil.session_adapter.SessionAdapter(session)
+        return session
 
     def _copy(self):
         """Return a copy of this `FTPHost` object."""
