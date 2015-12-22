@@ -235,9 +235,7 @@ and are described here:
 
 - ``TimeShiftError``
 
-  is used to denote errors which relate to setting the `time shift`_,
-  *for example* trying to set a value which is no multiple of a full
-  hour.
+  is used to denote errors which relate to setting the `time shift`_.
 
 
 Directory and file names
@@ -621,9 +619,8 @@ UTC time.
   FTP server differs from that of the client. Note that the time shift
   value *can be negative*.
 
-  If the time shift value is invalid, e. g. no multiple of a full hour
-  or its absolute value larger than 24 hours, a ``TimeShiftError`` is
-  raised.
+  If the time shift value is invalid, for example its absolute value
+  is larger than 24 hours, a ``TimeShiftError`` is raised.
 
   See also `synchronize_times`_ for a way to set the time shift with a
   simple method call.
