@@ -235,7 +235,8 @@ class TestMkdir(RealFTPTest):
         host = self.host
         self.cleaner.add_dir("rootdir2/dir2")
         # Preparation: `rootdir2` exists but is only writable by root.
-        # `dir2` is writable by regular ftp user. These both should work.
+        # `dir2` is writable by regular ftp users. Both directories
+        # below should work.
         host.makedirs("rootdir2/dir2")
         host.makedirs("rootdir2/dir2/dir3")
 
