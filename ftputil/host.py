@@ -615,32 +615,47 @@ class FTPHost(object):
                 self._session.mkd(path)
         self._robust_ftp_command(command, path)
 
+    # TODO: The virtual directory support doesn't have unit tests yet
+    # because the mocking most likely would be quite complicated. The
+    # tests should be added when mainly the `mock` library is used
+    # instead of the mock code in `test.mock_ftplib`.
+    #
     # Ignore unused argument `mode`
     # pylint: disable=unused-argument
     def makedirs(self, path, mode=None):
         """
         Make the directory `path`, but also make not yet existing
-        intermediate directories, like `os.makedirs`. The value
-        of `mode` is only accepted for compatibility with
-        `os.makedirs` but otherwise ignored.
+        intermediate directories, like `os.makedirs`. The value of
+        `mode` is only accepted for compatibility with `os.makedirs`
+        but otherwise ignored.
         """
         path = ftputil.tool.as_unicode(path)
         path = self.path.abspath(path)
         directories = path.split(self.sep)
-        # Try to build the directory chain from the "uppermost" to
-        # the "lowermost" directory.
-        for index in range(1, len(directories)):
-            # Re-insert the separator which got lost by using `path.split`.
-            next_directory = self.sep + self.path.join(*directories[:index+1])
-            try:
-                self.mkdir(next_directory)
-            except ftputil.error.PermanentError:
-                # Find out the cause of the error. Re-raise the
-                # exception only if the directory didn't exist already,
-                # else something went _really_ wrong, e. g. there's a
-                # regular file with the name of the directory.
-                if not self.path.isdir(next_directory):
-                    raise
+        old_dir = self.getcwd()
+        try:
+            # Try to build the directory chain from the "uppermost" to
+            # the "lowermost" directory.
+            for index in range(1, len(directories)):
+                # Re-insert the separator which got lost by using
+                # `path.split`.
+                next_directory = (self.sep +
+                                  self.path.join(*directories[:index+1]))
+                try:
+                    self.chdir(next_directory)
+                except ftputil.error.PermanentError:
+                    try:
+                        self.mkdir(next_directory)
+                    except ftputil.error.PermanentError:
+                        # Find out the cause of the error. Re-raise
+                        # the exception only if the directory didn't
+                        # exist already, else something went _really_
+                        # wrong, e. g. there's a regular file with the
+                        # name of the directory.
+                        if not self.path.isdir(next_directory):
+                            raise
+        finally:
+            self.chdir(old_dir)
 
     def rmdir(self, path):
         """
