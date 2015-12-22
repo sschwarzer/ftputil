@@ -243,20 +243,64 @@ and are described here:
 Directory and file names
 ------------------------
 
-Methods that take names of directories and files can take either byte
-strings (``str`` on Python 2, ``bytes`` on Python 3) or unicode
-strings (``unicode`` on Python 2, ``str`` on Python 3).
+.. note::
 
-Byte strings will be sent to the FTP server as-is. Unicode strings
-will be encoded with the encoding returned from
-``locale.getpreferredencoding``. This is the same semantics as for
-locally used names in Python 3.
+   Keep in mind that this section only applies to directory and file
+   *names*, not file *contents*. Encoding and decoding for file
+   contents is handled by the ``encoding`` argument for
+   `FTPHost.open`_.
 
-Methods that take and return a directory or file name will return the
-same string type as they're given. For example, if the argument to
-``FTPHost.path.abspath`` is a byte string, you'll get a byte string
-back. This behavior is the same as for the local file system API in
-Python 2 and 3.
+First off: If your directory and file names (both as
+arguments and on the server) contain only ISO 8859-1 (latin-1)
+characters, you can use such names in the form of byte strings or
+unicode strings. However, you can't mix different string types (bytes
+and unicode) in one call (for example in ``FTPHost.path.join``).
+
+If you have directory or file names with characters that aren't in
+latin-1, it's recommended to use byte strings. In that case,
+returned paths will be byte strings, too.
+
+Read on for details.
+
+.. note::
+
+   The approach described below may look awkward and in a way it is.
+   The intention of ``ftputil`` is to behave like the local file
+   system APIs of Python 3 as far as it makes sense. Moreover, the
+   taken approach makes sure that directory and file names that were
+   used with Python 3's native ``ftplib`` module will be compatible
+   with ``ftputil`` and vice versa. Otherwise you may be able to use a
+   file name with ``ftputil``, but get an exception when trying to
+   read the same file with Python 3's ``ftplib`` module.
+
+Methods that take names of directories and/or files can take either
+byte or unicode strings. If a method got a string argument and returns
+one or more strings, these strings will have the same string type as
+the argument(s). Mixing different string arguments in one call (for
+example in ``FTPHost.path.join``) isn't allowed and will cause a
+``TypeError``. These rules are the same as for local file system
+operations in Python 3. Since ``ftputil`` uses the same API for Python
+2, ``ftputil`` will do the same when run on Python 2.
+
+Byte strings for directory and file names will be sent to the server
+as-is. On the other hand, unicode strings will be encoded to byte
+strings, assuming latin-1 encoding. This implies that such unicode
+strings must only contain code points 0-255 for the latin-1 character
+set. Using any other characters will result in a
+``UnicodeEncodeError`` exception.
+
+If you have directory or file names as unicode strings with non-latin-1
+characters, encode the unicode strings to byte strings yourself, using
+the encoding you know the server uses. Decode received paths with the
+same encoding. Encapsulate these conversions as far as you can.
+Otherwise, you'd have to adapt potentially a lot of code if the server
+encoding changes.
+
+If you *don't* know the encoding on the server side,
+it's probably the best to only use byte strings for directory and file
+names. That said, as soon as you *show* the names to a user, you -- or
+the library you use for displaying the names -- has to guess an
+encoding.
 
 
 ``FTPHost`` objects
@@ -1069,6 +1113,8 @@ Other methods
               # Will raise an `ftputil.error.TemporaryError`.
               data += fobj.read()
 
+
+.. _`FTPHost.open`:
 
 File-like objects
 -----------------
