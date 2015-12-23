@@ -1156,6 +1156,16 @@ the io_ module in Python 3, which has also been backported to Python
   in Python 2, ``str`` in Python 3). Here, read operations return
   unicode strings and write operations only accept unicode strings.
 
+  .. warning::
+
+     Note that the semantics of "text mode" has changed fundamentally
+     from ftputil 2.8 and earlier. Previously, "text mode" implied
+     converting newline characters to ``\r\n`` when writing remote
+     files and converting newlines to ``\n`` when reading remote
+     files. This is in line with the "text mode" notion of FTP command
+     line clients. Now, "text mode" follows the semantics in Python's
+     ``io`` module.
+
   The arguments ``errors`` and ``newline`` have the same semantics as
   in `io.open`_. The argument ``buffering`` currently is ignored.
   It's only there for compatibility with the ``io.open`` interface.
@@ -1177,13 +1187,6 @@ the io_ module in Python 3, which has also been backported to Python
      argument for a resumed transfer.
 
 .. _`io.open`: http://docs.python.org/library/io.html#io.open
-
-Note that the semantics of "text mode" has changed fundamentally from
-ftputil 2.8 and earlier. Previously, "text mode" implied converting
-newline characters to ``\r\n`` when writing remote files and
-converting newlines to ``\n`` when reading remote files. This is
-in line with the "text mode" notion of FTP command line clients.
-Now, "text mode" follows the semantics in Python's ``io`` module.
 
 ``FTPHost.open`` can also be used in a ``with`` statement::
 
