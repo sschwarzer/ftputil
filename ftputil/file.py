@@ -41,7 +41,7 @@ class FTPFile(object):
         self._fobj = None
 
     def _open(self, path, mode, buffering=None, encoding=None, errors=None,
-              newline=None):
+              newline=None, rest=None):
         """
         Open the remote file with given path name and mode.
 
@@ -89,7 +89,7 @@ class FTPFile(object):
             makefile_mode += "b"
         # Get connection and file object.
         with ftputil.error.ftplib_error_to_ftp_io_error:
-            self._conn = self._session.transfercmd(command)
+            self._conn = self._session.transfercmd(command, rest)
         # The file object. Under Python 3, this will already be a
         # `BufferedReader` or `BufferedWriter` object.
         fobj = self._conn.makefile(makefile_mode)

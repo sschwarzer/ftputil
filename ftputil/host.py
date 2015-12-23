@@ -174,10 +174,17 @@ class FTPHost(object):
         return None
 
     def open(self, path, mode="r", buffering=None, encoding=None, errors=None,
-             newline=None):
+             newline=None, rest=None):
         """
         Return an open file(-like) object which is associated with
         this `FTPHost` object.
+
+        The arguments `path`, `mode`, `buffering`, `encoding`, `errors`
+        and `newlines` have the same meaning as for `io.open`. If `rest`
+        is given as an integer,
+
+        - reading will start at the byte (zero-based) `rest`
+        - writing will overwrite the remote file from byte `rest`
 
         This method tries to reuse a child but will generate a new one
         if none is available.
@@ -208,7 +215,8 @@ class FTPHost(object):
                     "exist or has insufficient access rights".
                     format(effective_dir))
         host._file._open(effective_file, mode=mode, buffering=buffering,
-                         encoding=encoding, errors=errors, newline=newline)
+                         encoding=encoding, errors=errors, newline=newline,
+                         rest=rest)
         if "w" in mode:
             # Invalidate cache entry because size and timestamps will change.
             self.stat_cache.invalidate(effective_path)
