@@ -1180,7 +1180,7 @@ the io_ module in Python 3, which has also been backported to Python
   .. warning::
 
      If you pass ``rest`` values which point *after* the file, the
-     behavior is undefined and may even differ from one FTP servers to
+     behavior is undefined and may even differ from one FTP server to
      another. Therefore, use the ``rest`` argument only for error
      recovery in case of interrupted transfers. You need to keep track
      of the transferred data so that you can provide a valid ``rest``
