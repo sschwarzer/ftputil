@@ -818,6 +818,24 @@ class TestRestArgument(RealFTPTest):
         with self.assertRaises(ftputil.error.CommandNotImplementedError):
             self.host.open(self.TEST_FILE_NAME, "w", rest=3)
 
+    # There are no tests for reading and writing beyond the end of a
+    # file. For example, if the remote file is 10 bytes long and
+    # `open(remote_file, "rb", rest=100)` is used, the server may
+    # return an error status code or not.
+    #
+    # The server I use for testing returns a 554 status when
+    # attempting to _read_ beyond the end of the file. On the other
+    # hand, if attempting to _write_ beyond the end of the file, the
+    # server accepts the request, but starts writing after the end of
+    # the file, i. e. appends to the file.
+    #
+    # Instead of expecting certain responses that may differ between
+    # server implementations, I leave the bahavior for too large
+    # `rest` arguments undefined. In practice, this shouldn't be a
+    # problem because the `rest` argument should only be used for
+    # error recovery, and in this case a valid byte count for the
+    # `rest` argument should be known.
+
 
 class TestOther(RealFTPTest):
 
