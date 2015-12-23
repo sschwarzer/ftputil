@@ -1,3 +1,68 @@
+ftputil 3.3 is now available from
+http://ftputil.sschwarzer.net/download .
+
+Changes since version 3.2
+-------------------------
+
+- Added `rest` argument to `FTPHost.open` for recovery after
+  interrupted transfers [1].
+
+- Fixed handling of non-ASCII directory and file names under
+  Python 2 [2]. Under Python 3, the directory and file names could
+  already contain any characters from the ISO 5589-1 (latin-1)
+  character set. Under Python 2, non-ASCII characters (even out
+  of the latin-1 character set) resulted in a `UnicodeEncodeError`.
+  Now Python 2 behaves like Python 3, supporting all latin-1
+  characters.
+
+  Note that for interoperability between servers and clients it's
+  still usually safest to use only ASCII characters.
+
+- Changed `FTPHost.makedirs` for better handling of "virtual
+  directories" [3, 4]. Thanks to Roger Demetrescu for the
+  implementation.
+
+- Small improvements [5, 6, 7]
+
+Upgrading is recommended.
+
+Note that ftputil 3.0 broke backward compatibility with ftputil 2.8
+and before. The differences are described here:
+http://ftputil.sschwarzer.net/trac/wiki/WhatsNewInFtputil3.0
+
+What is ftputil?
+----------------
+
+ftputil is a high-level FTP client library for the Python programming
+language. ftputil implements a virtual file system for accessing FTP
+servers, that is, it can generate file-like objects for remote files.
+The library supports many functions similar to those in the os,
+os.path and shutil modules. ftputil has convenience functions for
+conditional uploads and downloads, and handles FTP clients and servers
+in different timezones.
+
+See the documentation for details:
+http://ftputil.sschwarzer.net/trac/wiki/Documentation
+
+License
+-------
+
+ftputil is open source software, released under the revised BSD
+license (see http://opensource.org/licenses/BSD-3-Clause ).
+
+[1] http://ftputil.sschwarzer.net/trac/ticket/61
+[2] http://ftputil.sschwarzer.net/trac/ticket/100
+[3] http://ftputil.sschwarzer.net/trac/ticket/86
+[4] https://support.microsoft.com/en-us/kb/142853
+[5] http://ftputil.sschwarzer.net/trac/ticket/89
+[6] http://ftputil.sschwarzer.net/trac/ticket/91
+[7] http://ftputil.sschwarzer.net/trac/ticket/92
+
+Have fun! :-)
+
+Stefan
+
+----------------------------------------------------------------------
 ftputil 3.2 is now available from
 http://ftputil.sschwarzer.net/download .
 
