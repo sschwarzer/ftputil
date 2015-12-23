@@ -771,6 +771,38 @@ class TestChmod(RealFTPTest):
         self.assert_mode(file_name, 0o646)
 
 
+class TestRestArgument(RealFTPTest):
+
+    TEST_FILE_NAME = "rest_test"
+
+    def setUp(self):
+        super(TestRestArgument, self).setUp()
+        # Write test file.
+        with self.host.open(self.TEST_FILE_NAME, "wb") as fobj:
+            fobj.write(b"abcdefghijkl")
+        self.cleaner.add_file(self.TEST_FILE_NAME)
+
+    def test_for_reading(self):
+        """
+        If a `rest` argument is passed to `open`, the following read
+        operation should start at the byte given by `rest`.
+        """
+        with self.host.open(self.TEST_FILE_NAME, "rb", rest=3) as fobj:
+            data = fobj.read()
+        self.assertEqual(data, b"defghijkl")
+
+    def test_for_writing(self):
+        """
+        If a `rest` argument is passed to `open`, the following write
+        operation should start writing at the byte given by `rest`.
+        """
+        with self.host.open(self.TEST_FILE_NAME, "wb", rest=3) as fobj:
+            fobj.write(b"123")
+        with self.host.open(self.TEST_FILE_NAME, "rb") as fobj:
+            data = fobj.read()
+        self.assertEqual(data, b"abc123")
+
+
 class TestOther(RealFTPTest):
 
     def test_open_for_reading(self):
