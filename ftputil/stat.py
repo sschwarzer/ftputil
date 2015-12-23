@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2014, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2015, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -62,6 +62,18 @@ class StatResult(tuple):
         else:
             raise AttributeError("'StatResult' object has no attribute '{0}'".
                                  format(attr_name))
+
+    def __repr__(self):
+        # "Invert" `_index_mapping` so that we can look up the names
+        # for the tuple indices.
+        index_to_name = dict((v, k) for k, v in self._index_mapping.items())
+        argument_strings = []
+        for index, item in enumerate(self):
+            argument_strings.append("{0}={1!r}".format(index_to_name[index],
+                                                       item))
+        return "{0}({1})".format(type(self).__name__,
+                                 ", ".join(argument_strings))
+
 
 #
 # FTP directory parsers

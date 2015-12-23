@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2014, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2015, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -11,6 +11,7 @@ import time
 import unittest
 
 import ftputil
+import ftputil.compat
 import ftputil.error
 import ftputil.stat
 from ftputil.stat import MINUTE_PRECISION, DAY_PRECISION, UNKNOWN_PRECISION
@@ -364,6 +365,22 @@ class TestLstatAndStat(unittest.TestCase):
         # the MS format can overwrite `self.stat` later.
         self.stat = \
           _test_stat(session_factory=mock_ftplib.MockUnixFormatSession)
+
+    def test_repr(self):
+        """Test if the `repr` result looks like a named tuple."""
+        stat_result = self.stat._lstat("/home/sschwarzer/index.html")
+        # Only under Python 2, unicode strings have the `u` prefix.
+        if ftputil.compat.python_version == 2:
+            expected_result = (
+              "StatResult(st_mode=33188, st_ino=None, st_dev=None, "
+              "st_nlink=1, st_uid=u'45854', st_gid=u'200', st_size=4604, "
+              "st_atime=None, st_mtime=1421705460.0, st_ctime=None)")
+        else:
+            expected_result = (
+              "StatResult(st_mode=33188, st_ino=None, st_dev=None, "
+              "st_nlink=1, st_uid='45854', st_gid='200', st_size=4604, "
+              "st_atime=None, st_mtime=1421705460.0, st_ctime=None)")
+        self.assertEqual(repr(stat_result), expected_result)
 
     def test_failing_lstat(self):
         """Test whether `lstat` fails for a nonexistent path."""
