@@ -802,6 +802,22 @@ class TestRestArgument(RealFTPTest):
             data = fobj.read()
         self.assertEqual(data, b"abc123")
 
+    def test_invalid_read_from_text_file(self):
+        """
+        If the `rest` argument is used for reading from a text file,
+        a `CommandNotImplementedError` should be raised.
+        """
+        with self.assertRaises(ftputil.error.CommandNotImplementedError):
+            self.host.open(self.TEST_FILE_NAME, "r", rest=3)
+
+    def test_invalid_write_to_text_file(self):
+        """
+        If the `rest` argument is used for reading from a text file,
+        a `CommandNotImplementedError` should be raised.
+        """
+        with self.assertRaises(ftputil.error.CommandNotImplementedError):
+            self.host.open(self.TEST_FILE_NAME, "w", rest=3)
+
 
 class TestOther(RealFTPTest):
 
