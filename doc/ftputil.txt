@@ -1132,7 +1132,7 @@ the io_ module in Python 3, which has also been backported to Python
 .. _io: http://docs.python.org/library/io.html
 
 - ``FTPHost.open(path, mode="r", buffering=None, encoding=None,
-  errors=None, newline=None)``
+  errors=None, newline=None, rest=None)``
 
   returns a file-like object that refers to the path on the remote
   host. This path may be absolute or relative to the current directory
@@ -1159,6 +1159,22 @@ the io_ module in Python 3, which has also been backported to Python
   The arguments ``errors`` and ``newline`` have the same semantics as
   in `io.open`_. The argument ``buffering`` currently is ignored.
   It's only there for compatibility with the ``io.open`` interface.
+
+  If the file is opened in binary mode, you may pass 0 or a positive
+  integer for the ``rest`` argument. The argument is passed to the
+  underlying FTP session instance (for example an instance of
+  ``ftplib.FTP``) to start reading or writing at the given byte
+  offset. For example, if a remote file contains the letters
+  "abcdef" in ASCII encoding, ``rest=3`` will start reading at "d".
+
+  .. warning::
+
+     If you pass ``rest`` values which point *after* the file, the
+     behavior is undefined and may even differ from one FTP servers to
+     another. Therefore, use the ``rest`` argument only for error
+     recovery in case of interrupted transfers. You need to keep track
+     of the transferred data so that you can provide a valid ``rest``
+     argument for a resumed transfer.
 
 .. _`io.open`: http://docs.python.org/library/io.html#io.open
 
