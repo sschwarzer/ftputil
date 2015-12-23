@@ -16,7 +16,8 @@ Changes since version 3.2
   characters.
 
   Note that for interoperability between servers and clients it's
-  still usually safest to use only ASCII characters.
+  still usually safest to use only ASCII characters for directory and
+  file names.
 
 - Changed `FTPHost.makedirs` for better handling of "virtual
   directories" [3, 4]. Thanks to Roger Demetrescu for the
