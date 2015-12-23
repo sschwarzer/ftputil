@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2014, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2015, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -74,7 +74,11 @@ class FTPFile(object):
         # Convenience variables
         is_binary_mode = "b" in mode
         is_read_mode = "r" in mode
-        # Always use binary mode (see above).
+        # `rest` is only allowed for binary mode.
+        if (not is_binary_mode) and (rest is not None):
+            raise ftputil.error.CommandNotImplementedError(
+                    "`rest` argument can't be used for text files")
+        # Always use binary mode (see comments above).
         transfer_type = "I"
         command = "TYPE {0}".format(transfer_type)
         with ftputil.error.ftplib_error_to_ftp_io_error:
