@@ -309,16 +309,17 @@ encoding.
 Construction
 ~~~~~~~~~~~~
 
-Basics
-``````
+Introduction
+````````````
 
-``FTPHost`` instances can be generated with the following call::
+``FTPHost`` instances can be created with the following call::
 
     ftp_host = ftputil.FTPHost(server, user, password, account,
                                session_factory=ftplib.FTP)
 
 The first four parameters are strings with the same meaning as for the
-FTP class in the ``ftplib`` module.
+FTP class in the ``ftplib`` module. Usually the ``account`` and
+``session_factory`` arguments aren't needed though.
 
 ``FTPHost`` objects can also be used in a ``with`` statement::
 
