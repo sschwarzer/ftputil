@@ -15,34 +15,28 @@ in different timezones.
 What's new?
 -----------
 
-Since version 3.1 the following changed:
+Since version 3.2 the following changed:
 
-- For some platforms (notably Windows) modification datetimes before
-  the epoch would cause an `OverflowError` [1]. Other platforms could
-  return negative values. Since the Python documentation for the
-  `time` module [2] points out that values before the epoch might
-  cause problems, ftputil now sets the float value for such datetimes
-  to 0.0.
+- Added `rest` argument to `FTPHost.open` for recovery after
+  interrupted transfers [1].
 
-  In theory, this might cause backward compatibility problems, but
-  it's very unlikely since pre-epoch timestamps in directory listings
-  should be very rare.
+- Fixed handling of non-ASCII directory and file names under
+  Python 2 [2]. Under Python 3, the directory and file names could
+  already contain any characters from the ISO 5589-1 (latin-1)
+  character set. Under Python 2, non-ASCII characters (even out
+  of the latin-1 character set) resulted in a `UnicodeEncodeError`.
+  Now Python 2 behaves like Python 3, supporting all latin-1
+  characters.
 
-- On some platforms, the `time.mktime` implementation could behave
-  strange and accept invalid date/time values. For example, a day
-  value of 32 would be accepted and implicitly cause a "wrap" to the
-  next month. Such invalid values now result in a `ParserError`.
+  Note that for interoperability between servers and clients it's
+  still usually safest to use only ASCII characters for directory and
+  file names.
 
-- Make error handling more robust where the underlying FTP session
-  factory (for example, `ftplib.FTP`) uses byte strings for exception
-  messages. [3]
+- Changed `FTPHost.makedirs` for better handling of "virtual
+  directories" [3, 4]. Thanks to Roger Demetrescu for the
+  implementation.
 
-- Improved error handling for directory listings. As just one example,
-  previously a non-integer value for a day would unintentionally cause
-  a `ValueError`. Now this causes a `ParserError`.
-
-- Extracted socket file adapter module [4] so that it can be used
-  by other projects.
+- Small improvements [5, 6, 7]
 
 Note that ftputil 3.0 broke backward compatibility with ftputil 2.8
 and before. The differences are described here:
@@ -132,7 +126,10 @@ Evan Prodromou <evan@bad.dynu.ca> (lrucache module)
 
 Please provide feedback! It's certainly appreciated. :-)
 
-[1] http://ftputil.sschwarzer.net/trac/ticket/83
-[2] https://docs.python.org/3/library/time.html
-[3] http://ftputil.sschwarzer.net/trac/ticket/85
-[4] http://ftputil.sschwarzer.net/trac/wiki/SocketFileAdapter
+[1] http://ftputil.sschwarzer.net/trac/ticket/61
+[2] http://ftputil.sschwarzer.net/trac/ticket/100
+[3] http://ftputil.sschwarzer.net/trac/ticket/86
+[4] https://support.microsoft.com/en-us/kb/142853
+[5] http://ftputil.sschwarzer.net/trac/ticket/89
+[6] http://ftputil.sschwarzer.net/trac/ticket/91
+[7] http://ftputil.sschwarzer.net/trac/ticket/92
