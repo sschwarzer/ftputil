@@ -649,6 +649,10 @@ class FTPHost(object):
                 # `path.split`.
                 next_directory = (self.sep +
                                   self.path.join(*directories[:index+1]))
+                # If we have "virtual directories" (see #86), just
+                # listing the parent directory won't tell us if a
+                # directory actually exists. So try to change into the
+                # directory.
                 try:
                     self.chdir(next_directory)
                 except ftputil.error.PermanentError:
