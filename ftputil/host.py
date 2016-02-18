@@ -168,6 +168,13 @@ class FTPHost(object):
                 # Timed-out sessions raise `error_temp`.
                 except ftplib.error_temp:
                     continue
+                # Under high load, a 226 status response from a
+                # previous download may arrive too late, so that it's
+                # "seen" in the `pwd` call. For now, skip the
+                # potential child session; it will be considered again
+                # when `_available_child` is called the next time.
+                except ftplib.error_reply:
+                    continue
                 else:
                     # Everything's ok; use this `FTPHost` instance.
                     return host

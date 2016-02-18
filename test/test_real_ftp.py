@@ -701,6 +701,24 @@ class TestFTPFiles(RealFTPTest):
             pass
         self.assertTrue(file_obj2 is file_obj3)
 
+    def test_no_delayed_226_children(self):
+        REMOTE_FILE_NAME = "debian-keyring.tar.gz"
+        host = self.host
+        # Implicitly create child host object.
+        with host.open(REMOTE_FILE_NAME, "rb") as file_obj1:
+            pass
+        # Monkey-patch file to simulate an FTP server timeout below.
+        def timed_out_pwd():
+            raise ftplib.error_reply("delayed 226 reply")
+        file_obj1._host._session.pwd = timed_out_pwd
+        # Try to get a file - which shouldn't be the timed-out file.
+        with host.open(REMOTE_FILE_NAME, "rb") as file_obj2:
+            self.assertTrue(file_obj1 is not file_obj2)
+        # Re-use closed and not timed-out child session.
+        with host.open(REMOTE_FILE_NAME, "rb") as file_obj3:
+            pass
+        self.assertTrue(file_obj2 is file_obj3)
+
 
 class TestChmod(RealFTPTest):
 
