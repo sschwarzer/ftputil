@@ -370,6 +370,8 @@ class TestLstatAndStat(unittest.TestCase):
         """Test if the `repr` result looks like a named tuple."""
         stat_result = self.stat._lstat("/home/sschwarzer/index.html")
         # Only under Python 2, unicode strings have the `u` prefix.
+        # TODO: Make the value for `st_mtime` robust against DST "time
+        # zone" changes.
         if ftputil.compat.python_version == 2:
             expected_result = (
               b"StatResult(st_mode=33188, st_ino=None, st_dev=None, "
