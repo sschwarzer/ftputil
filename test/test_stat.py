@@ -372,14 +372,14 @@ class TestLstatAndStat(unittest.TestCase):
         # Only under Python 2, unicode strings have the `u` prefix.
         if ftputil.compat.python_version == 2:
             expected_result = (
-              "StatResult(st_mode=33188, st_ino=None, st_dev=None, "
-              "st_nlink=1, st_uid=u'45854', st_gid=u'200', st_size=4604, "
-              "st_atime=None, st_mtime=1421705460.0, st_ctime=None)")
+              b"StatResult(st_mode=33188, st_ino=None, st_dev=None, "
+              b"st_nlink=1, st_uid=u'45854', st_gid=u'200', st_size=4604, "
+              b"st_atime=None, st_mtime=1453241460.0, st_ctime=None)")
         else:
             expected_result = (
               "StatResult(st_mode=33188, st_ino=None, st_dev=None, "
               "st_nlink=1, st_uid='45854', st_gid='200', st_size=4604, "
-              "st_atime=None, st_mtime=1421705460.0, st_ctime=None)")
+              "st_atime=None, st_mtime=1453241460.0, st_ctime=None)")
         self.assertEqual(repr(stat_result), expected_result)
 
     def test_failing_lstat(self):
