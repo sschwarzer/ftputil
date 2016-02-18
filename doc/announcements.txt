@@ -1,3 +1,43 @@
+ftputil 3.3.1 is now available from
+http://ftputil.sschwarzer.net/download .
+
+Changes since version 3.3
+-------------------------
+
+- Fixed a bug where a 226 reply after a remote file close would only
+  show up later when doing a `pwd` call on the session. [1] This
+  resulted in an `ftplib.error_reply` exception when opening a remote
+  file.
+
+Note that ftputil 3.0 broke backward compatibility with ftputil 2.8
+and before. The differences are described here:
+http://ftputil.sschwarzer.net/trac/wiki/WhatsNewInFtputil3.0
+
+What is ftputil?
+----------------
+
+ftputil is a high-level FTP client library for the Python programming
+language. ftputil implements a virtual file system for accessing FTP
+servers, that is, it can generate file-like objects for remote files.
+The library supports many functions similar to those in the os,
+os.path and shutil modules. ftputil has convenience functions for
+conditional uploads and downloads, and handles FTP clients and servers
+in different timezones.
+
+See the documentation for details:
+http://ftputil.sschwarzer.net/trac/wiki/Documentation
+
+License
+-------
+
+ftputil is open source software, released under the revised BSD
+license (see http://opensource.org/licenses/BSD-3-Clause ).
+
+[1] http://ftputil.sschwarzer.net/trac/ticket/102
+
+Stefan
+
+----------------------------------------------------------------------
 ftputil 3.3 is now available from
 http://ftputil.sschwarzer.net/download .
 
