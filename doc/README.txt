@@ -15,28 +15,12 @@ in different timezones.
 What's new?
 -----------
 
-Since version 3.2 the following changed:
+Since version 3.3 the following changed:
 
-- Added `rest` argument to `FTPHost.open` for recovery after
-  interrupted transfers [1].
-
-- Fixed handling of non-ASCII directory and file names under
-  Python 2 [2]. Under Python 3, the directory and file names could
-  already contain any characters from the ISO 5589-1 (latin-1)
-  character set. Under Python 2, non-ASCII characters (even out
-  of the latin-1 character set) resulted in a `UnicodeEncodeError`.
-  Now Python 2 behaves like Python 3, supporting all latin-1
-  characters.
-
-  Note that for interoperability between servers and clients it's
-  still usually safest to use only ASCII characters for directory and
-  file names.
-
-- Changed `FTPHost.makedirs` for better handling of "virtual
-  directories" [3, 4]. Thanks to Roger Demetrescu for the
-  implementation.
-
-- Small improvements [5, 6, 7]
+- Fixed a bug where a 226 reply after a remote file close would only
+  show up later when doing a `pwd` call on the session. [1] This
+  resulted in an `ftplib.error_reply` exception when opening a remote
+  file.
 
 Note that ftputil 3.0 broke backward compatibility with ftputil 2.8
 and before. The differences are described here:
@@ -126,10 +110,4 @@ Evan Prodromou <evan@bad.dynu.ca> (lrucache module)
 
 Please provide feedback! It's certainly appreciated. :-)
 
-[1] http://ftputil.sschwarzer.net/trac/ticket/61
-[2] http://ftputil.sschwarzer.net/trac/ticket/100
-[3] http://ftputil.sschwarzer.net/trac/ticket/86
-[4] https://support.microsoft.com/en-us/kb/142853
-[5] http://ftputil.sschwarzer.net/trac/ticket/89
-[6] http://ftputil.sschwarzer.net/trac/ticket/91
-[7] http://ftputil.sschwarzer.net/trac/ticket/92
+[1] http://ftputil.sschwarzer.net/trac/ticket/102
