@@ -1,5 +1,5 @@
 # encoding: utf-8
-# Copyright (C) 2002-2014, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2016, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -42,11 +42,11 @@ class TestErrorConversion(unittest.TestCase):
             with ftputil.error.ftplib_error_to_ftp_os_error:
                 self.callee()
         except ftputil.error.FTPOSError as exc:
-            self.assertFalse(exc.args and
-                             isinstance(exc.args[0], ftplib.error_perm))
+            assert not (exc.args and 
+                        isinstance(exc.args[0], ftplib.error_perm))
         else:
             # We shouldn't come here.
-            self.fail()
+            assert False
 
     def test_ftplib_error_to_ftp_os_error_non_ascii_server_message(self):
         """
@@ -55,7 +55,8 @@ class TestErrorConversion(unittest.TestCase):
         """
         # See ticket #77.
         message = \
-          ftputil.tool.as_bytes("Não é possível criar um arquivo já existente.")
+          ftputil.tool.as_bytes(
+            "Não é possível criar um arquivo já existente.")
         try:
             with ftputil.error.ftplib_error_to_ftp_os_error:
                 raise ftplib.error_perm(message)
@@ -63,7 +64,7 @@ class TestErrorConversion(unittest.TestCase):
         except ftputil.error.PermanentError:
             pass
         except UnicodeDecodeError:
-            self.fail()
+            assert False
 
     def test_ftplib_error_to_ftp_io_error(self):
         """
@@ -74,11 +75,11 @@ class TestErrorConversion(unittest.TestCase):
             with ftputil.error.ftplib_error_to_ftp_io_error:
                 self.callee()
         except ftputil.error.FTPIOError as exc:
-            self.assertFalse(exc.args and
-                             isinstance(exc.args[0], ftplib.error_perm))
+            assert not (exc.args and
+                        isinstance(exc.args[0], ftplib.error_perm))
         else:
             # We shouldn't come here.
-            self.fail()
+            assert False
 
     def test_error_message_reuse(self):
         """
@@ -92,7 +93,7 @@ class TestErrorConversion(unittest.TestCase):
         except ftputil.error.FTPOSError as exc:
             # The error message may be different for different Python
             # versions.
-            self.assertTrue(
+            assert (
               "No address associated with hostname" in str(exc) or
               "Name or service not known" in str(exc))
 
