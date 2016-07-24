@@ -90,10 +90,11 @@ class TestErrorConversion(unittest.TestCase):
             # Format "host:port" doesn't work.
             host = ftputil.FTPHost("localhost:21", "", "")
         except ftputil.error.FTPOSError as exc:
-            # The error message might change for future Python
-            # versions, so possibly relax the assertion later.
+            # The error message may be different for different Python
+            # versions.
             self.assertTrue(
-              "[Errno -5] No address associated with hostname" in str(exc))
+              "No address associated with hostname" in str(exc) or
+              "Name or service not known" in str(exc))
 
 
 if __name__ == "__main__":
