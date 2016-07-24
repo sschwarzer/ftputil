@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2016, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -8,6 +8,8 @@ SHELL=/bin/sh
 PROJECT_DIR=$(shell pwd)
 VERSION=$(shell cat VERSION)
 PYTHON_BINARY?=python2
+# Depending on the development system, this may be `pytest`.
+PYTEST=py.test
 
 TEST_DIR=${PROJECT_DIR}/test
 
@@ -62,11 +64,7 @@ docs: ${DOC_SOURCES} ${DOC_TARGETS}
 # Quality assurance
 test:
 	@echo "=== Running tests for ftputil ${VERSION} ===\n"
-	for file in $(TEST_FILES); \
-	do \
-		echo $$file ; \
-		PYTHONPATH=${PYTHONPATH} ${PYTHON_BINARY} $$file ; \
-	done
+	${PYTEST} test
 
 tox_test:
 	# Gets settings from `tox.ini`
