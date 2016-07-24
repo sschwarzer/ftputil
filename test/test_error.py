@@ -8,6 +8,8 @@ from __future__ import unicode_literals
 import ftplib
 import unittest
 
+import pytest
+
 import ftputil.error
 
 
@@ -38,15 +40,13 @@ class TestErrorConversion(unittest.TestCase):
         Ensure the `ftplib` exception isn't used as `FTPOSError`
         argument.
         """
-        try:
+        with pytest.raises(ftputil.error.FTPOSError) as exc_info:
             with ftputil.error.ftplib_error_to_ftp_os_error:
                 self.callee()
-        except ftputil.error.FTPOSError as exc:
-            assert not (exc.args and 
-                        isinstance(exc.args[0], ftplib.error_perm))
-        else:
-            # We shouldn't come here.
-            assert False
+        exc = exc_info.value
+        assert not (exc.args and 
+                    isinstance(exc.args[0], ftplib.error_perm))
+        del exc_info
 
     def test_ftplib_error_to_ftp_os_error_non_ascii_server_message(self):
         """
@@ -57,29 +57,22 @@ class TestErrorConversion(unittest.TestCase):
         message = \
           ftputil.tool.as_bytes(
             "Não é possível criar um arquivo já existente.")
-        try:
+        with pytest.raises(ftputil.error.PermanentError):
             with ftputil.error.ftplib_error_to_ftp_os_error:
                 raise ftplib.error_perm(message)
-        # We expect a `PermanentError`.
-        except ftputil.error.PermanentError:
-            pass
-        except UnicodeDecodeError:
-            assert False
 
     def test_ftplib_error_to_ftp_io_error(self):
         """
         Ensure the `ftplib` exception isn't used as `FTPIOError`
         argument.
         """
-        try:
+        with pytest.raises(ftputil.error.FTPIOError) as exc_info:
             with ftputil.error.ftplib_error_to_ftp_io_error:
                 self.callee()
-        except ftputil.error.FTPIOError as exc:
-            assert not (exc.args and
-                        isinstance(exc.args[0], ftplib.error_perm))
-        else:
-            # We shouldn't come here.
-            assert False
+        exc = exc_info.value
+        assert not (exc.args and
+                    isinstance(exc.args[0], ftplib.error_perm))
+        del exc_info
 
     def test_error_message_reuse(self):
         """
@@ -87,15 +80,16 @@ class TestErrorConversion(unittest.TestCase):
         exception has more than one element in `args`.
         """
         # See ticket #76.
-        try:
+        with pytest.raises(ftputil.error.FTPOSError) as exc_info:
             # Format "host:port" doesn't work.
             host = ftputil.FTPHost("localhost:21", "", "")
-        except ftputil.error.FTPOSError as exc:
-            # The error message may be different for different Python
-            # versions.
-            assert (
-              "No address associated with hostname" in str(exc) or
-              "Name or service not known" in str(exc))
+        exc = exc_info.value
+        # The error message may be different for different Python
+        # versions.
+        assert (
+          "No address associated with hostname" in str(exc) or
+          "Name or service not known" in str(exc))
+        del exc_info
 
 
 if __name__ == "__main__":
