@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-# Copyright (C) 2003-2015, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2016, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -17,6 +17,8 @@ import os
 import time
 import unittest
 import stat
+
+import pytest
 
 import ftputil.compat
 import ftputil.error
@@ -135,7 +137,7 @@ class TestMkdir(RealFTPTest):
         # Make dir and check if the directory is there.
         host.mkdir(dir_name)
         files = host.listdir(host.curdir)
-        self.assertTrue(dir_name in files)
+        assert dir_name in files
         # Try to remove a non-empty directory.
         self.cleaner.add_file(file_name)
         non_empty = host.open(file_name, "w")
@@ -156,7 +158,7 @@ class TestMkdir(RealFTPTest):
             # Delete empty directory.
             host.rmdir(dir_name)
         files = host.listdir(host.curdir)
-        self.assertTrue(dir_name not in files)
+        assert dir_name not in files
 
     def test_makedirs_without_existing_dirs(self):
         host = self.host
@@ -166,18 +168,18 @@ class TestMkdir(RealFTPTest):
         host.makedirs("_dir1_/dir2/dir3/dir4")
         self.cleaner.add_dir("_dir1_")
         # Check host.
-        self.assertTrue(host.path.isdir("_dir1_"))
-        self.assertTrue(host.path.isdir("_dir1_/dir2"))
-        self.assertTrue(host.path.isdir("_dir1_/dir2/dir3"))
-        self.assertTrue(host.path.isdir("_dir1_/dir2/dir3/dir4"))
+        assert host.path.isdir("_dir1_")
+        assert host.path.isdir("_dir1_/dir2")
+        assert host.path.isdir("_dir1_/dir2/dir3")
+        assert host.path.isdir("_dir1_/dir2/dir3/dir4")
 
     def test_makedirs_from_non_root_directory(self):
         # This is a testcase for issue #22, see
         # http://ftputil.sschwarzer.net/trac/ticket/22 .
         host = self.host
         # No `_dir1_` and `_dir2_` yet
-        self.assertFalse("_dir1_" in host.listdir(host.curdir))
-        self.assertFalse("_dir2_" in host.listdir(host.curdir))
+        assert "_dir1_" not in host.listdir(host.curdir)
+        assert "_dir2_" not in host.listdir(host.curdir)
         # Part 1: Try to make directories starting from `_dir1_` and
         # change to non-root directory.
         self.cleaner.add_dir("_dir1_")
@@ -185,10 +187,10 @@ class TestMkdir(RealFTPTest):
         host.chdir("_dir1_")
         host.makedirs("_dir2_/_dir3_")
         # Test for expected directory hierarchy.
-        self.assertTrue (host.path.isdir("/_dir1_"))
-        self.assertTrue (host.path.isdir("/_dir1_/_dir2_"))
-        self.assertTrue (host.path.isdir("/_dir1_/_dir2_/_dir3_"))
-        self.assertFalse(host.path.isdir("/_dir1_/_dir1_"))
+        assert host.path.isdir("/_dir1_")
+        assert host.path.isdir("/_dir1_/_dir2_")
+        assert host.path.isdir("/_dir1_/_dir2_/_dir3_")
+        assert not host.path.isdir("/_dir1_/_dir1_")
         # Remove all but the directory we're in.
         host.rmdir("/_dir1_/_dir2_/_dir3_")
         host.rmdir("/_dir1_/_dir2_")
@@ -196,9 +198,9 @@ class TestMkdir(RealFTPTest):
         self.cleaner.add_dir("/_dir2_")
         host.makedirs("/_dir2_/_dir3_")
         # Test for expected directory hierarchy
-        self.assertTrue (host.path.isdir("/_dir2_"))
-        self.assertTrue (host.path.isdir("/_dir2_/_dir3_"))
-        self.assertFalse(host.path.isdir("/_dir1_/_dir2_"))
+        assert host.path.isdir("/_dir2_")
+        assert host.path.isdir("/_dir2_/_dir3_")
+        assert not host.path.isdir("/_dir1_/_dir2_")
 
     def test_makedirs_of_existing_directory(self):
         host = self.host
@@ -211,10 +213,10 @@ class TestMkdir(RealFTPTest):
         host.mkdir("_dir1_")
         self.make_remote_file("_dir1_/file1")
         # Try it.
-        self.assertRaises(ftputil.error.PermanentError,
-                          host.makedirs, "_dir1_/file1")
-        self.assertRaises(ftputil.error.PermanentError,
-                          host.makedirs, "_dir1_/file1/dir2")
+        with pytest.raises(ftputil.error.PermanentError):
+            host.makedirs("_dir1_/file1")
+        with pytest.raises(ftputil.error.PermanentError):
+            host.makedirs("_dir1_/file1/dir2")
 
     def test_makedirs_with_existing_directory(self):
         host = self.host
@@ -222,14 +224,14 @@ class TestMkdir(RealFTPTest):
         host.mkdir("_dir1_")
         host.makedirs("_dir1_/dir2")
         # Check
-        self.assertTrue(host.path.isdir("_dir1_"))
-        self.assertTrue(host.path.isdir("_dir1_/dir2"))
+        assert host.path.isdir("_dir1_")
+        assert host.path.isdir("_dir1_/dir2")
 
     def test_makedirs_in_non_writable_directory(self):
         host = self.host
         # Preparation: `rootdir1` exists but is only writable by root.
-        self.assertRaises(ftputil.error.PermanentError, host.makedirs,
-                          "rootdir1/dir2")
+        with pytest.raises(ftputil.error.PermanentError):
+            host.makedirs("rootdir1/dir2")
 
     def test_makedirs_with_writable_directory_at_end(self):
         host = self.host
@@ -253,18 +255,18 @@ class TestRemoval(RealFTPTest):
         self.make_remote_file("_dir1_/dir2/file3")
         self.make_remote_file("_dir1_/dir2/file4")
         # Try to remove a _file_ with `rmtree`.
-        self.assertRaises(ftputil.error.PermanentError, host.rmtree,
-                          "_dir1_/file2")
+        with pytest.raises(ftputil.error.PermanentError):
+            host.rmtree("_dir1_/file2")
         # Remove `dir2`.
         host.rmtree("_dir1_/dir2")
-        self.assertFalse(host.path.exists("_dir1_/dir2"))
-        self.assertTrue (host.path.exists("_dir1_/file2"))
+        assert not host.path.exists("_dir1_/dir2")
+        assert host.path.exists("_dir1_/file2")
         # Re-create `dir2` and remove `_dir1_`.
         host.mkdir("_dir1_/dir2")
         self.make_remote_file("_dir1_/dir2/file3")
         self.make_remote_file("_dir1_/dir2/file4")
         host.rmtree("_dir1_")
-        self.assertFalse(host.path.exists("_dir1_"))
+        assert not host.path.exists("_dir1_")
 
     def test_rmtree_with_error_handler(self):
         host = self.host
@@ -279,31 +281,31 @@ class TestRemoval(RealFTPTest):
         host.rmtree("_dir1_/file1", ignore_errors=True, onerror=error_handler)
         self.assertEqual(log, [])
         host.rmtree("_dir1_/file1", ignore_errors=False, onerror=error_handler)
-        self.assertEqual(log[0][0], host.listdir)
-        self.assertEqual(log[0][1], "_dir1_/file1")
-        self.assertEqual(log[1][0], host.rmdir)
-        self.assertEqual(log[1][1], "_dir1_/file1")
+        assert log[0][0] == host.listdir
+        assert log[0][1] == "_dir1_/file1"
+        assert log[1][0] == host.rmdir
+        assert log[1][1] == "_dir1_/file1"
         host.rmtree("_dir1_")
         # Try to remove a non-existent directory.
         del log[:]
         host.rmtree("_dir1_", ignore_errors=False, onerror=error_handler)
-        self.assertEqual(log[0][0], host.listdir)
-        self.assertEqual(log[0][1], "_dir1_")
-        self.assertEqual(log[1][0], host.rmdir)
-        self.assertEqual(log[1][1], "_dir1_")
+        assert log[0][0] == host.listdir
+        assert log[0][1] == "_dir1_"
+        assert log[1][0] == host.rmdir
+        assert log[1][1] == "_dir1_"
 
     def test_remove_non_existent_item(self):
         host = self.host
-        self.assertRaises(ftputil.error.PermanentError, host.remove,
-                          "nonexistent")
+        with pytest.raises(ftputil.error.PermanentError):
+            host.remove("nonexistent")
 
     def test_remove_existing_file(self):
         self.cleaner.add_file("_testfile_")
         self.make_remote_file("_testfile_")
         host = self.host
-        self.assertTrue(host.path.isfile("_testfile_"))
+        assert host.path.isfile("_testfile_")
         host.remove("_testfile_")
-        self.assertFalse(host.path.exists("_testfile_"))
+        assert not host.path.exists("_testfile_")
 
 
 class TestWalk(RealFTPTest):
@@ -336,9 +338,9 @@ class TestWalk(RealFTPTest):
         for items in self.host.walk(**walk_kwargs):
             actual_result.append(items)
         # Compare with expected results.
-        self.assertEqual(len(actual_result), len(expected_result))
+        assert len(actual_result) == len(expected_result)
         for index, _ in enumerate(actual_result):
-            self.assertEqual(actual_result[index], expected_result[index])
+            assert actual_result[index] == expected_result[index]
 
     def test_walk_topdown(self):
         # Preparation: build tree in directory `walk_test`.
@@ -464,8 +466,8 @@ class TestRename(RealFTPTest):
         self.cleaner.add_file("_testfile2_")
         self.make_remote_file("_testfile1_")
         host.rename("_testfile1_", "_testfile2_")
-        self.assertFalse(host.path.exists("_testfile1_"))
-        self.assertTrue (host.path.exists("_testfile2_"))
+        assert not host.path.exists("_testfile1_")
+        assert host.path.exists("_testfile2_")
 
     def test_rename_with_spaces_in_directory(self):
         host = self.host
@@ -474,8 +476,8 @@ class TestRename(RealFTPTest):
         host.mkdir(dir_name)
         self.make_remote_file(dir_name + "/testfile1")
         host.rename(dir_name + "/testfile1", dir_name + "/testfile2")
-        self.assertFalse(host.path.exists(dir_name + "/testfile1"))
-        self.assertTrue (host.path.exists(dir_name + "/testfile2"))
+        assert not host.path.exists(dir_name + "/testfile1")
+        assert host.path.exists(dir_name + "/testfile2")
 
 
 class TestStat(RealFTPTest):
@@ -492,45 +494,43 @@ class TestStat(RealFTPTest):
         # Do some stats
         # - dir
         dir_stat = host.stat(dir_name)
-        self.assertTrue(isinstance(dir_stat._st_name,
-                                   ftputil.compat.unicode_type))
-        self.assertEqual(host.listdir(dir_name), ["_nonempty_"])
-        self.assertTrue (host.path.isdir (dir_name))
-        self.assertFalse(host.path.isfile(dir_name))
-        self.assertFalse(host.path.islink(dir_name))
+        assert isinstance(dir_stat._st_name, ftputil.compat.unicode_type)
+        assert host.listdir(dir_name) == ["_nonempty_"]
+        assert host.path.isdir(dir_name)
+        assert not host.path.isfile(dir_name)
+        assert not host.path.islink(dir_name)
         # - file
         file_stat = host.stat(file_name)
-        self.assertTrue(isinstance(file_stat._st_name,
-                                   ftputil.compat.unicode_type))
-        self.assertFalse(host.path.isdir (file_name))
-        self.assertTrue (host.path.isfile(file_name))
-        self.assertFalse(host.path.islink(file_name))
-        self.assertEqual(host.path.getsize(file_name), 9)
+        assert isinstance(file_stat._st_name, ftputil.compat.unicode_type)
+        assert not host.path.isdir(file_name)
+        assert host.path.isfile(file_name)
+        assert not host.path.islink(file_name)
+        assert host.path.getsize(file_name) == 9
         # - file's modification time; allow up to two minutes difference
         host.synchronize_times()
         server_mtime = host.path.getmtime(file_name)
         client_mtime = time.mktime(time.localtime())
         calculated_time_shift = server_mtime - client_mtime
-        self.assertFalse(abs(calculated_time_shift-host.time_shift()) > 120)
+        assert not abs(calculated_time_shift-host.time_shift()) > 120
 
     def test_issomething_for_nonexistent_directory(self):
         host = self.host
         # Check if we get the right results if even the containing
         # directory doesn't exist (see ticket #66).
         nonexistent_path = "/nonexistent/nonexistent"
-        self.assertFalse(host.path.isdir (nonexistent_path))
-        self.assertFalse(host.path.isfile(nonexistent_path))
-        self.assertFalse(host.path.islink(nonexistent_path))
+        assert not host.path.isdir(nonexistent_path)
+        assert not host.path.isfile(nonexistent_path)
+        assert not host.path.islink(nonexistent_path)
 
     def test_special_broken_link(self):
         # Test for ticket #39.
         host = self.host
         broken_link_name = os.path.join("dir_with_broken_link", "nonexistent")
-        self.assertEqual(host.lstat(broken_link_name)._st_target,
-                         "../nonexistent/nonexistent")
-        self.assertFalse(host.path.isdir (broken_link_name))
-        self.assertFalse(host.path.isfile(broken_link_name))
-        self.assertTrue (host.path.islink(broken_link_name))
+        assert (host.lstat(broken_link_name)._st_target ==
+                "../nonexistent/nonexistent")
+        assert not host.path.isdir(broken_link_name)
+        assert not host.path.isfile(broken_link_name)
+        assert host.path.islink(broken_link_name)
 
     def test_concurrent_access(self):
         self.make_remote_file("_testfile_")
@@ -538,19 +538,19 @@ class TestStat(RealFTPTest):
             with ftputil.FTPHost(*self.login_data) as host2:
                 stat_result1 = host1.stat("_testfile_")
                 stat_result2 = host2.stat("_testfile_")
-                self.assertEqual(stat_result1, stat_result2)
+                assert stat_result1 == stat_result2
                 host2.remove("_testfile_")
                 # Can still get the result via `host1`
                 stat_result1 = host1.stat("_testfile_")
-                self.assertEqual(stat_result1, stat_result2)
+                assert stat_result1 == stat_result2
                 # Stat'ing on `host2` gives an exception.
-                self.assertRaises(ftputil.error.PermanentError,
-                                  host2.stat, "_testfile_")
+                with pytest.raises(ftputil.error.PermanentError):
+                    host2.stat("_testfile_")
                 # Stat'ing on `host1` after invalidation
                 absolute_path = host1.path.join(host1.getcwd(), "_testfile_")
                 host1.stat_cache.invalidate(absolute_path)
-                self.assertRaises(ftputil.error.PermanentError,
-                                  host1.stat, "_testfile_")
+                with pytest.raises(ftputil.error.PermanentError):
+                    host1.stat("_testfile_")
 
     def test_cache_auto_resizing(self):
         """Test if the cache is resized appropriately."""
@@ -558,8 +558,7 @@ class TestStat(RealFTPTest):
         cache = host.stat_cache._cache
         # Make sure the cache size isn't adjusted towards smaller values.
         unused_entries = host.listdir("walk_test")
-        self.assertEqual(cache.size,
-                         ftputil.stat_cache.StatCache._DEFAULT_CACHE_SIZE)
+        assert cache.size == ftputil.stat_cache.StatCache._DEFAULT_CACHE_SIZE
         # Make the cache very small initially and see if it gets resized.
         cache.size = 2
         entries = host.listdir("walk_test")
@@ -568,7 +567,7 @@ class TestStat(RealFTPTest):
         # latter is read implicitly upon `listdir`'s `isdir` call.
         expected_min_cache_size = max(len(host.listdir(host.curdir)),
                                       len(entries))
-        self.assertTrue(cache.size >= expected_min_cache_size)
+        assert cache.size >= expected_min_cache_size
 
 
 class TestUploadAndDownload(RealFTPTest):
@@ -576,7 +575,7 @@ class TestUploadAndDownload(RealFTPTest):
 
     def test_time_shift(self):
         self.host.synchronize_times()
-        self.assertEqual(self.host.time_shift(), EXPECTED_TIME_SHIFT)
+        assert self.host.time_shift() == EXPECTED_TIME_SHIFT
 
     @test.skip_long_running_test
     def test_upload(self):
@@ -594,12 +593,12 @@ class TestUploadAndDownload(RealFTPTest):
             host.upload(local_file, remote_file)
             # Retry; shouldn't be uploaded
             uploaded = host.upload_if_newer(local_file, remote_file)
-            self.assertEqual(uploaded, False)
+            assert uploaded is False
             # Rewrite the local file.
             self.make_local_file()
             # Retry; should be uploaded now
             uploaded = host.upload_if_newer(local_file, remote_file)
-            self.assertEqual(uploaded, True)
+            assert uploaded is True
         finally:
             # Clean up
             os.unlink(local_file)
@@ -614,7 +613,7 @@ class TestUploadAndDownload(RealFTPTest):
         self.make_remote_file(remote_file)
         # File should be downloaded as it's not present yet.
         downloaded = host.download_if_newer(remote_file, local_file)
-        self.assertEqual(downloaded, True)
+        assert downloaded is True
         try:
             # If the remote file, taking the datetime precision into
             # account, _might_ be newer, the file will be downloaded
@@ -626,14 +625,14 @@ class TestUploadAndDownload(RealFTPTest):
                 pass
             # Local file is present and newer, so shouldn't download.
             downloaded = host.download_if_newer(remote_file, local_file)
-            self.assertEqual(downloaded, False)
+            assert downloaded is False
             # Re-make the remote file.
             self.make_remote_file(remote_file)
             # Local file is present but possibly older (taking the
             # possible deviation because of the precision into account),
             # so should download.
             downloaded = host.download_if_newer(remote_file, local_file)
-            self.assertEqual(downloaded, True)
+            assert downloaded is True
         finally:
             # Clean up.
             os.unlink(local_file)
@@ -662,8 +661,8 @@ class TestUploadAndDownload(RealFTPTest):
                         break
                     expected_chunks_list.append(chunk)
             # Examine data collected by callback function.
-            self.assertEqual(len(transferred_chunks_list), chunk_count)
-            self.assertEqual(transferred_chunks_list, expected_chunks_list)
+            assert len(transferred_chunks_list) == chunk_count
+            assert transferred_chunks_list == expected_chunks_list
         finally:
             os.unlink(FILE_NAME)
 
@@ -680,8 +679,8 @@ class TestFTPFiles(RealFTPTest):
             # This should re-use the second child because the first isn't
             # closed but the second is.
             with host.open(REMOTE_FILE_NAME, "rb") as file_obj:
-                self.assertEqual(len(host._children), 2)
-                self.assertTrue(file_obj._host is host._children[1])
+                assert len(host._children) == 2
+                assert file_obj._host is host._children[1]
 
     def test_no_timed_out_children(self):
         REMOTE_FILE_NAME = "debian-keyring.tar.gz"
@@ -695,11 +694,11 @@ class TestFTPFiles(RealFTPTest):
         file_obj1._host._session.pwd = timed_out_pwd
         # Try to get a file - which shouldn't be the timed-out file.
         with host.open(REMOTE_FILE_NAME, "rb") as file_obj2:
-            self.assertTrue(file_obj1 is not file_obj2)
+            assert file_obj1 is not file_obj2
         # Re-use closed and not timed-out child session.
         with host.open(REMOTE_FILE_NAME, "rb") as file_obj3:
             pass
-        self.assertTrue(file_obj2 is file_obj3)
+        assert file_obj2 is file_obj3
 
     def test_no_delayed_226_children(self):
         REMOTE_FILE_NAME = "debian-keyring.tar.gz"
@@ -713,11 +712,11 @@ class TestFTPFiles(RealFTPTest):
         file_obj1._host._session.pwd = timed_out_pwd
         # Try to get a file - which shouldn't be the timed-out file.
         with host.open(REMOTE_FILE_NAME, "rb") as file_obj2:
-            self.assertTrue(file_obj1 is not file_obj2)
+            assert file_obj1 is not file_obj2
         # Re-use closed and not timed-out child session.
         with host.open(REMOTE_FILE_NAME, "rb") as file_obj3:
             pass
-        self.assertTrue(file_obj2 is file_obj3)
+        assert file_obj2 is file_obj3
 
 
 class TestChmod(RealFTPTest):
@@ -740,8 +739,8 @@ class TestChmod(RealFTPTest):
           stat.S_IRWXO, stat.S_IROTH, stat.S_IWOTH, stat.S_IXOTH]
         allowed_mask = functools.reduce(operator.or_, allowed_flags)
         mode = full_mode & allowed_mask
-        self.assertEqual(mode, expected_mode,
-                         "mode {0:o} != {1:o}".format(mode, expected_mode))
+        assert mode == expected_mode, (
+                 "mode {0:o} != {1:o}".format(mode, expected_mode))
 
     def test_chmod_existing_directory(self):
         host = self.host
@@ -768,8 +767,8 @@ class TestChmod(RealFTPTest):
 
     def test_chmod_nonexistent_path(self):
         # Set/get mode of a non-existing item.
-        self.assertRaises(ftputil.error.PermanentError, self.host.chmod,
-                          "nonexistent", 0o757)
+        with pytest.raises(ftputil.error.PermanentError):
+            self.host.chmod("nonexistent", 0o757)
 
     def test_cache_invalidation(self):
         host = self.host
@@ -807,7 +806,7 @@ class TestRestArgument(RealFTPTest):
         """
         with self.host.open(self.TEST_FILE_NAME, "rb", rest=3) as fobj:
             data = fobj.read()
-        self.assertEqual(data, b"defghijkl")
+        assert data == b"defghijkl"
 
     def test_for_writing(self):
         """
@@ -818,14 +817,14 @@ class TestRestArgument(RealFTPTest):
             fobj.write(b"123")
         with self.host.open(self.TEST_FILE_NAME, "rb") as fobj:
             data = fobj.read()
-        self.assertEqual(data, b"abc123")
+        assert data == b"abc123"
 
     def test_invalid_read_from_text_file(self):
         """
         If the `rest` argument is used for reading from a text file,
         a `CommandNotImplementedError` should be raised.
         """
-        with self.assertRaises(ftputil.error.CommandNotImplementedError):
+        with pytest.raises(ftputil.error.CommandNotImplementedError):
             self.host.open(self.TEST_FILE_NAME, "r", rest=3)
 
     def test_invalid_write_to_text_file(self):
@@ -833,7 +832,7 @@ class TestRestArgument(RealFTPTest):
         If the `rest` argument is used for reading from a text file,
         a `CommandNotImplementedError` should be raised.
         """
-        with self.assertRaises(ftputil.error.CommandNotImplementedError):
+        with pytest.raises(ftputil.error.CommandNotImplementedError):
             self.host.open(self.TEST_FILE_NAME, "w", rest=3)
 
     # There are no tests for reading and writing beyond the end of a
@@ -875,25 +874,26 @@ class TestOther(RealFTPTest):
         # Make sure that there are no problems if the connection is reused.
         with self.host.open("debian-keyring.tar.gz", "rb") as file2:
             pass
-        self.assertTrue(file1._session is file2._session)
+        assert file1._session is file2._session
 
     def test_names_with_spaces(self):
         # Test if directories and files with spaces in their names
         # can be used.
         host = self.host
-        self.assertTrue(host.path.isdir("dir with spaces"))
-        self.assertEqual(host.listdir("dir with spaces"),
-                         ["second dir", "some file", "some_file"])
-        self.assertTrue(host.path.isdir ("dir with spaces/second dir"))
-        self.assertTrue(host.path.isfile("dir with spaces/some_file"))
-        self.assertTrue(host.path.isfile("dir with spaces/some file"))
+        assert host.path.isdir("dir with spaces")
+        assert (host.listdir("dir with spaces") ==
+                ["second dir", "some file", "some_file"])
+        assert host.path.isdir("dir with spaces/second dir")
+        assert host.path.isfile("dir with spaces/some_file")
+        assert host.path.isfile("dir with spaces/some file")
 
     def test_synchronize_times_without_write_access(self):
         """Test failing synchronization because of non-writable directory."""
         host = self.host
         # This isn't writable by the ftp account the tests are run under.
         host.chdir("rootdir1")
-        self.assertRaises(ftputil.error.TimeShiftError, host.synchronize_times)
+        with pytest.raises(ftputil.error.TimeShiftError):
+            host.synchronize_times()
 
     def test_listdir_with_non_ascii_byte_string(self):
         """
@@ -904,8 +904,8 @@ class TestOther(RealFTPTest):
         host = self.host
         path = "äbc".encode("UTF-8")
         names = host.listdir(path)
-        self.assertEqual(names[0], b"file1")
-        self.assertEqual(names[1], "file1_ö".encode("UTF-8"))
+        assert names[0] == b"file1"
+        assert names[1] == "file1_ö".encode("UTF-8")
 
     def test_listdir_with_non_ascii_unicode_string(self):
         """
@@ -919,8 +919,8 @@ class TestOther(RealFTPTest):
         # is supposed to provide a compatible interface.
         path = "äbc".encode("UTF-8").decode("latin1")
         names = host.listdir(path)
-        self.assertEqual(names[0], "file1")
-        self.assertEqual(names[1], "file1_ö".encode("UTF-8").decode("latin1"))
+        assert names[0] == "file1"
+        assert names[1] == "file1_ö".encode("UTF-8").decode("latin1")
 
     def test_path_with_non_latin1_unicode_string(self):
         """
@@ -931,7 +931,7 @@ class TestOther(RealFTPTest):
         path = "𝄞𝄢"
         # `UnicodeEncodeError` is also the exception that `ftplib`
         # raises if it gets a non-latin1 path.
-        with self.assertRaises(UnicodeEncodeError):
+        with pytest.raises(UnicodeEncodeError):
             self.host.mkdir(path)
 
     def test_list_a_option(self):
@@ -939,12 +939,12 @@ class TestOther(RealFTPTest):
         # files by default but instead only when the `LIST` `-a`
         # option is used.
         host = self.host
-        self.assertTrue(host.use_list_a_option)
+        assert host.use_list_a_option
         directory_entries = host.listdir(host.curdir)
-        self.assertTrue(".hidden" in directory_entries)
+        assert ".hidden" in directory_entries
         host.use_list_a_option = False
         directory_entries = host.listdir(host.curdir)
-        self.assertFalse(".hidden" in directory_entries)
+        assert ".hidden" not in directory_entries
 
     def _make_objects_to_be_garbage_collected(self):
         for _ in range(10):
@@ -961,7 +961,7 @@ class TestOther(RealFTPTest):
         self._make_objects_to_be_garbage_collected()
         gc.collect()
         objects_after_test = len(gc.garbage)
-        self.assertFalse(objects_after_test - objects_before_test)
+        assert not objects_after_test - objects_before_test
 
     @unittest.skipIf(ftputil.compat.python_version > 2,
                      "test requires M2Crypto which only works on Python 2")
@@ -980,7 +980,7 @@ class TestOther(RealFTPTest):
         with ftputil.FTPHost(*self.login_data, session_factory=factory) as host:
             # Test if unicode argument works.
             files = host.listdir(".")
-        self.assertTrue("CONTENTS" in files)
+        assert "CONTENTS" in files
 
 
 
