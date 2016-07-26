@@ -1,5 +1,5 @@
 # encoding: utf-8
-# Copyright (C) 2003-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2016, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -8,6 +8,8 @@ from __future__ import unicode_literals
 import ftplib
 import time
 import unittest
+
+import pytest
 
 import ftputil
 import ftputil.compat
@@ -41,28 +43,28 @@ class TestPath(unittest.TestCase):
         testdir = "/home/sschwarzer"
         host.chdir(testdir)
         # Test a path which isn't there.
-        self.assertFalse(host.path.isdir ("notthere"))
-        self.assertFalse(host.path.isfile("notthere"))
-        self.assertFalse(host.path.islink("notthere"))
+        assert not host.path.isdir("notthere")
+        assert not host.path.isfile("notthere")
+        assert not host.path.islink("notthere")
         #  This checks additional code (see ticket #66).
-        self.assertFalse(host.path.isdir ("/notthere/notthere"))
-        self.assertFalse(host.path.isfile("/notthere/notthere"))
-        self.assertFalse(host.path.islink("/notthere/notthere"))
+        assert not host.path.isdir("/notthere/notthere")
+        assert not host.path.isfile("/notthere/notthere")
+        assert not host.path.islink("/notthere/notthere")
         # Test a directory.
-        self.assertTrue (host.path.isdir (testdir))
-        self.assertFalse(host.path.isfile(testdir))
-        self.assertFalse(host.path.islink(testdir))
+        assert host.path.isdir(testdir)
+        assert not host.path.isfile(testdir)
+        assert not host.path.islink(testdir)
         # Test a file.
         testfile = "/home/sschwarzer/index.html"
-        self.assertFalse(host.path.isdir (testfile))
-        self.assertTrue (host.path.isfile(testfile))
-        self.assertFalse(host.path.islink(testfile))
+        assert not host.path.isdir(testfile)
+        assert host.path.isfile(testfile)
+        assert not host.path.islink(testfile)
         # Test a link. Since the link target of `osup` doesn't exist,
         # neither `isdir` nor `isfile` return `True`.
         testlink = "/home/sschwarzer/osup"
-        self.assertFalse(host.path.isdir (testlink))
-        self.assertFalse(host.path.isfile(testlink))
-        self.assertTrue (host.path.islink(testlink))
+        assert not host.path.isdir(testlink)
+        assert not host.path.isfile(testlink)
+        assert host.path.islink(testlink)
 
     def test_workaround_for_spaces(self):
         """Test whether the workaround for space-containing paths is used."""
@@ -71,16 +73,16 @@ class TestPath(unittest.TestCase):
         host.chdir(testdir)
         # Test a file name containing spaces.
         testfile = "/home/dir with spaces/file with spaces"
-        self.assertFalse(host.path.isdir (testfile))
-        self.assertTrue (host.path.isfile(testfile))
-        self.assertFalse(host.path.islink(testfile))
+        assert not host.path.isdir(testfile)
+        assert host.path.isfile(testfile)
+        assert not host.path.islink(testfile)
 
     def test_inaccessible_home_directory_and_whitespace_workaround(self):
         "Test combination of inaccessible home directory + whitespace in path."
         host = test_base.ftp_host_factory(
                session_factory=SessionWithInaccessibleLoginDirectory)
-        self.assertRaises(ftputil.error.InaccessibleLoginDirError,
-                          host._dir, "/home dir")
+        with pytest.raises(ftputil.error.InaccessibleLoginDirError):
+            host._dir("/home dir")
 
     def test_isdir_isfile_islink_with_exception(self):
         """Test failing `FTPHost._Path.isdir/isfile/islink`."""
@@ -89,9 +91,12 @@ class TestPath(unittest.TestCase):
         host.chdir(testdir)
         # Test if exceptions are propagated.
         FTPOSError = ftputil.error.FTPOSError
-        self.assertRaises(FTPOSError, host.path.isdir,  "index.html")
-        self.assertRaises(FTPOSError, host.path.isfile, "index.html")
-        self.assertRaises(FTPOSError, host.path.islink, "index.html")
+        with pytest.raises(FTPOSError):
+            host.path.isdir("index.html")
+        with pytest.raises(FTPOSError):
+            host.path.isfile("index.html")
+        with pytest.raises(FTPOSError):
+            host.path.islink("index.html")
 
     def test_exists(self):
         """Test `FTPHost.path.exists`."""
@@ -99,12 +104,12 @@ class TestPath(unittest.TestCase):
         host = test_base.ftp_host_factory()
         testdir = "/home/sschwarzer"
         host.chdir(testdir)
-        self.assertTrue (host.path.exists("index.html"))
-        self.assertFalse(host.path.exists("notthere"))
+        assert host.path.exists("index.html")
+        assert not host.path.exists("notthere")
         # Test if exceptions are propagated.
         host = test_base.ftp_host_factory(ftp_host_class=FailingFTPHost)
-        self.assertRaises(
-          ftputil.error.FTPOSError, host.path.exists, "index.html")
+        with pytest.raises(ftputil.error.FTPOSError):
+            host.path.exists("index.html")
 
 
 class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
@@ -114,7 +119,7 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
 
     def _test_method_string_types(self, method, path):
         expected_type = type(path)
-        self.assertTrue(isinstance(method(path), expected_type))
+        assert isinstance(method(path), expected_type)
 
     def test_methods_that_take_and_return_one_string(self):
         """
@@ -126,8 +131,8 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
                         split())
         for method_name in method_names:
             method = getattr(self.host.path, method_name)
-            self._test_method_string_types(method,  "/")
-            self._test_method_string_types(method,  ".")
+            self._test_method_string_types(method, "/")
+            self._test_method_string_types(method, ".")
             self._test_method_string_types(method, b"/")
             self._test_method_string_types(method, b".")
 
@@ -137,18 +142,18 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
         as_bytes = ftputil.tool.as_bytes
         host.chdir("/home/file_name_test")
         # `isabs`
-        self.assertFalse(host.path.isabs("ä"))
-        self.assertFalse(host.path.isabs(as_bytes("ä")))
+        assert not host.path.isabs("ä")
+        assert not host.path.isabs(as_bytes("ä"))
         # `exists`
-        self.assertTrue(host.path.exists("ä"))
-        self.assertTrue(host.path.exists(as_bytes("ä")))
+        assert host.path.exists("ä")
+        assert host.path.exists(as_bytes("ä"))
         # `isdir`, `isfile`, `islink`
-        self.assertTrue(host.path.isdir ("ä"))
-        self.assertTrue(host.path.isdir (as_bytes("ä")))
-        self.assertTrue(host.path.isfile("ö"))
-        self.assertTrue(host.path.isfile(as_bytes("ö")))
-        self.assertTrue(host.path.islink("ü"))
-        self.assertTrue(host.path.islink(as_bytes("ü")))
+        assert host.path.isdir("ä")
+        assert host.path.isdir(as_bytes("ä"))
+        assert host.path.isfile("ö")
+        assert host.path.isfile(as_bytes("ö"))
+        assert host.path.islink("ü")
+        assert host.path.islink(as_bytes("ü"))
 
     def test_join(self):
         """
@@ -160,20 +165,22 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
         # Only unicode
         parts = list("äöü")
         result = join(*parts)
-        self.assertEqual(result, "ä/ö/ü")
+        assert result == "ä/ö/ü"
         #  Need explicit type check for Python 2
         self.assertTrue(isinstance(result, ftputil.compat.unicode_type))
         # Only bytes
         parts = [as_bytes(s) for s in "äöü"]
         result = join(*parts)
-        self.assertEqual(result, as_bytes("ä/ö/ü"))
+        assert result == as_bytes("ä/ö/ü")
         #  Need explicit type check for Python 2
-        self.assertTrue(isinstance(result, ftputil.compat.bytes_type))
+        assert isinstance(result, ftputil.compat.bytes_type)
         # Mixture of unicode and bytes
         parts = ["ä", as_bytes("ö")]
-        self.assertRaises(TypeError, join, *parts)
+        with pytest.raises(TypeError):
+            join(*parts)
         parts = [as_bytes("ä"), as_bytes("ö"), "ü"]
-        self.assertRaises(TypeError, join, *parts)
+        with pytest.raises(TypeError):
+            join(*parts)
 
     def test_getmtime(self):
         """
@@ -189,8 +196,8 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
         expected_mtime = time.mktime((2000, 5, 29, 0, 0, 0, 0, 0, 0))
         mtime_makes_sense = (lambda mtime: expected_mtime - day <= mtime <=
                                            expected_mtime + day)
-        self.assertTrue(mtime_makes_sense(host.path.getmtime("ä")))
-        self.assertTrue(mtime_makes_sense(host.path.getmtime(as_bytes("ä"))))
+        assert mtime_makes_sense(host.path.getmtime("ä"))
+        assert mtime_makes_sense(host.path.getmtime(as_bytes("ä")))
 
     def test_getsize(self):
         """
@@ -199,8 +206,8 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
         host = self.host
         as_bytes = ftputil.tool.as_bytes
         host.chdir("/home/file_name_test")
-        self.assertEqual(host.path.getsize("ä"), 512)
-        self.assertEqual(host.path.getsize(as_bytes("ä")), 512)
+        assert host.path.getsize("ä") == 512
+        assert host.path.getsize(as_bytes("ä")) == 512
 
     def test_walk(self):
         """Test whether `FTPHost.path.walk` accepts bytes and unicode paths."""
