@@ -1,4 +1,4 @@
-# Copyright (C) 2009-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2009-2016, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -155,7 +155,7 @@ class TestPublicServers(unittest.TestCase):
                 failure_message = ("For server {0}, directory {1}: {2} != {3}".
                                    format(server, initial_directory, names,
                                           canonical_names))
-                self.assertEqual(names, canonical_names, failure_message)
+                assert names == canonical_names, failure_message
         finally:
             host.close()
 
