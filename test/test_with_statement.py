@@ -56,12 +56,12 @@ class TestFileContextManager(unittest.TestCase):
     def test_normal_operation(self):
         with test_base.ftp_host_factory(
                session_factory=ReadMockSession) as host:
-            with host.open("dummy", "r") as f:
-                assert f.closed is False
-                data = f.readline()
+            with host.open("dummy", "r") as fobj:
+                assert fobj.closed is False
+                data = fobj.readline()
                 assert data == "line 1\n"
-                assert f.closed is False
-            assert f.closed is True
+                assert fobj.closed is False
+            assert fobj.closed is True
 
     def test_ftputil_exception(self):
         with test_base.ftp_host_factory(
@@ -69,21 +69,21 @@ class TestFileContextManager(unittest.TestCase):
             with pytest.raises(ftputil.error.FTPIOError):
                 # This should fail since the directory isn't
                 # accessible by definition.
-                with host.open("/inaccessible/new_file", "w") as f:
+                with host.open("/inaccessible/new_file", "w") as fobj:
                     pass
-            # The file construction shouldn't have succeeded, so `f`
+            # The file construction shouldn't have succeeded, so `fobj`
             # should be absent from the local namespace.
-            assert "f" not in locals()
+            assert "fobj" not in locals()
 
     def test_client_code_exception(self):
         with test_base.ftp_host_factory(
                session_factory=ReadMockSession) as host:
             try:
-                with host.open("dummy", "r") as f:
-                    assert f.closed is False
+                with host.open("dummy", "r") as fobj:
+                    assert fobj.closed is False
                     raise ClientCodeException()
             except ClientCodeException:
-                assert f.closed is True
+                assert fobj.closed is True
             else:
                 assert False, "`ClientCodeException` not raised"
 
