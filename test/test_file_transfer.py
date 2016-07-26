@@ -1,4 +1,4 @@
-# Copyright (C) 2010-2014, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2010-2016, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -7,6 +7,8 @@ from __future__ import unicode_literals
 import io
 import random
 import unittest
+
+import pytest
 
 import ftputil.compat
 import ftputil.file_transfer
@@ -69,7 +71,7 @@ class TestTimestampComparison(unittest.TestCase):
             target_file = MockFile(target_mtime, target_mtime_precision)
             result = ftputil.file_transfer.source_is_newer_than_target(
                        source_file, target_file)
-            self.assertEqual(result, expected_result)
+            assert result == expected_result
 
 
 class FailingStringIO(io.BytesIO):
@@ -94,29 +96,30 @@ class TestChunkwiseTransfer(unittest.TestCase):
         data = self._random_string(1024)
         fobj = io.BytesIO(data)
         chunks = list(ftputil.file_transfer.chunks(fobj, 256))
-        self.assertEqual(len(chunks), 4)
-        self.assertEqual(chunks[0], data[:256])
-        self.assertEqual(chunks[1], data[256:512])
-        self.assertEqual(chunks[2], data[512:768])
-        self.assertEqual(chunks[3], data[768:1024])
+        assert len(chunks) == 4
+        assert chunks[0] == data[:256]
+        assert chunks[1] == data[256:512]
+        assert chunks[2] == data[512:768]
+        assert chunks[3] == data[768:1024]
 
     def test_chunkwise_transfer_with_remainder(self):
         """Check if we get three chunks with 256 Bytes and one with 253."""
         data = self._random_string(1021)
         fobj = io.BytesIO(data)
         chunks = list(ftputil.file_transfer.chunks(fobj, 256))
-        self.assertEqual(len(chunks), 4)
-        self.assertEqual(chunks[0], data[:256])
-        self.assertEqual(chunks[1], data[256:512])
-        self.assertEqual(chunks[2], data[512:768])
-        self.assertEqual(chunks[3], data[768:1021])
+        assert len(chunks) == 4
+        assert chunks[0] == data[:256]
+        assert chunks[1] == data[256:512]
+        assert chunks[2] == data[512:768]
+        assert chunks[3] == data[768:1021]
 
     def test_chunkwise_transfer_with_exception(self):
         """Check if we see the exception raised during reading."""
         data = self._random_string(1024)
         fobj = FailingStringIO(data)
         iterator = ftputil.file_transfer.chunks(fobj, 256)
-        self.assertRaises(FailingStringIO.expected_exception, next, iterator)
+        with pytest.raises(FailingStringIO.expected_exception):
+            next(iterator)
 
 
 if __name__ == "__main__":
