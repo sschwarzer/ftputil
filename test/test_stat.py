@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2015, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2016, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -9,6 +9,8 @@ from __future__ import unicode_literals
 import stat
 import time
 import unittest
+
+import pytest
 
 import ftputil
 import ftputil.compat
@@ -65,13 +67,13 @@ class TestParsers(unittest.TestCase):
             expected_stat_result[8] = \
               stat_tuple_to_seconds(expected_stat_result[8])
             # Compare lists.
-            self.assertEqual(stat_result, expected_stat_result)
+            assert stat_result == expected_stat_result
 
     def _test_invalid_lines(self, parser_class, lines):
         parser = parser_class()
         for line in lines:
-            self.assertRaises(ftputil.error.ParserError,
-                              parser.parse_line, line)
+            with pytest.raises(ftputil.error.ParserError):
+                parser.parse_line(line)
 
     def _expected_year(self):
         """
@@ -309,11 +311,8 @@ class TestParsers(unittest.TestCase):
         differ no more than one minute from each other.
         """
         abs_difference = abs(time1 - time2)
-        try:
-            self.assertFalse(abs_difference > 60.0)
-        except AssertionError:
-            print("Difference is", abs_difference, "seconds")
-            raise
+        assert abs_difference <= 60.0, \
+                 "Difference is %s seconds" % abs_difference
 
     def _test_time_shift(self, supposed_time_shift, deviation=0.0):
         """
@@ -382,14 +381,14 @@ class TestLstatAndStat(unittest.TestCase):
               "StatResult(st_mode=33188, st_ino=None, st_dev=None, "
               "st_nlink=1, st_uid='45854', st_gid='200', st_size=4604, "
               "st_atime=None, st_mtime=1453241460.0, st_ctime=None)")
-        self.assertEqual(repr(stat_result), expected_result)
+        assert repr(stat_result) == expected_result
 
     def test_failing_lstat(self):
         """Test whether `lstat` fails for a nonexistent path."""
-        self.assertRaises(ftputil.error.PermanentError,
-                          self.stat._lstat, "/home/sschw/notthere")
-        self.assertRaises(ftputil.error.PermanentError,
-                          self.stat._lstat, "/home/sschwarzer/notthere")
+        with pytest.raises(ftputil.error.PermanentError):
+            self.stat._lstat("/home/sschw/notthere")
+        with pytest.raises(ftputil.error.PermanentError):
+            self.stat._lstat("/home/sschwarzer/notthere")
 
     def test_lstat_for_root(self):
         """
@@ -399,72 +398,72 @@ class TestLstatAndStat(unittest.TestCase):
         the output of an FTP `LIST` command. Unfortunately, it's not
         possible to do this for the root directory `/`.
         """
-        self.assertRaises(ftputil.error.RootDirError, self.stat._lstat, "/")
-        try:
+        with pytest.raises(ftputil.error.RootDirError) as exc_info:
             self.stat._lstat("/")
-        except ftputil.error.RootDirError as exc:
-            self.assertFalse(isinstance(exc, ftputil.error.FTPOSError))
+        # `RootDirError` is "outside" the `FTPOSError` hierarchy.
+        assert not isinstance(exc_info.value, ftputil.error.FTPOSError)
+        del exc_info
 
     def test_lstat_one_unix_file(self):
         """Test `lstat` for a file described in Unix-style format."""
         stat_result = self.stat._lstat("/home/sschwarzer/index.html")
         # Second form is needed for Python 3
-        self.assertTrue(oct(stat_result.st_mode) in ("0100644", "0o100644"))
-        self.assertEqual(stat_result.st_size, 4604)
-        self.assertEqual(stat_result._st_mtime_precision, 60)
+        assert oct(stat_result.st_mode) in ("0100644", "0o100644")
+        assert stat_result.st_size == 4604
+        assert stat_result._st_mtime_precision == 60
 
     def test_lstat_one_ms_file(self):
         """Test `lstat` for a file described in DOS-style format."""
         self.stat = _test_stat(session_factory=mock_ftplib.MockMSFormatSession)
         stat_result = self.stat._lstat("/home/msformat/abcd.exe")
-        self.assertEqual(stat_result._st_mtime_precision, 60)
+        assert stat_result._st_mtime_precision == 60
 
     def test_lstat_one_unix_dir(self):
         """Test `lstat` for a directory described in Unix-style format."""
         stat_result = self.stat._lstat("/home/sschwarzer/scios2")
         # Second form is needed for Python 3
-        self.assertTrue(oct(stat_result.st_mode) in ("042755", "0o42755"))
-        self.assertEqual(stat_result.st_ino, None)
-        self.assertEqual(stat_result.st_dev, None)
-        self.assertEqual(stat_result.st_nlink, 6)
-        self.assertEqual(stat_result.st_uid, "45854")
-        self.assertEqual(stat_result.st_gid, "200")
-        self.assertEqual(stat_result.st_size, 512)
-        self.assertEqual(stat_result.st_atime, None)
-        self.assertTrue(stat_result.st_mtime ==
-                        stat_tuple_to_seconds((1999, 9, 20, 0, 0, 0)))
-        self.assertEqual(stat_result.st_ctime, None)
-        self.assertEqual(stat_result._st_mtime_precision, 24*60*60)
-        self.assertTrue(stat_result ==
-          (17901, None, None, 6, "45854", "200", 512, None,
-           stat_tuple_to_seconds((1999, 9, 20, 0, 0, 0)), None))
+        assert oct(stat_result.st_mode) in ("042755", "0o42755")
+        assert stat_result.st_ino is None
+        assert stat_result.st_dev is None
+        assert stat_result.st_nlink == 6
+        assert stat_result.st_uid == "45854"
+        assert stat_result.st_gid == "200"
+        assert stat_result.st_size == 512
+        assert stat_result.st_atime is None
+        assert (stat_result.st_mtime ==
+                stat_tuple_to_seconds((1999, 9, 20, 0, 0, 0)))
+        assert stat_result.st_ctime is None
+        assert stat_result._st_mtime_precision == 24*60*60
+        assert stat_result == (17901, None, None, 6, "45854", "200", 512, None,
+                               stat_tuple_to_seconds((1999, 9, 20, 0, 0, 0)),
+                               None)
 
     def test_lstat_one_ms_dir(self):
         """Test `lstat` for a directory described in DOS-style format."""
         self.stat = _test_stat(session_factory=mock_ftplib.MockMSFormatSession)
         stat_result = self.stat._lstat("/home/msformat/WindowsXP")
-        self.assertEqual(stat_result._st_mtime_precision, 60)
+        assert stat_result._st_mtime_precision == 60
 
     def test_lstat_via_stat_module(self):
         """Test `lstat` indirectly via `stat` module."""
         stat_result = self.stat._lstat("/home/sschwarzer/")
-        self.assertTrue(stat.S_ISDIR(stat_result.st_mode))
+        assert stat.S_ISDIR(stat_result.st_mode)
 
     def test_stat_following_link(self):
         """Test `stat` when invoked on a link."""
         # Simple link
         stat_result = self.stat._stat("/home/link")
-        self.assertEqual(stat_result.st_size, 4604)
+        assert stat_result.st_size == 4604
         # Link pointing to a link
         stat_result = self.stat._stat("/home/python/link_link")
-        self.assertEqual(stat_result.st_size, 4604)
+        assert stat_result.st_size == 4604
         stat_result = self.stat._stat("../python/link_link")
-        self.assertEqual(stat_result.st_size, 4604)
+        assert stat_result.st_size == 4604
         # Recursive link structures
-        self.assertRaises(ftputil.error.PermanentError,
-                          self.stat._stat, "../python/bad_link")
-        self.assertRaises(ftputil.error.PermanentError,
-                          self.stat._stat, "/home/bad_link")
+        with pytest.raises(ftputil.error.PermanentError):
+            self.stat._stat("../python/bad_link")
+        with pytest.raises(ftputil.error.PermanentError):
+            self.stat._stat("/home/bad_link")
 
     #
     # Test automatic switching of Unix/MS parsers
@@ -472,48 +471,48 @@ class TestLstatAndStat(unittest.TestCase):
     def test_parser_switching_with_permanent_error(self):
         """Test non-switching of parser format with `PermanentError`."""
         self.stat = _test_stat(session_factory=mock_ftplib.MockMSFormatSession)
-        self.assertEqual(self.stat._allow_parser_switching, True)
+        assert self.stat._allow_parser_switching is True
         # With these directory contents, we get a `ParserError` for
         # the Unix parser first, so `_allow_parser_switching` can be
         # switched off no matter whether we got a `PermanentError`
         # afterward or not.
-        self.assertRaises(ftputil.error.PermanentError,
-                          self.stat._lstat, "/home/msformat/nonexistent")
-        self.assertEqual(self.stat._allow_parser_switching, False)
+        with pytest.raises(ftputil.error.PermanentError):
+            self.stat._lstat("/home/msformat/nonexistent")
+        assert self.stat._allow_parser_switching is False
 
     def test_parser_switching_default_to_unix(self):
         """Test non-switching of parser format; stay with Unix."""
-        self.assertEqual(self.stat._allow_parser_switching, True)
-        self.assertTrue(isinstance(self.stat._parser, ftputil.stat.UnixParser))
+        assert self.stat._allow_parser_switching is True
+        assert isinstance(self.stat._parser, ftputil.stat.UnixParser)
         stat_result = self.stat._lstat("/home/sschwarzer/index.html")
         # The Unix parser worked, so keep it.
-        self.assertTrue(isinstance(self.stat._parser, ftputil.stat.UnixParser))
-        self.assertEqual(self.stat._allow_parser_switching, False)
+        assert isinstance(self.stat._parser, ftputil.stat.UnixParser)
+        assert self.stat._allow_parser_switching is False
 
     def test_parser_switching_to_ms(self):
         """Test switching of parser from Unix to MS format."""
         self.stat = _test_stat(session_factory=mock_ftplib.MockMSFormatSession)
-        self.assertEqual(self.stat._allow_parser_switching, True)
-        self.assertTrue(isinstance(self.stat._parser, ftputil.stat.UnixParser))
+        assert self.stat._allow_parser_switching is True
+        assert isinstance(self.stat._parser, ftputil.stat.UnixParser)
         # Parsing the directory `/home/msformat` with the Unix parser
         # fails, so switch to the MS parser.
         stat_result = self.stat._lstat("/home/msformat/abcd.exe")
-        self.assertTrue(isinstance(self.stat._parser, ftputil.stat.MSParser))
-        self.assertEqual(self.stat._allow_parser_switching, False)
-        self.assertEqual(stat_result._st_name, "abcd.exe")
-        self.assertEqual(stat_result.st_size, 12266720)
+        assert isinstance(self.stat._parser, ftputil.stat.MSParser)
+        assert self.stat._allow_parser_switching is False
+        assert stat_result._st_name == "abcd.exe"
+        assert stat_result.st_size == 12266720
 
     def test_parser_switching_regarding_empty_dir(self):
         """Test switching of parser if a directory is empty."""
         self.stat = _test_stat(session_factory=mock_ftplib.MockMSFormatSession)
-        self.assertEqual(self.stat._allow_parser_switching, True)
+        assert self.stat._allow_parser_switching is True
         # When the directory we're looking into doesn't give us any
         # lines we can't decide whether the first parser worked,
         # because it wasn't applied. So keep the parser for now.
         result = self.stat._listdir("/home/msformat/XPLaunch/empty")
-        self.assertEqual(result, [])
-        self.assertEqual(self.stat._allow_parser_switching, True)
-        self.assertTrue(isinstance(self.stat._parser, ftputil.stat.UnixParser))
+        assert result == []
+        assert self.stat._allow_parser_switching is True
+        assert isinstance(self.stat._parser, ftputil.stat.UnixParser)
 
 
 class TestListdir(unittest.TestCase):
@@ -525,19 +524,19 @@ class TestListdir(unittest.TestCase):
 
     def test_failing_listdir(self):
         """Test failing `FTPHost.listdir`."""
-        self.assertRaises(ftputil.error.PermanentError,
-                          self.stat._listdir, "notthere")
+        with pytest.raises(ftputil.error.PermanentError):
+            self.stat._listdir("notthere")
 
     def test_succeeding_listdir(self):
         """Test succeeding `FTPHost.listdir`."""
         # Do we have all expected "files"?
-        self.assertEqual(len(self.stat._listdir(".")), 9)
+        assert len(self.stat._listdir(".")) == 9
         # Have they the expected names?
         expected = ("chemeng download image index.html os2 "
                     "osup publications python scios2").split()
         remote_file_list = self.stat._listdir(".")
         for file in expected:
-            self.assertTrue(file in remote_file_list)
+            assert file in remote_file_list
 
 
 if __name__ == "__main__":
