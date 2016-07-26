@@ -141,7 +141,3 @@ class TestSessionFactory(unittest.TestCase):
                                  ("_fix_socket",),
                                  ("login", "user", "password"),
                                  ("prot_p",)]
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -537,7 +537,3 @@ class TestListdir(unittest.TestCase):
         remote_file_list = self.stat._listdir(".")
         for file in expected:
             assert file in remote_file_list
-
-
-if __name__ == "__main__":
-    unittest.main()

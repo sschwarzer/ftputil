@@ -120,7 +120,3 @@ class TestChunkwiseTransfer(unittest.TestCase):
         iterator = ftputil.file_transfer.chunks(fobj, 256)
         with pytest.raises(FailingStringIO.expected_exception):
             next(iterator)
-
-
-if __name__ == "__main__":
-    unittest.main()

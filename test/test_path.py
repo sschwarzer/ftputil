@@ -217,7 +217,3 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
             del names[:]
         host.path.walk("ä", noop, None)
         host.path.walk(as_bytes("ä"), noop, None)
-
-
-if __name__ == "__main__":
-    unittest.main()

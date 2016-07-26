@@ -86,7 +86,3 @@ class TestFileContextManager(unittest.TestCase):
                 assert fobj.closed is True
             else:
                 assert False, "`ClientCodeException` not raised"
-
-
-if __name__ == "__main__":
-    unittest.main()

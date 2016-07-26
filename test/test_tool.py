@@ -68,7 +68,3 @@ class TestEncodeIfUnicode(unittest.TestCase):
         not_converted_string = ftputil.tool.encode_if_unicode(string, "latin1")
         assert string == not_converted_string
         assert isinstance(not_converted_string, compat.bytes_type)
-
-
-if __name__ == "__main__":
-    unittest.main()
