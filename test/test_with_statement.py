@@ -1,10 +1,12 @@
-# Copyright (C) 2008-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2008-2016, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
 from __future__ import unicode_literals
 
 import unittest
+
+import pytest
 
 import ftputil.error
 
@@ -26,30 +28,27 @@ class TestHostContextManager(unittest.TestCase):
 
     def test_normal_operation(self):
         with test_base.ftp_host_factory() as host:
-            self.assertEqual(host.closed, False)
-        self.assertEqual(host.closed, True)
+            assert host.closed is False
+        assert host.closed is True
 
     def test_ftputil_exception(self):
-        try:
+        with pytest.raises(ftputil.error.FTPOSError):
             with test_base.ftp_host_factory(FailOnLoginSession) as host:
                 pass
-        except ftputil.error.FTPOSError:
-            # We arrived here, that's fine. Because the `FTPHost` object
-            # wasn't successfully constructed, the assignment to `host`
-            # shouldn't have happened.
-            self.assertFalse("host" in locals())
-        else:
-            raise self.failureException("ftputil.error.FTPOSError not raised")
+        # We arrived here, that's fine. Because the `FTPHost` object
+        # wasn't successfully constructed, the assignment to `host`
+        # shouldn't have happened.
+        assert "host" not in locals()
 
     def test_client_code_exception(self):
         try:
             with test_base.ftp_host_factory() as host:
-                self.assertEqual(host.closed, False)
+                assert host.closed is False
                 raise ClientCodeException()
         except ClientCodeException:
-            self.assertEqual(host.closed, True)
+            assert host.closed is True
         else:
-            raise self.failureException("ClientCodeException not raised")
+            assert False, "`ClientCodeException` not raised"
 
 
 class TestFileContextManager(unittest.TestCase):
@@ -58,39 +57,35 @@ class TestFileContextManager(unittest.TestCase):
         with test_base.ftp_host_factory(
                session_factory=ReadMockSession) as host:
             with host.open("dummy", "r") as f:
-                self.assertEqual(f.closed, False)
+                assert f.closed is False
                 data = f.readline()
-                self.assertEqual(data, "line 1\n")
-                self.assertEqual(f.closed, False)
-            self.assertEqual(f.closed, True)
+                assert data == "line 1\n"
+                assert f.closed is False
+            assert f.closed is True
 
     def test_ftputil_exception(self):
         with test_base.ftp_host_factory(
                session_factory=InaccessibleDirSession) as host:
-            try:
-                # This should fail since the directory isn't accessible
-                # by definition.
+            with pytest.raises(ftputil.error.FTPIOError):
+                # This should fail since the directory isn't
+                # accessible by definition.
                 with host.open("/inaccessible/new_file", "w") as f:
                     pass
-            except ftputil.error.FTPIOError:
-                # The file construction shouldn't have succeeded, so
-                # `f` should be absent from the local namespace.
-                self.assertFalse("f" in locals())
-            else:
-                raise self.failureException(
-                        "ftputil.error.FTPIOError not raised")
+            # The file construction shouldn't have succeeded, so `f`
+            # should be absent from the local namespace.
+            assert "f" not in locals()
 
     def test_client_code_exception(self):
         with test_base.ftp_host_factory(
                session_factory=ReadMockSession) as host:
             try:
                 with host.open("dummy", "r") as f:
-                    self.assertEqual(f.closed, False)
+                    assert f.closed is False
                     raise ClientCodeException()
             except ClientCodeException:
-                self.assertEqual(f.closed, True)
+                assert f.closed is True
             else:
-                raise self.failureException("ClientCodeException not raised")
+                assert False, "`ClientCodeException` not raised"
 
 
 if __name__ == "__main__":
