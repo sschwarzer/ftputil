@@ -1,5 +1,5 @@
 # encoding: utf-8
-# Copyright (C) 2002-2014, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2016, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -14,6 +14,8 @@ import random
 import time
 import unittest
 import warnings
+
+import pytest
 
 import ftputil
 import ftputil.compat
@@ -163,16 +165,16 @@ class TestInitAndClose(unittest.TestCase):
     def test_open_and_close(self):
         host = test_base.ftp_host_factory()
         host.close()
-        self.assertEqual(host.closed, True)
-        self.assertEqual(host._children, [])
+        assert host.closed is True
+        assert host._children == []
 
 
 class TestLogin(unittest.TestCase):
 
     def test_invalid_login(self):
         """Login to invalid host must fail."""
-        self.assertRaises(ftputil.error.FTPOSError, test_base.ftp_host_factory,
-                          FailOnLoginSession)
+        with pytest.raises(ftputil.error.FTPOSError):
+            test_base.ftp_host_factory(FailOnLoginSession)
 
 
 class TestKeepAlive(unittest.TestCase):
@@ -186,7 +188,8 @@ class TestKeepAlive(unittest.TestCase):
         """Assume the connection has timed out, so `keep_alive` fails."""
         host = test_base.ftp_host_factory(
                  session_factory=FailOnKeepAliveSession)
-        self.assertRaises(ftputil.error.TemporaryError, host.keep_alive)
+        with pytest.raises(ftputil.error.TemporaryError):
+            host.keep_alive()
 
 
 class TestSetParser(unittest.TestCase):
@@ -213,12 +216,12 @@ class TestSetParser(unittest.TestCase):
     def test_set_parser(self):
         """Test if the selected parser is used."""
         host = test_base.ftp_host_factory()
-        self.assertEqual(host._stat._allow_parser_switching, True)
+        assert host._stat._allow_parser_switching is True
         trivial_parser = TestSetParser.TrivialParser()
         host.set_parser(trivial_parser)
         stat_result = host.stat("/home")
-        self.assertEqual(stat_result, trivial_parser.default_stat_result)
-        self.assertEqual(host._stat._allow_parser_switching, False)
+        assert stat_result == trivial_parser.default_stat_result
+        assert host._stat._allow_parser_switching is False
 
 
 class TestCommandNotImplementedError(unittest.TestCase):
@@ -229,11 +232,11 @@ class TestCommandNotImplementedError(unittest.TestCase):
         implemented by the server.
         """
         host = test_base.ftp_host_factory()
-        self.assertRaises(ftputil.error.CommandNotImplementedError,
-                          host.chmod, "nonexistent", 0o644)
+        with pytest.raises(ftputil.error.CommandNotImplementedError):
+            host.chmod("nonexistent", 0o644)
         # `CommandNotImplementedError` is a subclass of `PermanentError`.
-        self.assertRaises(ftputil.error.PermanentError,
-                          host.chmod, "nonexistent", 0o644)
+        with pytest.raises(ftputil.error.PermanentError):
+            host.chmod("nonexistent", 0o644)
 
 
 class TestRecursiveListingForDotAsPath(unittest.TestCase):
@@ -247,25 +250,25 @@ class TestRecursiveListingForDotAsPath(unittest.TestCase):
         host = test_base.ftp_host_factory(
                  session_factory=RecursiveListingForDotAsPathSession)
         lines = host._dir(host.curdir)
-        self.assertEqual(lines[0], "total 10")
-        self.assertTrue(lines[1].startswith("lrwxrwxrwx   1 staff"))
-        self.assertTrue(lines[2].startswith("d--x--x--x   2 staff"))
+        assert lines[0] == "total 10"
+        assert lines[1].startswith("lrwxrwxrwx   1 staff")
+        assert lines[2].startswith("d--x--x--x   2 staff")
         host.close()
 
     def test_plain_listing(self):
         host = test_base.ftp_host_factory(
                  session_factory=RecursiveListingForDotAsPathSession)
         lines = host._dir("")
-        self.assertEqual(lines[0], "total 10")
-        self.assertTrue(lines[1].startswith("lrwxrwxrwx   1 staff"))
-        self.assertTrue(lines[2].startswith("d--x--x--x   2 staff"))
+        assert lines[0] == "total 10"
+        assert lines[1].startswith("lrwxrwxrwx   1 staff")
+        assert lines[2].startswith("d--x--x--x   2 staff")
         host.close()
 
     def test_empty_string_instead_of_dot_workaround(self):
         host = test_base.ftp_host_factory(
                  session_factory=RecursiveListingForDotAsPathSession)
         files = host.listdir(host.curdir)
-        self.assertEqual(files, ["bin", "dev", "etc", "pub", "usr"])
+        assert files == ["bin", "dev", "etc", "pub", "usr"]
         host.close()
 
 
@@ -288,7 +291,7 @@ class TestUploadAndDownload(unittest.TestCase):
         with open(local_target, "rb") as fobj:
             data = fobj.read()
         remote_file_content = mock_ftplib.content_of("dummy")
-        self.assertEqual(data, remote_file_content)
+        assert data == remote_file_content
         # Clean up
         os.unlink(local_target)
 
@@ -301,19 +304,19 @@ class TestUploadAndDownload(unittest.TestCase):
         host = test_base.ftp_host_factory(
                  ftp_host_class=FailingUploadAndDownloadFTPHost)
         flag = host.upload_if_newer(local_source, "/home/newer")
-        self.assertEqual(flag, False)
+        assert flag is False
         # Target is older, so upload.
         host = test_base.ftp_host_factory()
         flag = host.upload_if_newer(local_source, "/home/older")
-        self.assertEqual(flag, True)
+        assert flag is True
         remote_file_content = mock_ftplib.content_of("older")
-        self.assertEqual(data, remote_file_content)
+        assert data == remote_file_content
         # Target doesn't exist, so upload.
         host = test_base.ftp_host_factory()
         flag = host.upload_if_newer(local_source, "/home/notthere")
-        self.assertEqual(flag, True)
+        assert flag is True
         remote_file_content = mock_ftplib.content_of("notthere")
-        self.assertEqual(data, remote_file_content)
+        assert data == remote_file_content
         # Clean up.
         os.unlink(local_source)
 
@@ -326,7 +329,7 @@ class TestUploadAndDownload(unittest.TestCase):
             data = fobj.read()
         # The name `newer` is used by all callers, so use it here, too.
         remote_file_content = mock_ftplib.content_of("newer")
-        self.assertEqual(data, remote_file_content)
+        assert data == remote_file_content
         # Clean up
         os.unlink(file_name)
 
@@ -340,7 +343,7 @@ class TestUploadAndDownload(unittest.TestCase):
         host = test_base.ftp_host_factory(
                  session_factory=BinaryDownloadMockSession)
         flag = host.download_if_newer("/home/newer", local_target)
-        self.assertEqual(flag, True)
+        assert flag is True
         self.compare_and_delete_downloaded_data(local_target)
 
     def test_conditional_download_with_older_target(self):
@@ -352,7 +355,7 @@ class TestUploadAndDownload(unittest.TestCase):
         host = test_base.ftp_host_factory(
                  session_factory=BinaryDownloadMockSession)
         flag = host.download_if_newer("/home/newer", local_target)
-        self.assertEqual(flag, True)
+        assert flag is True
         self.compare_and_delete_downloaded_data(local_target)
 
     def test_conditional_download_with_newer_target(self):
@@ -365,7 +368,7 @@ class TestUploadAndDownload(unittest.TestCase):
                  ftp_host_class=FailingUploadAndDownloadFTPHost,
                  session_factory=BinaryDownloadMockSession)
         flag = host.download_if_newer("/home/older", local_target)
-        self.assertEqual(flag, False)
+        assert flag is False
         # Remove target file
         os.unlink(local_target)
 
@@ -392,7 +395,7 @@ class TestTimeShift(unittest.TestCase):
           (-5*3600+100, -5*3600)]
         for time_shift, expected_time_shift in test_data:
             calculated_time_shift = rounded_time_shift(time_shift)
-            self.assertEqual(calculated_time_shift, expected_time_shift)
+            assert calculated_time_shift == expected_time_shift
 
     def test_assert_valid_time_shift(self):
         """Test time shift sanity checks."""
@@ -402,18 +405,18 @@ class TestTimeShift(unittest.TestCase):
         # Valid time shifts
         test_data = [23*3600, -23*3600, 3600+30, -3600+30]
         for time_shift in test_data:
-            self.assertTrue(assert_time_shift(time_shift) is None)
+            assert assert_time_shift(time_shift) is None
         # Invalid time shift (exceeds one day)
-        self.assertRaises(ftputil.error.TimeShiftError, assert_time_shift,
-                          25*3600)
-        self.assertRaises(ftputil.error.TimeShiftError, assert_time_shift,
-                          -25*3600)
+        with pytest.raises(ftputil.error.TimeShiftError):
+            assert_time_shift(25*3600)
+        with pytest.raises(ftputil.error.TimeShiftError):
+            assert_time_shift(-25*3600)
         # Invalid time shift (too large deviation from 15-minute units
         # is unacceptable)
-        self.assertRaises(ftputil.error.TimeShiftError, assert_time_shift,
-                          8*60)
-        self.assertRaises(ftputil.error.TimeShiftError, assert_time_shift,
-                          -3600-8*60)
+        with pytest.raises(ftputil.error.TimeShiftError):
+            assert_time_shift(8*60)
+        with pytest.raises(ftputil.error.TimeShiftError):
+            assert_time_shift(-3600-8*60)
 
     def test_synchronize_times(self):
         """Test time synchronization with server."""
@@ -429,13 +432,13 @@ class TestTimeShift(unittest.TestCase):
         for measured_time_shift, expected_time_shift in test_data:
             host.path.set_mtime(time.time() + measured_time_shift)
             host.synchronize_times()
-            self.assertEqual(host.time_shift(), expected_time_shift)
+            assert host.time_shift() == expected_time_shift
         # Invalid time shifts
         measured_time_shifts = [60*60+8*60, 45*60-6*60]
         for measured_time_shift in measured_time_shifts:
             host.path.set_mtime(time.time() + measured_time_shift)
-            self.assertRaises(ftputil.error.TimeShiftError,
-                              host.synchronize_times)
+            with pytest.raises(ftputil.error.TimeShiftError):
+                host.synchronize_times()
 
     def test_synchronize_times_for_server_in_east(self):
         """Test for timestamp correction (see ticket #55)."""
@@ -461,7 +464,7 @@ class TestTimeShift(unittest.TestCase):
           time.mktime(local_time_with_wrong_year) + presumed_time_shift
         host.path.set_mtime(presumed_server_time)
         host.synchronize_times()
-        self.assertEqual(host.time_shift(), presumed_time_shift)
+        assert host.time_shift() == presumed_time_shift
 
 
 class TestAcceptEitherUnicodeOrBytes(unittest.TestCase):
@@ -505,16 +508,16 @@ class TestAcceptEitherUnicodeOrBytes(unittest.TestCase):
         host.chdir("/home/file_name_test")
         # Unicode
         items = host.listdir("ä")
-        self.assertEqual(items, ["ö", "o"])
+        assert items == ["ö", "o"]
         #  Need explicit type check for Python 2
         for item in items:
-            self.assertTrue(isinstance(item, ftputil.compat.unicode_type))
+            assert isinstance(item, ftputil.compat.unicode_type)
         # Bytes
         items = host.listdir(as_bytes("ä"))
-        self.assertEqual(items, [as_bytes("ö"), as_bytes("o")])
+        assert items == [as_bytes("ö"), as_bytes("o")]
         #  Need explicit type check for Python 2
         for item in items:
-            self.assertTrue(isinstance(item, ftputil.compat.bytes_type))
+            assert isinstance(item, ftputil.compat.bytes_type)
 
     def test_chmod(self):
         """Test whether `chmod` accepts either unicode or bytes."""
@@ -586,9 +589,11 @@ class TestFailingPickling(unittest.TestCase):
     def test_failing_pickling(self):
         """Test if pickling (intentionally) isn't supported."""
         with test_base.ftp_host_factory() as host:
-            self.assertRaises(TypeError, pickle.dumps, host)
+            with pytest.raises(TypeError):
+                pickle.dumps(host)
             with host.open("/home/sschwarzer/index.html") as file_obj:
-                self.assertRaises(TypeError, pickle.dumps, file_obj)
+                with pytest.raises(TypeError):
+                    pickle.dumps(file_obj)
 
 
 if __name__ == "__main__":
