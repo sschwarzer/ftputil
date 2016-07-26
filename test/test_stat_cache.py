@@ -102,7 +102,3 @@ class TestStatCache(unittest.TestCase):
         # If bug #38 was present, this raised an `IndexError`.
         items = host.listdir(host.curdir)
         assert items[:3] == ["chemeng", "download", "image"]
-
-
-if __name__ == "__main__":
-    unittest.main()

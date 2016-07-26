@@ -594,10 +594,3 @@ class TestFailingPickling(unittest.TestCase):
             with host.open("/home/sschwarzer/index.html") as file_obj:
                 with pytest.raises(TypeError):
                     pickle.dumps(file_obj)
-
-
-if __name__ == "__main__":
-    unittest.main()
-    import __main__
-    # unittest.main(__main__,
-    #   "TestUploadAndDownload.test_conditional_upload")

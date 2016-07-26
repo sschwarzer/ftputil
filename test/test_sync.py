@@ -126,7 +126,3 @@ class TestUploadFromWindows(unittest.TestCase):
         # If the following call raises any `AssertionError`s, the
         # test framework will catch them and show them.
         syncer.sync(local_root, "not_used_by_ArgumentCheckingFTPHost")
-
-
-if __name__ == "__main__":
-    unittest.main()

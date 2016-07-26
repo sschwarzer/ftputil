@@ -175,7 +175,3 @@ class TestPublicServers(unittest.TestCase):
                                       "DIR", actual_initial_directory)
                 print(server, initial_directory)
                 self.inner_test_server(server, initial_directory, paths)
-
-
-if __name__ == "__main__":
-    unittest.main()

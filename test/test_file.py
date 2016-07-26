@@ -229,7 +229,3 @@ class TestFileOperations(unittest.TestCase):
         host = test_base.ftp_host_factory()
         with pytest.raises(ftputil.error.FTPIOError):
             host.open("notthere", "r")
-
-
-if __name__ == "__main__":
-    unittest.main()

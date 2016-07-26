@@ -90,7 +90,3 @@ class TestErrorConversion(unittest.TestCase):
           "No address associated with hostname" in str(exc) or
           "Name or service not known" in str(exc))
         del exc_info
-
-
-if __name__ == "__main__":
-    unittest.main()
