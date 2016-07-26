@@ -124,7 +124,7 @@ class TestUploadFromWindows(unittest.TestCase):
         local_root = ntpath.join("some", "directory")
         syncer = ftputil.sync.Syncer(source, target)
         # If the following call raises any `AssertionError`s, the
-        # `unittest` framework will catch them and show them.
+        # test framework will catch them and show them.
         syncer.sync(local_root, "not_used_by_ArgumentCheckingFTPHost")
 
 
