@@ -8,7 +8,8 @@ from __future__ import unicode_literals
 import os
 import socket
 import subprocess
-import unittest
+
+import pytest
 
 import ftputil
 
@@ -74,7 +75,7 @@ def ftp_client_listing(server, directory):
     return names
 
 
-class TestPublicServers(unittest.TestCase):
+class TestPublicServers(object):
     """
     Get directory listings from various public FTP servers
     with a command line client and ftputil and compare both.
@@ -159,7 +160,7 @@ class TestPublicServers(unittest.TestCase):
         finally:
             host.close()
 
-    @test.skip_long_running_test
+    @pytest.mark.slow_test
     def test_servers(self):
         """
         Test all servers in `self.servers`.

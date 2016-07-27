@@ -12,7 +12,6 @@ import pickle
 import posixpath
 import random
 import time
-import unittest
 import warnings
 
 import pytest
@@ -125,10 +124,10 @@ class TimeShiftMockSession(mock_ftplib.MockSession):
 class FailingUploadAndDownloadFTPHost(ftputil.FTPHost):
 
     def upload(self, source, target, mode=""):
-        assert False, "`FTPHost.upload` should not have been called"
+        pytest.fail("`FTPHost.upload` should not have been called")
 
     def download(self, source, target, mode=""):
-        assert False, "`FTPHost.download` should not have been called"
+        pytest.fail("`FTPHost.download` should not have been called")
 
 
 class TimeShiftFTPHost(ftputil.FTPHost):
@@ -159,7 +158,7 @@ class TimeShiftFTPHost(ftputil.FTPHost):
 #
 # Test cases
 #
-class TestInitAndClose(unittest.TestCase):
+class TestInitAndClose(object):
     """Test initialization and closure of `FTPHost` objects."""
 
     def test_open_and_close(self):
@@ -169,7 +168,7 @@ class TestInitAndClose(unittest.TestCase):
         assert host._children == []
 
 
-class TestLogin(unittest.TestCase):
+class TestLogin(object):
 
     def test_invalid_login(self):
         """Login to invalid host must fail."""
@@ -177,7 +176,7 @@ class TestLogin(unittest.TestCase):
             test_base.ftp_host_factory(FailOnLoginSession)
 
 
-class TestKeepAlive(unittest.TestCase):
+class TestKeepAlive(object):
 
     def test_succeeding_keep_alive(self):
         """Assume the connection is still alive."""
@@ -192,7 +191,7 @@ class TestKeepAlive(unittest.TestCase):
             host.keep_alive()
 
 
-class TestSetParser(unittest.TestCase):
+class TestSetParser(object):
 
     class TrivialParser(ftputil.stat.Parser):
         """
@@ -224,7 +223,7 @@ class TestSetParser(unittest.TestCase):
         assert host._stat._allow_parser_switching is False
 
 
-class TestCommandNotImplementedError(unittest.TestCase):
+class TestCommandNotImplementedError(object):
 
     def test_command_not_implemented_error(self):
         """
@@ -239,7 +238,7 @@ class TestCommandNotImplementedError(unittest.TestCase):
             host.chmod("nonexistent", 0o644)
 
 
-class TestRecursiveListingForDotAsPath(unittest.TestCase):
+class TestRecursiveListingForDotAsPath(object):
     """
     Return a recursive directory listing when the path to list
     is a dot. This is used to test for issue #33, see
@@ -272,7 +271,7 @@ class TestRecursiveListingForDotAsPath(unittest.TestCase):
         host.close()
 
 
-class TestUploadAndDownload(unittest.TestCase):
+class TestUploadAndDownload(object):
     """Test ASCII upload and binary download as examples."""
 
     def generate_file(self, data, file_name):
@@ -373,7 +372,7 @@ class TestUploadAndDownload(unittest.TestCase):
         os.unlink(local_target)
 
 
-class TestTimeShift(unittest.TestCase):
+class TestTimeShift(object):
 
     def test_rounded_time_shift(self):
         """Test if time shift is rounded correctly."""
@@ -467,13 +466,13 @@ class TestTimeShift(unittest.TestCase):
         assert host.time_shift() == presumed_time_shift
 
 
-class TestAcceptEitherUnicodeOrBytes(unittest.TestCase):
+class TestAcceptEitherUnicodeOrBytes(object):
     """
     Test whether certain `FTPHost` methods accept either unicode
     or byte strings for the path(s).
     """
 
-    def setUp(self):
+    def setup_method(self, method):
         self.host = test_base.ftp_host_factory()
 
     def test_upload(self):
@@ -584,7 +583,7 @@ class TestAcceptEitherUnicodeOrBytes(unittest.TestCase):
           self.host.walk, "/home/file_name_test/ä")
 
 
-class TestFailingPickling(unittest.TestCase):
+class TestFailingPickling(object):
 
     def test_failing_pickling(self):
         """Test if pickling (intentionally) isn't supported."""

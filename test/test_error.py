@@ -6,14 +6,13 @@
 from __future__ import unicode_literals
 
 import ftplib
-import unittest
 
 import pytest
 
 import ftputil.error
 
 
-class TestFTPErrorArguments(unittest.TestCase):
+class TestFTPErrorArguments(object):
     """
     The `*Error` constructors should accept either a byte string or a
     unicode string.
@@ -30,7 +29,7 @@ class TestFTPErrorArguments(unittest.TestCase):
         os_error = ftputil.error.FTPOSError("\xe4")
 
 
-class TestErrorConversion(unittest.TestCase):
+class TestErrorConversion(object):
 
     def callee(self):
         raise ftplib.error_perm()

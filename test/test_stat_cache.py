@@ -5,7 +5,6 @@
 from __future__ import unicode_literals
 
 import time
-import unittest
 
 import pytest
 
@@ -15,9 +14,9 @@ import ftputil.stat_cache
 from test import test_base
 
 
-class TestStatCache(unittest.TestCase):
+class TestStatCache(object):
 
-    def setUp(self):
+    def setup_method(self, method):
         self.cache = ftputil.stat_cache.StatCache()
 
     def test_get_set(self):
@@ -45,7 +44,7 @@ class TestStatCache(unittest.TestCase):
         assert "/path2" not in self.cache
 
     def test_len(self):
-        self.assertEqual(len(self.cache), 0)
+        assert len(self.cache) == 0
         self.cache["/path1"] = "test1"
         self.cache["/path2"] = "test2"
         assert len(self.cache) == 2

@@ -4,13 +4,11 @@
 
 from __future__ import unicode_literals
 
-import unittest
-
 import ftputil.compat as compat
 import ftputil.tool
 
 
-class TestSameStringTypeAs(unittest.TestCase):
+class TestSameStringTypeAs(object):
 
     # The first check for equality is enough for Python 3, where
     # comparing a byte string and unicode string would raise an
@@ -37,7 +35,7 @@ class TestSameStringTypeAs(unittest.TestCase):
         assert isinstance(result, compat.unicode_type)
 
 
-class TestSimpleConversions(unittest.TestCase):
+class TestSimpleConversions(object):
 
     def test_as_bytes(self):
         result = ftputil.tool.as_bytes(b"abc")
@@ -56,7 +54,7 @@ class TestSimpleConversions(unittest.TestCase):
         assert isinstance(result, compat.unicode_type)
 
 
-class TestEncodeIfUnicode(unittest.TestCase):
+class TestEncodeIfUnicode(object):
 
     def test_do_encode(self):
         string = "abc"

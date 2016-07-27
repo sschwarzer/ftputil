@@ -19,7 +19,6 @@ import gc
 import operator
 import os
 import time
-import unittest
 import stat
 
 import pytest
@@ -101,16 +100,16 @@ class Cleaner(object):
                 pass
 
 
-class RealFTPTest(unittest.TestCase):
+class RealFTPTest(object):
 
-    def setUp(self):
+    def setup_method(self, method):
         # Server, username, password.
         self.login_data = ("localhost", "ftptest",
                             "d605581757de5eb56d568a4419f4126e")
         self.host = ftputil.FTPHost(*self.login_data)
         self.cleaner = Cleaner(self.host)
 
-    def tearDown(self):
+    def teardown_method(self, method):
         self.cleaner.clean()
         self.host.close()
 
@@ -146,7 +145,8 @@ class TestMkdir(RealFTPTest):
         self.cleaner.add_file(file_name)
         non_empty = host.open(file_name, "w")
         non_empty.close()
-        self.assertRaises(ftputil.error.PermanentError, host.rmdir, dir_name)
+        with pytest.raises(ftputil.error.PermanentError):
+            host.rmdir(dir_name)
         # Remove file.
         host.unlink(file_name)
         # `remove` on a directory should fail.
@@ -154,10 +154,10 @@ class TestMkdir(RealFTPTest):
             try:
                 host.remove(dir_name)
             except ftputil.error.PermanentError as exc:
-                self.assertTrue(str(exc).startswith(
-                                "remove/unlink can only delete files"))
+                assert str(exc).startswith(
+                         "remove/unlink can only delete files")
             else:
-                self.assertTrue(False, "we shouldn't have come here")
+                pytest.fail("we shouldn't have come here")
         finally:
             # Delete empty directory.
             host.rmdir(dir_name)
@@ -167,7 +167,7 @@ class TestMkdir(RealFTPTest):
     def test_makedirs_without_existing_dirs(self):
         host = self.host
         # No `_dir1_` yet
-        self.assertFalse("_dir1_" in host.listdir(host.curdir))
+        assert "_dir1_" not in host.listdir(host.curdir)
         # Vanilla case, all should go well.
         host.makedirs("_dir1_/dir2/dir3/dir4")
         self.cleaner.add_dir("_dir1_")
@@ -283,7 +283,7 @@ class TestRemoval(RealFTPTest):
             log.append(args)
         # Try to remove a file as root "directory".
         host.rmtree("_dir1_/file1", ignore_errors=True, onerror=error_handler)
-        self.assertEqual(log, [])
+        assert log == []
         host.rmtree("_dir1_/file1", ignore_errors=False, onerror=error_handler)
         assert log[0][0] == host.listdir
         assert log[0][1] == "_dir1_/file1"
@@ -581,7 +581,7 @@ class TestUploadAndDownload(RealFTPTest):
         self.host.synchronize_times()
         assert self.host.time_shift() == EXPECTED_TIME_SHIFT
 
-    @test.skip_long_running_test
+    @pytest.mark.slow_test
     def test_upload(self):
         host = self.host
         host.synchronize_times()
@@ -607,7 +607,7 @@ class TestUploadAndDownload(RealFTPTest):
             # Clean up
             os.unlink(local_file)
 
-    @test.skip_long_running_test
+    @pytest.mark.slow_test
     def test_download(self):
         host = self.host
         host.synchronize_times()
@@ -796,8 +796,8 @@ class TestRestArgument(RealFTPTest):
 
     TEST_FILE_NAME = "rest_test"
 
-    def setUp(self):
-        super(TestRestArgument, self).setUp()
+    def setup_method(self, method):
+        super(TestRestArgument, self).setup_method(method)
         # Write test file.
         with self.host.open(self.TEST_FILE_NAME, "wb") as fobj:
             fobj.write(b"abcdefghijkl")
@@ -967,8 +967,9 @@ class TestOther(RealFTPTest):
         objects_after_test = len(gc.garbage)
         assert not objects_after_test - objects_before_test
 
-    @unittest.skipIf(ftputil.compat.python_version > 2,
-                     "test requires M2Crypto which only works on Python 2")
+    @pytest.mark.skipif(
+      ftputil.compat.python_version > 2,
+      reason="test requires M2Crypto which only works on Python 2")
     def test_m2crypto_session(self):
         """
         Test if a session with `M2Crypto.ftpslib.FTP_TLS` is set up

@@ -8,8 +8,6 @@ Unit tests for session factory helpers.
 
 from __future__ import unicode_literals
 
-import unittest
-
 import ftputil.session
 
 
@@ -50,7 +48,7 @@ class EncryptedMockSession(MockSession):
         self.add_call("prot_p")
 
 
-class TestSessionFactory(unittest.TestCase):
+class TestSessionFactory(object):
     """
     Test if session factories created by
     `ftputil.session.session_factory` trigger the expected calls.

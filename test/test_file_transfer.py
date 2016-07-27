@@ -6,7 +6,6 @@ from __future__ import unicode_literals
 
 import io
 import random
-import unittest
 
 import pytest
 
@@ -29,7 +28,7 @@ class MockFile(object):
         return self._mtime_precision
 
 
-class TestTimestampComparison(unittest.TestCase):
+class TestTimestampComparison(object):
 
     def test_source_is_newer_than_target(self):
         """
@@ -84,7 +83,7 @@ class FailingStringIO(io.BytesIO):
         raise self.expected_exception
 
 
-class TestChunkwiseTransfer(unittest.TestCase):
+class TestChunkwiseTransfer(object):
 
     def _random_string(self, count):
         """Return a `BytesIO` object containing `count` "random" bytes."""
