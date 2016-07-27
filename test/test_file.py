@@ -50,8 +50,8 @@ class TestFileOperations(unittest.TestCase):
         """Test whether opening a file at an invalid location fails."""
         host = test_base.ftp_host_factory(
                  session_factory=InaccessibleDirSession)
-        self.assertRaises(ftputil.error.FTPIOError, host.open,
-                          "/inaccessible/new_file", "w")
+        with pytest.raises(ftputil.error.FTPIOError):
+            host.open("/inaccessible/new_file", "w")
 
     def test_caching(self):
         """Test whether `FTPFile` cache of `FTPHost` object works."""
