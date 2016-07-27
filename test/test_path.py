@@ -7,7 +7,6 @@ from __future__ import unicode_literals
 
 import ftplib
 import time
-import unittest
 
 import pytest
 
@@ -34,7 +33,7 @@ class SessionWithInaccessibleLoginDirectory(mock_ftplib.MockSession):
         raise ftplib.error_perm("can't change into this directory")
 
 
-class TestPath(unittest.TestCase):
+class TestPath(object):
     """Test operations in `FTPHost.path`."""
 
     def test_regular_isdir_isfile_islink(self):
@@ -112,9 +111,9 @@ class TestPath(unittest.TestCase):
             host.path.exists("index.html")
 
 
-class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
+class TestAcceptEitherBytesOrUnicode(object):
 
-    def setUp(self):
+    def setup_method(self, method):
         self.host = test_base.ftp_host_factory()
 
     def _test_method_string_types(self, method, path):
@@ -167,7 +166,7 @@ class TestAcceptEitherBytesOrUnicode(unittest.TestCase):
         result = join(*parts)
         assert result == "ä/ö/ü"
         #  Need explicit type check for Python 2
-        self.assertTrue(isinstance(result, ftputil.compat.unicode_type))
+        assert isinstance(result, ftputil.compat.unicode_type)
         # Only bytes
         parts = [as_bytes(s) for s in "äöü"]
         result = join(*parts)

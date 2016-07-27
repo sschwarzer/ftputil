@@ -9,7 +9,6 @@ import io
 import ntpath
 import os
 import shutil
-import unittest
 
 import ftputil
 import ftputil.sync
@@ -19,9 +18,9 @@ import ftputil.sync
 TEST_ROOT = os.getcwd()
 
 
-class TestLocalToLocal(unittest.TestCase):
+class TestLocalToLocal(object):
 
-    def setUp(self):
+    def setup_method(self, method):
         if not os.path.exists("test_empty"):
             os.mkdir("test_empty")
         if os.path.exists("test_target"):
@@ -116,7 +115,7 @@ class ArgumentCheckingFTPHost(ftputil.FTPHost):
         return io.StringIO("")
 
 
-class TestUploadFromWindows(unittest.TestCase):
+class TestUploadFromWindows(object):
 
     def test_no_mixed_separators(self):
         source = LocalWindowsHost()

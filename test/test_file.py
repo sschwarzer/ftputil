@@ -5,7 +5,6 @@
 from __future__ import unicode_literals
 
 import ftplib
-import unittest
 
 import pytest
 
@@ -43,7 +42,7 @@ class InaccessibleDirSession(mock_ftplib.MockSession):
             super(InaccessibleDirSession, self).cwd(dir)
 
 
-class TestFileOperations(unittest.TestCase):
+class TestFileOperations(object):
     """Test operations with file-like objects."""
 
     def test_inaccessible_dir(self):

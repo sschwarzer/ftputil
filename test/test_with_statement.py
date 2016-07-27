@@ -4,8 +4,6 @@
 
 from __future__ import unicode_literals
 
-import unittest
-
 import pytest
 
 import ftputil.error
@@ -24,7 +22,7 @@ class ClientCodeException(Exception):
 #
 # Test cases
 #
-class TestHostContextManager(unittest.TestCase):
+class TestHostContextManager(object):
 
     def test_normal_operation(self):
         with test_base.ftp_host_factory() as host:
@@ -48,10 +46,10 @@ class TestHostContextManager(unittest.TestCase):
         except ClientCodeException:
             assert host.closed is True
         else:
-            assert False, "`ClientCodeException` not raised"
+            pytest.fail("`ClientCodeException` not raised")
 
 
-class TestFileContextManager(unittest.TestCase):
+class TestFileContextManager(object):
 
     def test_normal_operation(self):
         with test_base.ftp_host_factory(
@@ -85,4 +83,4 @@ class TestFileContextManager(unittest.TestCase):
             except ClientCodeException:
                 assert fobj.closed is True
             else:
-                assert False, "`ClientCodeException` not raised"
+                pytest.fail("`ClientCodeException` not raised")

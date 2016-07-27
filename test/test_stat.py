@@ -8,7 +8,6 @@ from __future__ import unicode_literals
 
 import stat
 import time
-import unittest
 
 import pytest
 
@@ -49,7 +48,7 @@ def stat_tuple_to_seconds(t):
         return time.mktime(t + (0, 0, -1))
 
 
-class TestParsers(unittest.TestCase):
+class TestParsers(object):
 
     #
     # Helper methods
@@ -352,13 +351,13 @@ class TestParsers(unittest.TestCase):
         self._test_time_shift(-3 * 60 * 60, 60)
 
 
-class TestLstatAndStat(unittest.TestCase):
+class TestLstatAndStat(object):
     """
     Test `FTPHost.lstat` and `FTPHost.stat` (test currently only
     implemented for Unix server format).
     """
 
-    def setUp(self):
+    def setup_method(self, method):
         # Most tests in this class need the mock session class with
         # Unix format, so make this the default. Tests which need
         # the MS format can overwrite `self.stat` later.
@@ -515,10 +514,10 @@ class TestLstatAndStat(unittest.TestCase):
         assert isinstance(self.stat._parser, ftputil.stat.UnixParser)
 
 
-class TestListdir(unittest.TestCase):
+class TestListdir(object):
     """Test `FTPHost.listdir`."""
 
-    def setUp(self):
+    def setup_method(self, method):
         self.stat = \
           _test_stat(session_factory=mock_ftplib.MockUnixFormatSession)
 
