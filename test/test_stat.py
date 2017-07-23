@@ -366,23 +366,20 @@ class TestLstatAndStat(object):
 
     def test_repr(self):
         """Test if the `repr` result looks like a named tuple."""
-        # TODO: Use a file whose directory listing entry has a year.
-        # Otherwise, the expected `st_mtime` has to be changed every
-        # year to make the test pass again.
-        stat_result = self.stat._lstat("/home/sschwarzer/index.html")
+        stat_result = self.stat._lstat("/home/sschwarzer/chemeng")
         # Only under Python 2, unicode strings have the `u` prefix.
         # TODO: Make the value for `st_mtime` robust against DST "time
         # zone" changes.
         if ftputil.compat.python_version == 2:
             expected_result = (
-              b"StatResult(st_mode=33188, st_ino=None, st_dev=None, "
-              b"st_nlink=1, st_uid=u'45854', st_gid=u'200', st_size=4604, "
-              b"st_atime=None, st_mtime=1484863860.0, st_ctime=None)")
+              b"StatResult(st_mode=17901, st_ino=None, st_dev=None, "
+              b"st_nlink=2, st_uid=u'45854', st_gid=u'200', st_size=512, "
+              b"st_atime=None, st_mtime=957391200.0, st_ctime=None)")
         else:
             expected_result = (
-              "StatResult(st_mode=33188, st_ino=None, st_dev=None, "
-              "st_nlink=1, st_uid='45854', st_gid='200', st_size=4604, "
-              "st_atime=None, st_mtime=1484863860.0, st_ctime=None)")
+              "StatResult(st_mode=17901, st_ino=None, st_dev=None, "
+              "st_nlink=2, st_uid='45854', st_gid='200', st_size=512, "
+              "st_atime=None, st_mtime=957391200.0, st_ctime=None)")
         assert repr(stat_result) == expected_result
 
     def test_failing_lstat(self):
