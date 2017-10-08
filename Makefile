@@ -64,14 +64,14 @@ docs: ${DOC_SOURCES} ${DOC_TARGETS}
 
 # Quality assurance
 test:
-	@echo "=== Running fast tests for ftputil ${VERSION} ===\n"
+	@echo -e "=== Running fast tests for ftputil ${VERSION} ===\n"
 	${PYTEST} -m "not slow_test" test
 
 # Alternative for symmetry with target `all_tests`
 tests: test
 
 all_tests:
-	@echo "=== Running all tests for ftputil ${VERSION} ===\n"
+	@echo -e "=== Running all tests for ftputil ${VERSION} ===\n"
 	${PYTEST} test
 
 tox_test:
