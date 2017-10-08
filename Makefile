@@ -64,7 +64,14 @@ docs: ${DOC_SOURCES} ${DOC_TARGETS}
 
 # Quality assurance
 test:
-	@echo "=== Running tests for ftputil ${VERSION} ===\n"
+	@echo "=== Running fast tests for ftputil ${VERSION} ===\n"
+	${PYTEST} -m "not slow_test" test
+
+# Alternative for symmetry with target `all_tests`
+tests: test
+
+all_tests:
+	@echo "=== Running all tests for ftputil ${VERSION} ===\n"
 	${PYTEST} test
 
 tox_test:
@@ -85,7 +92,7 @@ find_missing_unicode_literals:
 dist: clean patch pylint docs
 	${PYTHON_BINARY} setup.py sdist
 
-extdist: test dist register
+extdist: all_tests dist register
 
 # Upload package to PyPI.
 upload:
