@@ -175,6 +175,10 @@ class FTPHost(object):
                 # when `_available_child` is called the next time.
                 except ftplib.error_reply:
                     continue
+                # Under high load, there may be a socket read timeout
+                # during the last FTP file `close` (see ticket #112).
+                except OSError:
+                    continue
                 else:
                     # Everything's ok; use this `FTPHost` instance.
                     return host
