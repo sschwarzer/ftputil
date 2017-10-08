@@ -674,7 +674,7 @@ class TestUploadAndDownload(RealFTPTest):
 class TestFTPFiles(RealFTPTest):
 
     def test_only_closed_children(self):
-        REMOTE_FILE_NAME = "debian-keyring.tar.gz"
+        REMOTE_FILE_NAME = "CONTENTS"
         host = self.host
         with host.open(REMOTE_FILE_NAME, "rb") as file_obj1:
             # Create empty file and close it.
@@ -687,7 +687,7 @@ class TestFTPFiles(RealFTPTest):
                 assert file_obj._host is host._children[1]
 
     def test_no_timed_out_children(self):
-        REMOTE_FILE_NAME = "debian-keyring.tar.gz"
+        REMOTE_FILE_NAME = "CONTENTS"
         host = self.host
         # Implicitly create child host object.
         with host.open(REMOTE_FILE_NAME, "rb") as file_obj1:
@@ -705,7 +705,7 @@ class TestFTPFiles(RealFTPTest):
         assert file_obj2 is file_obj3
 
     def test_no_delayed_226_children(self):
-        REMOTE_FILE_NAME = "debian-keyring.tar.gz"
+        REMOTE_FILE_NAME = "CONTENTS"
         host = self.host
         # Implicitly create child host object.
         with host.open(REMOTE_FILE_NAME, "rb") as file_obj1:
@@ -873,10 +873,10 @@ class TestOther(RealFTPTest):
 
     def test_subsequent_reading(self):
         # Open a file for reading.
-        with self.host.open("debian-keyring.tar.gz", "rb") as file1:
+        with self.host.open("CONTENTS", "rb") as file1:
             pass
         # Make sure that there are no problems if the connection is reused.
-        with self.host.open("debian-keyring.tar.gz", "rb") as file2:
+        with self.host.open("CONTENTS", "rb") as file2:
             pass
         assert file1._session is file2._session
 
