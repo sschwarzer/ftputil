@@ -181,9 +181,9 @@ class FTPHost(object):
                 # an FTP session timeout.
                 except OSError:
                     continue
-                # The server may close the connection which may cause
-                # `host._session.getline` raise an `EOFError` (see
-                # ticket #114).
+                # The server may have closed the connection which may
+                # cause `host._session.getline` to raise an `EOFError`
+                # (see ticket #114).
                 except EOFError:
                     continue
                 else:
