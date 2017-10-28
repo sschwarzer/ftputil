@@ -47,8 +47,17 @@ Note: ftputil currently is not threadsafe. More specifically, you can
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import sys
+import warnings
+
 from ftputil.host    import FTPHost
 from ftputil.version import __version__
+
+
+# `sys.version_info.major` isn't available in Python 2.6.
+if sys.version_info[0] == 2:
+    warnings.warn("Python 2 suport will be dropped in ftputil 4.0.0",
+                  DeprecationWarning, stacklevel=2)
 
 
 # Apart from `ftputil.error` and `ftputil.stat`, this is the whole
