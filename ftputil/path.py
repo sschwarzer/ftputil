@@ -122,32 +122,6 @@ class _Path(object):
     # that exceptions caused by code earlier in `lstat` are obscured
     # by the exception handling in `isfile`, `isdir` and `islink`.
 
-    def isfile(self, path):
-        """
-        Return true if the `path` exists and corresponds to a regular
-        file (no link).
-
-        A non-existing path does _not_ cause a `PermanentError`.
-        """
-        path = ftputil.tool.as_unicode(path)
-        # Workaround if we can't go up from the current directory.
-        # The result from `getcwd` should already be normalized.
-        if self.normpath(path) == self._host.getcwd():
-            return False
-        try:
-            stat_result = self._host.stat(
-                            path, _exception_for_missing_path=False)
-        except ftputil.error.RecursiveLinksError:
-            return False
-        except ftputil.error.RootDirError:
-            return False
-        else:
-            if stat_result is None:
-                # Non-existent path
-                return False
-            else:
-                return stat.S_ISREG(stat_result.st_mode)
-
     def isdir(self, path):
         """
         Return true if the `path` exists and corresponds to a
@@ -173,6 +147,32 @@ class _Path(object):
                 return False
             else:
                 return stat.S_ISDIR(stat_result.st_mode)
+
+    def isfile(self, path):
+        """
+        Return true if the `path` exists and corresponds to a regular
+        file (no link).
+
+        A non-existing path does _not_ cause a `PermanentError`.
+        """
+        path = ftputil.tool.as_unicode(path)
+        # Workaround if we can't go up from the current directory.
+        # The result from `getcwd` should already be normalized.
+        if self.normpath(path) == self._host.getcwd():
+            return False
+        try:
+            stat_result = self._host.stat(
+                            path, _exception_for_missing_path=False)
+        except ftputil.error.RecursiveLinksError:
+            return False
+        except ftputil.error.RootDirError:
+            return False
+        else:
+            if stat_result is None:
+                # Non-existent path
+                return False
+            else:
+                return stat.S_ISREG(stat_result.st_mode)
 
     def islink(self, path):
         """
