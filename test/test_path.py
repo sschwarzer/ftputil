@@ -36,6 +36,8 @@ class SessionWithInaccessibleLoginDirectory(mock_ftplib.MockSession):
 class TestPath(object):
     """Test operations in `FTPHost.path`."""
 
+    # TODO: Add unit tests for changes for ticket #113
+    # (commits [b4c9b089b6b8] and [4027740cdd2d]).
     def test_regular_isdir_isfile_islink(self):
         """Test regular `FTPHost._Path.isdir/isfile/islink`."""
         host = test_base.ftp_host_factory()
