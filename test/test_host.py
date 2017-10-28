@@ -70,8 +70,18 @@ class FailOnKeepAliveSession(mock_ftplib.MockSession):
         # Raise exception on second call to let the constructor work.
         if not hasattr(self, "pwd_called"):
             self.pwd_called = True
+            return "/home"
         else:
             raise ftplib.error_temp
+
+
+class UnnormalizedCurrentWorkingDirectory(mock_ftplib.MockSession):
+
+    def pwd(self):
+        # Deliberately return the current working directory with a
+        # trailing slash to test if it's removed when stored in the
+        # `FTPHost` instance.
+        return "/home/"
 
 
 class RecursiveListingForDotAsPathSession(mock_ftplib.MockSession):
@@ -158,22 +168,32 @@ class TimeShiftFTPHost(ftputil.FTPHost):
 #
 # Test cases
 #
-class TestInitAndClose(object):
-    """Test initialization and closure of `FTPHost` objects."""
+class TestConstructor(object):
+    """
+    Test initialization of `FTPHost` objects.
+    """
 
     def test_open_and_close(self):
+        """
+        Test if opening and closing an `FTPHost` object works as
+        expected.
+        """
         host = test_base.ftp_host_factory()
         host.close()
         assert host.closed is True
         assert host._children == []
 
-
-class TestLogin(object):
-
     def test_invalid_login(self):
         """Login to invalid host must fail."""
         with pytest.raises(ftputil.error.FTPOSError):
             test_base.ftp_host_factory(FailOnLoginSession)
+
+    def test_pwd_normalization(self):
+        """
+        Test if the stored current directory is normalized.
+        """
+        host = test_base.ftp_host_factory(UnnormalizedCurrentWorkingDirectory)
+        assert host.getcwd() == "/home"
 
 
 class TestKeepAlive(object):

@@ -77,7 +77,7 @@ class FTPHost(object):
         self.stat_cache.enable()
         with ftputil.error.ftplib_error_to_ftp_os_error:
             self._cached_current_dir = \
-              ftputil.tool.as_unicode(self._session.pwd())
+              self.path.normpath(ftputil.tool.as_unicode(self._session.pwd()))
         # Associated `FTPHost` objects for data transfer.
         self._children = []
         # This is only set to something else than `None` if this
