@@ -131,7 +131,7 @@ class _Path(object):
         """
         path = ftputil.tool.as_unicode(path)
         # Workaround if we can't go up from the current directory
-        if path == self._host.getcwd():
+        if self.normpath(path) == self._host.getcwd():
             return False
         try:
             stat_result = self._host.stat(
@@ -152,7 +152,7 @@ class _Path(object):
         """
         path = ftputil.tool.as_unicode(path)
         # Workaround if we can't go up from the current directory
-        if path == self._host.getcwd():
+        if self.normpath(path) == self._host.getcwd():
             return True
         try:
             stat_result = self._host.stat(
