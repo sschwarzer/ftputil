@@ -130,7 +130,8 @@ class _Path(object):
         A non-existing path does _not_ cause a `PermanentError`.
         """
         path = ftputil.tool.as_unicode(path)
-        # Workaround if we can't go up from the current directory
+        # Workaround if we can't go up from the current directory.
+        # The result from `getcwd` should already be normalized.
         if self.normpath(path) == self._host.getcwd():
             return False
         try:
@@ -151,7 +152,8 @@ class _Path(object):
         A non-existing path does _not_ cause a `PermanentError`.
         """
         path = ftputil.tool.as_unicode(path)
-        # Workaround if we can't go up from the current directory
+        # Workaround if we can't go up from the current directory.
+        # The result from `getcwd` should already be normalized.
         if self.normpath(path) == self._host.getcwd():
             return True
         try:
