@@ -680,7 +680,7 @@ class _Stat(object):
             # Check for cyclic structure.
             if path in visited_paths:
                 # We had seen this path already.
-                raise ftputil.error.PermanentError(
+                raise ftputil.error.RecursiveLinksError(
                   "recursive link structure detected for remote path '{0}'".
                   format(original_path))
             # Remember the path we have encountered.

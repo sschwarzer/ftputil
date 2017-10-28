@@ -137,12 +137,16 @@ class _Path(object):
         try:
             stat_result = self._host.stat(
                             path, _exception_for_missing_path=False)
+        except ftputil.error.RecursiveLinksError:
+            return False
+        except ftputil.error.RootDirError:
+            return False
+        else:
             if stat_result is None:
+                # Non-existent path
                 return False
             else:
                 return stat.S_ISREG(stat_result.st_mode)
-        except ftputil.error.RootDirError:
-            return False
 
     def isdir(self, path):
         """
@@ -159,12 +163,16 @@ class _Path(object):
         try:
             stat_result = self._host.stat(
                             path, _exception_for_missing_path=False)
+        except ftputil.error.RecursiveLinksError:
+            return False
+        except ftputil.error.RootDirError:
+            return True
+        else:
             if stat_result is None:
+                # Non-existent path
                 return False
             else:
                 return stat.S_ISDIR(stat_result.st_mode)
-        except ftputil.error.RootDirError:
-            return True
 
     def islink(self, path):
         """
@@ -176,12 +184,14 @@ class _Path(object):
         try:
             lstat_result = self._host.lstat(
                              path, _exception_for_missing_path=False)
+        except ftputil.error.RootDirError:
+            return False
+        else:
             if lstat_result is None:
+                # Non-existent path
                 return False
             else:
                 return stat.S_ISLNK(lstat_result.st_mode)
-        except ftputil.error.RootDirError:
-            return False
 
     def walk(self, top, func, arg):
         """
