@@ -281,3 +281,10 @@ class TestAvailableChild(object):
         session.
         """
         self._test_with_pwd_error(OSError)
+
+    def test_pwd_with_EOFError(self):
+        """
+        Test if an `EOFError` in `_session.pwd` skips the child
+        session.
+        """
+        self._test_with_pwd_error(EOFError)
