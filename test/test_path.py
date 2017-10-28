@@ -85,8 +85,11 @@ class TestPath(object):
         with pytest.raises(ftputil.error.InaccessibleLoginDirError):
             host._dir("/home dir")
 
-    def test_isdir_isfile_islink_with_exception(self):
-        """Test failing `FTPHost._Path.isdir/isfile/islink`."""
+    def test_isdir_isfile_islink_with_dir_failure(self):
+        """
+        Test failing `FTPHost._Path.isdir/isfile/islink` because of
+        failing `_dir` call.
+        """
         host = test_base.ftp_host_factory(ftp_host_class=FailingFTPHost)
         testdir = "/home/sschwarzer"
         host.chdir(testdir)
@@ -98,6 +101,15 @@ class TestPath(object):
             host.path.isfile("index.html")
         with pytest.raises(FTPOSError):
             host.path.islink("index.html")
+
+    def test_isdir_isfile_with_infinite_link_chain(self):
+        """
+        Test if `isdir` and `isfile` return `False` if they encounter
+        an infinite link chain.
+        """
+        host = test_base.ftp_host_factory()
+        assert host.path.isdir("/home/bad_link") is False
+        assert host.path.isfile("/home/bad_link") is False
 
     def test_exists(self):
         """Test `FTPHost.path.exists`."""

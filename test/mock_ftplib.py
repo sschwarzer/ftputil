@@ -219,6 +219,7 @@ drwxr-sr-x   2 45854    200           512 May  4  2000 sschwarzer
 lrwxrwxrwx   1 45854    200            21 Jan 19  2002 link -> sschwarzer/index.html
 lrwxrwxrwx   1 45854    200            15 Jan 19  2002 bad_link -> python/bad_link
 drwxr-sr-x   2 45854    200           512 May  4  2000 dir with spaces
+drwxr-sr-x   2 45854    200           512 May  4  2000 python
 drwxr-sr-x   2 45854    200           512 May  4  2000 file_name_test""",
 
       "/home/python": """\

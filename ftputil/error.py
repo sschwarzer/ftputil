@@ -111,6 +111,10 @@ class CommandNotImplementedError(PermanentError):
     """Raised if the server doesn't implement a certain feature (502)."""
     pass
 
+class RecursiveLinksError(PermanentError):
+    """Raised if an infinite link structure is detected."""
+    pass
+
 # Currently not used
 class SyncError(PermanentError):
     """Raised for problems specific to syncing directories."""
