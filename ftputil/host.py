@@ -16,6 +16,7 @@ import ftplib
 import stat
 import sys
 import time
+import warnings
 
 import ftputil.error
 import ftputil.file
@@ -94,6 +95,9 @@ class FTPHost(object):
         self.set_time_shift(0.0)
         # Use `LIST -a` option by default. If this causes problems,
         # the user can set the attribute to `False`.
+        warnings.warn(
+          "`use_list_a_option` will default to `False` in ftputil 4.x.x",
+          DeprecationWarning, stacklevel=2)
         self.use_list_a_option = True
 
     def keep_alive(self):
