@@ -228,3 +228,56 @@ class TestFileOperations(object):
         host = test_base.ftp_host_factory()
         with pytest.raises(ftputil.error.FTPIOError):
             host.open("notthere", "r")
+
+
+class TestAvailableChild(object):
+
+    def _failing_pwd(self, exception_class):
+        """
+        Return a function that will be used instead of the
+        `session.pwd` and will raise the exception
+        `exception_to_raise`.
+        """
+        def new_pwd():
+            raise exception_class("")
+        return new_pwd
+
+    def _test_with_pwd_error(self, exception_class):
+        """
+        Test if reusing a child session fails because of
+        `child_host._session.pwd` raising an exception of type
+        `exception_class`.
+        """
+        host = test_base.ftp_host_factory()
+        # Implicitly create a child session.
+        with host.open("/home/older") as _:
+            pass
+        assert len(host._children) == 1
+        # Make sure reusing the previous child session will fail.
+        host._children[0]._session.pwd = self._failing_pwd(exception_class)
+        # Try to create a new file. Since `pwd` now raises an
+        # exception, a new child session should be created.
+        with host.open("home/older") as _:
+            pass
+        assert len(host._children) == 2
+
+    def test_pwd_with_error_temp(self):
+        """
+        Test if an `error_temp` in `_session.pwd` skips the child
+        session.
+        """
+        self._test_with_pwd_error(ftplib.error_temp)
+
+    def test_pwd_with_error_reply(self):
+        """
+        Test if an `error_reply` in `_session.pwd` skips the child
+        session.
+        """
+        self._test_with_pwd_error(ftplib.error_reply)
+
+    def test_pwd_with_OSError(self):
+        """
+        Test if an `OSError` in `_session.pwd` skips the child
+        session.
+        """
+        self._test_with_pwd_error(OSError)
