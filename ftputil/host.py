@@ -165,9 +165,6 @@ class FTPHost(object):
             if host._file.closed:
                 try:
                     host._session.pwd()
-                # Timed-out sessions raise `error_temp`.
-                except ftplib.error_temp:
-                    continue
                 # Under high load, a 226 status response from a
                 # previous download may arrive too late, so that it's
                 # "seen" in the `pwd` call. For now, skip the
@@ -175,16 +172,19 @@ class FTPHost(object):
                 # when `_available_child` is called the next time.
                 except ftplib.error_reply:
                     continue
-                # Under high load, there may be a socket read timeout
-                # during the last FTP file `close` (see ticket #112).
-                # Note that a socket timeout is quite different from
-                # an FTP session timeout.
-                except OSError:
+                # Timed-out sessions raise `error_temp`.
+                except ftplib.error_temp:
                     continue
                 # The server may have closed the connection which may
                 # cause `host._session.getline` to raise an `EOFError`
                 # (see ticket #114).
                 except EOFError:
+                    continue
+                # Under high load, there may be a socket read timeout
+                # during the last FTP file `close` (see ticket #112).
+                # Note that a socket timeout is quite different from
+                # an FTP session timeout.
+                except OSError:
                     continue
                 else:
                     # Everything's ok; use this `FTPHost` instance.
