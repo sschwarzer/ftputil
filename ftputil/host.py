@@ -177,6 +177,8 @@ class FTPHost(object):
                     continue
                 # Under high load, there may be a socket read timeout
                 # during the last FTP file `close` (see ticket #112).
+                # Note that a socket timeout is quite different from
+                # an FTP session timeout.
                 except OSError:
                     continue
                 else:
