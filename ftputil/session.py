@@ -82,6 +82,8 @@ def session_factory(base_class=ftplib.FTP, port=21, use_passive_mode=None,
             if debug_level is not None:
                 self.set_debuglevel(debug_level)
             self.login(user, password)
+            # `set_pasv` can be called with `True` (causing passive
+            # mode) or `False` (causing active mode).
             if use_passive_mode is not None:
                 self.set_pasv(use_passive_mode)
             if encrypt_data_channel and hasattr(base_class, "prot_p"):
