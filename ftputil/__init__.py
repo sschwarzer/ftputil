@@ -56,7 +56,7 @@ from ftputil.version import __version__
 
 # `sys.version_info.major` isn't available in Python 2.6.
 if sys.version_info[0] == 2:
-    warnings.warn("Python 2 suport will be dropped in ftputil 4.0.0",
+    warnings.warn("Python 2 suport will be removed in ftputil 4.0.0",
                   DeprecationWarning, stacklevel=2)
 
 
