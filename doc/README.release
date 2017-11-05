@@ -30,7 +30,8 @@ Things to do for a new release:
 
 - Update pre-release documentation
 
-- Post announcement to ftputil mailing list (after possibly
+- Post announcement to ftputil mailing list at
+  `ftputil@lists.sschwarzer.net` (after possibly
   updating the documentation, see below)
 
 
@@ -42,4 +43,5 @@ Only for non-alpha/beta releases:
 
   - Register new version with PyPI
 
-- Send announcement to comp.lang.python.announce
+- Send announcement to `python-announce-list@python.org`
+
