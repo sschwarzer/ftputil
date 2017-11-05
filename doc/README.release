@@ -14,7 +14,7 @@ Things to do for a new release:
 
 - Do outstanding commits due to patching
 
-- Run `tox` for testing
+- Run `tox` for testing (`make tox_test`)
 
 - `make dist`
 
