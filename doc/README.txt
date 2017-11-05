@@ -37,8 +37,7 @@ Prerequisites
 -------------
 
 To use ftputil, you need Python, at least version 2.6. Python 3.x
-versions work as well. Python is a programming language, available
-from http://www.python.org for free.
+versions work as well.
 
 Installation
 ------------
