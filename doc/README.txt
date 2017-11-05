@@ -15,16 +15,27 @@ in different timezones.
 What's new?
 -----------
 
-Since version 3.3 the following changed:
+Since version 3.3.1 the following changed:
 
-- Fixed a bug where a 226 reply after a remote file close would only
-  show up later when doing a `pwd` call on the session. [1] This
-  resulted in an `ftplib.error_reply` exception when opening a remote
-  file.
+- Several bugs were fixed [1-5].
 
-Note that ftputil 3.0 broke backward compatibility with ftputil 2.8
-and before. The differences are described here:
-http://ftputil.sschwarzer.net/trac/wiki/WhatsNewInFtputil3.0
+- Added deprecation warnings for backward incompatibilities in the
+  upcoming ftputil 4.0.0.
+
+Important note
+--------------
+
+The next version of ftputil will be 4.0.0 (apart from small fixes in
+possible 3.4.x versions).
+
+ftputil 4.0.0 will make some backward-incompatible changes:
+
+- Support for Python 2 will be removed. There are several reasons for
+  this, which are explained in [6].
+
+- The flag `use_list_a_option` will be set to `False` by default. This
+  option was intended to make life easier for users, but turned out to
+  be problematic (see [7]).
 
 Documentation
 -------------
@@ -109,4 +120,12 @@ Evan Prodromou <evan@bad.dynu.ca> (lrucache module)
 
 Please provide feedback! It's certainly appreciated. :-)
 
-[1] http://ftputil.sschwarzer.net/trac/ticket/102
+
+[1] http://ftputil.sschwarzer.net/trac/ticket/107
+[2] http://ftputil.sschwarzer.net/trac/ticket/109
+[3] http://ftputil.sschwarzer.net/trac/ticket/112
+[4] http://ftputil.sschwarzer.net/trac/ticket/113
+[5] http://ftputil.sschwarzer.net/trac/ticket/114
+[6] http://lists.sschwarzer.net/pipermail/ftputil/2017q3/000465.html
+[7] http://ftputil.sschwarzer.net/trac/ticket/110
+
