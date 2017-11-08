@@ -34,8 +34,8 @@ ftputil 4.0.0 will make some backward-incompatible changes:
   this, which are explained in [6].
 
 - The flag `use_list_a_option` will be set to `False` by default. This
-  option was intended to make life easier for users, but turned out to
-  be problematic (see [7]).
+  option was intended to make life easier for users of the library,
+  but turned out to be problematic (see [7]).
 
 Documentation
 -------------
