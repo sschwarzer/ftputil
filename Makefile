@@ -88,7 +88,7 @@ find_missing_unicode_literals:
 	find ftputil test -name "*.py" \
 	  -exec grep -L "from __future__ import unicode_literals" {} \;
 
-# Prepare everything for making a distribution tarball.
+# Make a distribution tarball.
 dist: clean patch pylint docs
 	${PYTHON_BINARY} setup.py sdist
 
