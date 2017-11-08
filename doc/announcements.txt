@@ -58,6 +58,7 @@ license (see http://opensource.org/licenses/BSD-3-Clause ).
 [7] http://ftputil.sschwarzer.net/trac/ticket/110
 
 
+Best regards,
 Stefan
 
 ----------------------------------------------------------------------
