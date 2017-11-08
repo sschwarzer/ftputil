@@ -100,14 +100,14 @@ class TestPublicServers(object):
     # to exist" under the login directory which is assumed to be
     # the root directory.
     servers = [# Posix format
-               ("ftp.debian.org", "debian"),
+               ("ftp.de.debian.org", "debian"),
                ("ftp.gnome.org",  "pub"),
                ("ftp.heanet.ie",  "pub"),
                ("ftp.heise.de",   "pub"),
                # DOS/Microsoft format
-               # ftp.microsoft.com sporadically refuses anonymous access
-               # ("530 User cannot log in, home directory inaccessible")
-               #("ftp.microsoft.com", "deskapps"),
+               # Do you know any FTP servers that use Microsoft
+               # format? `ftp.microsoft.com` doesn't seem to be
+               # reachable anymore.
               ]
 
     # This data structure contains the initial directories "." and
