@@ -92,7 +92,7 @@ find_missing_unicode_literals:
 dist: clean patch pylint docs
 	${PYTHON_BINARY} setup.py sdist
 
-extdist: all_tests dist register
+extdist: all_tests dist upload
 
 # Upload package to PyPI.
 upload:
