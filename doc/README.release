@@ -41,7 +41,7 @@ Only for non-alpha/beta releases:
 
   - Update documentation on the website
 
-  - Register new version with PyPI
+  - Upload new version to PyPI
 
 - Send announcement to `python-announce-list@python.org`
 
