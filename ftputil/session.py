@@ -1,4 +1,4 @@
-# Copyright (C) 2014, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2014-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -6,8 +6,6 @@
 Session factory factory (the two "factory" are intential :-) )
 for ftputil.
 """
-
-from __future__ import unicode_literals
 
 import ftplib
 

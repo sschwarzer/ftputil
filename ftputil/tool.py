@@ -1,12 +1,10 @@
-# Copyright (C) 2013, Stefan Schwarzer
+# Copyright (C) 2013-2018, Stefan Schwarzer
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
 """
 tool.py - helper code
 """
-
-from __future__ import unicode_literals
 
 import ftputil.compat as compat
 

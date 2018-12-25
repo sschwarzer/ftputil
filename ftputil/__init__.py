@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -43,9 +43,6 @@ Note: ftputil currently is not threadsafe. More specifically, you can
       use different `FTPHost` objects in different threads but not
       a single `FTPHost` object in different threads.
 """
-
-from __future__ import absolute_import
-from __future__ import unicode_literals
 
 import sys
 import warnings

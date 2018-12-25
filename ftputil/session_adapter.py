@@ -1,4 +1,4 @@
-# Copyright (C) 2015, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2015-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -39,8 +39,6 @@ would be bad for maintainability. (ftputil is complicated enough as it
 is.) Therefore, this adapter is the only place to deal with the
 preferred string type of `ftplib` under Python 2 vs. Python 3.
 """
-
-from __future__ import unicode_literals
 
 import ftputil.compat
 import ftputil.tool

@@ -1,5 +1,5 @@
 # encoding: utf-8
-# Copyright (C) 2014, Stefan Schwarzer
+# Copyright (C) 2014-2018, Stefan Schwarzer
 
 """
 Session factory class for use with M2Crypto.
@@ -14,8 +14,6 @@ being used.
 
 See ticket #78 for details.
 """
-
-from __future__ import unicode_literals
 
 import M2Crypto
 

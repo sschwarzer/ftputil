@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2015, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -7,10 +7,6 @@
 
 See `__init__.py` for an example.
 """
-
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import ftplib
 import stat

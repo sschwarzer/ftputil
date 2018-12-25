@@ -1,5 +1,5 @@
 # encoding: utf-8
-# Copyright (C) 2003-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -10,8 +10,6 @@ This module implements a mock version of the standard library's
 Not all functionality is implemented, only what is needed to run the
 unit tests.
 """
-
-from __future__ import unicode_literals
 
 import io
 import collections.abc

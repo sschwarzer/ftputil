@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2012, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2007-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -13,8 +13,6 @@ Tools for syncing combinations of local and remote directories.
 # - local -> remote (upload)
 # - remote -> remote
 # - local -> local (maybe implicitly possible due to design, but not targeted)
-
-from __future__ import unicode_literals
 
 import os
 import shutil

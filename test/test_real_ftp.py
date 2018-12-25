@@ -1,5 +1,5 @@
 # encoding: UTF-8
-# Copyright (C) 2003-2016, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -9,9 +9,6 @@
 # the remote server. You'll need write access in the login directory.
 # This test can take a few minutes because it has to wait to test the
 # timezone calculation.
-
-from __future__ import absolute_import
-from __future__ import unicode_literals
 
 import ftplib
 import functools
