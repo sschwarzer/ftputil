@@ -28,6 +28,9 @@ tags
 .coverage
 htmlcov/**
 
+# MyPy files
+.mypy_cache/**
+
 # Eclipse/PyDev project files.
 .project
 .pydevproject
@@ -38,4 +41,3 @@ htmlcov/**
 
 # Not supposed to be under version control
 private/**
-
