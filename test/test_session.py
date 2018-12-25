@@ -24,9 +24,6 @@ class MockSession:
     def connect(self, host, port):
         self.add_call("connect", host, port)
 
-    def _fix_socket(self):
-        self.add_call("_fix_socket")
-
     def set_debuglevel(self, value):
         self.add_call("set_debuglevel", value)
 
@@ -119,21 +116,3 @@ class TestSessionFactory:
         assert session.calls == [("connect", "host", 21),
                                  ("set_debuglevel", 1),
                                  ("login", "user", "password")]
-
-    def test_m2crypto_session(self):
-        """Test call sequence for M2Crypto session."""
-        factory = \
-          ftputil.session.session_factory(base_class=EncryptedMockSession)
-        # Return `True` to fake that this is a session deriving from
-        # `M2Crypto.ftpslib.FTP_TLS`.
-        factory._use_m2crypto_ftpslib = lambda self: True
-        # Override `_fix_socket` here, not in `MockSession`. Since
-        # the created session class _inherits_ from `MockSession`,
-        # it would override the `_fix_socket` there.
-        factory._fix_socket = lambda self: self.add_call("_fix_socket")
-        session = factory("host", "user", "password")
-        assert session.calls == [("connect", "host", 21),
-                                 ("auth_tls",),
-                                 ("_fix_socket",),
-                                 ("login", "user", "password"),
-                                 ("prot_p",)]
