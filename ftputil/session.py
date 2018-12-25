@@ -11,12 +11,6 @@ import ftplib
 
 import ftputil.tool
 
-try:
-    import M2Crypto
-    import M2Crypto.ftpslib
-except ImportError:
-    M2Crypto = None
-
 
 __all__ = ["session_factory"]
 
@@ -52,14 +46,13 @@ def session_factory(base_class=ftplib.FTP, port=21, use_passive_mode=None,
     instance. The default is `None`, meaning no debugging output.
 
     This function should work for the base classes `ftplib.FTP`,
-    `ftplib.FTP_TLS` and `M2Crypto.ftpslib.FTP_TLS` with TLS security.
-    Other base classes should work if they use the same API as
-    `ftplib.FTP`.
+    `ftplib.FTP_TLS`. Other base classes should work if they use the
+    same API as `ftplib.FTP`.
 
     Usage example:
 
       my_session_factory = session_factory(
-                             base_class=M2Crypto.ftpslib.FTP_TLS,
+                             base_class=ftplib.FTP_TLS,
                              use_passive_mode=True,
                              encrypt_data_channel=True)
       with ftputil.FTPHost(host, user, password,
@@ -70,13 +63,8 @@ def session_factory(base_class=ftplib.FTP, port=21, use_passive_mode=None,
         """Session factory class created by `session_factory`."""
 
         def __init__(self, host, user, password):
-            # Don't use `super` in case `base_class` isn't a new-style
-            # class (e. g. `ftplib.FTP` in Python 2).
-            base_class.__init__(self)
+            super().__init__()
             self.connect(host, port)
-            if self._use_m2crypto_ftpslib():
-                self.auth_tls()
-                self._fix_socket()
             if debug_level is not None:
                 self.set_debuglevel(debug_level)
             self.login(user, password)
@@ -86,28 +74,5 @@ def session_factory(base_class=ftplib.FTP, port=21, use_passive_mode=None,
                 self.set_pasv(use_passive_mode)
             if encrypt_data_channel and hasattr(base_class, "prot_p"):
                 self.prot_p()
-
-        def _use_m2crypto_ftpslib(self):
-            """
-            Return `True` if the base class to use is
-            `M2Crypto.ftpslib.FTP_TLS`, else return `False`.
-            """
-            return (M2Crypto is not None and
-                    issubclass(base_class, M2Crypto.ftpslib.FTP_TLS))
-
-        def _fix_socket(self):
-            """
-            Change the socket object so that arguments to `sendall`
-            are converted to byte strings before being used.
-
-            See the ftputil ticket #78 for details:
-            http://ftputil.sschwarzer.net/trac/ticket/78
-            """
-            original_sendall = self.sock.sendall
-            # Bound method, therefore no `self` argument.
-            def sendall(data):
-                data = ftputil.tool.as_bytes(data)
-                return original_sendall(data)
-            self.sock.sendall = sendall
 
     return Session
