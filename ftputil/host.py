@@ -93,12 +93,10 @@ class FTPHost(object):
         # Set default time shift (used in `upload_if_newer` and
         # `download_if_newer`).
         self.set_time_shift(0.0)
-        # Use `LIST -a` option by default. If this causes problems,
-        # the user can set the attribute to `False`.
-        warnings.warn(
-          "`use_list_a_option` will default to `False` in ftputil 4.x.x",
-          DeprecationWarning, stacklevel=2)
-        self.use_list_a_option = True
+        # Don't use `LIST -a` option by default. If the server doesn't
+        # understand the `-a` option and interprets it as a path, the
+        # results can be surprising. See ticket #110.
+        self.use_list_a_option = False
 
     def keep_alive(self):
         """

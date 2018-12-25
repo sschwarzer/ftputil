@@ -943,12 +943,13 @@ class TestOther(RealFTPTest):
         # files by default but instead only when the `LIST` `-a`
         # option is used.
         host = self.host
-        assert host.use_list_a_option
-        directory_entries = host.listdir(host.curdir)
-        assert ".hidden" in directory_entries
-        host.use_list_a_option = False
+        assert not host.use_list_a_option
         directory_entries = host.listdir(host.curdir)
         assert ".hidden" not in directory_entries
+        # Switch on showing of hidden paths.
+        host.use_list_a_option = True
+        directory_entries = host.listdir(host.curdir)
+        assert ".hidden" in directory_entries
 
     def _make_objects_to_be_garbage_collected(self):
         for _ in range(10):

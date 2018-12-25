@@ -457,17 +457,27 @@ Hidden files and directories
 
 Whether ftputil sees "hidden" files and directories (usually files or
 directories whose names start with a dot) depends on the FTP server
-configuration. By default, ftputil uses the ``-a`` option in the FTP
-``LIST`` command to find hidden files. However, the server may ignore
-this.
+configuration. By default, ftputil does *not* use the ``-a`` option in
+the FTP ``LIST`` command to find hidden files.
 
-If using the ``-a`` option leads to problems, for example if an
-FTP server causes an exception, you may switch off the use of the
-option::
+To tell the server to list hidden directories and files, set
+``FTPHost.use_list_a_option`` to ``True``::
 
     ftp_host = ftputil.FTPHost(server, user, password, account,
                                session_factory=ftplib.FTP)
-    ftp_host.use_list_a_option = False
+    ftp_host.use_list_a_option = True
+
+Caveats:
+
+- If the server doesn't understand the ``-a`` option at all, the
+  server may interpret ``-a`` as the name of a file or directory,
+  which can result in odd behavior. Therefore, use ``-a`` only if
+  you're sure the server you're talking to supports it. Another
+  approach is to have test code for ``-a`` support and fall back to
+  not using the option.
+
+- Even if the server knows about the ``-a`` option, the server may
+  be configured to ignore it.
 
 ``FTPHost`` attributes and methods
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
