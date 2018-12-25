@@ -14,7 +14,7 @@ unit tests.
 from __future__ import unicode_literals
 
 import io
-import collections
+import collections.abc
 import ftplib
 import posixpath
 
@@ -154,7 +154,7 @@ class MockSession(object):
         directory listing. Return nothing.
         """
         # The callback comes last in `ftplib.FTP.dir`.
-        if isinstance(args[-1], collections.Callable):
+        if isinstance(args[-1], collections.abc.Callable):
             # Get `args[-1]` _before_ removing it in the line after.
             callback = args[-1]
             args = args[:-1]
