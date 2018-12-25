@@ -8,9 +8,7 @@ SHELL=/bin/sh
 PROJECT_DIR=$(shell pwd)
 VERSION=$(shell cat VERSION)
 PYTHON_BINARY?=python3
-# Depending on the development system, this may be `pytest`, `py.test`
-# or even something else.
-PYTEST=pytest
+PYTEST=${PYTHON_BINARY} -m pytest
 
 TEST_DIR=${PROJECT_DIR}/test
 
