@@ -18,7 +18,6 @@ import ftputil.error
 import ftputil.file
 import ftputil.file_transfer
 import ftputil.path
-import ftputil.session_adapter
 import ftputil.stat
 import ftputil.tool
 
@@ -127,12 +126,6 @@ class FTPHost(object):
         factory = kwargs.pop("session_factory", ftplib.FTP)
         with ftputil.error.ftplib_error_to_ftp_os_error:
             session = factory(*args, **kwargs)
-        # Adapt session so that they accept unicode strings with
-        # non-ASCII characters (as long as the string contains only
-        # code points <= 255). See the docstring in module
-        # `session_adapter` for details.
-        if ftputil.compat.python_version == 2:
-            session = ftputil.session_adapter.SessionAdapter(session)
         return session
 
     def _copy(self):
