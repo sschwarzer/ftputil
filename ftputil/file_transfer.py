@@ -6,7 +6,6 @@
 file_transfer.py - upload, download and generic file copy
 """
 
-import io
 import os
 
 import ftputil.stat
@@ -54,7 +53,7 @@ class LocalFile(object):
 
     def fobj(self):
         """Return a file object for the name/path in the constructor."""
-        return io.open(self.name, self.mode)
+        return open(self.name, self.mode)
 
 
 class RemoteFile(object):

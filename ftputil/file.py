@@ -44,7 +44,7 @@ class FTPFile(object):
         Contrary to the `open` builtin, this method returns `None`,
         instead this file object is modified in-place.
         """
-        # We use the same arguments as in `io.open`.
+        # We use the same arguments as in `open`.
         # pylint: disable=too-many-arguments
         #
         # `buffering` argument isn't used at this time.
