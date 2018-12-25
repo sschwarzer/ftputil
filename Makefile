@@ -7,7 +7,7 @@
 SHELL=/bin/sh
 PROJECT_DIR=$(shell pwd)
 VERSION=$(shell cat VERSION)
-PYTHON_BINARY?=python2
+PYTHON_BINARY?=python3
 # Depending on the development system, this may be `pytest`, `py.test`
 # or even something else.
 PYTEST=pytest
@@ -115,4 +115,4 @@ clean:
 # doesn't work if the package wasn't installed with pip.
 remove_from_env:
 	rm -rf ${VIRTUAL_ENV}/doc/ftputil
-	rm -rf ${VIRTUAL_ENV}/lib/python2.7/site-packages/ftputil
+	rm -rf ${VIRTUAL_ENV}/lib/python3.7/site-packages/ftputil
