@@ -75,7 +75,7 @@ class StatResult(tuple):
 #
 # FTP directory parsers
 #
-class Parser(object):
+class Parser:
     """
     Represent a parser for directory lines. Parsers for specific
     directory formats inherit from this class.
@@ -508,7 +508,7 @@ class MSParser(Parser):
 #
 # Stat'ing operations for files on an FTP server
 #
-class _Stat(object):
+class _Stat:
     """Methods for stat'ing directories, links and regular files."""
 
     def __init__(self, host):

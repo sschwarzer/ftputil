@@ -34,7 +34,7 @@ def content_of(path):
     return mock_files[path].getvalue()
 
 
-class MockFile(io.BytesIO, object):
+class MockFile(io.BytesIO):
     """
     Mock class for the file objects _contained in_ `FTPFile` objects
     (not `FTPFile` objects themselves!).
@@ -62,7 +62,7 @@ class MockFile(io.BytesIO, object):
         self._super.close()
 
 
-class MockSocket(object):
+class MockSocket:
     """
     Mock class which is used to return something from
     `MockSession.transfercmd`.
@@ -88,7 +88,7 @@ class MockSocket(object):
         self._timeout = timeout
 
 
-class MockSession(object):
+class MockSession:
     """
     Mock class which works like `ftplib.FTP` for the purpose of the
     unit tests.

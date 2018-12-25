@@ -16,7 +16,7 @@ import ftputil.error
 __all__ = []
 
 
-class FTPFile(object):
+class FTPFile:
     """
     Represents a file-like object associated with an FTP host. File
     and socket are closed appropriately if the `close` method is

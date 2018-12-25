@@ -6,7 +6,7 @@ import ftputil.compat as compat
 import ftputil.tool
 
 
-class TestSameStringTypeAs(object):
+class TestSameStringTypeAs:
 
     # The first check for equality is enough for Python 3, where
     # comparing a byte string and unicode string would raise an
@@ -33,7 +33,7 @@ class TestSameStringTypeAs(object):
         assert isinstance(result, compat.unicode_type)
 
 
-class TestSimpleConversions(object):
+class TestSimpleConversions:
 
     def test_as_bytes(self):
         result = ftputil.tool.as_bytes(b"abc")
@@ -52,7 +52,7 @@ class TestSimpleConversions(object):
         assert isinstance(result, compat.unicode_type)
 
 
-class TestEncodeIfUnicode(object):
+class TestEncodeIfUnicode:
 
     def test_do_encode(self):
         string = "abc"

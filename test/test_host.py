@@ -166,7 +166,7 @@ class TimeShiftFTPHost(ftputil.FTPHost):
 #
 # Test cases
 #
-class TestConstructor(object):
+class TestConstructor:
     """
     Test initialization of `FTPHost` objects.
     """
@@ -194,7 +194,7 @@ class TestConstructor(object):
         assert host.getcwd() == "/home"
 
 
-class TestKeepAlive(object):
+class TestKeepAlive:
 
     def test_succeeding_keep_alive(self):
         """Assume the connection is still alive."""
@@ -209,7 +209,7 @@ class TestKeepAlive(object):
             host.keep_alive()
 
 
-class TestSetParser(object):
+class TestSetParser:
 
     class TrivialParser(ftputil.stat.Parser):
         """
@@ -241,7 +241,7 @@ class TestSetParser(object):
         assert host._stat._allow_parser_switching is False
 
 
-class TestCommandNotImplementedError(object):
+class TestCommandNotImplementedError:
 
     def test_command_not_implemented_error(self):
         """
@@ -256,7 +256,7 @@ class TestCommandNotImplementedError(object):
             host.chmod("nonexistent", 0o644)
 
 
-class TestRecursiveListingForDotAsPath(object):
+class TestRecursiveListingForDotAsPath:
     """
     Return a recursive directory listing when the path to list
     is a dot. This is used to test for issue #33, see
@@ -289,7 +289,7 @@ class TestRecursiveListingForDotAsPath(object):
         host.close()
 
 
-class TestUploadAndDownload(object):
+class TestUploadAndDownload:
     """Test ASCII upload and binary download as examples."""
 
     def generate_file(self, data, file_name):
@@ -390,7 +390,7 @@ class TestUploadAndDownload(object):
         os.unlink(local_target)
 
 
-class TestTimeShift(object):
+class TestTimeShift:
 
     def test_rounded_time_shift(self):
         """Test if time shift is rounded correctly."""
@@ -484,7 +484,7 @@ class TestTimeShift(object):
         assert host.time_shift() == presumed_time_shift
 
 
-class TestAcceptEitherUnicodeOrBytes(object):
+class TestAcceptEitherUnicodeOrBytes:
     """
     Test whether certain `FTPHost` methods accept either unicode
     or byte strings for the path(s).
@@ -601,7 +601,7 @@ class TestAcceptEitherUnicodeOrBytes(object):
           self.host.walk, "/home/file_name_test/ä")
 
 
-class TestFailingPickling(object):
+class TestFailingPickling:
 
     def test_failing_pickling(self):
         """Test if pickling (intentionally) isn't supported."""

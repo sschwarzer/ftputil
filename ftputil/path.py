@@ -19,7 +19,7 @@ import ftputil.tool
 __all__ = []
 
 
-class _Path(object):
+class _Path:
     """
     Support class resembling `os.path`, accessible from the `FTPHost`
     object, e. g. as `FTPHost().path.abspath(path)`.

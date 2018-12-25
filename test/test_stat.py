@@ -44,7 +44,7 @@ def stat_tuple_to_seconds(t):
         return time.mktime(t + (0, 0, -1))
 
 
-class TestParsers(object):
+class TestParsers:
 
     #
     # Helper methods
@@ -347,7 +347,7 @@ class TestParsers(object):
         self._test_time_shift(-3 * 60 * 60, 60)
 
 
-class TestLstatAndStat(object):
+class TestLstatAndStat:
     """
     Test `FTPHost.lstat` and `FTPHost.stat` (test currently only
     implemented for Unix server format).
@@ -510,7 +510,7 @@ class TestLstatAndStat(object):
         assert isinstance(self.stat._parser, ftputil.stat.UnixParser)
 
 
-class TestListdir(object):
+class TestListdir:
     """Test `FTPHost.listdir`."""
 
     def setup_method(self, method):

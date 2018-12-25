@@ -55,7 +55,7 @@ def utc_local_time_shift():
 EXPECTED_TIME_SHIFT = 0.0
 
 
-class Cleaner(object):
+class Cleaner:
     """
     This class helps remove directories and files which might
     otherwise be left behind if a test fails in unexpected ways.
@@ -97,7 +97,7 @@ class Cleaner(object):
                 pass
 
 
-class RealFTPTest(object):
+class RealFTPTest:
 
     def setup_method(self, method):
         # Server, username, password.

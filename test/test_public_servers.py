@@ -72,7 +72,7 @@ def ftp_client_listing(server, directory):
     return names
 
 
-class TestPublicServers(object):
+class TestPublicServers:
     """
     Get directory listings from various public FTP servers
     with a command line client and ftputil and compare both.

@@ -15,7 +15,7 @@ import ftputil.sync
 TEST_ROOT = os.getcwd()
 
 
-class TestLocalToLocal(object):
+class TestLocalToLocal:
 
     def setup_method(self, method):
         if not os.path.exists("test_empty"):
@@ -76,13 +76,13 @@ class LocalWindowsHost(ftputil.sync.LocalHost):
                 ]
 
 
-class DummyFTPSession(object):
+class DummyFTPSession:
 
     def pwd(self):
         return "/"
 
 
-class DummyFTPPath(object):
+class DummyFTPPath:
 
     def abspath(self, path):
         # Don't care here if the path is absolute or not.
@@ -112,7 +112,7 @@ class ArgumentCheckingFTPHost(ftputil.FTPHost):
         return io.StringIO("")
 
 
-class TestUploadFromWindows(object):
+class TestUploadFromWindows:
 
     def test_no_mixed_separators(self):
         source = LocalWindowsHost()
