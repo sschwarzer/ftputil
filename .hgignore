@@ -31,6 +31,12 @@ htmlcov/**
 # MyPy files
 .mypy_cache/**
 
+# Pytest cache
+.pytest_cache/**
+
+# Probably from `pip install -e .`
+ftputil.egg-info/**
+
 # Eclipse/PyDev project files.
 .project
 .pydevproject
