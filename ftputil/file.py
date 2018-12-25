@@ -10,7 +10,6 @@ import io
 
 import ftputil.compat
 import ftputil.error
-import ftputil.socket_file_adapter
 
 
 # This module shouldn't be used by clients of the ftputil library.
@@ -51,15 +50,6 @@ class FTPFile(object):
         # `buffering` argument isn't used at this time.
         # pylint: disable=unused-argument
         #
-        # Python 3's `socket.makefile` supports the same interface as
-        # the new `open` builtin, but Python 2 supports only a mode,
-        # but doesn't return an object with the proper interface to
-        # wrap it in `io.TextIOWrapper`.
-        #
-        # Therefore, to make the code work on Python 2 _and_ 3, use
-        # `socket.makefile` to always create a binary file and under
-        # Python 2 wrap it in an adapter class.
-        #
         # Check mode.
         if "a" in mode:
             raise ftputil.error.FTPIOError("append mode not supported")
@@ -94,12 +84,6 @@ class FTPFile(object):
         # The file object. Under Python 3, this will already be a
         # `BufferedReader` or `BufferedWriter` object.
         fobj = self._conn.makefile(makefile_mode)
-        if ftputil.compat.python_version == 2:
-            BufferedIOAdapter = ftputil.socket_file_adapter.BufferedIOAdapter
-            if is_read_mode:
-                fobj = BufferedIOAdapter(fobj, is_readable=True)
-            else:
-                fobj = BufferedIOAdapter(fobj, is_writable=True)
         if not is_binary_mode:
             fobj = io.TextIOWrapper(fobj, encoding=encoding,
                                     errors=errors, newline=newline)
