@@ -1,13 +1,10 @@
-# Copyright (C) 2003-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
 """
 ftputil.path - simulate `os.path` for FTP servers
 """
-
-from __future__ import absolute_import
-from __future__ import unicode_literals
 
 import posixpath
 import stat

@@ -1,12 +1,10 @@
-# Copyright (C) 2006-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2006-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
 """
 ftp_stat_cache.py - cache for (l)stat data
 """
-
-from __future__ import unicode_literals
 
 import time
 

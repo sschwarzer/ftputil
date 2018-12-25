@@ -1,12 +1,10 @@
-# Copyright (C) 2013-2014, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2013-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
 """
 file_transfer.py - upload, download and generic file copy
 """
-
-from __future__ import unicode_literals
 
 import io
 import os

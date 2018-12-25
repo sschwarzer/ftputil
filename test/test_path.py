@@ -1,9 +1,7 @@
 # encoding: utf-8
-# Copyright (C) 2003-2016, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
-
-from __future__ import unicode_literals
 
 import ftplib
 import time

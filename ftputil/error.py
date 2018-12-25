@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2014, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -7,8 +7,6 @@ ftputil.error - exception classes and wrappers
 """
 
 # pylint: disable=too-many-ancestors
-
-from __future__ import unicode_literals
 
 import ftplib
 

@@ -1,12 +1,10 @@
 #! /usr/bin/env python
-# Copyright (C) 2003-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 """
 setup.py - installation script for Python distutils
 """
-
-from __future__ import print_function
 
 import os
 import sys

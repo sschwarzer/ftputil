@@ -42,14 +42,12 @@ discarded. [1]_
 
 """
 
-from __future__ import unicode_literals
-
 import time
 
 
 # The suffix after the hyphen denotes modifications by the
 # ftputil project with respect to the original version.
-__version__ = "0.2-12"
+__version__ = "0.2-13"
 __all__ = ['CacheKeyError', 'LRUCache', 'DEFAULT_SIZE']
 __docformat__ = 'reStructuredText en'
 
