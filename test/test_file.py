@@ -40,7 +40,7 @@ class InaccessibleDirSession(mock_ftplib.MockSession):
             super(InaccessibleDirSession, self).cwd(dir)
 
 
-class TestFileOperations(object):
+class TestFileOperations:
     """Test operations with file-like objects."""
 
     def test_inaccessible_dir(self):
@@ -228,7 +228,7 @@ class TestFileOperations(object):
             host.open("notthere", "r")
 
 
-class TestAvailableChild(object):
+class TestAvailableChild:
 
     def _failing_pwd(self, exception_class):
         """

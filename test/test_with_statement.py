@@ -20,7 +20,7 @@ class ClientCodeException(Exception):
 #
 # Test cases
 #
-class TestHostContextManager(object):
+class TestHostContextManager:
 
     def test_normal_operation(self):
         with test_base.ftp_host_factory() as host:
@@ -47,7 +47,7 @@ class TestHostContextManager(object):
             pytest.fail("`ClientCodeException` not raised")
 
 
-class TestFileContextManager(object):
+class TestFileContextManager:
 
     def test_normal_operation(self):
         with test_base.ftp_host_factory(

@@ -16,7 +16,7 @@ import ftputil.lrucache
 __all__ = []
 
 
-class StatCache(object):
+class StatCache:
     """
     Implement an LRU (least-recently-used) cache.
 

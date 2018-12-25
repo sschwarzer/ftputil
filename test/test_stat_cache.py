@@ -12,7 +12,7 @@ import ftputil.stat_cache
 from test import test_base
 
 
-class TestStatCache(object):
+class TestStatCache:
 
     def setup_method(self, method):
         self.cache = ftputil.stat_cache.StatCache()

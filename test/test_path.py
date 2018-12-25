@@ -31,7 +31,7 @@ class SessionWithInaccessibleLoginDirectory(mock_ftplib.MockSession):
         raise ftplib.error_perm("can't change into this directory")
 
 
-class TestPath(object):
+class TestPath:
     """Test operations in `FTPHost.path`."""
 
     # TODO: Add unit tests for changes for ticket #113
@@ -123,7 +123,7 @@ class TestPath(object):
             host.path.exists("index.html")
 
 
-class TestAcceptEitherBytesOrUnicode(object):
+class TestAcceptEitherBytesOrUnicode:
 
     def setup_method(self, method):
         self.host = test_base.ftp_host_factory()

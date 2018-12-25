@@ -12,7 +12,7 @@ import ftputil.file_transfer
 import ftputil.stat
 
 
-class MockFile(object):
+class MockFile:
     """Class compatible with `LocalFile` and `RemoteFile`."""
 
     def __init__(self, mtime, mtime_precision):
@@ -26,7 +26,7 @@ class MockFile(object):
         return self._mtime_precision
 
 
-class TestTimestampComparison(object):
+class TestTimestampComparison:
 
     def test_source_is_newer_than_target(self):
         """
@@ -81,7 +81,7 @@ class FailingStringIO(io.BytesIO):
         raise self.expected_exception
 
 
-class TestChunkwiseTransfer(object):
+class TestChunkwiseTransfer:
 
     def _random_string(self, count):
         """Return a `BytesIO` object containing `count` "random" bytes."""

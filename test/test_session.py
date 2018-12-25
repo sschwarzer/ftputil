@@ -9,7 +9,7 @@ Unit tests for session factory helpers.
 import ftputil.session
 
 
-class MockSession(object):
+class MockSession:
     """
     Mock session base class to determine if all expected calls
     have happened.
@@ -46,7 +46,7 @@ class EncryptedMockSession(MockSession):
         self.add_call("prot_p")
 
 
-class TestSessionFactory(object):
+class TestSessionFactory:
     """
     Test if session factories created by
     `ftputil.session.session_factory` trigger the expected calls.

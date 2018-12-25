@@ -119,7 +119,7 @@ class SyncError(PermanentError):
     pass
 
 
-class FtplibErrorToFTPOSError(object):
+class FtplibErrorToFTPOSError:
     """
     Context manager to convert `ftplib` exceptions to exceptions
     derived from `FTPOSError`.
@@ -158,7 +158,7 @@ class FTPIOError(FTPError, IOError):
     pass
 
 
-class FtplibErrorToFTPIOError(object):
+class FtplibErrorToFTPIOError:
     """
     Context manager to convert `ftplib` exceptions to `FTPIOError`
     exceptions.

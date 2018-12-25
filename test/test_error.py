@@ -10,7 +10,7 @@ import pytest
 import ftputil.error
 
 
-class TestFTPErrorArguments(object):
+class TestFTPErrorArguments:
     """
     The `*Error` constructors should accept either a byte string or a
     unicode string.
@@ -27,7 +27,7 @@ class TestFTPErrorArguments(object):
         os_error = ftputil.error.FTPOSError("\xe4")
 
 
-class TestErrorConversion(object):
+class TestErrorConversion:
 
     def callee(self):
         raise ftplib.error_perm()

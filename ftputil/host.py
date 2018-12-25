@@ -33,7 +33,7 @@ __all__ = ["FTPHost"]
 #####################################################################
 # `FTPHost` class with several methods similar to those of `os`
 
-class FTPHost(object):
+class FTPHost:
     """FTP host class."""
 
     # Implementation notes:

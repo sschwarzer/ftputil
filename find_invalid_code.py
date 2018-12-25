@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-# Copyright (C) 2008-2013, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2008-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -18,10 +18,6 @@ where 'start_dir' is the starting directory which will be scanned
 recursively for offending code.
 """
 
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import os
 import re
 import sys
@@ -33,7 +29,7 @@ __doc__ = __doc__ % (ftputil.version.__version__,
                      os.path.basename(sys.argv[0]))
 
 
-class InvalidFeature(object):
+class InvalidFeature:
     """
     Store message, regex and locations of a single now invalid
     feature.

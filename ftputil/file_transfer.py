@@ -21,7 +21,7 @@ __all__ = []
 MAX_COPY_CHUNK_SIZE = 64 * 1024
 
 
-class LocalFile(object):
+class LocalFile:
     """
     Represent a file on the local side which is to be transferred or
     is already transferred.
@@ -56,7 +56,7 @@ class LocalFile(object):
         return open(self.name, self.mode)
 
 
-class RemoteFile(object):
+class RemoteFile:
     """
     Represent a file on the remote side which is to be transferred or
     is already transferred.

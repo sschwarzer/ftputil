@@ -27,7 +27,7 @@ __all__ = ["FTPHost", "LocalHost", "Syncer"]
 CHUNK_SIZE = 64 * 1024
 
 
-class LocalHost(object):
+class LocalHost:
     """
     Provide an API for local directories and files so we can use the
     same code as for `FTPHost` instances.
@@ -53,7 +53,7 @@ class LocalHost(object):
         return getattr(os, attr)
 
 
-class Syncer(object):
+class Syncer:
     """
     Control synchronization between combinations of local and remote
     directories and files.
