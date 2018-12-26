@@ -55,19 +55,7 @@ invalid_features = [
   InvalidFeature("Possible use(s) of ftp_stat module",
                  r"\bftp_stat\b"),
   InvalidFeature("Possible use(s) of FTPHost.file",
-                 r"{0}\.file\(".format(HOST_REGEX)),
-  InvalidFeature("Possible use(s) of FTPHost.open with text mode",
-                 r"{0}\.open\(.*[\"'](r|w)t?[\"']".format(HOST_REGEX)),
-  InvalidFeature("Possible use(s) of byte string in ignores_line",
-                 r"\bdef ignores_line\("),
-  InvalidFeature("Possible use(s) of byte string in parse_line",
-                 r"\bdef parse_line\("),
-  InvalidFeature("Possible use(s) download with text mode",
-                 r"{0}\.download(_if_newer)?\(".format(HOST_REGEX)),
-  InvalidFeature("Possible use(s) upload with text mode",
-                 r"{0}\.upload(_if_newer)?\(".format(HOST_REGEX)),
-  InvalidFeature("Possible use(s) of xreadline method of FTP file objects",
-                 r"\.\s*?xreadlines\b"),
+                 r"{0}\.file\(".format(HOST_REGEX))
 ]
 
 
