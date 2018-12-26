@@ -3,7 +3,7 @@
 # See the file LICENSE for licensing terms.
 
 """
-Session factory factory (the two "factory" are intential :-) )
+Session factory factory (the two "factory" are intentional :-) )
 for ftputil.
 """
 
