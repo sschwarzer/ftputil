@@ -36,10 +36,6 @@ class StatCache:
     include some or many already expired entries.
     """
 
-    # Disable "Badly implemented container" warning because of
-    # "missing" `__delitem__`.
-    # pylint: disable=incomplete-protocol
-
     # Default number of cache entries
     _DEFAULT_CACHE_SIZE = 5000
 
