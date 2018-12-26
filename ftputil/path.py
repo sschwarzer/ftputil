@@ -9,7 +9,6 @@ ftputil.path - simulate `os.path` for FTP servers
 import posixpath
 import stat
 
-import ftputil.compat
 import ftputil.error
 import ftputil.tool
 
@@ -95,12 +94,10 @@ class _Path:
         """
         # These checks are implicitly done by Python 3, but not by
         # Python 2.
-        all_paths_are_unicode = all(
-          (isinstance(path, ftputil.compat.unicode_type)
-          for path in paths))
-        all_paths_are_bytes = all(
-          (isinstance(path, ftputil.compat.bytes_type)
-          for path in paths))
+        all_paths_are_unicode = all((isinstance(path, str)
+                                     for path in paths))
+        all_paths_are_bytes = all((isinstance(path, bytes)
+                                   for path in paths))
         if all_paths_are_unicode or all_paths_are_bytes:
             return posixpath.join(*paths)
         else:

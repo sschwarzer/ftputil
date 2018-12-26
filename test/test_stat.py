@@ -8,7 +8,6 @@ import time
 import pytest
 
 import ftputil
-import ftputil.compat
 import ftputil.error
 import ftputil.stat
 from ftputil.stat import MINUTE_PRECISION, DAY_PRECISION, UNKNOWN_PRECISION
@@ -363,19 +362,12 @@ class TestLstatAndStat:
     def test_repr(self):
         """Test if the `repr` result looks like a named tuple."""
         stat_result = self.stat._lstat("/home/sschwarzer/chemeng")
-        # Only under Python 2, unicode strings have the `u` prefix.
         # TODO: Make the value for `st_mtime` robust against DST "time
         # zone" changes.
-        if ftputil.compat.python_version == 2:
-            expected_result = (
-              b"StatResult(st_mode=17901, st_ino=None, st_dev=None, "
-              b"st_nlink=2, st_uid=u'45854', st_gid=u'200', st_size=512, "
-              b"st_atime=None, st_mtime=957391200.0, st_ctime=None)")
-        else:
-            expected_result = (
-              "StatResult(st_mode=17901, st_ino=None, st_dev=None, "
-              "st_nlink=2, st_uid='45854', st_gid='200', st_size=512, "
-              "st_atime=None, st_mtime=957391200.0, st_ctime=None)")
+        expected_result = (
+          "StatResult(st_mode=17901, st_ino=None, st_dev=None, "
+          "st_nlink=2, st_uid='45854', st_gid='200', st_size=512, "
+          "st_atime=None, st_mtime=957391200.0, st_ctime=None)")
         assert repr(stat_result) == expected_result
 
     def test_failing_lstat(self):

@@ -14,7 +14,6 @@ import warnings
 import pytest
 
 import ftputil
-import ftputil.compat
 import ftputil.error
 import ftputil.tool
 import ftputil.stat
@@ -32,7 +31,7 @@ def random_data(pool, size=10000):
     pool of integer numbers.
     """
     ordinal_list = [random.choice(pool) for i in range(size)]
-    return ftputil.compat.bytes_from_ints(ordinal_list)
+    return bytes(ordinal_list)
 
 
 def ascii_data():
@@ -525,15 +524,9 @@ class TestAcceptEitherUnicodeOrBytes:
         # Unicode
         items = host.listdir("ä")
         assert items == ["ö", "o"]
-        #  Need explicit type check for Python 2
-        for item in items:
-            assert isinstance(item, ftputil.compat.unicode_type)
         # Bytes
         items = host.listdir(as_bytes("ä"))
         assert items == [as_bytes("ö"), as_bytes("o")]
-        #  Need explicit type check for Python 2
-        for item in items:
-            assert isinstance(item, ftputil.compat.bytes_type)
 
     def test_chmod(self):
         """Test whether `chmod` accepts either unicode or bytes."""

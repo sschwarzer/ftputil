@@ -19,7 +19,6 @@ import stat
 
 import pytest
 
-import ftputil.compat
 import ftputil.error
 import ftputil.file_transfer
 import ftputil.session
@@ -494,14 +493,14 @@ class TestStat(RealFTPTest):
         # Do some stats
         # - dir
         dir_stat = host.stat(dir_name)
-        assert isinstance(dir_stat._st_name, ftputil.compat.unicode_type)
+        assert isinstance(dir_stat._st_name, str)
         assert host.listdir(dir_name) == ["_nonempty_"]
         assert host.path.isdir(dir_name)
         assert not host.path.isfile(dir_name)
         assert not host.path.islink(dir_name)
         # - file
         file_stat = host.stat(file_name)
-        assert isinstance(file_stat._st_name, ftputil.compat.unicode_type)
+        assert isinstance(file_stat._st_name, str)
         assert not host.path.isdir(file_name)
         assert host.path.isfile(file_name)
         assert not host.path.islink(file_name)
@@ -915,8 +914,7 @@ class TestOther(RealFTPTest):
         """
         host = self.host
         # `ftplib` under Python 3 only works correctly if the unicode
-        # strings are decoded from latin1. Under Python 2, ftputil
-        # is supposed to provide a compatible interface.
+        # strings are decoded from latin1.
         path = "äbc".encode("UTF-8").decode("latin1")
         names = host.listdir(path)
         assert names[0] == "file1"
