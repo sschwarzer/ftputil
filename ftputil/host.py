@@ -221,7 +221,7 @@ class FTPHost:
         except ftputil.error.PermanentError:
             # Similarly to a failed `file` in a local file system,
             # raise an `IOError`, not an `OSError`.
-            raise ftputil.error.FTPIOError("remote directory '{0}' doesn't "
+            raise ftputil.error.FTPIOError("remote directory '{}' doesn't "
                     "exist or has insufficient access rights".
                     format(effective_dir))
         host._file._open(effective_file, mode=mode, buffering=buffering,
@@ -391,7 +391,7 @@ class FTPHost:
             file_.close()
         except ftputil.error.FTPIOError:
             raise ftputil.error.TimeShiftError(
-                    """couldn't write helper file in directory '{0}'""".
+                    """couldn't write helper file in directory '{}'""".
                     format(self.getcwd()))
         # If everything worked up to here it should be possible to stat
         # and then remove the just-written file.
@@ -561,7 +561,7 @@ class FTPHost:
             self.chdir(presumable_login_dir)
         except ftputil.error.PermanentError:
             raise ftputil.error.InaccessibleLoginDirError(
-                    "directory '{0}' is not accessible".
+                    "directory '{}' is not accessible".
                     format(presumable_login_dir))
 
     def _robust_ftp_command(self, command, path, descend_deeply=False):
@@ -692,7 +692,7 @@ class FTPHost:
         path = ftputil.tool.as_unicode(path)
         path = self.path.abspath(path)
         if self.listdir(path):
-            raise ftputil.error.PermanentError("directory '{0}' not empty".
+            raise ftputil.error.PermanentError("directory '{}' not empty".
                                                format(path))
         #XXX How does `rmd` work with links?
         def command(self, path):

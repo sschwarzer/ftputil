@@ -295,7 +295,7 @@ class TestParsers:
         `time_float` (seconds since the epoch, as from `time.time()`).
         """
         line_template = \
-          "-rw-r--r--   1   45854   200   4604   {0}   index.html"
+          "-rw-r--r--   1   45854   200   4604   {}   index.html"
         return line_template.format(self.datetime_string(time_float))
 
     def assert_equal_times(self, time1, time2):
