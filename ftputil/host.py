@@ -12,7 +12,6 @@ import ftplib
 import stat
 import sys
 import time
-import warnings
 
 import ftputil.error
 import ftputil.file

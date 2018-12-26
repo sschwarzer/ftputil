@@ -9,8 +9,6 @@ for ftputil.
 
 import ftplib
 
-import ftputil.tool
-
 
 __all__ = ["session_factory"]
 
