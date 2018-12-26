@@ -94,22 +94,22 @@ class LRUCache(object):
         # store in cache for next time
         cache['foo'] = contents
 
-    print cache.size # Maximum size
+    print(cache.size) # Maximum size
 
-    print len(cache) # 0 <= len(cache) <= cache.size
+    print(len(cache)) # 0 <= len(cache) <= cache.size
 
     cache.size = 10 # Auto-shrink on size assignment
 
     for i in range(50): # note: larger than cache size
         cache[i] = i
 
-    if 0 not in cache: print 'Zero was discarded.'
+    if 0 not in cache: print('Zero was discarded.')
 
     if 42 in cache:
         del cache[42] # Manual deletion
 
     for j in cache:   # iterate (in LRU order)
-        print j, cache[j] # iterator produces keys, not values
+        print(j, cache[j]) # iterator produces keys, not values
     """
 
     class _Node(object):
