@@ -184,8 +184,8 @@ and are described here:
     >>> try:
     ...     f = open("not_there")
     ... except IOError as obj:
-    ...     print obj.errno
-    ...     print obj.strerror
+    ...     print(obj.errno)
+    ...     print(obj.strerror)
     ...
     2
     No such file or directory
@@ -198,8 +198,8 @@ and are described here:
     >>> try:
     ...     f = ftp_host.open("not_there")
     ... except IOError as obj:
-    ...     print obj.errno
-    ...     print obj.strerror
+    ...     print(obj.errno)
+    ...     print(obj.strerror)
     ...
     550
     550 not_there: No such file or directory.
@@ -326,7 +326,7 @@ FTP class in the ``ftplib`` module. Usually the ``account`` and
     import ftputil
 
     with ftputil.FTPHost(server, user, password) as ftp_host:
-        print ftp_host.listdir(ftp_host.curdir)
+        print(ftp_host.listdir(ftp_host.curdir))
 
 After the ``with`` block, the ``FTPHost`` instance and the
 associated FTP sessions will be closed automatically.
@@ -912,10 +912,10 @@ a file system simultaneously::
         stat_result2 = ftp_host2.stat("some_file")
         ftp_host2.remove("some_file")
         # `ftp_host1` will still see the obsolete cache entry!
-        print ftp_host1.stat("some_file")
+        print(ftp_host1.stat("some_file"))
         # Will raise an exception since an `FTPHost` object
         # knows of its own changes.
-        print ftp_host2.stat("some_file")
+        print(ftp_host2.stat("some_file"))
 
 At first sight, it may appear to be a good idea to have a shared cache
 among several ``FTPHost`` objects. After some thinking, this turns out
@@ -938,10 +938,10 @@ example above, it could be used like this::
                           ftp_host1.path.join(ftp_host1.getcwd(), "some_file"))
         ftp_host1.stat_cache.invalidate(absolute_path)
         # Will now raise an exception as it should.
-        print ftp_host1.stat("some_file")
+        print(ftp_host1.stat("some_file"))
         # Would raise an exception since an `FTPHost` object
         # knows of its own changes, even without `invalidate`.
-        print ftp_host2.stat("some_file")
+        print(ftp_host2.stat("some_file"))
 
 The method ``invalidate`` can be used on any *absolute* path, be it a
 directory, a file or a link.
@@ -1238,7 +1238,7 @@ line::
         with ftp_host.open("some_file") as input_file:
             for line in input_file:
                 # Do something with the line, e. g.
-                print line.strip().replace("ftplib", "ftputil")
+                print(line.strip().replace("ftplib", "ftputil"))
 
 For more on file objects, see the section `File objects`_ in the
 Python Library Reference.

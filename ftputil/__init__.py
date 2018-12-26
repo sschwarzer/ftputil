@@ -12,7 +12,7 @@ FTPHost objects
 
     # Example session
     with ftputil.FTPHost("ftp.domain.com", "me", "secret") as host:
-        print host.getcwd()  # e. g. "/home/me"
+        print(host.getcwd())  # e. g. "/home/me"
         host.mkdir("newdir")
         host.chdir("newdir")
         with host.open("sourcefile", "r") as source:

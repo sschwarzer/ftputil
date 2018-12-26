@@ -81,10 +81,10 @@ class Syncer:
         """
         #TODO Handle setting of target mtime according to source mtime
         # (beware of rootdir anomalies; try to handle them as well).
-        #print "Making", target_dir
+        #print("Making", target_dir)
         if self._target.path.isfile(target_dir):
             raise ftputil.error.SyncError(
-                  "target dir '{}' is actually a file".format(target_dir))
+                    "target dir '{}' is actually a file".format(target_dir))
         # Deliberately use an `isdir` test instead of `try/except`. The
         #  latter approach might mask other errors we want to see, e. g.
         #  insufficient permissions.
@@ -99,7 +99,7 @@ class Syncer:
         #TODO Handle conditional copy
         #TODO Handle setting of target mtime according to source mtime
         # (beware of rootdir anomalies; try to handle them as well).
-        #print "Syncing", source_file, "->", target_file
+        #print("Syncing", source_file, "->", target_file)
         source = self._source.open(source_file, "rb")
         try:
             target = self._target.open(target_file, "wb")
