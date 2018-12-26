@@ -7,7 +7,6 @@ import random
 
 import pytest
 
-import ftputil.compat
 import ftputil.file_transfer
 import ftputil.stat
 
@@ -86,7 +85,7 @@ class TestChunkwiseTransfer:
     def _random_string(self, count):
         """Return a `BytesIO` object containing `count` "random" bytes."""
         ints = (random.randint(0, 255) for i in range(count))
-        return ftputil.compat.bytes_from_ints(ints)
+        return bytes(ints)
 
     def test_chunkwise_transfer_without_remainder(self):
         """Check if we get four chunks with 256 Bytes each."""

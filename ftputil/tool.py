@@ -6,9 +6,6 @@
 tool.py - helper code
 """
 
-import ftputil.compat as compat
-
-
 __all__ = ["same_string_type_as", "as_bytes", "as_unicode",
            "as_default_string"]
 
@@ -33,12 +30,10 @@ def same_string_type_as(type_source, content_source):
     operation is needed.
     """
     if (
-      isinstance(type_source, compat.bytes_type) and
-      isinstance(content_source, compat.unicode_type)):
+      isinstance(type_source, bytes) and isinstance(content_source, str)):
         return content_source.encode(LOSSLESS_ENCODING)
     elif (
-      isinstance(type_source, compat.unicode_type) and
-      isinstance(content_source, compat.bytes_type)):
+      isinstance(type_source, str) and isinstance(content_source, bytes)):
         return content_source.decode(LOSSLESS_ENCODING)
     else:
         return content_source
@@ -66,7 +61,7 @@ def as_default_string(string):
     type for the Python version. For unicode strings,
     `LOSSLESS_ENCODING` is used for encoding or decoding.
     """
-    return same_string_type_as(compat.default_string_type(), string)
+    return same_string_type_as("", string)
 
 
 def encode_if_unicode(string, encoding):
@@ -74,7 +69,7 @@ def encode_if_unicode(string, encoding):
     Return the string `string`, encoded with `encoding` if `string` is
     a unicode string. Otherwise return `string` unchanged.
     """
-    if isinstance(string, compat.unicode_type):
+    if isinstance(string, str):
         return string.encode(encoding)
     else:
         return string

@@ -6,7 +6,6 @@ import ftplib
 
 import pytest
 
-import ftputil.compat
 import ftputil.error
 
 from test import mock_ftplib
@@ -23,7 +22,7 @@ class ReadMockSession(mock_ftplib.MockSession):
 
 class ReadMockSessionWithMoreNewlines(mock_ftplib.MockSession):
 
-    mock_file_content = b"\r\n".join(map(ftputil.compat.bytes_type, range(20)))
+    mock_file_content = b"\r\n".join(map(bytes, range(20)))
 
 
 class InaccessibleDirSession(mock_ftplib.MockSession):

@@ -8,7 +8,6 @@ import time
 import pytest
 
 import ftputil
-import ftputil.compat
 import ftputil.error
 import ftputil.tool
 
@@ -135,8 +134,6 @@ class TestAcceptEitherBytesOrUnicode:
         """
         Test whether the same string type as for the argument is returned.
         """
-        bytes_type = ftputil.compat.bytes_type
-        unicode_type = ftputil.compat.unicode_type
         method_names = ("abspath basename dirname join normcase normpath".
                         split())
         for method_name in method_names:
@@ -176,14 +173,10 @@ class TestAcceptEitherBytesOrUnicode:
         parts = list("äöü")
         result = join(*parts)
         assert result == "ä/ö/ü"
-        #  Need explicit type check for Python 2
-        assert isinstance(result, ftputil.compat.unicode_type)
         # Only bytes
         parts = [as_bytes(s) for s in "äöü"]
         result = join(*parts)
         assert result == as_bytes("ä/ö/ü")
-        #  Need explicit type check for Python 2
-        assert isinstance(result, ftputil.compat.bytes_type)
         # Mixture of unicode and bytes
         parts = ["ä", as_bytes("ö")]
         with pytest.raises(TypeError):
