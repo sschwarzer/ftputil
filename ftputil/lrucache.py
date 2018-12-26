@@ -47,7 +47,7 @@ import time
 
 # The suffix after the hyphen denotes modifications by the
 # ftputil project with respect to the original version.
-__version__ = "0.2-13"
+__version__ = "0.2-14"
 __all__ = ['CacheKeyError', 'LRUCache', 'DEFAULT_SIZE']
 __docformat__ = 'reStructuredText en'
 
@@ -72,7 +72,7 @@ class CacheKeyError(KeyError):
     pass
 
 
-class LRUCache(object):
+class LRUCache:
     """Least-Recently-Used (LRU) cache.
 
     Instances of this class provide a least-recently-used (LRU) cache. They
@@ -112,7 +112,7 @@ class LRUCache(object):
         print(j, cache[j]) # iterator produces keys, not values
     """
 
-    class _Node(object):
+    class _Node:
         """Record of a cached value. Not for public consumption."""
 
         def __init__(self, key, obj, timestamp, sort_key):
