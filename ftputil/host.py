@@ -317,11 +317,10 @@ class FTPHost:
     def __rounded_time_shift(time_shift):
         """
         Return the given time shift in seconds, but rounded to
-        full hours. The argument is also assumed to be given in
+        15-minute units. The argument is also assumed to be given in
         seconds.
         """
         minute = 60.0
-        hour = 60.0 * minute
         # Avoid division by zero below.
         if time_shift == 0:
             return 0.0
