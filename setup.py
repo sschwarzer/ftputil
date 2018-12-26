@@ -69,5 +69,4 @@ and downloads, and handles FTP clients and servers in different timezones.""",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: System :: Filesystems",
     ]
-  )
-
+)
