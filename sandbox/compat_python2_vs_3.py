@@ -19,16 +19,16 @@ class TypesTester(object):
 
     def test_call(self, *args, **kwargs):
         should_print_result = kwargs.pop("print_result", False)
-        print("Callable: {0}; Args: {1}; Kwargs: {2}".format(self.callable,
-                                                             args, kwargs))
+        print("Callable: {}; Args: {}; Kwargs: {}".format(self.callable,
+                                                          args, kwargs))
         try:
             result = self.callable(*args, **kwargs)
         except Exception as exc:
-            print("Exception in `test_call`: {0}".format(exc))
+            print("Exception in `test_call`: {}".format(exc))
         else:
-            print("Result type: {0}".format(type(result)))
+            print("Result type: {}".format(type(result)))
             if should_print_result:
-                print("Result: {0!r}".format(result))
+                print("Result: {!r}".format(result))
         print()
         return result
 

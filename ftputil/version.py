@@ -17,5 +17,5 @@ _python_version = sys.version.split()[0]
 _python_platform = sys.platform
 
 
-version_info = "ftputil {0}, Python {1} ({2})".format(
+version_info = "ftputil {}, Python {} ({})".format(
                  _ftputil_version, _python_version, _python_platform)

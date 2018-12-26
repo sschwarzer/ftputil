@@ -53,7 +53,7 @@ class FTPFile:
         if "a" in mode:
             raise ftputil.error.FTPIOError("append mode not supported")
         if mode not in ("r", "rb", "rt", "w", "wb", "wt"):
-            raise ftputil.error.FTPIOError("invalid mode '{0}'".format(mode))
+            raise ftputil.error.FTPIOError("invalid mode '{}'".format(mode))
         if "b" in mode and "t" in mode:
             # Raise a `ValueError` like Python would.
             raise ValueError("can't have text and binary mode at once")
@@ -66,12 +66,12 @@ class FTPFile:
                     "`rest` argument can't be used for text files")
         # Always use binary mode (see comments above).
         transfer_type = "I"
-        command = "TYPE {0}".format(transfer_type)
+        command = "TYPE {}".format(transfer_type)
         with ftputil.error.ftplib_error_to_ftp_io_error:
             self._session.voidcmd(command)
         # Make transfer command.
         command_type = "RETR" if is_read_mode else "STOR"
-        command = "{0} {1}".format(command_type, path)
+        command = "{} {}".format(command_type, path)
         # Force to binary regardless of transfer type (see above).
         makefile_mode = mode
         makefile_mode = makefile_mode.replace("t", "")
@@ -140,7 +140,7 @@ class FTPFile:
                          "write writelines".split()):
             return getattr(self._fobj, attr_name)
         raise AttributeError(
-                "'FTPFile' object has no attribute '{0}'".format(attr_name))
+                "'FTPFile' object has no attribute '{}'".format(attr_name))
 
     # TODO: Implement `__dir__`? (See
     # http://docs.python.org/whatsnew/2.6.html#other-language-changes )

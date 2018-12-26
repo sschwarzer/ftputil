@@ -55,7 +55,7 @@ invalid_features = [
   InvalidFeature("Possible use(s) of ftp_stat module",
                  r"\bftp_stat\b"),
   InvalidFeature("Possible use(s) of FTPHost.file",
-                 r"{0}\.file\(".format(HOST_REGEX))
+                 r"{}\.file\(".format(HOST_REGEX))
 ]
 
 

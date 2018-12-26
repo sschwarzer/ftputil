@@ -57,7 +57,7 @@ class StatResult(tuple):
         if attr_name in self._index_mapping:
             return self[self._index_mapping[attr_name]]
         else:
-            raise AttributeError("'StatResult' object has no attribute '{0}'".
+            raise AttributeError("'StatResult' object has no attribute '{}'".
                                  format(attr_name))
 
     def __repr__(self):
@@ -66,10 +66,10 @@ class StatResult(tuple):
         index_to_name = dict((v, k) for k, v in self._index_mapping.items())
         argument_strings = []
         for index, item in enumerate(self):
-            argument_strings.append("{0}={1!r}".format(index_to_name[index],
-                                                       item))
-        return "{0}({1})".format(type(self).__name__,
-                                 ", ".join(argument_strings))
+            argument_strings.append("{}={!r}".format(index_to_name[index],
+                                                     item))
+        return "{}({})".format(type(self).__name__,
+                               ", ".join(argument_strings))
 
 
 #
@@ -136,7 +136,7 @@ class Parser:
         # Allow derived classes to make use of `self`.
         # pylint: disable=no-self-use
         if len(mode_string) != 10:
-            raise ftputil.error.ParserError("invalid mode string '{0}'".
+            raise ftputil.error.ParserError("invalid mode string '{}'".
                                             format(mode_string))
         st_mode = 0
         #TODO Add support for "S" and sticky bit ("t", "T").
@@ -161,7 +161,7 @@ class Parser:
             st_mode = st_mode | file_type_to_mode[file_type]
         else:
             raise ftputil.error.ParserError(
-                  "unknown file type character '{0}'".format(file_type))
+                    "unknown file type character '{}'".format(file_type))
         return st_mode
 
     def _as_int(self, int_string, int_description):
@@ -175,7 +175,7 @@ class Parser:
         try:
             return int(int_string)
         except ValueError:
-            raise ftputil.error.ParserError("non-integer {0} value {1!r}".
+            raise ftputil.error.ParserError("non-integer {} value {!r}".
                                             format(int_description,
                                                    int_string))
 
@@ -333,7 +333,7 @@ class Parser:
         try:
             hour, minute, am_pm = time_[0:2], time_[3:5], time_[5]
         except IndexError:
-            raise ftputil.error.ParserError("invalid time string '{0}'".
+            raise ftputil.error.ParserError("invalid time string '{}'".
                                             format(time_))
         hour, minute = (
           self._as_int(hour, "hour"), self._as_int(minute, "minute"))
@@ -365,7 +365,7 @@ class UnixParser(Parser):
         FIELD_COUNT_WITH_USERID = FIELD_COUNT_WITHOUT_USERID + 1
         if len(line_parts) < FIELD_COUNT_WITHOUT_USERID:
             # No known Unix-style format
-            raise ftputil.error.ParserError("line '{0}' can't be parsed".
+            raise ftputil.error.ParserError("line '{}' can't be parsed".
                                             format(line))
         # If we have a valid format (either with or without user id field),
         # the field with index 5 is either the month abbreviation or a day.
@@ -420,7 +420,7 @@ class UnixParser(Parser):
             # If we have more than one arrow we can't tell where the link
             # name ends and the target name starts.
             raise ftputil.error.ParserError(
-                    '''name '{0}' contains more than one "->"'''.format(name))
+                    '''name '{}' contains more than one "->"'''.format(name))
         elif name.count(" -> ") == 1:
             st_name, st_target = name.split(" -> ")
         else:
@@ -457,7 +457,7 @@ class MSParser(Parser):
             date, time_, dir_or_size, name = line.split(None, 3)
         except ValueError:
             # "unpack list of wrong size"
-            raise ftputil.error.ParserError("line '{0}' can't be parsed".
+            raise ftputil.error.ParserError("line '{}' can't be parsed".
                                             format(line))
         # st_mode
         #  Default to read access only; in fact, we can't tell.
@@ -477,7 +477,7 @@ class MSParser(Parser):
             try:
                 st_size = int(dir_or_size)
             except ValueError:
-                raise ftputil.error.ParserError("invalid size {0}".
+                raise ftputil.error.ParserError("invalid size {}".
                                                 format(dir_or_size))
         else:
             st_size = None
@@ -575,7 +575,7 @@ class _Stat:
         # `listdir` should only be allowed for directories and links to them.
         if not self._path.isdir(path):
             raise ftputil.error.PermanentError(
-                  "550 {0}: no such directory or wrong directory parser used".
+                  "550 {}: no such directory or wrong directory parser used".
                   format(path))
         # Set up for `for` loop.
         names = []
@@ -633,7 +633,7 @@ class _Stat:
             # the usual status code of the server for missing files
             # (450 vs. 550).
             raise ftputil.error.PermanentError(
-                  "550 {0}: no such file or directory".format(path))
+                  "550 {}: no such file or directory".format(path))
         else:
             # Be explicit. Returning `None` is a signal for
             # `_Path.exists/isfile/isdir/islink` that the path was
@@ -678,7 +678,7 @@ class _Stat:
             if path in visited_paths:
                 # We had seen this path already.
                 raise ftputil.error.RecursiveLinksError(
-                  "recursive link structure detected for remote path '{0}'".
+                  "recursive link structure detected for remote path '{}'".
                   format(original_path))
             # Remember the path we have encountered.
             visited_paths.add(path)
