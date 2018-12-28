@@ -47,19 +47,12 @@ import time
 
 # The suffix after the hyphen denotes modifications by the
 # ftputil project with respect to the original version.
-__version__ = "0.2-14"
+__version__ = "0.2-15"
 __all__ = ['CacheKeyError', 'LRUCache', 'DEFAULT_SIZE']
 __docformat__ = 'reStructuredText en'
 
 # Default size of a new LRUCache object, if no 'size' argument is given.
 DEFAULT_SIZE = 16
-
-# For Python 2/3 compatibility
-try:
-    long
-    int_types = (int, long)
-except NameError:
-    int_types = (int,)
 
 
 class CacheKeyError(KeyError):
@@ -254,7 +247,7 @@ class LRUCache:
         # Automagically shrink heap on resize.
         if name == 'size':
             size = value
-            if not isinstance(size, int_types):
+            if not isinstance(size, int):
                 raise TypeError("cache size (%r) must be an integer" % size)
             if size <= 0:
                 raise ValueError("cache size (%d) must be positive" % size)
