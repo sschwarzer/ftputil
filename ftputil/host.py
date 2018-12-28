@@ -764,7 +764,7 @@ class FTPHost:
         elif onerror is None:
             def new_onerror(*args):
                 """Re-raise exception."""
-                # pylint: disable=unused-argument
+                # pylint: disable=misplaced-bare-raise, unused-argument
                 raise
         else:
             new_onerror = onerror
