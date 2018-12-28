@@ -80,7 +80,8 @@ coverage:
 	py.test --cov ftputil --cov-report html test
 
 pylint:
-	pylint --rcfile=pylintrc ${PYLINT_OPTS} ${SOURCE_DIR}/*.py | less
+	pylint --rcfile=pylintrc ${PYLINT_OPTS} ${SOURCE_DIR}/*.py | \
+		less --quit-if-one-screen
 
 find_missing_unicode_literals:
 	find ftputil test -name "*.py" \
