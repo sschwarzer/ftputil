@@ -513,6 +513,8 @@ class MSParser(Parser):
 class _Stat:
     """Methods for stat'ing directories, links and regular files."""
 
+    # pylint: disable=protected-access
+
     def __init__(self, host):
         self._host = host
         self._path = host.path
