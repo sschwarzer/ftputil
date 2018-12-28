@@ -164,6 +164,7 @@ class Parser:
                     "unknown file type character '{}'".format(file_type))
         return st_mode
 
+    # pylint: disable=no-self-use
     def _as_int(self, int_string, int_description):
         """
         Return `int_string` converted to an integer.
@@ -179,6 +180,7 @@ class Parser:
                                             format(int_description,
                                                    int_string))
 
+    # pylint: disable=no-self-use
     def _mktime(self, mktime_tuple):
         """
         Return a float value like `time.mktime` does, but ...
