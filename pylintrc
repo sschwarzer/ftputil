@@ -39,7 +39,7 @@ load-plugins=
 # no Warning level messages displayed, use"--disable=all --enable=classes
 # --disable=W"
 #disable=
-disable=bad-continuation, bad-whitespace, locally-disabled, invalid-name, star-args
+disable=bad-continuation, bad-whitespace, invalid-name, locally-disabled, star-args
 
 
 [REPORTS]
