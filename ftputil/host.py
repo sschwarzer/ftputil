@@ -61,7 +61,7 @@ class FTPHost:
         # Store arguments for later operations.
         self._args = args
         self._kwargs = kwargs
-        #XXX Maybe put the following in a `reset` method.
+        # XXX: Maybe put the following in a `reset` method.
         # The time shift setting shouldn't be reset though.
         # Make a session according to these arguments.
         self._session = self._make_session()
@@ -141,7 +141,7 @@ class FTPHost:
         (`FTPHost` object) from the pool of children or `None` if
         there aren't any.
         """
-        #TODO: Currently timed-out child sessions aren't removed and
+        # TODO: Currently timed-out child sessions aren't removed and
         # may collect over time. In very busy or long running
         # processes, this might slow down an application because the
         # same stale child sessions have to be processed again and
@@ -693,7 +693,7 @@ class FTPHost:
         if self.listdir(path):
             raise ftputil.error.PermanentError("directory '{}' not empty".
                                                format(path))
-        #XXX How does `rmd` work with links?
+        # XXX: How does `rmd` work with links?
         def command(self, path):
             """Callback function."""
             with ftputil.error.ftplib_error_to_ftp_os_error:
@@ -816,9 +816,9 @@ class FTPHost:
             with ftputil.error.ftplib_error_to_ftp_os_error:
                 self._session.rename(source, target)
 
-    #XXX One could argue to put this method into the `_Stat` class, but
-    # I refrained from that because then `_Stat` would have to know
-    # about `FTPHost`'s `_session` attribute and in turn about
+    # XXX: One could argue to put this method into the `_Stat` class,
+    # but I refrained from that because then `_Stat` would have to
+    # know about `FTPHost`'s `_session` attribute and in turn about
     # `_session`'s `dir` method.
     def _dir(self, path):
         """Return a directory listing as made by FTP's `LIST` command."""

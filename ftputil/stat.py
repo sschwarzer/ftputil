@@ -138,7 +138,7 @@ class Parser:
             raise ftputil.error.ParserError("invalid mode string '{}'".
                                             format(mode_string))
         st_mode = 0
-        #TODO Add support for "S" and sticky bit ("t", "T").
+        # TODO: Add support for "S" and sticky bit ("t", "T").
         for bit in mode_string[1:10]:
             bit = (bit != "-")
             st_mode = (st_mode << 1) + bit
@@ -273,7 +273,7 @@ class Parser:
             # last addend allows for small deviations between the
             # supposed (rounded) and the actual time shift.
             #
-            # XXX The downside of this "correction" is that there is
+            # XXX: The downside of this "correction" is that there is
             # a one-minute time interval exactly one year ago that
             # may cause that datetime to be recognized as the current
             # datetime, but after all the datetime from the server
@@ -632,9 +632,9 @@ class _Stat:
             return lstat_result_for_path
         # Path was not found during the loop.
         if _exception_for_missing_path:
-            #TODO Use FTP `LIST` command on the file to implicitly use
-            # the usual status code of the server for missing files
-            # (450 vs. 550).
+            # TODO: Use FTP `LIST` command on the file to implicitly
+            # use the usual status code of the server for missing
+            # files (450 vs. 550).
             raise ftputil.error.PermanentError(
                   "550 {}: no such file or directory".format(path))
         else:
