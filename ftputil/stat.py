@@ -40,8 +40,7 @@ class StatResult(tuple):
     def __init__(self, sequence):
         # Don't call `__init__` via `super`. Construction from a
         # sequence is implicitly handled by `tuple.__new__`, not
-        # `tuple.__init__`. As a by-product, this avoids a
-        # `DeprecationWarning` in Python 2.6+ .
+        # `tuple.__init__`.
         # pylint: disable=super-init-not-called
         #
         # Use `sequence` parameter to remain compatible to `__new__`
