@@ -25,7 +25,7 @@ SED=sed -i'' -r -e
 
 PYTHONPATH=${PROJECT_DIR}:${TEST_DIR}
 
-#TODO Some platforms call that script rst2html.py - allow both.
+# TODO: Some platforms call that script rst2html.py - allow both.
 RST2HTML=rst2html
 
 # Name test files. Make sure the long-running tests come last.

@@ -79,7 +79,7 @@ class Syncer:
         exists, don't do anything. If the directory is present but
         it's actually a file, raise a `SyncError`.
         """
-        #TODO Handle setting of target mtime according to source mtime
+        # TODO: Handle setting of target mtime according to source mtime
         # (beware of rootdir anomalies; try to handle them as well).
         #print("Making", target_dir)
         if self._target.path.isfile(target_dir):
@@ -92,12 +92,12 @@ class Syncer:
             self._target.mkdir(target_dir)
 
     def _sync_file(self, source_file, target_file):
-        #XXX This duplicates code from `FTPHost._copyfileobj`. Maybe
+        # XXX: This duplicates code from `FTPHost._copyfileobj`. Maybe
         # implement the upload and download methods in terms of
         # `_sync_file`, or maybe not?
-        #TODO Handle `IOError`s
-        #TODO Handle conditional copy
-        #TODO Handle setting of target mtime according to source mtime
+        # TODO: Handle `IOError`s
+        # TODO: Handle conditional copy
+        # TODO: Handle setting of target mtime according to source mtime
         # (beware of rootdir anomalies; try to handle them as well).
         #print("Syncing", source_file, "->", target_file)
         source = self._source.open(source_file, "rb")
@@ -152,7 +152,7 @@ class Syncer:
 
         This method handles both directory trees and single files.
         """
-        #TODO Handle making of missing intermediate directories
+        # TODO: Handle making of missing intermediate directories.
         source_path = self._source.path.abspath(source_path)
         target_path = self._target.path.abspath(target_path)
         if self._source.path.isfile(source_path):

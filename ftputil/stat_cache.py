@@ -95,9 +95,9 @@ class StatCache:
         If no stat result for `path` is in the cache, do _not_
         raise an exception.
         """
-        #XXX To be 100 % sure, this should be `host.sep`, but I don't
-        # want to introduce a reference to the `FTPHost` object for
-        # only that purpose.
+        # XXX: To be 100 % sure, this should be `host.sep`, but I
+        # don't want to introduce a reference to the `FTPHost` object
+        # for only that purpose.
         assert path.startswith("/"), ("{} must be an absolute path".
                                       format(path))
         try:
@@ -119,8 +119,8 @@ class StatCache:
             raise ftputil.error.CacheMissError(
                     "entry for path {} has expired".format(path))
         else:
-            #XXX I don't know if this may raise a `CacheMissError` in
-            # case of race conditions. I prefer robust code.
+            # XXX: I don't know if this may raise a `CacheMissError`
+            # in case of race conditions. I prefer robust code.
             try:
                 return self._cache[path]
             except ftputil.lrucache.CacheKeyError:
