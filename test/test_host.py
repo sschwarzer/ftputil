@@ -20,6 +20,7 @@ import ftputil.stat
 
 from test import mock_ftplib
 from test import test_base
+import test.scripted_session as scripted_session
 
 
 #
@@ -69,15 +70,6 @@ class FailOnKeepAliveSession(mock_ftplib.MockSession):
             return "/home"
         else:
             raise ftplib.error_temp
-
-
-class UnnormalizedCurrentWorkingDirectory(mock_ftplib.MockSession):
-
-    def pwd(self):
-        # Deliberately return the current working directory with a
-        # trailing slash to test if it's removed when stored in the
-        # `FTPHost` instance.
-        return "/home/"
 
 
 class RecursiveListingForDotAsPathSession(mock_ftplib.MockSession):
@@ -174,21 +166,37 @@ class TestConstructor:
         Test if opening and closing an `FTPHost` object works as
         expected.
         """
-        host = test_base.ftp_host_factory()
+        script = [
+          scripted_session.Call(method_name="__init__", result=None),
+          scripted_session.Call(method_name="pwd", result="/"),
+          scripted_session.Call(method_name="close")
+        ]
+        host = test_base.ftp_host_factory(scripted_session.factory(script))
         host.close()
         assert host.closed is True
         assert host._children == []
 
     def test_invalid_login(self):
         """Login to invalid host must fail."""
+        script = [
+          scripted_session.Call(method_name="__init__", result=ftplib.error_perm),
+          scripted_session.Call(method_name="pwd", result="/"),
+        ]
         with pytest.raises(ftputil.error.FTPOSError):
-            test_base.ftp_host_factory(FailOnLoginSession)
+            test_base.ftp_host_factory(scripted_session.factory(script))
 
     def test_pwd_normalization(self):
         """
         Test if the stored current directory is normalized.
         """
-        host = test_base.ftp_host_factory(UnnormalizedCurrentWorkingDirectory)
+        script = [
+          scripted_session.Call(method_name="__init__", result=None),
+          # Deliberately return the current working directory with a
+          # trailing slash to test if it's removed when stored in the
+          # `FTPHost` instance.
+          scripted_session.Call(method_name="pwd", result="/home/")
+        ]
+        host = test_base.ftp_host_factory(scripted_session.factory(script))
         assert host.getcwd() == "/home"
 
 
