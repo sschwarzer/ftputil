@@ -259,7 +259,24 @@ class TestCommandNotImplementedError:
         Test if we get the anticipated exception if a command isn't
         implemented by the server.
         """
-        host = test_base.ftp_host_factory()
+        Call = scripted_session.Call
+        script = [
+          Call(method_name="__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, expected_args=("/",)),
+          Call(method_name="cwd", result=None, expected_args=("/",)),
+          Call(method_name="voidcmd",
+               result=ftplib.error_perm("502 command not implemented"),
+               expected_args=("SITE CHMOD 0644 nonexistent",)),
+          Call(method_name="cwd", result=None, expected_args=("/",)),
+          Call(method_name="cwd", result=None, expected_args=("/",)),
+          Call(method_name="cwd", result=None, expected_args=("/",)),
+          Call(method_name="voidcmd",
+               result=ftplib.error_perm("502 command not implemented"),
+               expected_args=("SITE CHMOD 0644 nonexistent",)),
+          Call(method_name="cwd", result=None, expected_args=("/",)),
+        ]
+        host = test_base.ftp_host_factory(scripted_session.factory(script))
         with pytest.raises(ftputil.error.CommandNotImplementedError):
             host.chmod("nonexistent", 0o644)
         # `CommandNotImplementedError` is a subclass of `PermanentError`.
