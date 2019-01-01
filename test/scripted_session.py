@@ -107,6 +107,15 @@ class ScriptedSession:
             return call()
         return dummy_method
 
+    def dir(self, path, callback):
+        """
+        Call the `callback` for each line in the multiline string
+        `call.result`.
+        """
+        call = self._next_call(expected_method_name="dir")
+        for line in call.result.splitlines():
+            callback(line)
+
 
 def factory(script):
     """
