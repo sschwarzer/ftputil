@@ -61,17 +61,6 @@ class FailOnLoginSession(mock_ftplib.MockSession):
         raise ftplib.error_perm
 
 
-class FailOnKeepAliveSession(mock_ftplib.MockSession):
-
-    def pwd(self):
-        # Raise exception on second call to let the constructor work.
-        if not hasattr(self, "pwd_called"):
-            self.pwd_called = True
-            return "/home"
-        else:
-            raise ftplib.error_temp
-
-
 class RecursiveListingForDotAsPathSession(mock_ftplib.MockSession):
 
     dir_contents = {
@@ -209,8 +198,14 @@ class TestKeepAlive:
 
     def test_failing_keep_alive(self):
         """Assume the connection has timed out, so `keep_alive` fails."""
-        host = test_base.ftp_host_factory(
-                 session_factory=FailOnKeepAliveSession)
+        script = [
+          scripted_session.Call(method_name="__init__", result=None),
+          scripted_session.Call(method_name="pwd", result="/home"),
+          # Simulate failing `pwd` call after the server closed the connection
+          # due to a session timeout.
+          scripted_session.Call(method_name="pwd", result=ftplib.error_temp),
+        ]
+        host = test_base.ftp_host_factory(scripted_session.factory(script))
         with pytest.raises(ftputil.error.TemporaryError):
             host.keep_alive()
 
@@ -238,7 +233,17 @@ class TestSetParser:
 
     def test_set_parser(self):
         """Test if the selected parser is used."""
-        host = test_base.ftp_host_factory()
+        script = [
+          scripted_session.Call(method_name="__init__", result=None),
+          scripted_session.Call(method_name="pwd", result="/"),
+          scripted_session.Call(method_name="cwd", result=None, expected_args=("/",)),
+          scripted_session.Call(method_name="cwd", result=None, expected_args=("/",)),
+          scripted_session.Call(
+            method_name="dir",
+            result="drwxr-xr-x   2 45854    200           512 May  4  2000 home"),
+          scripted_session.Call(method_name="cwd", result=None, expected_args=("/",))
+        ]
+        host = test_base.ftp_host_factory(scripted_session.factory(script))
         assert host._stat._allow_parser_switching is True
         trivial_parser = TestSetParser.TrivialParser()
         host.set_parser(trivial_parser)
