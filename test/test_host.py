@@ -265,12 +265,16 @@ class TestCommandNotImplementedError:
           Call(method_name="pwd", result="/"),
           Call(method_name="cwd", result=None, expected_args=("/",)),
           Call(method_name="cwd", result=None, expected_args=("/",)),
+          # `FTPHost.chmod` only raises a `CommandNotImplementedError` when
+          # the exception text of the `ftplib.error_perm` starts with "502".
           Call(method_name="voidcmd",
                result=ftplib.error_perm("502 command not implemented"),
                expected_args=("SITE CHMOD 0644 nonexistent",)),
           Call(method_name="cwd", result=None, expected_args=("/",)),
           Call(method_name="cwd", result=None, expected_args=("/",)),
           Call(method_name="cwd", result=None, expected_args=("/",)),
+          # `FTPHost.chmod` only raises a `CommandNotImplementedError` when
+          # the exception text of the `ftplib.error_perm` starts with "502".
           Call(method_name="voidcmd",
                result=ftplib.error_perm("502 command not implemented"),
                expected_args=("SITE CHMOD 0644 nonexistent",)),
