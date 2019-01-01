@@ -8,11 +8,45 @@ __all__ = ["Call", "ScriptedSession", "factory"]
 
 class Call:
 
-    def __init__(self, method_name, result=None, args=None, kwargs=None):
+    def __init__(self, method_name, result=None,
+                 expected_args=None, expected_kwargs=None):
         self.method_name = method_name
         self.result = result
-        self.args = args if args is not None else ()
-        self.kwargs = kwargs if kwargs is not None else {}
+        self.expected_args = expected_args
+        self.expected_kwargs = expected_kwargs
+
+    def __repr__(self):
+        return ("{0.__class__.__name__}("
+                "method_name={0.method_name!r}, "
+                "result={0.result!r}, "
+                "expected_args={0.expected_args!r}, "
+                "expected_kwargs={0.expected_kwargs!r})".format(self))
+
+    def check_args(self, args, kwargs):
+        if self.expected_args is not None:
+            assert args == self.expected_args
+        if self.expected_kwargs is not None:
+            assert kwargs == self.expected_kwargs
+
+    @staticmethod
+    def _is_exception_class(obj):
+        """
+        Return `True` if `obj` is an exception class, else `False`.
+        """
+        try:
+            return issubclass(obj, Exception)
+        except TypeError:
+            # TypeError: issubclass() arg 1 must be a class
+            return False
+
+    def __call__(self):
+        """
+        Simulate call, returning the result or raising the exception.
+        """
+        if isinstance(self.result, Exception) or self._is_exception_class(self.result):
+            raise self.result
+        else:
+            return self.result
 
 
 class ScriptedSession:
@@ -40,38 +74,37 @@ class ScriptedSession:
     """
 
     def __init__(self, script):
+        self.script = script
+        self._index = 0
         # Always expect an entry for the constructor.
-        init = script[0]
+        init = self._next_call()
         assert init.method_name == "__init__"
-        if isinstance(init.result, Exception) or self._is_exception_class(init.result):
-            # Simulate an exception raised in the factory's constructor.
-            raise init.result
-        self.script = script[1:]
-        self._script_iter = iter(self.script)
+        init()
 
-    @staticmethod
-    def _is_exception_class(obj):
+    def _next_call(self, expected_method_name=None):
         """
-        Return `True` if `obj` is an exception class, else `False`.
+        Return next `Call` object.
+
+        Print the `Call` object before returning it. This is useful for
+        testing and debugging.
         """
-        try:
-            return issubclass(obj, Exception)
-        except TypeError:
-            # TypeError: issubclass() arg 1 must be a class
-            return False
+        print("Expected method name: {!r}".format(expected_method_name))
+        call = self.script[self._index]
+        self._index += 1
+        print("Next call: {!r}".format(call))
+        if expected_method_name is not None:
+            assert call.method_name == expected_method_name, (
+                     "called method {!r} instead of {!r}".format(expected_method_name,
+                                                                 call.method_name))
+        return call
 
     def __getattr__(self, attribute_name):
-        print("attribute name:", attribute_name)
-        call = next(self._script_iter)
-        print("calling {0.method_name!r} with result {0.result!r}".format(call))
-        assert call.method_name == attribute_name, (
-                 "called method {!r} instead of {!r}".format(attribute_name,
-                                                             call.method_name))
+        call = self._next_call(expected_method_name=attribute_name)
         def dummy_method(*args, **kwargs):
-            if isinstance(call.result, Exception) or self._is_exception_class(call.result):
-                raise call.result
-            else:
-                return call.result
+            print("args: {!r}".format(args))
+            print("kwargs: {!r}".format(kwargs))
+            call.check_args(args, kwargs)
+            return call()
         return dummy_method
 
 
