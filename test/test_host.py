@@ -233,15 +233,15 @@ class TestSetParser:
 
     def test_set_parser(self):
         """Test if the selected parser is used."""
+        Call = scripted_session.Call
         script = [
-          scripted_session.Call(method_name="__init__", result=None),
-          scripted_session.Call(method_name="pwd", result="/"),
-          scripted_session.Call(method_name="cwd", result=None, expected_args=("/",)),
-          scripted_session.Call(method_name="cwd", result=None, expected_args=("/",)),
-          scripted_session.Call(
-            method_name="dir",
-            result="drwxr-xr-x   2 45854    200           512 May  4  2000 home"),
-          scripted_session.Call(method_name="cwd", result=None, expected_args=("/",))
+          Call(method_name="__init__", result=None),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, expected_args=("/",)),
+          Call(method_name="cwd", result=None, expected_args=("/",)),
+          Call(method_name="dir",
+               result="drwxr-xr-x   2 45854    200           512 May  4  2000 home"),
+          Call(method_name="cwd", result=None, expected_args=("/",))
         ]
         host = test_base.ftp_host_factory(scripted_session.factory(script))
         assert host._stat._allow_parser_switching is True
