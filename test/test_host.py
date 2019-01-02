@@ -61,39 +61,6 @@ class FailOnLoginSession(mock_ftplib.MockSession):
         raise ftplib.error_perm
 
 
-class RecursiveListingForDotAsPathSession(mock_ftplib.MockSession):
-
-    dir_contents = {
-      ".": """\
-lrwxrwxrwx   1 staff          7 Aug 13  2003 bin -> usr/bin
-
-dev:
-total 10
-
-etc:
-total 10
-
-pub:
-total 4
--rw-r--r--   1 staff         74 Sep 25  2000 .message
-----------   1 staff          0 Aug 16  2003 .notar
-drwxr-xr-x  12 ftp          512 Nov 23  2008 freeware
-
-usr:
-total 4""",
-
-      "": """\
-total 10
-lrwxrwxrwx   1 staff          7 Aug 13  2003 bin -> usr/bin
-d--x--x--x   2 staff        512 Sep 24  2000 dev
-d--x--x--x   3 staff        512 Sep 25  2000 etc
-dr-xr-xr-x   3 staff        512 Oct  3  2000 pub
-d--x--x--x   5 staff        512 Oct  3  2000 usr"""}
-
-    def _transform_path(self, path):
-        return path
-
-
 class BinaryDownloadMockSession(mock_ftplib.MockUnixFormatSession):
 
     mock_file_content = binary_data()
@@ -290,32 +257,77 @@ class TestCommandNotImplementedError:
 
 class TestRecursiveListingForDotAsPath:
     """
-    Return a recursive directory listing when the path to list
-    is a dot. This is used to test for issue #33, see
+    These tests are for issue #33, see
     http://ftputil.sschwarzer.net/trac/ticket/33 .
     """
 
     def test_recursive_listing(self):
-        host = test_base.ftp_host_factory(
-                 session_factory=RecursiveListingForDotAsPathSession)
+        """
+        If a dot is passed to `FTPHost._dir` it should be passed to
+        `session.dir` unmodified.
+        """
+        Call = scripted_session.Call
+        script = [
+          Call(method_name="__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, expected_args=("/",)),
+          Call(method_name="cwd", result=None, expected_args=(".",)),
+          # Check that a dot is passed on to `session.dir`. With some servers,
+          # this would result in a recursive listing.
+          Call(method_name="dir", result="recursive listing", expected_args=(".",)),
+          Call(method_name="cwd", result=None, expected_args=("/",)),
+          Call(method_name="close", result=None)
+        ]
+        host = test_base.ftp_host_factory(scripted_session.factory(script))
         lines = host._dir(host.curdir)
-        assert lines[0] == "total 10"
-        assert lines[1].startswith("lrwxrwxrwx   1 staff")
-        assert lines[2].startswith("d--x--x--x   2 staff")
+        assert lines[0] == "recursive listing"
         host.close()
 
     def test_plain_listing(self):
-        host = test_base.ftp_host_factory(
-                 session_factory=RecursiveListingForDotAsPathSession)
-        lines = host._dir("")
-        assert lines[0] == "total 10"
-        assert lines[1].startswith("lrwxrwxrwx   1 staff")
-        assert lines[2].startswith("d--x--x--x   2 staff")
+        """
+        If an empty string is passed to `FTPHost._dir` it should be passed to
+        `session.dir` unmodified.
+        """
+        Call = scripted_session.Call
+        script = [
+          Call(method_name="__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, expected_args=("/",)),
+          Call(method_name="cwd", result=None, expected_args=(".",)),
+          # Check that the empty string is passed on to `session.dir`.
+          Call(method_name="dir", result="non-recursive listing", expected_args=("",)),
+          Call(method_name="cwd", result=None, expected_args=("/",)),
+          Call(method_name="close", result=None)
+        ]
+        host = test_base.ftp_host_factory(scripted_session.factory(script))
+        lines = host._dir(host.curdir)
+        assert lines[0] == "non-recursive listing"
         host.close()
 
     def test_empty_string_instead_of_dot_workaround(self):
-        host = test_base.ftp_host_factory(
-                 session_factory=RecursiveListingForDotAsPathSession)
+        """
+        If `FTPHost.listdir` is called with a dot as argument, the underlying
+        `session.dir` should _not_ be called with the dot as argument, but with
+        an empty string.
+        """
+        Call = scripted_session.Call
+        dir_result = """\
+total 10
+lrwxrwxrwx   1 staff          7 Aug 13  2003 bin -> usr/bin
+d--x--x--x   2 staff        512 Sep 24  2000 dev
+d--x--x--x   3 staff        512 Sep 25  2000 etc
+dr-xr-xr-x   3 staff        512 Oct  3  2000 pub
+d--x--x--x   5 staff        512 Oct  3  2000 usr"""
+        script = [
+          Call(method_name="__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, expected_args=("/",)),
+          Call(method_name="cwd", result=None, expected_args=("/",)),
+          Call(method_name="dir", result=dir_result, expected_args=("",)),
+          Call(method_name="cwd", result=None, expected_args=("/",)),
+          Call(method_name="close", result=None),
+        ]
+        host = test_base.ftp_host_factory(scripted_session.factory(script))
         files = host.listdir(host.curdir)
         assert files == ["bin", "dev", "etc", "pub", "usr"]
         host.close()
