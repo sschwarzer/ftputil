@@ -77,8 +77,7 @@ class ScriptedSession:
         self.script = script
         self._index = 0
         # Always expect an entry for the constructor.
-        init = self._next_call()
-        assert init.method_name == "__init__"
+        init = self._next_call(expected_method_name="__init__")
         init()
 
     def _next_call(self, expected_method_name=None):
