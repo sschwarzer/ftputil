@@ -3,7 +3,7 @@
 # See the file LICENSE for licensing terms.
 
 
-__all__ = ["Call", "ScriptedSession", "factory"]
+__all__ = ["Call", "factory"]
 
 
 class Call:
