@@ -127,23 +127,35 @@ class ScriptedSession:
             callback(line)
 
 
-def factory(*scripts):
+class MultisessionFactory:
     """
-    Return a session factory taking the scripted data from `script`.
+    Return a session factory using the scripted data from the given
+    "scripts" for each consecutive call ("creation") of a factory.
 
-    Use it like
+    Example:
 
       host = ftputil.FTPHost(host, user, password,
-                             session_factory=scripted_session.factory(script))
+                             session_factory=scripted_session.factory(script1, script2))
+
+    When the `session_factory` is "instantiated" for the first time by
+    `FTPHost._make_session`, the factory object will use the behavior
+    described by the script `script1`. When the `session_factory` is
+    "instantiated" a second time, the factory object will use the
+    behavior described by the script `script2`.
     """
-    # `ftputil.FTPHost` takes a `session_factory` argument. When the
-    # `FTPHost` instance is used, the session factory will be called
-    # with host, user and password arguments. However, since we want
-    # to control the factory from a specific `script` that `FTPHost`
-    # doesn't know about, return the actual factory that will be used
-    # by the `FTPHost` instance.
-    script_iter = iter(scripts)
-    def session_factory(host, user, password):
-        print("\nCalled session factory\n")
-        return ScriptedSession(next(script_iter))
-    return session_factory
+
+    def __init__(self, *scripts):
+        self._scripts = iter(scripts)
+
+    def __call__(self, host, user, password):
+        """
+        Call the factory.
+
+        This is equivalent to the constructor of the session (e. g.
+        `ftplib.FTP` in a real application).
+        """
+        script = next(self._scripts)
+        return ScriptedSession(script)
+
+
+factory = MultisessionFactory
