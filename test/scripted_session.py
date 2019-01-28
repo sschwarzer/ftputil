@@ -140,5 +140,6 @@ def factory(script):
     # doesn't know about, return the actual factory that will be used
     # by the `FTPHost` instance.
     def session_factory(host, user, password):
+        print("\nCalled session factory\n")
         return ScriptedSession(script)
     return session_factory
