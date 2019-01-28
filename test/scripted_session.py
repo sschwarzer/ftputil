@@ -79,6 +79,9 @@ class ScriptedSession:
         self._index = 0
         # Always expect an entry for the constructor.
         init = self._next_call(expected_method_name="__init__")
+        # The constructor isn't supposed to return anything. The only
+        # reason to call it here is to raise an exception if that was
+        # specified in the `script`.
         init()
 
     def _print(self, text):
