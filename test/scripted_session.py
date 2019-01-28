@@ -81,6 +81,13 @@ class ScriptedSession:
         init = self._next_call(expected_method_name="__init__")
         init()
 
+    def _print(self, text):
+        """
+        Print `text`, prefixed with a `repr` of the `ScriptedSession`
+        instance.
+        """
+        print("<ScriptedSession at {}> {}".format(hex(id(self)), text))
+
     def _next_call(self, expected_method_name=None):
         """
         Return next `Call` object.
@@ -88,10 +95,10 @@ class ScriptedSession:
         Print the `Call` object before returning it. This is useful for
         testing and debugging.
         """
-        print("Expected method name: {!r}".format(expected_method_name))
+        self._print("Expected method name: {!r}".format(expected_method_name))
         call = self.script[self._index]
         self._index += 1
-        print("Next call: {!r}".format(call))
+        self._print("Next call: {!r}".format(call))
         if expected_method_name is not None:
             assert call.method_name == expected_method_name, (
                      "called method {!r} instead of {!r}".format(expected_method_name,
@@ -101,8 +108,8 @@ class ScriptedSession:
     def __getattr__(self, attribute_name):
         call = self._next_call(expected_method_name=attribute_name)
         def dummy_method(*args, **kwargs):
-            print("args: {!r}".format(args))
-            print("kwargs: {!r}".format(kwargs))
+            self._print("args: {!r}".format(args))
+            self._print("kwargs: {!r}".format(kwargs))
             call.check_args(args, kwargs)
             return call()
         return dummy_method
