@@ -127,7 +127,7 @@ class ScriptedSession:
             callback(line)
 
 
-def factory(script):
+def factory(*scripts):
     """
     Return a session factory taking the scripted data from `script`.
 
@@ -142,7 +142,8 @@ def factory(script):
     # to control the factory from a specific `script` that `FTPHost`
     # doesn't know about, return the actual factory that will be used
     # by the `FTPHost` instance.
+    script_iter = iter(scripts)
     def session_factory(host, user, password):
         print("\nCalled session factory\n")
-        return ScriptedSession(script)
+        return ScriptedSession(next(script_iter))
     return session_factory
