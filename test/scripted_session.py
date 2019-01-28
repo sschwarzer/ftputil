@@ -1,4 +1,4 @@
-# Copyright (C) 2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2018-2019, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -75,6 +75,7 @@ class ScriptedSession:
 
     def __init__(self, script):
         self.script = script
+        # Index into `script`, the list of `Call` objects
         self._index = 0
         # Always expect an entry for the constructor.
         init = self._next_call(expected_method_name="__init__")
