@@ -98,12 +98,12 @@ class ScriptedSession:
     def __str__(self):
         return "{} {}".format(self.__class__.__name__, self._session_count)
 
-    def _print(self, text, **print_kwargs):
+    def _print(self, text):
         """
         Print `text`, prefixed with a `repr` of the `ScriptedSession`
         instance.
         """
-        print("{}: {}".format(self, text), **print_kwargs)
+        print("{}: {}".format(self, text))
 
     def _next_call(self, expected_method_name=None):
         """
@@ -112,16 +112,18 @@ class ScriptedSession:
         Print the `Call` object before returning it. This is useful for
         testing and debugging.
         """
-        self._print("Expecting method name {!r}".format(expected_method_name), end="")
-        call = self.script[self._index]
+        self._print("Expecting method name {!r} ...".format(expected_method_name))
+        try:
+            call = self.script[self._index]
+        except IndexError:
+            self._print("*** Ran out of `Call` objects for this session")
+            raise
         self._index += 1
         if expected_method_name is not None:
             assert call.method_name == expected_method_name, (
                      "called method {!r} instead of {!r}".format(expected_method_name,
                                                                  call.method_name))
-            print(" - found it")
-        else:
-            self._print()
+            self._print("found method {!r}".format(expected_method_name))
         return call
 
     def __getattr__(self, attribute_name):
