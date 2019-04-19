@@ -206,11 +206,11 @@ class TestSetParser:
         script = [
           Call(method_name="__init__", result=None),
           Call(method_name="pwd", result="/"),
-          Call(method_name="cwd", result=None, expected_args=("/",)),
-          Call(method_name="cwd", result=None, expected_args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
           Call(method_name="dir",
                result="drwxr-xr-x   2 45854    200           512 May  4  2000 home"),
-          Call(method_name="cwd", result=None, expected_args=("/",))
+          Call(method_name="cwd", result=None, args=("/",))
         ]
         host = test_base.ftp_host_factory(scripted_session.factory(script))
         assert host._stat._allow_parser_switching is True
@@ -232,22 +232,22 @@ class TestCommandNotImplementedError:
         script = [
           Call(method_name="__init__"),
           Call(method_name="pwd", result="/"),
-          Call(method_name="cwd", result=None, expected_args=("/",)),
-          Call(method_name="cwd", result=None, expected_args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
           # `FTPHost.chmod` only raises a `CommandNotImplementedError` when
           # the exception text of the `ftplib.error_perm` starts with "502".
           Call(method_name="voidcmd",
                result=ftplib.error_perm("502 command not implemented"),
-               expected_args=("SITE CHMOD 0644 nonexistent",)),
-          Call(method_name="cwd", result=None, expected_args=("/",)),
-          Call(method_name="cwd", result=None, expected_args=("/",)),
-          Call(method_name="cwd", result=None, expected_args=("/",)),
+               args=("SITE CHMOD 0644 nonexistent",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
           # `FTPHost.chmod` only raises a `CommandNotImplementedError` when
           # the exception text of the `ftplib.error_perm` starts with "502".
           Call(method_name="voidcmd",
                result=ftplib.error_perm("502 command not implemented"),
-               expected_args=("SITE CHMOD 0644 nonexistent",)),
-          Call(method_name="cwd", result=None, expected_args=("/",)),
+               args=("SITE CHMOD 0644 nonexistent",)),
+          Call(method_name="cwd", result=None, args=("/",)),
         ]
         host = test_base.ftp_host_factory(scripted_session.factory(script))
         with pytest.raises(ftputil.error.CommandNotImplementedError):
@@ -272,12 +272,12 @@ class TestRecursiveListingForDotAsPath:
         script = [
           Call(method_name="__init__"),
           Call(method_name="pwd", result="/"),
-          Call(method_name="cwd", result=None, expected_args=("/",)),
-          Call(method_name="cwd", result=None, expected_args=(".",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=(".",)),
           # Check that a dot is passed on to `session.dir`. With some servers,
           # this would result in a recursive listing.
-          Call(method_name="dir", result="recursive listing", expected_args=(".",)),
-          Call(method_name="cwd", result=None, expected_args=("/",)),
+          Call(method_name="dir", result="recursive listing", args=(".",)),
+          Call(method_name="cwd", result=None, args=("/",)),
           Call(method_name="close", result=None)
         ]
         host = test_base.ftp_host_factory(scripted_session.factory(script))
@@ -294,11 +294,11 @@ class TestRecursiveListingForDotAsPath:
         script = [
           Call(method_name="__init__"),
           Call(method_name="pwd", result="/"),
-          Call(method_name="cwd", result=None, expected_args=("/",)),
-          Call(method_name="cwd", result=None, expected_args=(".",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=(".",)),
           # Check that the empty string is passed on to `session.dir`.
-          Call(method_name="dir", result="non-recursive listing", expected_args=("",)),
-          Call(method_name="cwd", result=None, expected_args=("/",)),
+          Call(method_name="dir", result="non-recursive listing", args=("",)),
+          Call(method_name="cwd", result=None, args=("/",)),
           Call(method_name="close", result=None)
         ]
         host = test_base.ftp_host_factory(scripted_session.factory(script))
@@ -323,10 +323,10 @@ d--x--x--x   5 staff        512 Oct  3  2000 usr"""
         script = [
           Call(method_name="__init__"),
           Call(method_name="pwd", result="/"),
-          Call(method_name="cwd", result=None, expected_args=("/",)),
-          Call(method_name="cwd", result=None, expected_args=("/",)),
-          Call(method_name="dir", result=dir_result, expected_args=("",)),
-          Call(method_name="cwd", result=None, expected_args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="dir", result=dir_result, args=("",)),
+          Call(method_name="cwd", result=None, args=("/",)),
           Call(method_name="close", result=None),
         ]
         host = test_base.ftp_host_factory(scripted_session.factory(script))
@@ -352,22 +352,24 @@ class TestUploadAndDownload:
         host_script = [
           Call("__init__"),
           Call(method_name="pwd", result="/"),
-          Call(method_name="cwd", result=None, expected_args=("/",)),
-          Call(method_name="cwd", result=None, expected_args=("/",)),
+          Call(method_name="close"),
         ]
         file_script = [
           Call("__init__"),
           Call(method_name="pwd", result="/"),
-          Call(method_name="cwd", result=None, expected_args=("/",)),
-          Call(method_name="voidcmd", result=None, expected_args=("TYPE I",)),
-          Call(method_name="ntransfercmd", result=io.BytesIO(remote_file_content),
-               expected_args=("RETR {}".format(remote_file_name), None)),
-          Call(method_name="voidresp")
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="voidcmd", result=None, args=("TYPE I",)),
+          Call(method_name="transfercmd", result=io.BytesIO(remote_file_content),
+               args=("RETR {}".format(remote_file_name), None)),
+          Call(method_name="voidresp"),
+          Call(method_name="close")
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
         host = test_base.ftp_host_factory(multisession_factory)
         # Download
-        host.download(remote_file_name, local_target)
+        with host:
+            host.download(remote_file_name, local_target)
+            pass
         # Verify expected operations on mock socket as done in `FTPFile.close`.
         # We expect one `gettimeout` and two `settimeout` calls.
         file_session = multisession_factory.scripted_sessions[1]
