@@ -85,7 +85,7 @@ class ScriptedSession:
     def __init__(self, script):
         self.script = script
         # Index into `script`, the list of `Call` objects
-        self._index = 0
+        self._call_index = 0
         self.__class__._session_count += 1
         self._session_count = self.__class__._session_count
         # Always expect an entry for the constructor.
@@ -114,11 +114,11 @@ class ScriptedSession:
         """
         self._print("Expecting method name {!r} ...".format(expected_method_name))
         try:
-            call = self.script[self._index]
+            call = self.script[self._call_index]
         except IndexError:
             self._print("*** Ran out of `Call` objects for this session")
             raise
-        self._index += 1
+        self._call_index += 1
         if expected_method_name is not None:
             assert call.method_name == expected_method_name, (
                      "called method {!r} instead of {!r}".format(expected_method_name,
