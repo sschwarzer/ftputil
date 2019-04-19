@@ -10,29 +10,38 @@ __all__ = ["Call", "factory"]
 
 class Call:
 
-    def __init__(self, method_name, result=None,
-                 expected_args=None, expected_kwargs=None):
+    def __init__(self, method_name, result=None, args=None, kwargs=None):
         self.method_name = method_name
         self.result = result
-        self.expected_args = expected_args
-        self.expected_kwargs = expected_kwargs
+        self.args = args
+        self.kwargs = kwargs
 
     def __repr__(self):
         return ("{0.__class__.__name__}("
                 "method_name={0.method_name!r}, "
                 "result={0.result!r}, "
-                "expected_args={0.expected_args!r}, "
-                "expected_kwargs={0.expected_kwargs!r})".format(self))
+                "args={0.args!r}, "
+                "kwargs={0.kwargs!r})".format(self))
+
+    def check_method_name(self, method_name):
+        """
+        Check if the `method_name` matches the method name of this scripted
+        call.
+        """
+        # This is a simple implementation, but keep it for consistency with
+        # `check_args`.
+        if self.method_name is not None:
+            assert method_name == self.method_name
 
     def check_args(self, args, kwargs):
         """
         Check if `args` and `kwargs` that were used in the actual call match
         what was expected.
         """
-        if self.expected_args is not None:
-            assert args == self.expected_args
-        if self.expected_kwargs is not None:
-            assert kwargs == self.expected_kwargs
+        if self.args is not None:
+            assert args == self.args
+        if self.kwargs is not None:
+            assert kwargs == self.kwargs
 
     @staticmethod
     def _is_exception_class(obj):
@@ -91,7 +100,8 @@ class ScriptedSession:
         self.__class__._session_count += 1
         self._session_count = self.__class__._session_count
         # Always expect an entry for the constructor.
-        init = self._next_call(expected_method_name="__init__")
+        init = self._next_script_call()
+        init.check_method_name("__init__")
         # The constructor isn't supposed to return anything. The only
         # reason to call it here is to raise an exception if that was
         # specified in the `script`.
@@ -107,35 +117,44 @@ class ScriptedSession:
         """
         print("{}: {}".format(self, text))
 
-    def _next_call(self, expected_method_name=None):
+    def _next_script_call(self):
         """
         Return next `Call` object.
-
-        Print the `Call` object before returning it. This is useful for
-        testing and debugging.
         """
-        self._print("Expecting method name {!r} ...".format(expected_method_name))
         try:
             call = self.script[self._call_index]
         except IndexError:
             self._print("*** Ran out of `Call` objects for this session")
             raise
         self._call_index += 1
-        if expected_method_name is not None:
-            assert call.method_name == expected_method_name, (
-                     "called method {!r} instead of {!r}".format(expected_method_name,
-                                                                 call.method_name))
-            self._print("  found method {!r}".format(expected_method_name))
         return call
 
+    def _print_method_names(self, script_method_name, sut_method_name):
+        """
+        Print the name of the method specified in the scripted session and the
+        name of the method called from the system under test.
+        """
+        self._print("Method name from script: {!r}".format(script_method_name))
+        self._print("Method name from system under test: {!r}".format(sut_method_name))
+
+    def _print_args(self, script_args, script_kwargs, sut_args, sut_kwargs):
+        """
+        Print the expected args and kwargs of the scripted session and the
+        args and kwargs from the system under test.
+        """
+        self._print("args from script: {!r}".format(script_args))
+        self._print("kwargs from script: {!r}".format(script_kwargs))
+        self._print("args from system under test: {!r}".format(sut_args))
+        self._print("kwargs from system under test: {!r}".format(sut_kwargs))
+
     def __getattr__(self, attribute_name):
-        call = self._next_call(expected_method_name=attribute_name)
+        script_call = self._next_script_call()
+        self._print_method_names(script_call.method_name, attribute_name)
+        script_call.check_method_name(attribute_name)
         def dummy_method(*args, **kwargs):
-            self._print("{!r} is called with:".format(call))
-            self._print("  args: {!r}".format(args))
-            self._print("  kwargs: {!r}".format(kwargs))
-            call.check_args(args, kwargs)
-            return call()
+            self._print_args(script_call.args, script_call.kwargs, args, kwargs)
+            script_call.check_args(args, kwargs)
+            return script_call()
         return dummy_method
 
     # ----------------------------------------------------------------------
@@ -152,8 +171,9 @@ class ScriptedSession:
         Call the `callback` for each line in the multiline string
         `call.result`.
         """
-        call = self._next_call(expected_method_name="dir")
-        for line in call.result.splitlines():
+        script_call = self._next_script_call()
+        self._print_method_names(script_call.method_name, "dir")
+        for line in script_call.result.splitlines():
             callback(line)
 
     def ntransfercmd(self, cmd, rest=None):
@@ -165,9 +185,11 @@ class ScriptedSession:
         an `io.TextIO` or `io.BytesIO` value to be used as the
         `Socket.makefile` result.
         """
-        call = self._next_call(expected_method_name="ntransfercmd")
+        script_call = self._next_script_call()
+        self._print_method_names(script_call.method_name, "ntransfercmd")
+        script_call.check_method_name("ntransfercmd")
         mock_socket = unittest.mock.Mock(name="socket")
-        mock_socket.makefile.return_value = call.result
+        mock_socket.makefile.return_value = script_call.result
         # Return `None` for size. The docstring of `ftplib.FTP.ntransfercmd`
         # says that's a possibility.
         # TODO: Use a sensible `size` value later if it turns out we need it.
@@ -181,7 +203,12 @@ class ScriptedSession:
         constructing an `transfercmd` call specifies an `io.TextIO` or
         `io.BytesIO` value to be used as the `Socket.makefile` result.
         """
-        return self.ntransfercmd(cmd, rest)[0]
+        script_call = self._next_script_call()
+        self._print_method_names(script_call.method_name, "transfercmd")
+        script_call.check_method_name("transfercmd")
+        mock_socket = unittest.mock.Mock(name="socket")
+        mock_socket.makefile.return_value = script_call.result
+        return mock_socket
 
 
 class MultisessionFactory:
