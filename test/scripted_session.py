@@ -87,7 +87,7 @@ class ScriptedSession:
         # Index into `script`, the list of `Call` objects
         self._index = 0
         self.__class__._session_count += 1
-        self._session_count = self._session_count
+        self._session_count = self.__class__._session_count
         # Always expect an entry for the constructor.
         init = self._next_call(expected_method_name="__init__")
         # The constructor isn't supposed to return anything. The only
