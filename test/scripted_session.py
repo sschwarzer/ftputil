@@ -130,6 +130,10 @@ class ScriptedSession:
             return call()
         return dummy_method
 
+    # ----------------------------------------------------------------------
+    # `ftplib.FTP` methods that shouldn't be executed with the default
+    # processing in `__getattr__`
+
     def dir(self, path, callback):
         """
         Call the `callback` for each line in the multiline string
