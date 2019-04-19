@@ -93,6 +93,9 @@ class ScriptedSession:
         Print `text`, prefixed with a `repr` of the `ScriptedSession`
         instance.
         """
+        # Use a kind of `repr` which is shorter than the default `repr`, but
+        # keep the `__repr__` implementation as-is. We only need the short form
+        # for `_print`.
         print("<ScriptedSession at {}> {}".format(hex(id(self)), text))
 
     def _next_call(self, expected_method_name=None):
