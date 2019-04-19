@@ -3,6 +3,7 @@
 # See the file LICENSE for licensing terms.
 
 import ftplib
+import io
 import itertools
 import os
 import pickle
@@ -343,15 +344,32 @@ class TestUploadAndDownload:
 
     def test_download(self):
         """Test mode download."""
+        Call = scripted_session.Call
         local_target = "_test_target_"
-        host = test_base.ftp_host_factory(
-                 session_factory=BinaryDownloadMockSession)
+        remote_file_name = "dummy_name"
+        remote_file_content = b"dummy_content"
+        host_script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, expected_args=("/",)),
+          Call(method_name="cwd", result=None, expected_args=("/",)),
+        ]
+        file_script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, expected_args=("/",)),
+          Call(method_name="voidcmd", result=None, expected_args=("TYPE I",)),
+          Call(method_name="ntransfercmd", result=io.BytesIO(remote_file_content),
+               expected_args=("RETR {}".format(remote_file_name), None)),
+          Call(method_name="voidresp")
+        ]
+        host = test_base.ftp_host_factory(scripted_session.factory(host_script,
+                                                                   file_script))
         # Download
-        host.download("dummy", local_target)
+        host.download(remote_file_name, local_target)
         # Read file and compare
         with open(local_target, "rb") as fobj:
             data = fobj.read()
-        remote_file_content = mock_ftplib.content_of("dummy")
         assert data == remote_file_content
         # Clean up
         os.unlink(local_target)
