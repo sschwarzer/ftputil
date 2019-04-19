@@ -123,15 +123,15 @@ class ScriptedSession:
             assert call.method_name == expected_method_name, (
                      "called method {!r} instead of {!r}".format(expected_method_name,
                                                                  call.method_name))
-            self._print("found method {!r}".format(expected_method_name))
+            self._print("  found method {!r}".format(expected_method_name))
         return call
 
     def __getattr__(self, attribute_name):
         call = self._next_call(expected_method_name=attribute_name)
         def dummy_method(*args, **kwargs):
             self._print("{!r} is called with:".format(call))
-            self._print("args: {!r}".format(args))
-            self._print("kwargs: {!r}".format(kwargs))
+            self._print("  args: {!r}".format(args))
+            self._print("  kwargs: {!r}".format(kwargs))
             call.check_args(args, kwargs)
             return call()
         return dummy_method
