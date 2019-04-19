@@ -363,10 +363,17 @@ class TestUploadAndDownload:
                expected_args=("RETR {}".format(remote_file_name), None)),
           Call(method_name="voidresp")
         ]
-        host = test_base.ftp_host_factory(scripted_session.factory(host_script,
-                                                                   file_script))
+        multisession_factory = scripted_session.factory(host_script, file_script)
+        host = test_base.ftp_host_factory(multisession_factory)
         # Download
         host.download(remote_file_name, local_target)
+        # Verify expected operations on mock socket as done in `FTPFile.close`.
+        # We expect one `gettimeout` and two `settimeout` calls.
+        file_session = multisession_factory._scripted_sessions[1]
+        file_session.sock.gettimeout.assert_called_once_with()
+        assert len(file_session.sock.settimeout.call_args_list) == 2
+        file_session.sock.settimeout.call_args_list[0] == (5,)
+        file_session.sock.settimeout.call_args_list[1] == (file_session.sock.gettimeout(),)
         # Read file and compare
         with open(local_target, "rb") as fobj:
             data = fobj.read()
