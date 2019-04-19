@@ -373,8 +373,10 @@ class TestUploadAndDownload:
         file_session = multisession_factory.scripted_sessions[1]
         file_session.sock.gettimeout.assert_called_once_with()
         assert len(file_session.sock.settimeout.call_args_list) == 2
-        file_session.sock.settimeout.call_args_list[0] == (ftputil.file.FTPFile._close_timeout,)
-        file_session.sock.settimeout.call_args_list[1] == (file_session.sock.gettimeout(),)
+        assert (file_session.sock.settimeout.call_args_list[0] ==
+                ((ftputil.file.FTPFile._close_timeout,), {}) )
+        assert (file_session.sock.settimeout.call_args_list[1] ==
+                ((file_session.sock.gettimeout(),), {}))
         # Read file and compare
         with open(local_target, "rb") as fobj:
             data = fobj.read()
