@@ -93,6 +93,10 @@ class ScriptedSession:
     # to distinguish numbers like 1, 2, etc. than hexadecimal ids.
     _session_count = 0
 
+    @classmethod
+    def reset_session_count(cls):
+        cls._session_count = 0
+
     def __init__(self, script):
         self.script = script
         # Index into `script`, the list of `Call` objects
@@ -229,6 +233,7 @@ class MultisessionFactory:
     """
 
     def __init__(self, *scripts):
+        ScriptedSession.reset_session_count()
         self._scripts = iter(scripts)
         self.scripted_sessions = []
 
