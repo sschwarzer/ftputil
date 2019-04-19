@@ -203,7 +203,7 @@ class MultisessionFactory:
 
     def __init__(self, *scripts):
         self._scripts = iter(scripts)
-        self._scripted_sessions = []
+        self.scripted_sessions = []
 
     def __call__(self, host, user, password):
         """
@@ -214,7 +214,7 @@ class MultisessionFactory:
         """
         script = next(self._scripts)
         scripted_session = ScriptedSession(script)
-        self._scripted_sessions.append(scripted_session)
+        self.scripted_sessions.append(scripted_session)
         return scripted_session
 
 
