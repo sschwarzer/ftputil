@@ -2,6 +2,8 @@
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
+import unittest.mock
+
 
 __all__ = ["Call", "factory"]
 
@@ -140,6 +142,11 @@ class ScriptedSession:
     # `ftplib.FTP` methods that shouldn't be executed with the default
     # processing in `__getattr__`
 
+    # `File.close` accesses the session `sock` object to set and reset the
+    # timeout. `sock` itself is never _called_ though, so it doesn't make sense
+    # to create a `sock` _call_.
+    sock = unittest.mock.Mock(name="socket_attribute")
+
     def dir(self, path, callback):
         """
         Call the `callback` for each line in the multiline string
@@ -148,6 +155,33 @@ class ScriptedSession:
         call = self._next_call(expected_method_name="dir")
         for line in call.result.splitlines():
             callback(line)
+
+    def ntransfercmd(self, cmd, rest=None):
+        """
+        Simulate the `ftplib.FTP.ntransfercmd` call.
+
+        `ntransfercmd` returns a tuple of a socket and a size argument. The
+        `result` value given when constructing an `ntransfercmd` call specifies
+        an `io.TextIO` or `io.BytesIO` value to be used as the
+        `Socket.makefile` result.
+        """
+        call = self._next_call(expected_method_name="ntransfercmd")
+        mock_socket = unittest.mock.Mock(name="socket")
+        mock_socket.makefile.return_value = call.result
+        # Return `None` for size. The docstring of `ftplib.FTP.ntransfercmd`
+        # says that's a possibility.
+        # TODO: Use a sensible `size` value later if it turns out we need it.
+        return mock_socket, None
+
+    def transfercmd(self, cmd, rest=None):
+        """
+        Simulate the `ftplib.FTP.transfercmd` call.
+
+        `transfercmd` returns a socket. The `result` value given when
+        constructing an `transfercmd` call specifies an `io.TextIO` or
+        `io.BytesIO` value to be used as the `Socket.makefile` result.
+        """
+        return self.ntransfercmd(cmd, rest)[0]
 
 
 class MultisessionFactory:
