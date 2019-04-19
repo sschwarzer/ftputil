@@ -23,6 +23,10 @@ class Call:
                 "expected_kwargs={0.expected_kwargs!r})".format(self))
 
     def check_args(self, args, kwargs):
+        """
+        Check if `args` and `kwargs` that were used in the actual call match
+        what was expected.
+        """
         if self.expected_args is not None:
             assert args == self.expected_args
         if self.expected_kwargs is not None:
