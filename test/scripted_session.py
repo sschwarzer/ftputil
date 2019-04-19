@@ -77,10 +77,17 @@ class ScriptedSession:
     for the mock methods.
     """
 
+    # Class-level counter to enumerate `ScriptedSession`s. This makes it
+    # possible to make the output even more compact. Additionally, it's easier
+    # to distinguish numbers like 1, 2, etc. than hexadecimal ids.
+    _session_count = 0
+
     def __init__(self, script):
         self.script = script
         # Index into `script`, the list of `Call` objects
         self._index = 0
+        self.__class__._session_count += 1
+        self._session_count = self._session_count
         # Always expect an entry for the constructor.
         init = self._next_call(expected_method_name="__init__")
         # The constructor isn't supposed to return anything. The only
@@ -88,18 +95,15 @@ class ScriptedSession:
         # specified in the `script`.
         init()
 
-    def __repr__(self):
-        """
-        Return a shorter representation than the default implementation.
-        """
-        return "<{} at {}>".format(self.__class__.__name__, hex(id(self)))
+    def __str__(self):
+        return "{} {}".format(self.__class__.__name__, self._session_count)
 
     def _print(self, text, **print_kwargs):
         """
         Print `text`, prefixed with a `repr` of the `ScriptedSession`
         instance.
         """
-        print("{!r} {}".format(self, text), **print_kwargs)
+        print("{}: {}".format(self, text), **print_kwargs)
 
     def _next_call(self, expected_method_name=None):
         """
