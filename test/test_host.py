@@ -263,28 +263,6 @@ class TestRecursiveListingForDotAsPath:
     http://ftputil.sschwarzer.net/trac/ticket/33 .
     """
 
-    def test_recursive_listing(self):
-        """
-        If a dot is passed to `FTPHost._dir` it should be passed to
-        `session.dir` unmodified.
-        """
-        Call = scripted_session.Call
-        script = [
-          Call(method_name="__init__"),
-          Call(method_name="pwd", result="/"),
-          Call(method_name="cwd", result=None, args=("/",)),
-          Call(method_name="cwd", result=None, args=(".",)),
-          # Check that a dot is passed on to `session.dir`. With some servers,
-          # this would result in a recursive listing.
-          Call(method_name="dir", result="recursive listing", args=(".",)),
-          Call(method_name="cwd", result=None, args=("/",)),
-          Call(method_name="close", result=None)
-        ]
-        host = test_base.ftp_host_factory(scripted_session.factory(script))
-        lines = host._dir(host.curdir)
-        assert lines[0] == "recursive listing"
-        host.close()
-
     def test_plain_listing(self):
         """
         If an empty string is passed to `FTPHost._dir` it should be passed to
