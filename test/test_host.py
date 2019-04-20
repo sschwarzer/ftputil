@@ -347,7 +347,6 @@ class TestUploadAndDownload:
         # Download
         with host:
             host.download(remote_file_name, local_target)
-            pass
         # Verify expected operations on mock socket as done in `FTPFile.close`.
         # We expect one `gettimeout` and two `settimeout` calls.
         file_session = multisession_factory.scripted_sessions[1]
