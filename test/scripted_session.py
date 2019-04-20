@@ -23,25 +23,30 @@ class Call:
                 "args={0.args!r}, "
                 "kwargs={0.kwargs!r})".format(self))
 
-    def check_method_name(self, method_name):
+    def check_call(self, method_name, args=None, kwargs=None):
+        # TODO: Mention printing in the docstring.
+        # TODO: Describe how the comparison is made.
         """
-        Check if the `method_name` matches the method name of this scripted
-        call.
-        """
-        # This is a simple implementation, but keep it for consistency with
-        # `check_args`.
-        if self.method_name is not None:
-            assert method_name == self.method_name
+        Check the method name, args and kwargs from this `Call` object
+        against the method name, args and kwargs from the system under test.
 
-    def check_args(self, args, kwargs):
+        Raise an `AssertionError` if there's a mismatch.
         """
-        Check if `args` and `kwargs` that were used in the actual call match
-        what was expected.
-        """
-        if self.args is not None:
-            assert args == self.args
-        if self.kwargs is not None:
-            assert kwargs == self.kwargs
+        print("  Call from session script:    {} | {!r} | {!r}".format(
+              self.method_name, self.args, self.kwargs))
+        print("  Call from system under test: {} | {!r} | {!r}".format(
+              method_name, args, kwargs))
+        def compare(value_name, script_value, sut_value):
+            if script_value is not None:
+                try:
+                    assert script_value == sut_value
+                except AssertionError:
+                    print("  Mismatch for `{}`: {!r} != {!r}".format(
+                          value_name, script_value, sut_value))
+                    raise
+        compare("method_name", self.method_name, method_name)
+        compare("args", self.args, args)
+        compare("kwargs", self.kwargs, kwargs)
 
     @staticmethod
     def _is_exception_class(obj):
@@ -104,22 +109,14 @@ class ScriptedSession:
         self.__class__._session_count += 1
         self._session_count = self.__class__._session_count
         # Always expect an entry for the constructor.
-        init = self._next_script_call()
-        init.check_method_name("__init__")
+        init_call = self._next_script_call()
         # The constructor isn't supposed to return anything. The only
         # reason to call it here is to raise an exception if that was
         # specified in the `script`.
-        init()
+        init_call()
 
     def __str__(self):
         return "{} {}".format(self.__class__.__name__, self._session_count)
-
-    def _print(self, text):
-        """
-        Print `text`, prefixed with a `repr` of the `ScriptedSession`
-        instance.
-        """
-        print("{}: {}".format(self, text))
 
     def _next_script_call(self):
         """
@@ -133,31 +130,11 @@ class ScriptedSession:
         self._call_index += 1
         return call
 
-    def _print_method_names(self, script_method_name, sut_method_name):
-        """
-        Print the name of the method specified in the scripted session and the
-        name of the method called from the system under test.
-        """
-        self._print("Method name from script: {!r}".format(script_method_name))
-        self._print("Method name from system under test: {!r}".format(sut_method_name))
-
-    def _print_args(self, script_args, script_kwargs, sut_args, sut_kwargs):
-        """
-        Print the expected args and kwargs of the scripted session and the
-        args and kwargs from the system under test.
-        """
-        self._print("args from script: {!r}".format(script_args))
-        self._print("kwargs from script: {!r}".format(script_kwargs))
-        self._print("args from system under test: {!r}".format(sut_args))
-        self._print("kwargs from system under test: {!r}".format(sut_kwargs))
-
     def __getattr__(self, attribute_name):
         script_call = self._next_script_call()
-        self._print_method_names(script_call.method_name, attribute_name)
-        script_call.check_method_name(attribute_name)
         def dummy_method(*args, **kwargs):
-            self._print_args(script_call.args, script_call.kwargs, args, kwargs)
-            script_call.check_args(args, kwargs)
+            print(self)
+            script_call.check_call(attribute_name, args, kwargs)
             return script_call()
         return dummy_method
 
@@ -175,8 +152,11 @@ class ScriptedSession:
         Call the `callback` for each line in the multiline string
         `call.result`.
         """
+        print(self)
         script_call = self._next_script_call()
-        self._print_method_names(script_call.method_name, "dir")
+        # Check only the path. This requires that the corresponding `Call`
+        # object also solely specifies the path as `args`.
+        script_call.check_call("dir", (path,), None)
         for line in script_call.result.splitlines():
             callback(line)
 
@@ -189,9 +169,9 @@ class ScriptedSession:
         an `io.TextIO` or `io.BytesIO` value to be used as the
         `Socket.makefile` result.
         """
+        print(self)
         script_call = self._next_script_call()
-        self._print_method_names(script_call.method_name, "ntransfercmd")
-        script_call.check_method_name("ntransfercmd")
+        script_call.check_call("ntransfercmd", (cmd, rest), None)
         mock_socket = unittest.mock.Mock(name="socket")
         mock_socket.makefile.return_value = script_call.result
         # Return `None` for size. The docstring of `ftplib.FTP.ntransfercmd`
@@ -207,9 +187,9 @@ class ScriptedSession:
         constructing an `transfercmd` call specifies an `io.TextIO` or
         `io.BytesIO` value to be used as the `Socket.makefile` result.
         """
+        print(self)
         script_call = self._next_script_call()
-        self._print_method_names(script_call.method_name, "transfercmd")
-        script_call.check_method_name("transfercmd")
+        script_call.check_call("transfercmd", (cmd, rest), None)
         mock_socket = unittest.mock.Mock(name="socket")
         mock_socket.makefile.return_value = script_call.result
         return mock_socket
