@@ -109,7 +109,7 @@ class ScriptedSession:
         self.__class__._session_count += 1
         self._session_count = self.__class__._session_count
         # Always expect an entry for the constructor.
-        init_call = self._next_script_call()
+        init_call = self._next_script_call("__init__")
         # The constructor isn't supposed to return anything. The only
         # reason to call it here is to raise an exception if that was
         # specified in the `script`.
@@ -118,20 +118,22 @@ class ScriptedSession:
     def __str__(self):
         return "{} {}".format(self.__class__.__name__, self._session_count)
 
-    def _next_script_call(self):
+    def _next_script_call(self, requested_attribute):
         """
         Return next `Call` object.
         """
         try:
             call = self.script[self._call_index]
         except IndexError:
-            print("{}: *** Ran out of `Call` objects for this session".format(self))
+            print(self)
+            print("  *** Ran out of `Call` objects for this session".format(self))
+            print("  Requested attribute was {!r}".format(requested_attribute))
             raise
         self._call_index += 1
         return call
 
     def __getattr__(self, attribute_name):
-        script_call = self._next_script_call()
+        script_call = self._next_script_call(attribute_name)
         def dummy_method(*args, **kwargs):
             print(self)
             script_call.check_call(attribute_name, args, kwargs)
@@ -153,7 +155,7 @@ class ScriptedSession:
         `call.result`.
         """
         print(self)
-        script_call = self._next_script_call()
+        script_call = self._next_script_call("dir")
         # Check only the path. This requires that the corresponding `Call`
         # object also solely specifies the path as `args`.
         script_call.check_call("dir", (path,), None)
@@ -170,7 +172,7 @@ class ScriptedSession:
         `Socket.makefile` result.
         """
         print(self)
-        script_call = self._next_script_call()
+        script_call = self._next_script_call("ntransfercmd")
         script_call.check_call("ntransfercmd", (cmd, rest), None)
         mock_socket = unittest.mock.Mock(name="socket")
         mock_socket.makefile.return_value = script_call.result
@@ -188,7 +190,7 @@ class ScriptedSession:
         `io.BytesIO` value to be used as the `Socket.makefile` result.
         """
         print(self)
-        script_call = self._next_script_call()
+        script_call = self._next_script_call("transfercmd")
         script_call.check_call("transfercmd", (cmd, rest), None)
         mock_socket = unittest.mock.Mock(name="socket")
         mock_socket.makefile.return_value = script_call.result
