@@ -122,10 +122,10 @@ class ScriptedSession:
         """
         Return next `Call` object.
         """
+        print(self)
         try:
             call = self.script[self._call_index]
         except IndexError:
-            print(self)
             print("  *** Ran out of `Call` objects for this session".format(self))
             print("  Requested attribute was {!r}".format(requested_attribute))
             raise
@@ -154,7 +154,6 @@ class ScriptedSession:
         Call the `callback` for each line in the multiline string
         `call.result`.
         """
-        print(self)
         script_call = self._next_script_call("dir")
         # Check only the path. This requires that the corresponding `Call`
         # object also solely specifies the path as `args`.
@@ -171,7 +170,6 @@ class ScriptedSession:
         an `io.TextIO` or `io.BytesIO` value to be used as the
         `Socket.makefile` result.
         """
-        print(self)
         script_call = self._next_script_call("ntransfercmd")
         script_call.check_call("ntransfercmd", (cmd, rest), None)
         mock_socket = unittest.mock.Mock(name="socket")
@@ -189,7 +187,6 @@ class ScriptedSession:
         constructing an `transfercmd` call specifies an `io.TextIO` or
         `io.BytesIO` value to be used as the `Socket.makefile` result.
         """
-        print(self)
         script_call = self._next_script_call("transfercmd")
         script_call.check_call("transfercmd", (cmd, rest), None)
         mock_socket = unittest.mock.Mock(name="socket")
