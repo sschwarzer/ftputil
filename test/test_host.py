@@ -314,7 +314,7 @@ d--x--x--x   5 staff        512 Oct  3  2000 usr"""
 
 
 class TestUploadAndDownload:
-    """Test ASCII upload and binary download as examples."""
+    """Test upload and download."""
 
     def generate_file(self, data, file_name):
         """Generate a local data file."""
