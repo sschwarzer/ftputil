@@ -324,9 +324,9 @@ class TestUploadAndDownload:
     def test_download(self):
         """Test mode download."""
         Call = scripted_session.Call
-        local_target = "_test_target_"
         remote_file_name = "dummy_name"
         remote_file_content = b"dummy_content"
+        local_target = "_test_target_"
         host_script = [
           Call("__init__"),
           Call(method_name="pwd", result="/"),
