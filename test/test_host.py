@@ -2,6 +2,7 @@
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
+import datetime
 import ftplib
 import io
 import itertools
@@ -363,15 +364,35 @@ class TestUploadAndDownload:
         # Clean up
         os.unlink(local_target)
 
-    def test_conditional_upload(self):
-        """Test conditional upload."""
+    def test_conditional_upload_without_upload(self):
+        """
+        If the target file is newer, no upload should happen.
+        """
+        Call = scripted_session.Call
         local_source = "_test_source_"
         data = binary_data()
         self.generate_file(data, local_source)
+        dir_result = test_base.dir_line(mode_string="-rw-r--r--",
+                                        date_=datetime.date.today() +
+                                              datetime.timedelta(days=1),
+                                        name="newer")
+        script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="dir", result=dir_result, args=("",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="close"),
+        ]
         # Target is newer, so don't upload.
-        host = test_base.ftp_host_factory(
-                 ftp_host_class=FailingUploadAndDownloadFTPHost)
-        flag = host.upload_if_newer(local_source, "/home/newer")
+        #
+        # This not only tests the return value, but also if a transfer
+        # happened. If an upload was tried, our test framework would complain
+        # about a missing scripted session for the `FTPFile` host.
+        multisession_factory = scripted_session.factory(script)
+        with test_base.ftp_host_factory(multisession_factory) as host:
+            flag = host.upload_if_newer(local_source, "/newer")
         assert flag is False
         # Target is older, so upload.
         host = test_base.ftp_host_factory()
