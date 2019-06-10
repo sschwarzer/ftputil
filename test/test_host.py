@@ -620,24 +620,31 @@ class TestTimeShift:
 
     def test_assert_valid_time_shift(self):
         """Test time shift sanity checks."""
-        host = test_base.ftp_host_factory(session_factory=TimeShiftMockSession)
-        # Use private bound method.
-        assert_time_shift = host._FTPHost__assert_valid_time_shift
-        # Valid time shifts
-        test_data = [23*3600, -23*3600, 3600+30, -3600+30]
-        for time_shift in test_data:
-            assert assert_time_shift(time_shift) is None
-        # Invalid time shift (exceeds one day)
-        with pytest.raises(ftputil.error.TimeShiftError):
-            assert_time_shift(25*3600)
-        with pytest.raises(ftputil.error.TimeShiftError):
-            assert_time_shift(-25*3600)
-        # Invalid time shift (too large deviation from 15-minute units
-        # is unacceptable)
-        with pytest.raises(ftputil.error.TimeShiftError):
-            assert_time_shift(8*60)
-        with pytest.raises(ftputil.error.TimeShiftError):
-            assert_time_shift(-3600-8*60)
+        Call = scripted_session.Call
+        script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="close"),
+        ]
+        multisession_factory = scripted_session.factory(script)
+        with test_base.ftp_host_factory(multisession_factory) as host:
+            # Use private bound method.
+            assert_time_shift = host._FTPHost__assert_valid_time_shift
+            # Valid time shifts
+            test_data = [23*3600, -23*3600, 3600+30, -3600+30]
+            for time_shift in test_data:
+                assert assert_time_shift(time_shift) is None
+            # Invalid time shift (exceeds one day)
+            with pytest.raises(ftputil.error.TimeShiftError):
+                assert_time_shift(25*3600)
+            with pytest.raises(ftputil.error.TimeShiftError):
+                assert_time_shift(-25*3600)
+            # Invalid time shift (too large deviation from 15-minute units
+            # is unacceptable)
+            with pytest.raises(ftputil.error.TimeShiftError):
+                assert_time_shift(8*60)
+            with pytest.raises(ftputil.error.TimeShiftError):
+                assert_time_shift(-3600-8*60)
 
     def test_synchronize_times(self):
         """Test time synchronization with server."""
