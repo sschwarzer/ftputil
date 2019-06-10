@@ -122,7 +122,7 @@ class ScriptedSession:
         """
         Return next `Call` object.
         """
-        print(self)
+        print(self, "(in `_next_script_call`)")
         try:
             call = self.script[self._call_index]
         except IndexError:
@@ -135,7 +135,7 @@ class ScriptedSession:
     def __getattr__(self, attribute_name):
         script_call = self._next_script_call(attribute_name)
         def dummy_method(*args, **kwargs):
-            print(self)
+            print(self, "(in `__getattr__`)")
             script_call.check_call(attribute_name, args, kwargs)
             return script_call()
         return dummy_method
