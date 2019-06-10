@@ -648,8 +648,47 @@ class TestTimeShift:
 
     def test_synchronize_times(self):
         """Test time synchronization with server."""
-        host = test_base.ftp_host_factory(ftp_host_class=TimeShiftFTPHost,
-                                          session_factory=TimeShiftMockSession)
+        # Helper mock class that frees us from setting up complicated
+        # session scripts for the remote calls.
+        class _Path:
+            def split(self, path):
+                return posixpath.split(path)
+            def set_mtime(self, mtime):
+                self._mtime = mtime
+            def getmtime(self, file_name):
+                return self._mtime
+            def join(self, *args):
+                return posixpath.join(*args)
+            def normpath(self, path):
+                return posixpath.normpath(path)
+            def isabs(self, path):
+                return posixpath.isabs(path)
+            def abspath(self, path):
+                return "/_ftputil_sync_"
+            # Needed for `isdir` in `FTPHost.remove`
+            def isfile(self, path):
+                return True
+        #
+        Call = scripted_session.Call
+        host_script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="delete", result=None, args=("_ftputil_sync_",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="close"),
+        ]
+        file_script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="voidcmd", result=None, args=("TYPE I",)),
+          Call(method_name="transfercmd", result=io.BytesIO(),
+               args=("STOR _ftputil_sync_", None)),
+          Call(method_name="voidresp", result=None, args=()),
+          Call(method_name="close"),
+        ]
         # Valid time shifts
         test_data = [
           (60*60+30,  60*60),
@@ -658,15 +697,34 @@ class TestTimeShift:
           (45*60-100, 45*60),
         ]
         for measured_time_shift, expected_time_shift in test_data:
-            host.path.set_mtime(time.time() + measured_time_shift)
-            host.synchronize_times()
-            assert host.time_shift() == expected_time_shift
+            print("=== measured_time_shift:", measured_time_shift)
+            print("=== expected_time_shift:", expected_time_shift)
+            # Use a new `BytesIO` object to avoid exception
+            # `ValueError: I/O operation on closed file`.
+            file_script[4] = Call(method_name="transfercmd", result=io.BytesIO(),
+                                  args=("STOR _ftputil_sync_", None))
+            multisession_factory = scripted_session.factory(host_script,
+                                                            file_script)
+            with test_base.ftp_host_factory(multisession_factory) as host:
+                host.path = _Path()
+                host.path.set_mtime(time.time() + measured_time_shift)
+                host.synchronize_times()
+                assert host.time_shift() == expected_time_shift
         # Invalid time shifts
         measured_time_shifts = [60*60+8*60, 45*60-6*60]
         for measured_time_shift in measured_time_shifts:
-            host.path.set_mtime(time.time() + measured_time_shift)
-            with pytest.raises(ftputil.error.TimeShiftError):
-                host.synchronize_times()
+            print("=== measured_time_shift:", measured_time_shift)
+            # Use a new `BytesIO` object to avoid exception
+            # `ValueError: I/O operation on closed file`.
+            file_script[4] = Call(method_name="transfercmd", result=io.BytesIO(),
+                                  args=("STOR _ftputil_sync_", None))
+            multisession_factory = scripted_session.factory(host_script,
+                                                            file_script)
+            with test_base.ftp_host_factory(multisession_factory) as host:
+                host.path = _Path()
+                host.path.set_mtime(time.time() + measured_time_shift)
+                with pytest.raises(ftputil.error.TimeShiftError):
+                    host.synchronize_times()
 
     def test_synchronize_times_for_server_in_east(self):
         """Test for timestamp correction (see ticket #55)."""
