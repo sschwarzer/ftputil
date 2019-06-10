@@ -451,6 +451,9 @@ class TestUploadAndDownload:
         # Clean up.
         os.unlink(local_source)
 
+    # FIXME: We always want to delete the unneeded target file, but we
+    # only want the file content comparison if the previous test
+    # (whether the file was downloaded) succeeded.
     def compare_and_delete_downloaded_data(self, file_name, expected_data):
         """
         Compare content of downloaded file with its source, then
@@ -504,13 +507,45 @@ class TestUploadAndDownload:
         """Test conditional binary mode download with newer source file."""
         local_target = "_test_target_"
         # Make target file.
-        open(local_target, "w").close()
-        # Source is newer (date in 2020), so download.
-        host = test_base.ftp_host_factory(
-                 session_factory=BinaryDownloadMockSession)
-        flag = host.download_if_newer("/home/newer", local_target)
-        assert flag is True
-        self.compare_and_delete_downloaded_data(local_target)
+        with open(local_target, "w"):
+            pass
+        data = binary_data()
+        # Target is older, so download.
+        Call = scripted_session.Call
+        #  Use a date in the future. That isn't realistic, but for the
+        #  purpose of the test it's an easy way to make sure the source
+        #  file is newer than the target file.
+        dir_result = test_base.dir_line(mode_string="-rw-r--r--",
+                                        date_=datetime.date.today() +
+                                              datetime.timedelta(days=1),
+                                        name="newer")
+        host_script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="dir", result=dir_result, args=("",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="close"),
+        ]
+        file_script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="voidcmd", result=None, args=("TYPE I",)),
+          Call(method_name="transfercmd",
+               result=io.BytesIO(data),
+               args=("RETR newer", None)),
+          Call(method_name="voidresp", result=None, args=()),
+          Call(method_name="close"),
+        ]
+        multisession_factory = scripted_session.factory(host_script, file_script)
+        try:
+            with test_base.ftp_host_factory(multisession_factory) as host:
+                flag = host.download_if_newer("/newer", local_target)
+            assert flag is True
+        finally:
+            self.compare_and_delete_downloaded_data(local_target, data)
 
     def test_conditional_download_with_newer_target(self):
         """Test conditional binary mode download with older source file."""
