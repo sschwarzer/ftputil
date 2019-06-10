@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2019, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -398,12 +398,12 @@ class FTPHost:
             server_time = self.path.getmtime(helper_file_name)
             self.unlink(helper_file_name)
         except ftputil.error.FTPOSError:
-            # If we got a `TimeShiftError` exception above, we should't
-            # come here: if we did not get a `TimeShiftError` above,
-            # deletion should be possible. The only reason for an exception
-            # I can think of here is a race condition by removing write
-            # permission from the directory or helper file after it has been
-            # written to.
+            # If we got a `TimeShiftError` exception above, we
+            # should't come here: if we didn't get a `TimeShiftError`
+            # above, deletion should be possible. The only reason for
+            # an exception I can think of here is a race condition by
+            # removing the helper file or write permission from the
+            # directory or helper file after it has been written to.
             raise ftputil.error.TimeShiftError(
                     "could write helper file but not unlink it")
         # Calculate the difference between server and client.
