@@ -451,18 +451,17 @@ class TestUploadAndDownload:
         # Clean up.
         os.unlink(local_source)
 
-    def compare_and_delete_downloaded_data(self, file_name):
+    def compare_and_delete_downloaded_data(self, file_name, expected_data):
         """
         Compare content of downloaded file with its source, then
         delete the local target file.
         """
         with open(file_name, "rb") as fobj:
             data = fobj.read()
-        # The name `newer` is used by all callers, so use it here, too.
-        remote_file_content = mock_ftplib.content_of("newer")
-        assert data == remote_file_content
-        # Clean up
-        os.unlink(file_name)
+        try:
+            assert data == expected_data
+        finally:
+            os.unlink(file_name)
 
     def test_conditional_download_without_target(self):
         """
@@ -470,12 +469,36 @@ class TestUploadAndDownload:
         exists.
         """
         local_target = "_test_target_"
+        data = binary_data()
         # Target does not exist, so download.
-        host = test_base.ftp_host_factory(
-                 session_factory=BinaryDownloadMockSession)
-        flag = host.download_if_newer("/home/newer", local_target)
-        assert flag is True
-        self.compare_and_delete_downloaded_data(local_target)
+        Call = scripted_session.Call
+        #  There isn't a `dir` call to compare the datetimes of the
+        #  remote and the target file because the local `exists` call
+        #  for the local target returns `False` and the datetime
+        #  comparison therefore isn't done.
+        host_script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="close"),
+        ]
+        file_script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="voidcmd", result=None, args=("TYPE I",)),
+          Call(method_name="transfercmd",
+               result=io.BytesIO(data),
+               args=("RETR newer", None)),
+          Call(method_name="voidresp", result=None, args=()),
+          Call(method_name="close"),
+        ]
+        multisession_factory = scripted_session.factory(host_script, file_script)
+        try:
+            with test_base.ftp_host_factory(multisession_factory) as host:
+                flag = host.download_if_newer("/newer", local_target)
+            assert flag is True
+        finally:
+            self.compare_and_delete_downloaded_data(local_target, data)
 
     def test_conditional_download_with_older_target(self):
         """Test conditional binary mode download with newer source file."""
