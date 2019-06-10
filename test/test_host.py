@@ -591,25 +591,32 @@ class TestTimeShift:
 
     def test_rounded_time_shift(self):
         """Test if time shift is rounded correctly."""
-        host = test_base.ftp_host_factory(session_factory=TimeShiftMockSession)
-        # Use private bound method.
-        rounded_time_shift = host._FTPHost__rounded_time_shift
-        # Pairs consisting of original value and expected result
-        test_data = [
-          (      0,           0),
-          (      0.1,         0),
-          (     -0.1,         0),
-          (   1500,        1800),
-          (  -1500,       -1800),
-          (   1800,        1800),
-          (  -1800,       -1800),
-          (   2000,        1800),
-          (  -2000,       -1800),
-          ( 5*3600-100,  5*3600),
-          (-5*3600+100, -5*3600)]
-        for time_shift, expected_time_shift in test_data:
-            calculated_time_shift = rounded_time_shift(time_shift)
-            assert calculated_time_shift == expected_time_shift
+        Call = scripted_session.Call
+        script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="close"),
+        ]
+        multisession_factory = scripted_session.factory(script)
+        with test_base.ftp_host_factory(multisession_factory) as host:
+            # Use private bound method.
+            rounded_time_shift = host._FTPHost__rounded_time_shift
+            # Pairs consisting of original value and expected result
+            test_data = [
+              (      0,           0),
+              (      0.1,         0),
+              (     -0.1,         0),
+              (   1500,        1800),
+              (  -1500,       -1800),
+              (   1800,        1800),
+              (  -1800,       -1800),
+              (   2000,        1800),
+              (  -2000,       -1800),
+              ( 5*3600-100,  5*3600),
+              (-5*3600+100, -5*3600)]
+            for time_shift, expected_time_shift in test_data:
+                calculated_time_shift = rounded_time_shift(time_shift)
+                assert calculated_time_shift == expected_time_shift
 
     def test_assert_valid_time_shift(self):
         """Test time shift sanity checks."""
