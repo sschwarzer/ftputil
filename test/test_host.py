@@ -551,15 +551,40 @@ class TestUploadAndDownload:
         """Test conditional binary mode download with older source file."""
         local_target = "_test_target_"
         # Make target file.
-        open(local_target, "w").close()
-        # Source is older (date in 1970), so don't download.
-        host = test_base.ftp_host_factory(
-                 ftp_host_class=FailingUploadAndDownloadFTPHost,
-                 session_factory=BinaryDownloadMockSession)
-        flag = host.download_if_newer("/home/older", local_target)
+        with open(local_target, "w"):
+            pass
+        data = binary_data()
+        Call = scripted_session.Call
+        # Use date in the past, so the target file is newer and no
+        # download happens.
+        dir_result = test_base.dir_line(mode_string="-rw-r--r--",
+                                        date_=datetime.date.today() -
+                                              datetime.timedelta(days=1),
+                                        name="newer")
+        host_script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="dir", result=dir_result, args=("",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="close"),
+        ]
+        file_script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="voidcmd", result=None, args=("TYPE I",)),
+          Call(method_name="transfercmd",
+               result=io.BytesIO(data),
+               args=("RETR newer", None)),
+          Call(method_name="voidresp", result=None, args=()),
+          Call(method_name="close"),
+        ]
+        multisession_factory = scripted_session.factory(host_script, file_script)
+        with test_base.ftp_host_factory(multisession_factory) as host:
+            flag = host.download_if_newer("/newer", local_target)
         assert flag is False
-        # Remove target file
-        os.unlink(local_target)
 
 
 class TestTimeShift:
