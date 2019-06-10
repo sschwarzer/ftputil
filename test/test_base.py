@@ -2,9 +2,22 @@
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
+import io
+
 import ftputil
 
 from test import mock_ftplib
+
+
+# Since `io.BytesIO` and `io.StringIO` are built-in, they can't be
+# patched with `unittest.mock.patch`. However, derived classes can be
+# mocked. Mocking is useful to test the arguments of `write` calls,
+# i. e. whether the expected data was written.
+class MockableBytesIO(io.BytesIO):
+    pass
+
+class MockableStringIO(io.StringIO):
+    pass
 
 
 # Factory to produce `FTPHost`-like classes from a given `FTPHost`

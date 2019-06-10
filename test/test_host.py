@@ -11,6 +11,7 @@ import pickle
 import posixpath
 import random
 import time
+import unittest
 import warnings
 
 import pytest
@@ -394,18 +395,59 @@ class TestUploadAndDownload:
         with test_base.ftp_host_factory(multisession_factory) as host:
             flag = host.upload_if_newer(local_source, "/newer")
         assert flag is False
+
+    def test_conditional_upload_with_upload(self):
+        """
+        If the target file is older or doesn't exist, the source file
+        should be uploaded.
+        """
+        Call = scripted_session.Call
+        file_content = b"dummy_content"
+        local_source = "_test_source_"
+        self.generate_file(file_content, local_source)
+        remote_file_name = "dummy_name"
+        dir_result = test_base.dir_line(mode_string="-rw-r--r--",
+                                        date_=datetime.date.today() -
+                                              datetime.timedelta(days=1),
+                                        name="older")
+        host_script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="dir", result=dir_result, args=("",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="close"),
+        ]
+        file_script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="voidcmd", result=None, args=("TYPE I",)),
+          Call(method_name="transfercmd",
+               result=test_base.MockableBytesIO(),
+               args=("STOR older", None)),
+          Call(method_name="voidresp", result=None, args=()),
+          Call(method_name="close"),
+        ]
         # Target is older, so upload.
-        host = test_base.ftp_host_factory()
-        flag = host.upload_if_newer(local_source, "/home/older")
+        multisession_factory = scripted_session.factory(host_script, file_script)
+        with unittest.mock.patch("test.test_base.MockableBytesIO.write") as write_mock:
+            with test_base.ftp_host_factory(multisession_factory) as host:
+                flag = host.upload_if_newer(local_source, "/older")
+            write_mock.assert_called_with(file_content)
         assert flag is True
-        remote_file_content = mock_ftplib.content_of("older")
-        assert data == remote_file_content
         # Target doesn't exist, so upload.
-        host = test_base.ftp_host_factory()
-        flag = host.upload_if_newer(local_source, "/home/notthere")
+        #  Use correct file name for this test.
+        file_script[4] = Call(method_name="transfercmd",
+                              result=test_base.MockableBytesIO(),
+                              args=("STOR notthere", None))
+        multisession_factory = scripted_session.factory(host_script, file_script)
+        with unittest.mock.patch("test.test_base.MockableBytesIO.write") as write_mock:
+            with test_base.ftp_host_factory(multisession_factory) as host:
+                flag = host.upload_if_newer(local_source, "/notthere")
+            write_mock.assert_called_with(file_content)
         assert flag is True
-        remote_file_content = mock_ftplib.content_of("notthere")
-        assert data == remote_file_content
         # Clean up.
         os.unlink(local_source)
 
