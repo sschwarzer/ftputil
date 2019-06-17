@@ -728,29 +728,50 @@ class TestTimeShift:
 
     def test_synchronize_times_for_server_in_east(self):
         """Test for timestamp correction (see ticket #55)."""
-        host = test_base.ftp_host_factory(ftp_host_class=TimeShiftFTPHost,
-                                          session_factory=TimeShiftMockSession)
-        # Set this explicitly to emphasize the problem.
-        host.set_time_shift(0.0)
-        hour = 60 * 60
-        # This could be any negative time shift.
-        presumed_time_shift = -6 * hour
-        # Set `mtime` to simulate a server east of us.
-        # In case the `time_shift` value for this host instance is 0.0
-        # (as is to be expected before the time shift is determined),
-        # the directory parser (more specifically
-        # `ftputil.stat.Parser.parse_unix_time`) will return a time which
-        # is a year too far in the past. The `synchronize_times`
-        # method needs to deal with this and add the year "back".
-        # I don't think it's a bug in `parse_unix_time` because the
-        # method should work once the time shift is set correctly.
-        local_time = time.localtime()
-        local_time_with_wrong_year = (local_time.tm_year-1,) + local_time[1:]
-        presumed_server_time = \
-          time.mktime(local_time_with_wrong_year) + presumed_time_shift
-        host.path.set_mtime(presumed_server_time)
-        host.synchronize_times()
-        assert host.time_shift() == presumed_time_shift
+        Call = scripted_session.Call
+        host_script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="delete", result=None, args=("_ftputil_sync_",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="close"),
+        ]
+        file_script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="voidcmd", result=None, args=("TYPE I",)),
+          Call(method_name="transfercmd", result=io.BytesIO(),
+               args=("STOR _ftputil_sync_", None)),
+          Call(method_name="voidresp", result=None, args=()),
+          Call(method_name="close"),
+        ]
+        multisession_factory = scripted_session.factory(host_script, file_script)
+        with test_base.ftp_host_factory(session_factory=multisession_factory) as host:
+            host.path = self._Path()
+            # Set this explicitly to emphasize the problem.
+            host.set_time_shift(0.0)
+            hour = 60 * 60
+            # This could be any negative time shift.
+            presumed_time_shift = -6 * hour
+            # Set `mtime` to simulate a server east of us.
+            # In case the `time_shift` value for this host instance is 0.0
+            # (as is to be expected before the time shift is determined),
+            # the directory parser (more specifically
+            # `ftputil.stat.Parser.parse_unix_time`) will return a time which
+            # is a year too far in the past. The `synchronize_times`
+            # method needs to deal with this and add the year "back".
+            # I don't think it's a bug in `parse_unix_time` because the
+            # method should work once the time shift is set correctly.
+            local_time = time.localtime()
+            local_time_with_wrong_year = (local_time.tm_year-1,) + local_time[1:]
+            presumed_server_time = \
+              time.mktime(local_time_with_wrong_year) + presumed_time_shift
+            host.path.set_mtime(presumed_server_time)
+            host.synchronize_times()
+            assert host.time_shift() == presumed_time_shift
 
 
 class TestAcceptEitherUnicodeOrBytes:
