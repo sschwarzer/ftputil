@@ -244,16 +244,11 @@ d--x--x--x   5 staff        512 Oct  3  2000 usr"""
 class TestUploadAndDownload:
     """Test upload and download."""
 
-    def generate_file(self, data, file_name):
-        """Generate a local data file."""
-        with open(file_name, "wb") as source_file:
-            source_file.write(data)
-
-    def test_download(self):
+    def test_download(self, tmp_path):
         """Test mode download."""
         remote_file_name = "dummy_name"
         remote_file_content = b"dummy_content"
-        local_target = "_test_target_"
+        local_target = tmp_path / "test_target"
         host_script = [
           Call("__init__"),
           Call(method_name="pwd", result="/"),
@@ -270,10 +265,9 @@ class TestUploadAndDownload:
           Call(method_name="close")
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
-        host = test_base.ftp_host_factory(multisession_factory)
         # Download
-        with host:
-            host.download(remote_file_name, local_target)
+        with test_base.ftp_host_factory(multisession_factory) as host:
+            host.download(remote_file_name, str(local_target))
         # Verify expected operations on mock socket as done in `FTPFile.close`.
         # We expect one `gettimeout` and two `settimeout` calls.
         file_session = multisession_factory.scripted_sessions[1]
@@ -283,20 +277,15 @@ class TestUploadAndDownload:
                 ((ftputil.file.FTPFile._close_timeout,), {}) )
         assert (file_session.sock.settimeout.call_args_list[1] ==
                 ((file_session.sock.gettimeout(),), {}))
-        # Read file and compare
-        with open(local_target, "rb") as fobj:
-            data = fobj.read()
-        assert data == remote_file_content
-        # Clean up
-        os.unlink(local_target)
+        assert local_target.read_bytes() == remote_file_content
 
-    def test_conditional_upload_without_upload(self):
+    def test_conditional_upload_without_upload(self, tmp_path):
         """
         If the target file is newer, no upload should happen.
         """
-        local_source = "_test_source_"
+        local_source = tmp_path / "test_source"
         data = binary_data()
-        self.generate_file(data, local_source)
+        local_source.write_bytes(data)
         dir_result = test_base.dir_line(mode_string="-rw-r--r--",
                                         date_=datetime.date.today() +
                                               datetime.timedelta(days=1),
@@ -317,17 +306,17 @@ class TestUploadAndDownload:
         # about a missing scripted session for the `FTPFile` host.
         multisession_factory = scripted_session.factory(script)
         with test_base.ftp_host_factory(multisession_factory) as host:
-            flag = host.upload_if_newer(local_source, "/newer")
+            flag = host.upload_if_newer(str(local_source), "/newer")
         assert flag is False
 
-    def test_conditional_upload_with_upload(self):
+    def test_conditional_upload_with_upload(self, tmp_path):
         """
         If the target file is older or doesn't exist, the source file
         should be uploaded.
         """
+        local_source = tmp_path / "test_source"
         file_content = b"dummy_content"
-        local_source = "_test_source_"
-        self.generate_file(file_content, local_source)
+        local_source.write_bytes(file_content)
         remote_file_name = "dummy_name"
         dir_result = test_base.dir_line(mode_string="-rw-r--r--",
                                         date_=datetime.date.today() -
@@ -357,7 +346,7 @@ class TestUploadAndDownload:
         multisession_factory = scripted_session.factory(host_script, file_script)
         with unittest.mock.patch("test.test_base.MockableBytesIO.write") as write_mock:
             with test_base.ftp_host_factory(multisession_factory) as host:
-                flag = host.upload_if_newer(local_source, "/older")
+                flag = host.upload_if_newer(str(local_source), "/older")
             write_mock.assert_called_with(file_content)
         assert flag is True
         # Target doesn't exist, so upload.
@@ -368,33 +357,16 @@ class TestUploadAndDownload:
         multisession_factory = scripted_session.factory(host_script, file_script)
         with unittest.mock.patch("test.test_base.MockableBytesIO.write") as write_mock:
             with test_base.ftp_host_factory(multisession_factory) as host:
-                flag = host.upload_if_newer(local_source, "/notthere")
+                flag = host.upload_if_newer(str(local_source), "/notthere")
             write_mock.assert_called_with(file_content)
         assert flag is True
-        # Clean up.
-        os.unlink(local_source)
 
-    # FIXME: We always want to delete the unneeded target file, but we
-    # only want the file content comparison if the previous test
-    # (whether the file was downloaded) succeeded.
-    def compare_and_delete_downloaded_data(self, file_name, expected_data):
-        """
-        Compare content of downloaded file with its source, then
-        delete the local target file.
-        """
-        with open(file_name, "rb") as fobj:
-            data = fobj.read()
-        try:
-            assert data == expected_data
-        finally:
-            os.unlink(file_name)
-
-    def test_conditional_download_without_target(self):
+    def test_conditional_download_without_target(self, tmp_path):
         """
         Test conditional binary mode download when no target file
         exists.
         """
-        local_target = "_test_target_"
+        local_target = tmp_path / "test_target"
         data = binary_data()
         # Target does not exist, so download.
         #  There isn't a `dir` call to compare the datetimes of the
@@ -418,19 +390,16 @@ class TestUploadAndDownload:
           Call(method_name="close"),
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
-        try:
-            with test_base.ftp_host_factory(multisession_factory) as host:
-                flag = host.download_if_newer("/newer", local_target)
-            assert flag is True
-        finally:
-            self.compare_and_delete_downloaded_data(local_target, data)
+        with test_base.ftp_host_factory(multisession_factory) as host:
+            flag = host.download_if_newer("/newer", str(local_target))
+        assert flag is True
+        assert local_target.read_bytes() == data
 
-    def test_conditional_download_with_older_target(self):
+    def test_conditional_download_with_older_target(self, tmp_path):
         """Test conditional binary mode download with newer source file."""
-        local_target = "_test_target_"
-        # Make target file.
-        with open(local_target, "w"):
-            pass
+        local_target = tmp_path / "test_target"
+        # Make sure file exists for the timestamp comparison.
+        local_target.touch()
         data = binary_data()
         # Target is older, so download.
         #  Use a date in the future. That isn't realistic, but for the
@@ -461,19 +430,16 @@ class TestUploadAndDownload:
           Call(method_name="close"),
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
-        try:
-            with test_base.ftp_host_factory(multisession_factory) as host:
-                flag = host.download_if_newer("/newer", local_target)
-            assert flag is True
-        finally:
-            self.compare_and_delete_downloaded_data(local_target, data)
+        with test_base.ftp_host_factory(multisession_factory) as host:
+            flag = host.download_if_newer("/newer", str(local_target))
+        assert flag is True
+        assert local_target.read_bytes() == data
 
-    def test_conditional_download_with_newer_target(self):
+    def test_conditional_download_with_newer_target(self, tmp_path):
         """Test conditional binary mode download with older source file."""
-        local_target = "_test_target_"
-        # Make target file.
-        with open(local_target, "w"):
-            pass
+        local_target = tmp_path / "test_target"
+        # Make sure file exists for timestamp comparison.
+        local_target.touch()
         data = binary_data()
         # Use date in the past, so the target file is newer and no
         # download happens.
@@ -503,7 +469,7 @@ class TestUploadAndDownload:
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:
-            flag = host.download_if_newer("/newer", local_target)
+            flag = host.download_if_newer("/newer", str(local_target))
         assert flag is False
 
 
@@ -726,8 +692,9 @@ class TestAcceptEitherUnicodeOrBytes:
         with test_base.ftp_host_factory(multisession_factory) as host:
             host.upload("Makefile", ftputil.tool.as_bytes("target"))
 
-    def test_download(self):
+    def test_download(self, tmp_path):
         """Test whether `download` accepts either unicode or bytes."""
+        local_target = tmp_path / "local_target"
         host_script = [
           Call("__init__"),
           Call(method_name="pwd", result="/"),
@@ -744,19 +711,17 @@ class TestAcceptEitherUnicodeOrBytes:
           Call(method_name="voidresp", result=None, args=()),
           Call(method_name="close"),
         ]
-        local_file_name = "_local_target_"
         multisession_factory = scripted_session.factory(host_script, file_script)
         # The source file needs to be present in the current directory.
         with test_base.ftp_host_factory(multisession_factory) as host:
-            host.download("source", local_file_name)
+            host.download("source", str(local_target))
         # Create new `BytesIO` object.
         file_script[4] = Call(method_name="transfercmd",
                               result=io.BytesIO(),
                               args=("RETR source", None))
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:
-            host.download(ftputil.tool.as_bytes("source"), local_file_name)
-        os.remove(local_file_name)
+            host.download(ftputil.tool.as_bytes("source"), str(local_target))
 
     def test_rename(self):
         """Test whether `rename` accepts either unicode or bytes."""
