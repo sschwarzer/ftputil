@@ -1125,9 +1125,24 @@ class TestFailingPickling:
 
     def test_failing_pickling(self):
         """Test if pickling (intentionally) isn't supported."""
-        with test_base.ftp_host_factory() as host:
+        host_script = [
+          Call(method_name="__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="close"),
+        ]
+        file_script = [
+          Call(method_name="__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="voidcmd", result=None, args=("TYPE I",)),
+          Call(method_name="transfercmd", result=io.BytesIO(), args=("RETR test", None)),
+          Call(method_name="voidresp", result=None, args=()),
+          Call(method_name="close"),
+        ]
+        multisession_factory = scripted_session.factory(host_script, file_script)
+        with test_base.ftp_host_factory(multisession_factory) as host:
             with pytest.raises(TypeError):
                 pickle.dumps(host)
-            with host.open("/home/sschwarzer/index.html") as file_obj:
+            with host.open("/test") as file_obj:
                 with pytest.raises(TypeError):
                     pickle.dumps(file_obj)
