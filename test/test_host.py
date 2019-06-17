@@ -30,32 +30,17 @@ Call = scripted_session.Call
 
 
 #
-# Helper functions to generate random data
+# Helper function to generate random data
 #
-def random_data(pool, size=10000):
-    """
-    Return a byte string of characters consisting of those from the
-    pool of integer numbers.
-    """
-    ordinal_list = [random.choice(pool) for i in range(size)]
-    return bytes(ordinal_list)
-
-
-def ascii_data():
-    r"""
-    Return a unicode string of "normal" ASCII characters, including `\r`.
-    """
-    pool = list(range(32, 128))
-    # The idea is to have the "\r" converted to "\n" during the later
-    # text write and check this conversion.
-    pool.append(ord("\r"))
-    return ftputil.tool.as_unicode(random_data(pool))
-
-
 def binary_data():
-    """Return a binary character byte string."""
+    """
+    Return a bytes object of length 10000, consisting of bytes from a pool of
+    integer numbers in the range 0..255.
+    """
     pool = list(range(0, 256))
-    return random_data(pool)
+    size = 10000
+    integer_list = [random.choice(pool) for i in range(size)]
+    return bytes(integer_list)
 
 
 #
