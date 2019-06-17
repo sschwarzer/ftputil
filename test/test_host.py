@@ -780,109 +780,370 @@ class TestAcceptEitherUnicodeOrBytes:
     or byte strings for the path(s).
     """
 
-    def setup_method(self, method):
-        self.host = test_base.ftp_host_factory()
-
     def test_upload(self):
         """Test whether `upload` accepts either unicode or bytes."""
-        host = self.host
+        Call = scripted_session.Call
+        host_script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="close"),
+        ]
+        file_script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="voidcmd", result=None, args=("TYPE I",)),
+          Call(method_name="transfercmd",
+               result=io.BytesIO(),
+               args=("STOR target", None)),
+          Call(method_name="voidresp", result=None, args=()),
+          Call(method_name="close"),
+        ]
+        multisession_factory = scripted_session.factory(host_script, file_script)
         # The source file needs to be present in the current directory.
-        host.upload("Makefile", "target")
-        host.upload("Makefile", ftputil.tool.as_bytes("target"))
+        with test_base.ftp_host_factory(multisession_factory) as host:
+            host.upload("Makefile", "target")
+        # Create new `BytesIO` object.
+        file_script[4] = Call(method_name="transfercmd",
+                              result=io.BytesIO(),
+                              args=("STOR target", None))
+        multisession_factory = scripted_session.factory(host_script, file_script)
+        with test_base.ftp_host_factory(multisession_factory) as host:
+            host.upload("Makefile", ftputil.tool.as_bytes("target"))
 
     def test_download(self):
         """Test whether `download` accepts either unicode or bytes."""
-        host = test_base.ftp_host_factory(
-                 session_factory=BinaryDownloadMockSession)
+        Call = scripted_session.Call
+        host_script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="close"),
+        ]
+        file_script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="voidcmd", result=None, args=("TYPE I",)),
+          Call(method_name="transfercmd",
+               result=io.BytesIO(),
+               args=("RETR source", None)),
+          Call(method_name="voidresp", result=None, args=()),
+          Call(method_name="close"),
+        ]
         local_file_name = "_local_target_"
-        host.download("source", local_file_name)
-        host.download(ftputil.tool.as_bytes("source"), local_file_name)
+        multisession_factory = scripted_session.factory(host_script, file_script)
+        # The source file needs to be present in the current directory.
+        with test_base.ftp_host_factory(multisession_factory) as host:
+            host.download("source", local_file_name)
+        # Create new `BytesIO` object.
+        file_script[4] = Call(method_name="transfercmd",
+                              result=io.BytesIO(),
+                              args=("RETR source", None))
+        multisession_factory = scripted_session.factory(host_script, file_script)
+        with test_base.ftp_host_factory(multisession_factory) as host:
+            host.download(ftputil.tool.as_bytes("source"), local_file_name)
         os.remove(local_file_name)
 
     def test_rename(self):
         """Test whether `rename` accepts either unicode or bytes."""
+        Call = scripted_session.Call
+        script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="rename", result=None, args=("/ä", "/ä")),
+          Call(method_name="close"),
+        ]
         # It's possible to mix argument types, as for `os.rename`.
-        path_as_unicode = "/home/file_name_test/ä"
+        path_as_unicode = "/ä"
         path_as_bytes = ftputil.tool.as_bytes(path_as_unicode)
         paths = [path_as_unicode, path_as_bytes]
         for source_path, target_path in itertools.product(paths, paths):
-            self.host.rename(source_path, target_path)
+            session_factory = scripted_session.factory(script)
+            with test_base.ftp_host_factory(session_factory) as host:
+                host.rename(source_path, target_path)
 
     def test_listdir(self):
         """Test whether `listdir` accepts either unicode or bytes."""
-        host = self.host
         as_bytes = ftputil.tool.as_bytes
-        host.chdir("/home/file_name_test")
+        Call = scripted_session.Call
+        top_level_dir_line = test_base.dir_line(mode_string="drwxr-xr-x",
+                                                date_=datetime.date.today(),
+                                                name="ä")
+        dir_line1 = test_base.dir_line(mode_string="-rw-r--r--",
+                                       date_=datetime.date.today(),
+                                       name="ö")
+        dir_line2 = test_base.dir_line(mode_string="-rw-r--r--",
+                                       date_=datetime.date.today(),
+                                       name="o")
+        dir_result = dir_line1 + "\n" + dir_line2
+        script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="dir", result=top_level_dir_line, args=("",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/ä",)),
+          Call(method_name="dir", result=dir_result, args=("",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="close"),
+        ]
         # Unicode
-        items = host.listdir("ä")
+        session_factory = scripted_session.factory(script)
+        with test_base.ftp_host_factory(session_factory) as host:
+            items = host.listdir("ä")
         assert items == ["ö", "o"]
         # Bytes
-        items = host.listdir(as_bytes("ä"))
-        assert items == [as_bytes("ö"), as_bytes("o")]
+        session_factory = scripted_session.factory(script)
+        with test_base.ftp_host_factory(session_factory) as host:
+            items = host.listdir(as_bytes("ä"))
+            assert items == [as_bytes("ö"), as_bytes("o")]
 
     def test_chmod(self):
         """Test whether `chmod` accepts either unicode or bytes."""
-        host = self.host
-        # The `voidcmd` implementation in `MockSession` would raise an
-        # exception for the `CHMOD` command.
-        host._session.voidcmd = host._session._ignore_arguments
-        path = "/home/file_name_test/ä"
-        host.chmod(path, 0o755)
-        host.chmod(ftputil.tool.as_bytes(path), 0o755)
+        Call = scripted_session.Call
+        script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="voidcmd", result=None, args=("SITE CHMOD 0755 ä",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="close"),
+        ]
+        path = "/ä"
+        # Unicode
+        session_factory = scripted_session.factory(script)
+        with test_base.ftp_host_factory(session_factory) as host:
+            host.chmod(path, 0o755)
+        # Bytes
+        session_factory = scripted_session.factory(script)
+        with test_base.ftp_host_factory(session_factory) as host:
+            host.chmod(ftputil.tool.as_bytes(path), 0o755)
 
-    def _test_method_with_single_path_argument(self, method, path):
-        method(path)
-        method(ftputil.tool.as_bytes(path))
+    def _test_method_with_single_path_argument(self, method_name, path, script):
+        # Unicode
+        session_factory = scripted_session.factory(script)
+        with test_base.ftp_host_factory(session_factory) as host:
+            method = getattr(host, method_name)
+            method(path)
+        # Bytes
+        session_factory = scripted_session.factory(script)
+        with test_base.ftp_host_factory(session_factory) as host:
+            method = getattr(host, method_name)
+            method(ftputil.tool.as_bytes(path))
 
     def test_chdir(self):
         """Test whether `chdir` accepts either unicode or bytes."""
-        self._test_method_with_single_path_argument(
-          self.host.chdir, "/home/file_name_test/ö")
+        Call = scripted_session.Call
+        script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/ö",)),
+          Call(method_name="close"),
+        ]
+        self._test_method_with_single_path_argument("chdir", "/ö", script)
 
     def test_mkdir(self):
         """Test whether `mkdir` accepts either unicode or bytes."""
-        # This directory exists already in the mock session, but this
-        # shouldn't matter for the test.
-        self._test_method_with_single_path_argument(
-          self.host.mkdir, "/home/file_name_test/ä")
+        Call = scripted_session.Call
+        script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="mkd", result=None, args=("ä",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="close"),
+        ]
+        self._test_method_with_single_path_argument("mkdir", "/ä", script)
 
     def test_makedirs(self):
         """Test whether `makedirs` accepts either unicode or bytes."""
-        self._test_method_with_single_path_argument(
-          self.host.makedirs, "/home/file_name_test/ä")
+        Call = scripted_session.Call
+        script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          # To deal with ticket #86 (virtual directories), `makedirs` tries to
+          # change into each directory and if it exists (changing doesn't raise
+          # an exception), doesn't try to create it. That's why you don't see
+          # an `mkd` calls here despite originally having a `makedirs` call.
+          Call(method_name="cwd", result=None, args=("/ä",)),
+          Call(method_name="cwd", result=None, args=("/ä/ö",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="close"),
+        ]
+        self._test_method_with_single_path_argument("makedirs", "/ä/ö", script)
 
     def test_rmdir(self):
         """Test whether `rmdir` accepts either unicode or bytes."""
-        empty_directory_as_required_by_rmdir = "/home/file_name_test/empty_ä"
+        Call = scripted_session.Call
+        dir_line = test_base.dir_line(mode_string="drwxr-xr-x",
+                                      date_=datetime.date.today(),
+                                      name="empty_ä")
+        # Since the session script isn't at all obvious, I checked it with a
+        # debugger and added comments on some of the calls that happen during
+        # the `rmdir` call.
+        #
+        # `_robust_ftp_command` descends one directory at a time (see ticket
+        # #11) and restores the original directory in the end, which results in
+        # at least four calls on the FTP session object (`cwd`, `cwd`, actual
+        # method, `cwd`). It would be great if all the roundtrips to the server
+        # could be reduced.
+        script = [
+          # `FTPHost` initialization
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          # `host.rmdir("/empty_ä")`
+          #  `host.listdir("/empty_ä")`
+          #   `host._stat._listdir("/empty_ä")`
+          #    `host._stat.__call_with_parser_retry("/empty_ä")`
+          #     `host._stat._real_listdir("/empty_ä")`
+          #      `host.path.isdir("/empty_ä")`
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="dir", result=dir_line, args=("",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          #      `host.path.isdir` end
+          #      `host._stat._stat_results_from_dir("/empty_ä")`
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/empty_ä",)),
+          Call(method_name="dir", result="", args=("",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          #      `host._stat._stat_results_from_dir("/empty_ä")` end
+          #  `host._session.rmd` in `host._robust_ftp_command`
+          #   `host._check_inaccessible_login_directory()`
+          Call(method_name="cwd", result=None, args=("/",)),
+          #   `host.chdir(head)` ("/")
+          Call(method_name="cwd", result=None, args=("/",)),
+          #   `host.rmd(tail)` ("empty_ä")
+          Call(method_name="rmd", result=None, args=("empty_ä",)),
+          #   `host.chdir(old_dir)` ("/")
+          Call(method_name="cwd", result=None, args=("/",)),
+          #
+          Call(method_name="close")
+        ]
+        empty_directory_as_required_by_rmdir = "/empty_ä"
         self._test_method_with_single_path_argument(
-          self.host.rmdir, empty_directory_as_required_by_rmdir)
+          "rmdir", empty_directory_as_required_by_rmdir, script)
 
     def test_remove(self):
         """Test whether `remove` accepts either unicode or bytes."""
-        self._test_method_with_single_path_argument(
-          self.host.remove, "/home/file_name_test/ö")
+        Call = scripted_session.Call
+        dir_line = test_base.dir_line(mode_string="-rw-r--r--",
+                                      date_=datetime.date.today(),
+                                      name="ö")
+        script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="dir", result=dir_line, args=("",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="delete", result=None, args=("ö",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="close"),
+        ]
+        self._test_method_with_single_path_argument("remove", "/ö", script)
 
     def test_rmtree(self):
         """Test whether `rmtree` accepts either unicode or bytes."""
-        empty_directory_as_required_by_rmtree = "/home/file_name_test/empty_ä"
+        Call = scripted_session.Call
+        dir_line = test_base.dir_line(mode_string="drwxr-xr-x",
+                                      date_=datetime.date.today(),
+                                      name="empty_ä")
+        script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          # Recursive `listdir`
+          #  Check parent (root) directory.
+          Call(method_name="dir", result=dir_line, args=("",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/empty_ä",)),
+          #  Child directory (inside `empty_ä`)
+          Call(method_name="dir", result="", args=("",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/empty_ä",)),
+          # Recursive `rmdir` (repeated `cwd` calls because of
+          # `_robust_ftp_command`)
+          Call(method_name="dir", result="", args=("",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="rmd", result=None, args=("empty_ä",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="close"),
+        ]
+        empty_directory_as_required_by_rmtree = "/empty_ä"
         self._test_method_with_single_path_argument(
-          self.host.rmtree, empty_directory_as_required_by_rmtree)
+          "rmtree", empty_directory_as_required_by_rmtree, script)
 
     def test_lstat(self):
         """Test whether `lstat` accepts either unicode or bytes."""
-        self._test_method_with_single_path_argument(
-          self.host.lstat, "/home/file_name_test/ä")
+        Call = scripted_session.Call
+        dir_line = test_base.dir_line(mode_string="-rw-r--r--",
+                                      date_=datetime.date.today(),
+                                      name="ä")
+        script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="dir", result=dir_line, args=("",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="close"),
+        ]
+        self._test_method_with_single_path_argument("lstat", "/ä", script)
 
     def test_stat(self):
         """Test whether `stat` accepts either unicode or bytes."""
-        self._test_method_with_single_path_argument(
-          self.host.stat, "/home/file_name_test/ä")
+        Call = scripted_session.Call
+        dir_line = test_base.dir_line(mode_string="-rw-r--r--",
+                                      date_=datetime.date.today(),
+                                      name="ä")
+        script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="dir", result=dir_line, args=("",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="close"),
+        ]
+        self._test_method_with_single_path_argument("stat", "/ä", script)
 
     def test_walk(self):
         """Test whether `walk` accepts either unicode or bytes."""
+        Call = scripted_session.Call
+        dir_line = test_base.dir_line(mode_string="-rw-r--r--",
+                                      date_=datetime.date.today(),
+                                      name="ä")
+        script = [
+          Call("__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="dir", result=dir_line, args=("",)),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="close"),
+        ]
         # We're not interested in the return value of `walk`.
-        self._test_method_with_single_path_argument(
-          self.host.walk, "/home/file_name_test/ä")
+        # Unicode
+        session_factory = scripted_session.factory(script)
+        with test_base.ftp_host_factory(session_factory) as host:
+            result = list(host.walk("/ä"))
+        # Bytes
+        session_factory = scripted_session.factory(script)
+        with test_base.ftp_host_factory(session_factory) as host:
+            result = list(host.walk(ftputil.tool.as_bytes("/ä")))
 
 
 class TestFailingPickling:
