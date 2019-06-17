@@ -589,6 +589,27 @@ class TestUploadAndDownload:
 
 class TestTimeShift:
 
+    # Helper mock class that frees us from setting up complicated
+    # session scripts for the remote calls.
+    class _Path:
+        def split(self, path):
+            return posixpath.split(path)
+        def set_mtime(self, mtime):
+            self._mtime = mtime
+        def getmtime(self, file_name):
+            return self._mtime
+        def join(self, *args):
+            return posixpath.join(*args)
+        def normpath(self, path):
+            return posixpath.normpath(path)
+        def isabs(self, path):
+            return posixpath.isabs(path)
+        def abspath(self, path):
+            return "/_ftputil_sync_"
+        # Needed for `isdir` in `FTPHost.remove`
+        def isfile(self, path):
+            return True
+
     def test_rounded_time_shift(self):
         """Test if time shift is rounded correctly."""
         Call = scripted_session.Call
@@ -648,27 +669,6 @@ class TestTimeShift:
 
     def test_synchronize_times(self):
         """Test time synchronization with server."""
-        # Helper mock class that frees us from setting up complicated
-        # session scripts for the remote calls.
-        class _Path:
-            def split(self, path):
-                return posixpath.split(path)
-            def set_mtime(self, mtime):
-                self._mtime = mtime
-            def getmtime(self, file_name):
-                return self._mtime
-            def join(self, *args):
-                return posixpath.join(*args)
-            def normpath(self, path):
-                return posixpath.normpath(path)
-            def isabs(self, path):
-                return posixpath.isabs(path)
-            def abspath(self, path):
-                return "/_ftputil_sync_"
-            # Needed for `isdir` in `FTPHost.remove`
-            def isfile(self, path):
-                return True
-        #
         Call = scripted_session.Call
         host_script = [
           Call("__init__"),
@@ -706,7 +706,7 @@ class TestTimeShift:
             multisession_factory = scripted_session.factory(host_script,
                                                             file_script)
             with test_base.ftp_host_factory(multisession_factory) as host:
-                host.path = _Path()
+                host.path = self._Path()
                 host.path.set_mtime(time.time() + measured_time_shift)
                 host.synchronize_times()
                 assert host.time_shift() == expected_time_shift
@@ -721,7 +721,7 @@ class TestTimeShift:
             multisession_factory = scripted_session.factory(host_script,
                                                             file_script)
             with test_base.ftp_host_factory(multisession_factory) as host:
-                host.path = _Path()
+                host.path = self._Path()
                 host.path.set_mtime(time.time() + measured_time_shift)
                 with pytest.raises(ftputil.error.TimeShiftError):
                     host.synchronize_times()
