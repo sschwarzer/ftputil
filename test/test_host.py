@@ -22,7 +22,6 @@ import ftputil.file
 import ftputil.tool
 import ftputil.stat
 
-from test import mock_ftplib
 from test import test_base
 import test.scripted_session as scripted_session
 
@@ -58,63 +57,6 @@ def binary_data():
     pool = list(range(0, 256))
     return random_data(pool)
 
-
-#
-# Several customized `MockSession` classes
-#
-class FailOnLoginSession(mock_ftplib.MockSession):
-
-    def __init__(self, host="", user="", password=""):
-        raise ftplib.error_perm
-
-
-class BinaryDownloadMockSession(mock_ftplib.MockUnixFormatSession):
-
-    mock_file_content = binary_data()
-
-
-class TimeShiftMockSession(mock_ftplib.MockSession):
-
-    def delete(self, file_name):
-        pass
-
-#
-# Customized `FTPHost` class for conditional upload/download tests
-# and time shift tests
-#
-class FailingUploadAndDownloadFTPHost(ftputil.FTPHost):
-
-    def upload(self, source, target, mode=""):
-        pytest.fail("`FTPHost.upload` should not have been called")
-
-    def download(self, source, target, mode=""):
-        pytest.fail("`FTPHost.download` should not have been called")
-
-
-class TimeShiftFTPHost(ftputil.FTPHost):
-
-    class _Path:
-        def split(self, path):
-            return posixpath.split(path)
-        def set_mtime(self, mtime):
-            self._mtime = mtime
-        def getmtime(self, file_name):
-            return self._mtime
-        def join(self, *args):
-            return posixpath.join(*args)
-        def normpath(self, path):
-            return posixpath.normpath(path)
-        def isabs(self, path):
-            return posixpath.isabs(path)
-        def abspath(self, path):
-            return "/home/sschwarzer/_ftputil_sync_"
-        # Needed for `isdir` in `FTPHost.remove`
-        def isfile(self, path):
-            return True
-
-    def __init__(self, *args, **kwargs):
-        ftputil.FTPHost.__init__(self, *args, **kwargs)
-        self.path = self._Path()
 
 #
 # Test cases
