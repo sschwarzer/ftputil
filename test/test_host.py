@@ -27,6 +27,9 @@ from test import test_base
 import test.scripted_session as scripted_session
 
 
+Call = scripted_session.Call
+
+
 #
 # Helper functions to generate random data
 #
@@ -127,9 +130,9 @@ class TestConstructor:
         expected.
         """
         script = [
-          scripted_session.Call(method_name="__init__", result=None),
-          scripted_session.Call(method_name="pwd", result="/"),
-          scripted_session.Call(method_name="close")
+          Call(method_name="__init__", result=None),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="close")
         ]
         host = test_base.ftp_host_factory(scripted_session.factory(script))
         host.close()
@@ -139,8 +142,8 @@ class TestConstructor:
     def test_invalid_login(self):
         """Login to invalid host must fail."""
         script = [
-          scripted_session.Call(method_name="__init__", result=ftplib.error_perm),
-          scripted_session.Call(method_name="pwd", result="/"),
+          Call(method_name="__init__", result=ftplib.error_perm),
+          Call(method_name="pwd", result="/"),
         ]
         with pytest.raises(ftputil.error.FTPOSError):
             test_base.ftp_host_factory(scripted_session.factory(script))
@@ -150,11 +153,11 @@ class TestConstructor:
         Test if the stored current directory is normalized.
         """
         script = [
-          scripted_session.Call(method_name="__init__", result=None),
+          Call(method_name="__init__", result=None),
           # Deliberately return the current working directory with a
           # trailing slash to test if it's removed when stored in the
           # `FTPHost` instance.
-          scripted_session.Call(method_name="pwd", result="/home/")
+          Call(method_name="pwd", result="/home/")
         ]
         host = test_base.ftp_host_factory(scripted_session.factory(script))
         assert host.getcwd() == "/home"
@@ -170,11 +173,11 @@ class TestKeepAlive:
     def test_failing_keep_alive(self):
         """Assume the connection has timed out, so `keep_alive` fails."""
         script = [
-          scripted_session.Call(method_name="__init__", result=None),
-          scripted_session.Call(method_name="pwd", result="/home"),
+          Call(method_name="__init__", result=None),
+          Call(method_name="pwd", result="/home"),
           # Simulate failing `pwd` call after the server closed the connection
           # due to a session timeout.
-          scripted_session.Call(method_name="pwd", result=ftplib.error_temp),
+          Call(method_name="pwd", result=ftplib.error_temp),
         ]
         host = test_base.ftp_host_factory(scripted_session.factory(script))
         with pytest.raises(ftputil.error.TemporaryError):
@@ -204,7 +207,6 @@ class TestSetParser:
 
     def test_set_parser(self):
         """Test if the selected parser is used."""
-        Call = scripted_session.Call
         script = [
           Call(method_name="__init__", result=None),
           Call(method_name="pwd", result="/"),
@@ -230,7 +232,6 @@ class TestCommandNotImplementedError:
         Test if we get the anticipated exception if a command isn't
         implemented by the server.
         """
-        Call = scripted_session.Call
         script = [
           Call(method_name="__init__"),
           Call(method_name="pwd", result="/"),
@@ -270,7 +271,6 @@ class TestRecursiveListingForDotAsPath:
         If an empty string is passed to `FTPHost._dir` it should be passed to
         `session.dir` unmodified.
         """
-        Call = scripted_session.Call
         script = [
           Call(method_name="__init__"),
           Call(method_name="pwd", result="/"),
@@ -292,7 +292,6 @@ class TestRecursiveListingForDotAsPath:
         `session.dir` should _not_ be called with the dot as argument, but with
         an empty string.
         """
-        Call = scripted_session.Call
         dir_result = """\
 total 10
 lrwxrwxrwx   1 staff          7 Aug 13  2003 bin -> usr/bin
@@ -325,7 +324,6 @@ class TestUploadAndDownload:
 
     def test_download(self):
         """Test mode download."""
-        Call = scripted_session.Call
         remote_file_name = "dummy_name"
         remote_file_content = b"dummy_content"
         local_target = "_test_target_"
@@ -369,7 +367,6 @@ class TestUploadAndDownload:
         """
         If the target file is newer, no upload should happen.
         """
-        Call = scripted_session.Call
         local_source = "_test_source_"
         data = binary_data()
         self.generate_file(data, local_source)
@@ -401,7 +398,6 @@ class TestUploadAndDownload:
         If the target file is older or doesn't exist, the source file
         should be uploaded.
         """
-        Call = scripted_session.Call
         file_content = b"dummy_content"
         local_source = "_test_source_"
         self.generate_file(file_content, local_source)
@@ -474,7 +470,6 @@ class TestUploadAndDownload:
         local_target = "_test_target_"
         data = binary_data()
         # Target does not exist, so download.
-        Call = scripted_session.Call
         #  There isn't a `dir` call to compare the datetimes of the
         #  remote and the target file because the local `exists` call
         #  for the local target returns `False` and the datetime
@@ -511,7 +506,6 @@ class TestUploadAndDownload:
             pass
         data = binary_data()
         # Target is older, so download.
-        Call = scripted_session.Call
         #  Use a date in the future. That isn't realistic, but for the
         #  purpose of the test it's an easy way to make sure the source
         #  file is newer than the target file.
@@ -554,7 +548,6 @@ class TestUploadAndDownload:
         with open(local_target, "w"):
             pass
         data = binary_data()
-        Call = scripted_session.Call
         # Use date in the past, so the target file is newer and no
         # download happens.
         dir_result = test_base.dir_line(mode_string="-rw-r--r--",
@@ -612,7 +605,6 @@ class TestTimeShift:
 
     def test_rounded_time_shift(self):
         """Test if time shift is rounded correctly."""
-        Call = scripted_session.Call
         script = [
           Call("__init__"),
           Call(method_name="pwd", result="/"),
@@ -641,7 +633,6 @@ class TestTimeShift:
 
     def test_assert_valid_time_shift(self):
         """Test time shift sanity checks."""
-        Call = scripted_session.Call
         script = [
           Call("__init__"),
           Call(method_name="pwd", result="/"),
@@ -669,7 +660,6 @@ class TestTimeShift:
 
     def test_synchronize_times(self):
         """Test time synchronization with server."""
-        Call = scripted_session.Call
         host_script = [
           Call("__init__"),
           Call(method_name="pwd", result="/"),
@@ -728,7 +718,6 @@ class TestTimeShift:
 
     def test_synchronize_times_for_server_in_east(self):
         """Test for timestamp correction (see ticket #55)."""
-        Call = scripted_session.Call
         host_script = [
           Call("__init__"),
           Call(method_name="pwd", result="/"),
@@ -782,7 +771,6 @@ class TestAcceptEitherUnicodeOrBytes:
 
     def test_upload(self):
         """Test whether `upload` accepts either unicode or bytes."""
-        Call = scripted_session.Call
         host_script = [
           Call("__init__"),
           Call(method_name="pwd", result="/"),
@@ -813,7 +801,6 @@ class TestAcceptEitherUnicodeOrBytes:
 
     def test_download(self):
         """Test whether `download` accepts either unicode or bytes."""
-        Call = scripted_session.Call
         host_script = [
           Call("__init__"),
           Call(method_name="pwd", result="/"),
@@ -846,7 +833,6 @@ class TestAcceptEitherUnicodeOrBytes:
 
     def test_rename(self):
         """Test whether `rename` accepts either unicode or bytes."""
-        Call = scripted_session.Call
         script = [
           Call("__init__"),
           Call(method_name="pwd", result="/"),
@@ -866,7 +852,6 @@ class TestAcceptEitherUnicodeOrBytes:
     def test_listdir(self):
         """Test whether `listdir` accepts either unicode or bytes."""
         as_bytes = ftputil.tool.as_bytes
-        Call = scripted_session.Call
         top_level_dir_line = test_base.dir_line(mode_string="drwxr-xr-x",
                                                 date_=datetime.date.today(),
                                                 name="ä")
@@ -903,7 +888,6 @@ class TestAcceptEitherUnicodeOrBytes:
 
     def test_chmod(self):
         """Test whether `chmod` accepts either unicode or bytes."""
-        Call = scripted_session.Call
         script = [
           Call("__init__"),
           Call(method_name="pwd", result="/"),
@@ -937,7 +921,6 @@ class TestAcceptEitherUnicodeOrBytes:
 
     def test_chdir(self):
         """Test whether `chdir` accepts either unicode or bytes."""
-        Call = scripted_session.Call
         script = [
           Call("__init__"),
           Call(method_name="pwd", result="/"),
@@ -948,7 +931,6 @@ class TestAcceptEitherUnicodeOrBytes:
 
     def test_mkdir(self):
         """Test whether `mkdir` accepts either unicode or bytes."""
-        Call = scripted_session.Call
         script = [
           Call("__init__"),
           Call(method_name="pwd", result="/"),
@@ -962,7 +944,6 @@ class TestAcceptEitherUnicodeOrBytes:
 
     def test_makedirs(self):
         """Test whether `makedirs` accepts either unicode or bytes."""
-        Call = scripted_session.Call
         script = [
           Call("__init__"),
           Call(method_name="pwd", result="/"),
@@ -979,7 +960,6 @@ class TestAcceptEitherUnicodeOrBytes:
 
     def test_rmdir(self):
         """Test whether `rmdir` accepts either unicode or bytes."""
-        Call = scripted_session.Call
         dir_line = test_base.dir_line(mode_string="drwxr-xr-x",
                                       date_=datetime.date.today(),
                                       name="empty_ä")
@@ -1031,7 +1011,6 @@ class TestAcceptEitherUnicodeOrBytes:
 
     def test_remove(self):
         """Test whether `remove` accepts either unicode or bytes."""
-        Call = scripted_session.Call
         dir_line = test_base.dir_line(mode_string="-rw-r--r--",
                                       date_=datetime.date.today(),
                                       name="ö")
@@ -1052,7 +1031,6 @@ class TestAcceptEitherUnicodeOrBytes:
 
     def test_rmtree(self):
         """Test whether `rmtree` accepts either unicode or bytes."""
-        Call = scripted_session.Call
         dir_line = test_base.dir_line(mode_string="drwxr-xr-x",
                                       date_=datetime.date.today(),
                                       name="empty_ä")
@@ -1088,7 +1066,6 @@ class TestAcceptEitherUnicodeOrBytes:
 
     def test_lstat(self):
         """Test whether `lstat` accepts either unicode or bytes."""
-        Call = scripted_session.Call
         dir_line = test_base.dir_line(mode_string="-rw-r--r--",
                                       date_=datetime.date.today(),
                                       name="ä")
@@ -1105,7 +1082,6 @@ class TestAcceptEitherUnicodeOrBytes:
 
     def test_stat(self):
         """Test whether `stat` accepts either unicode or bytes."""
-        Call = scripted_session.Call
         dir_line = test_base.dir_line(mode_string="-rw-r--r--",
                                       date_=datetime.date.today(),
                                       name="ä")
@@ -1122,7 +1098,6 @@ class TestAcceptEitherUnicodeOrBytes:
 
     def test_walk(self):
         """Test whether `walk` accepts either unicode or bytes."""
-        Call = scripted_session.Call
         dir_line = test_base.dir_line(mode_string="-rw-r--r--",
                                       date_=datetime.date.today(),
                                       name="ä")
