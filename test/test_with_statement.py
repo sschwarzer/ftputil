@@ -28,6 +28,10 @@ class ClientCodeException(Exception):
 class TestHostContextManager:
 
     def test_normal_operation(self):
+        """
+        If an `FTPHost` instance is created, it should be closed by the host
+        context manager.
+        """
         script = [
           Call(method_name="__init__"),
           Call(method_name="pwd", result="/"),
@@ -38,6 +42,10 @@ class TestHostContextManager:
         assert host.closed is True
 
     def test_ftputil_exception(self):
+        """
+        If an `ftplib.FTP` method raises an exception, it should be caught by
+        the host context manager and the host object should be closed.
+        """
         script = [
           # Since `__init__` raises an exception, `pwd` isn't called. However,
           # `close` is called via the context manager.
@@ -53,6 +61,10 @@ class TestHostContextManager:
         assert "host" not in locals()
 
     def test_client_code_exception(self):
+        """
+        If client code raises an exception in the context manager block, the
+        host object should be closed by the context manager.
+        """
         script = [
           Call(method_name="__init__"),
           Call(method_name="pwd", result="/"),
@@ -71,6 +83,10 @@ class TestHostContextManager:
 class TestFileContextManager:
 
     def test_normal_operation(self):
+        """
+        If an `FTPFile` object is created in the `FTPFile` context manager, the
+        context manager should close the file at the end of the `with` block.
+        """
         host_script = [
           Call(method_name="__init__"),
           Call(method_name="pwd", result="/"),
@@ -97,6 +113,10 @@ class TestFileContextManager:
             assert fobj.closed is True
 
     def test_ftputil_exception(self):
+        """
+        If an `ftplib.FTP` method raises an exception, the `FTPFile` context
+        manager should try to close the file.
+        """
         host_script = [
           Call(method_name="__init__"),
           Call(method_name="pwd", result="/"),
@@ -126,6 +146,10 @@ class TestFileContextManager:
             assert "fobj" not in locals()
 
     def test_client_code_exception(self):
+        """
+        If client code raises an exception in the `FTPFile` context manager
+        block, the file object should be closed by the context manager.
+        """
         host_script = [
           Call(method_name="__init__"),
           Call(method_name="pwd", result="/"),
