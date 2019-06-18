@@ -10,7 +10,7 @@ __all__ = ["Call", "factory"]
 
 class Call:
 
-    def __init__(self, method_name, result=None, args=None, kwargs=None):
+    def __init__(self, method_name, *, args=None, kwargs=None, result=None):
         self.method_name = method_name
         self.result = result
         self.args = args
