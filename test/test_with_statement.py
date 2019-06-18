@@ -3,6 +3,7 @@
 # See the file LICENSE for licensing terms.
 
 import ftplib
+import io
 import pytest
 
 import ftputil.error
@@ -70,8 +71,24 @@ class TestHostContextManager:
 class TestFileContextManager:
 
     def test_normal_operation(self):
-        with test_base.ftp_host_factory(
-               session_factory=ReadMockSession) as host:
+        host_script = [
+          Call(method_name="__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="close")
+        ]
+        file_script = [
+          Call(method_name="__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="voidcmd", result=None, args=("TYPE I",)),
+          Call(method_name="transfercmd",
+               result=io.BytesIO(b"line 1\nline 2"),
+               args=("RETR dummy", None)),
+          Call(method_name="voidresp", result=None),
+          Call(method_name="close")
+        ]
+        multisession_factory = scripted_session.factory(host_script, file_script)
+        with test_base.ftp_host_factory(multisession_factory) as host:
             with host.open("dummy", "r") as fobj:
                 assert fobj.closed is False
                 data = fobj.readline()
@@ -80,20 +97,53 @@ class TestFileContextManager:
             assert fobj.closed is True
 
     def test_ftputil_exception(self):
-        with test_base.ftp_host_factory(
-               session_factory=InaccessibleDirSession) as host:
+        host_script = [
+          Call(method_name="__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="close")
+        ]
+        file_script = [
+          Call(method_name="__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="voidcmd", result=None, args=("TYPE I",)),
+          # Raise exception. `voidresp` therefore won't be called, but `close`
+          # will be called by the context manager.
+          Call(method_name="transfercmd",
+               result=ftplib.error_perm,
+               args=("STOR inaccessible", None)),
+          # Call(method_name="voidresp", result=None),
+          Call(method_name="close")
+        ]
+        multisession_factory = scripted_session.factory(host_script, file_script)
+        with test_base.ftp_host_factory(multisession_factory) as host:
             with pytest.raises(ftputil.error.FTPIOError):
-                # This should fail since the directory isn't
-                # accessible by definition.
-                with host.open("/inaccessible/new_file", "w") as fobj:
+                # This should fail.
+                with host.open("/inaccessible", "w") as fobj:
                     pass
             # The file construction shouldn't have succeeded, so `fobj`
             # should be absent from the local namespace.
             assert "fobj" not in locals()
 
     def test_client_code_exception(self):
-        with test_base.ftp_host_factory(
-               session_factory=ReadMockSession) as host:
+        host_script = [
+          Call(method_name="__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="close")
+        ]
+        file_script = [
+          Call(method_name="__init__"),
+          Call(method_name="pwd", result="/"),
+          Call(method_name="cwd", result=None, args=("/",)),
+          Call(method_name="voidcmd", result=None, args=("TYPE I",)),
+          Call(method_name="transfercmd",
+               result=io.BytesIO(b""),
+               args=("RETR dummy", None)),
+          Call(method_name="voidresp", result=None),
+          Call(method_name="close")
+        ]
+        multisession_factory = scripted_session.factory(host_script, file_script)
+        with test_base.ftp_host_factory(multisession_factory) as host:
             try:
                 with host.open("dummy", "r") as fobj:
                     assert fobj.closed is False
