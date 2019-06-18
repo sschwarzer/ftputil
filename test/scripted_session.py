@@ -158,7 +158,10 @@ class ScriptedSession:
         # Check only the path. This requires that the corresponding `Call`
         # object also solely specifies the path as `args`.
         script_call.check_call("dir", (path,), None)
-        for line in script_call.result.splitlines():
+        # Give `dir` the chance to raise an exception if one was specified in
+        # the `Call`'s `result` argument.
+        call_result = script_call()
+        for line in call_result.splitlines():
             callback(line)
 
     def ntransfercmd(self, cmd, rest=None):
@@ -172,8 +175,11 @@ class ScriptedSession:
         """
         script_call = self._next_script_call("ntransfercmd")
         script_call.check_call("ntransfercmd", (cmd, rest), None)
+        # Give `ntransfercmd` the chance to raise an exception if one was
+        # specified in the `Call`'s `result` argument.
+        call_result = script_call()
         mock_socket = unittest.mock.Mock(name="socket")
-        mock_socket.makefile.return_value = script_call.result
+        mock_socket.makefile.return_value = call_result
         # Return `None` for size. The docstring of `ftplib.FTP.ntransfercmd`
         # says that's a possibility.
         # TODO: Use a sensible `size` value later if it turns out we need it.
@@ -189,8 +195,11 @@ class ScriptedSession:
         """
         script_call = self._next_script_call("transfercmd")
         script_call.check_call("transfercmd", (cmd, rest), None)
+        # Give `transfercmd` the chance to raise an exception if one was
+        # specified in the `Call`'s `result` argument.
+        call_result = script_call()
         mock_socket = unittest.mock.Mock(name="socket")
-        mock_socket.makefile.return_value = script_call.result
+        mock_socket.makefile.return_value = call_result
         return mock_socket
 
 
