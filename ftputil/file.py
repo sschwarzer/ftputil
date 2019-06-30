@@ -83,6 +83,10 @@ class FTPFile:
         # The file object. Under Python 3, this will already be a
         # `BufferedReader` or `BufferedWriter` object.
         fobj = self._conn.makefile(makefile_mode)
+        # XXX: I think this is only a leftover from the times of
+        # Python 2 support. It would be more elegant to create text
+        # file objects directly since Python 3's `socket.makefile`
+        # supports a `mode` argument.
         if not is_binary_mode:
             fobj = io.TextIOWrapper(fobj, encoding=encoding,
                                     errors=errors, newline=newline)
