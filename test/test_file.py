@@ -512,18 +512,49 @@ class TestAvailableChild:
         `child_host._session.pwd` raising an exception of type
         `exception_class`.
         """
-        host = test_base.ftp_host_factory()
-        # Implicitly create a child session.
-        with host.open("/home/older") as _:
-            pass
-        assert len(host._children) == 1
-        # Make sure reusing the previous child session will fail.
-        host._children[0]._session.pwd = self._failing_pwd(exception_class)
-        # Try to create a new file. Since `pwd` now raises an
-        # exception, a new child session should be created.
-        with host.open("home/older") as _:
-            pass
-        assert len(host._children) == 2
+        host_script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("close")
+        ]
+        first_file_script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("cwd", args=('/',)),
+          Call("voidcmd", args=('TYPE I',)),
+          Call("transfercmd",
+               args=('RETR dummy1', None),
+               result=io.StringIO("")),
+          Call("voidresp"),
+          # This `pwd` is executed from `FTPHost._available_child`.
+          Call("pwd", result=exception_class),
+          Call("close")
+        ]
+        second_file_script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("cwd", args=('/',)),
+          Call("voidcmd", args=('TYPE I',)),
+          Call("transfercmd",
+               args=('RETR dummy2', None),
+               result=io.StringIO("")),
+          Call("voidresp"),
+          Call("close")
+        ]
+        multisession_factory = scripted_session.factory(host_script,
+                                                        first_file_script,
+                                                        second_file_script)
+        with test_base.ftp_host_factory(multisession_factory) as host:
+            # Implicitly create a child session.
+            with host.open("/dummy1") as _:
+                pass
+            assert len(host._children) == 1
+            # Try to create a new file. Since `pwd` in
+            # `FTPHost._available_child` raises an exception, a new
+            # child session should be created.
+            with host.open("/dummy2") as _:
+                pass
+            assert len(host._children) == 2
 
     def test_pwd_with_error_temp(self):
         """
