@@ -10,39 +10,11 @@ import pytest
 
 import ftputil.error
 
-from test import mock_ftplib
 from test import scripted_session
 from test import test_base
 
 
 Call = scripted_session.Call
-
-
-#
-# Several customized `MockSession` classes
-#
-class ReadMockSession(mock_ftplib.MockSession):
-
-    mock_file_content = b"line 1\r\nanother line\r\nyet another line"
-
-
-class ReadMockSessionWithMoreNewlines(mock_ftplib.MockSession):
-
-    mock_file_content = b"\r\n".join(map(bytes, range(20)))
-
-
-class InaccessibleDirSession(mock_ftplib.MockSession):
-
-    _login_dir = "/inaccessible"
-
-    def pwd(self):
-        return self._login_dir
-
-    def cwd(self, dir):
-        if dir in (self._login_dir, self._login_dir + "/"):
-            raise ftplib.error_perm
-        else:
-            super(InaccessibleDirSession, self).cwd(dir)
 
 
 class TestFileOperations:

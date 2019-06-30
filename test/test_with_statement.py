@@ -10,7 +10,6 @@ import ftputil.error
 
 import test.scripted_session as scripted_session
 from test import test_base
-from test.test_file import InaccessibleDirSession, ReadMockSession
 
 
 Call = scripted_session.Call
