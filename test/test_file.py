@@ -42,6 +42,17 @@ class InaccessibleDirSession(mock_ftplib.MockSession):
 class TestFileOperations:
     """Test operations with file-like objects."""
 
+    # TODO: Revise these tests when done with the test infrastructure
+    # redesign. Most tests in this class seem to be from a time when
+    # there were was specific support for FTP "ASCII" transfers (i. e.
+    # with `TYPE A`, although `TYPE A` was actually never used, but the
+    # line ending conversions were done in ftputil). Meanwhile,
+    # there's no longer support for this ASCII mode in ftputil, but we
+    # have a distinction between binary and text mode, like in
+    # Python's built-in `open` function. I _think_ the support for
+    # binary and text mode is ok, but we should have new tests for
+    # both modes.
+
     def test_inaccessible_dir(self):
         """Test whether opening a file at an invalid location fails."""
         host = test_base.ftp_host_factory(
