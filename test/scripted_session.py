@@ -104,6 +104,10 @@ class ScriptedSession:
 
     def __init__(self, script):
         self.script = script
+        # `File.close` accesses the session `sock` object to set and reset the
+        # timeout. `sock` itself is never _called_ though, so it doesn't make
+        # sense to create a `sock` _call_.
+        self.sock = unittest.mock.Mock(name="socket_attribute")
         # Index into `script`, the list of `Call` objects
         self._call_index = 0
         self.__class__._session_count += 1
@@ -143,11 +147,6 @@ class ScriptedSession:
     # ----------------------------------------------------------------------
     # `ftplib.FTP` methods that shouldn't be executed with the default
     # processing in `__getattr__`
-
-    # `File.close` accesses the session `sock` object to set and reset the
-    # timeout. `sock` itself is never _called_ though, so it doesn't make sense
-    # to create a `sock` _call_.
-    sock = unittest.mock.Mock(name="socket_attribute")
 
     def dir(self, path, callback):
         """
