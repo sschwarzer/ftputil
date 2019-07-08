@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2019, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -157,7 +157,8 @@ class _Path:
         Return true if the `path` exists and corresponds to a
         directory (no link).
 
-        A non-existing path does _not_ cause a `PermanentError`.
+        A non-existing path does _not_ cause a `PermanentError`,
+        instead return `False`.
         """
         return self._is_file_system_entity(path, "dir")
 
@@ -166,7 +167,8 @@ class _Path:
         Return true if the `path` exists and corresponds to a regular
         file (no link).
 
-        A non-existing path does _not_ cause a `PermanentError`.
+        A non-existing path does _not_ cause a `PermanentError`,
+        instead return `False`.
         """
         return self._is_file_system_entity(path, "file")
 
@@ -174,7 +176,8 @@ class _Path:
         """
         Return true if the `path` exists and is a link.
 
-        A non-existing path does _not_ cause a `PermanentError`.
+        A non-existing path does _not_ cause a `PermanentError`,
+        instead return `False`.
         """
         path = ftputil.tool.as_unicode(path)
         try:
