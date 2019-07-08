@@ -86,7 +86,7 @@ class _Path:
     @staticmethod
     def join(*paths):
         """
-        Join the path component from `paths` and return the joined
+        Join the path components from `paths` and return the joined
         path.
 
         All of these paths must be either unicode strings or byte
