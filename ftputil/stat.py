@@ -739,8 +739,10 @@ class _Stat:
             else:
                 raise
 
-    # Don't use these methods, but instead the corresponding methods
-    # in the `FTPHost` class.
+    # Client code should never use these methods, but only the
+    # corresponding methods without the leading underscore in the
+    # `FTPHost` class.
+
     def _listdir(self, path):
         """
         Return a list of items in `path`.
