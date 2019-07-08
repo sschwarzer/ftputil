@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2019, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -551,16 +551,43 @@ class _Stat:
         for line in lines:
             if self._parser.ignores_line(line):
                 continue
-            # For `listdir`, we are interested in just the names,
-            # but we use the `time_shift` parameter to have the
+            # Although for a `listdir` call we're only interested in
+            # the names, use the `time_shift` parameter to store the
             # correct timestamp values in the cache.
             stat_result = self._parser.parse_line(line,
                                                   self._host.time_shift())
+            # Skip entries "." and "..".
             if stat_result._st_name in [self._host.curdir, self._host.pardir]:
                 continue
             loop_path = self._path.join(path, stat_result._st_name)
             self._lstat_cache[loop_path] = stat_result
             yield stat_result
+
+    # The methods `listdir`, `lstat` and `stat` come in two variants.
+    # The methods `_real_listdir`, `_real_lstat` and `_real_stat` use
+    # the currently set parser to get the directories/files of the
+    # requested directory, the lstat result or the stat result,
+    # respectively.
+    #
+    # Additionally, we have the methods `_listdir`, `_lstat` and
+    # `_stat`, which wrap the above `_real_*` methods. _For example_,
+    # `_listdir` calls `_real_listdir`. If `_real_listdir` can't parse
+    # the directory lines and a parser hasn't been fixed yet,
+    # `_listdir` switches to the MS parser and calls `_real_listdir`
+    # again.
+    #
+    # There are two important conditions to watch out for:
+    #
+    # - If the user explicitly set a different parser with
+    #   `FTPHost.set_parser`, parser switching is disabled after that
+    #   and `_listdir` etc. only call "their" method once with the
+    #   fixed parser.
+    #
+    # - A `_real_*` call will fail if there's no directory line at all
+    #   in the given directory. In that case, we can't tell whether
+    #   the default parser was appropriate or not. Hence parser
+    #   switching will still be allowed until we encounter a directory
+    #   that has directories/files/links in it.
 
     def _real_listdir(self, path):
         """
