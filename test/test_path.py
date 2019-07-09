@@ -1,7 +1,8 @@
-# Copyright (C) 2003-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2019, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
+import datetime
 import ftplib
 import time
 
@@ -13,20 +14,10 @@ import ftputil.tool
 
 from test import mock_ftplib
 from test import test_base
+from test import scripted_session
 
 
-class FailingFTPHost(ftputil.FTPHost):
-
-    def _dir(self, path):
-        raise ftputil.error.FTPOSError("simulate a failure, e. g. timeout")
-
-
-# Mock session, used for testing an inaccessible login directory
-class SessionWithInaccessibleLoginDirectory(mock_ftplib.MockSession):
-
-    def cwd(self, dir):
-        # Assume that `dir` is the inaccessible login directory.
-        raise ftplib.error_perm("can't change into this directory")
+Call = scripted_session.Call
 
 
 class TestPath:
@@ -36,89 +27,341 @@ class TestPath:
     # (commits [b4c9b089b6b8] and [4027740cdd2d]).
     def test_regular_isdir_isfile_islink(self):
         """Test regular `FTPHost._Path.isdir/isfile/islink`."""
-        host = test_base.ftp_host_factory()
-        testdir = "/home/sschwarzer"
-        host.chdir(testdir)
         # Test a path which isn't there.
-        assert not host.path.isdir("notthere")
-        assert not host.path.isfile("notthere")
-        assert not host.path.islink("notthere")
-        #  This checks additional code (see ticket #66).
-        assert not host.path.isdir("/notthere/notthere")
-        assert not host.path.isfile("/notthere/notthere")
-        assert not host.path.islink("/notthere/notthere")
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          # `isdir` call
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir", args=("",), result=""),
+          Call("cwd", args=("/",)),
+          # `isfile` call
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir", args=("",), result=""),
+          Call("cwd", args=("/",)),
+          # `islink` call
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir", args=("",), result=""),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            assert not host.path.isdir("notthere")
+            assert not host.path.isfile("notthere")
+            assert not host.path.islink("notthere")
+        # This checks additional code (see ticket #66).
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          # `isdir` call
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir", args=("",), result=""),
+          Call("cwd", args=("/",)),
+          # `isfile` call
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir", args=("",), result=""),
+          Call("cwd", args=("/",)),
+          # `islink` call
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir", args=("",), result=""),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            assert not host.path.isdir("/notthere/notthere")
+            assert not host.path.isfile("/notthere/notthere")
+            assert not host.path.islink("/notthere/notthere")
         # Test a directory.
-        assert host.path.isdir(testdir)
-        assert not host.path.isfile(testdir)
-        assert not host.path.islink(testdir)
+        test_dir = "/some_dir"
+        dir_line = test_base.dir_line(mode_string="dr-xr-xr-x",
+                                      datetime_=datetime.datetime.now(),
+                                      name=test_dir.lstrip("/"))
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          # `isdir` call
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir", args=("",), result=dir_line),
+          Call("cwd", args=("/",)),
+          # `isfile` call
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir", args=("",), result=dir_line),
+          Call("cwd", args=("/",)),
+          # `islink` call
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir", args=("",), result=dir_line),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            assert host.path.isdir(test_dir)
+            assert not host.path.isfile(test_dir)
+            assert not host.path.islink(test_dir)
         # Test a file.
-        testfile = "/home/sschwarzer/index.html"
-        assert not host.path.isdir(testfile)
-        assert host.path.isfile(testfile)
-        assert not host.path.islink(testfile)
-        # Test a link. Since the link target of `osup` doesn't exist,
-        # neither `isdir` nor `isfile` return `True`.
-        testlink = "/home/sschwarzer/osup"
-        assert not host.path.isdir(testlink)
-        assert not host.path.isfile(testlink)
-        assert host.path.islink(testlink)
+        test_file = "/some_file"
+        dir_line = test_base.dir_line(datetime_=datetime.datetime.now(),
+                                      name=test_file.lstrip("/"))
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          # `isdir` call
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir", args=("",), result=dir_line),
+          Call("cwd", args=("/",)),
+          # `isfile` call
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir", args=("",), result=dir_line),
+          Call("cwd", args=("/",)),
+          # `islink` call
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir", args=("",), result=dir_line),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            assert not host.path.isdir(test_file)
+            assert host.path.isfile(test_file)
+            assert not host.path.islink(test_file)
+        # Test a link. Since the link target doesn't exist, neither
+        # `isdir` nor `isfile` return `True`.
+        test_link = "/some_link"
+        dir_line = test_base.dir_line(mode_string="lrwxrwxrwx",
+                                      datetime_=datetime.datetime.now(),
+                                      name=test_link.lstrip("/"),
+                                      link_target="nonexistent")
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          # `isdir` call
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          #  Look for `/some_link`
+          Call("dir", args=("",), result=dir_line),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          #  Look for `/nonexistent`
+          Call("dir", args=("",), result=dir_line),
+          Call("cwd", args=("/",)),
+          # `isfile` call
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          #  Look for `/some_link`
+          Call("dir", args=("",), result=dir_line),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          #  Look for `/nonexistent`
+          Call("dir", args=("",), result=dir_line),
+          Call("cwd", args=("/",)),
+          # `islink` call
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          #  Look for `/some_link`. `islink` doesn't try to dereference
+          #  the link.
+          Call("dir", args=("",), result=dir_line),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            assert not host.path.isdir(test_link)
+            assert not host.path.isfile(test_link)
+            assert host.path.islink(test_link)
 
     def test_workaround_for_spaces(self):
         """Test whether the workaround for space-containing paths is used."""
-        host = test_base.ftp_host_factory()
-        testdir = "/home/sschwarzer"
-        host.chdir(testdir)
         # Test a file name containing spaces.
-        testfile = "/home/dir with spaces/file with spaces"
-        assert not host.path.isdir(testfile)
-        assert host.path.isfile(testfile)
-        assert not host.path.islink(testfile)
+        test_file = "/home/dir with spaces/file with spaces"
+        dir_line1 = test_base.dir_line(mode_string="dr-xr-xr-x",
+                                       datetime_=datetime.datetime.now(),
+                                       name="home")
+        dir_line2 = test_base.dir_line(mode_string="dr-xr-xr-x",
+                                       datetime_=datetime.datetime.now(),
+                                       name="dir with spaces")
+        dir_line3 = test_base.dir_line(mode_string="-r--r--r--",
+                                       datetime_=datetime.datetime.now(),
+                                       name="file with spaces")
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          # `isdir` call
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir", args=("",), result=dir_line1),
+          Call("cwd", args=("/",)),
+
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/home",)),
+          Call("dir", args=("",), result=dir_line2),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/home/dir with spaces",)),
+          Call("dir", args=("",), result=dir_line3),
+          Call("cwd", args=("/",)),
+          # `isfile` call
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir", args=("",), result=dir_line1),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/home",)),
+          Call("dir", args=("",), result=dir_line2),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/home/dir with spaces",)),
+          Call("dir", args=("",), result=dir_line3),
+          Call("cwd", args=("/",)),
+          # `islink` call
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir", args=("",), result=dir_line1),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/home",)),
+          Call("dir", args=("",), result=dir_line2),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/home/dir with spaces",)),
+          Call("dir", args=("",), result=dir_line3),
+          Call("cwd", args=("/",)),
+          Call("close"),
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            assert not host.path.isdir(test_file)
+            assert host.path.isfile(test_file)
+            assert not host.path.islink(test_file)
 
     def test_inaccessible_home_directory_and_whitespace_workaround(self):
         "Test combination of inaccessible home directory + whitespace in path."
-        host = test_base.ftp_host_factory(
-               session_factory=SessionWithInaccessibleLoginDirectory)
-        with pytest.raises(ftputil.error.InaccessibleLoginDirError):
-            host._dir("/home dir")
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("cwd", result=ftplib.error_perm),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            with pytest.raises(ftputil.error.InaccessibleLoginDirError):
+                host._dir("/home dir")
 
     def test_isdir_isfile_islink_with_dir_failure(self):
         """
         Test failing `FTPHost._Path.isdir/isfile/islink` because of
         failing `_dir` call.
         """
-        host = test_base.ftp_host_factory(ftp_host_class=FailingFTPHost)
-        testdir = "/home/sschwarzer"
-        host.chdir(testdir)
-        # Test if exceptions are propagated.
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir", args=("",), result=ftplib.error_perm),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
         FTPOSError = ftputil.error.FTPOSError
-        with pytest.raises(FTPOSError):
-            host.path.isdir("index.html")
-        with pytest.raises(FTPOSError):
-            host.path.isfile("index.html")
-        with pytest.raises(FTPOSError):
-            host.path.islink("index.html")
+        # Test if exceptions are propagated.
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            with pytest.raises(FTPOSError):
+                host.path.isdir("index.html")
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            with pytest.raises(FTPOSError):
+                host.path.isfile("index.html")
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            with pytest.raises(FTPOSError):
+                host.path.islink("index.html")
 
     def test_isdir_isfile_with_infinite_link_chain(self):
         """
         Test if `isdir` and `isfile` return `False` if they encounter
         an infinite link chain.
         """
-        host = test_base.ftp_host_factory()
-        assert host.path.isdir("/home/bad_link") is False
-        assert host.path.isfile("/home/bad_link") is False
+        # `/home/bad_link` links to `/home/subdir/bad_link`, which
+        # links back to `/home/bad_link` etc.
+        dir_line1 = test_base.dir_line(mode_string="dr-xr-xr-x",
+                                       datetime_=datetime.datetime.now(),
+                                       name="home")
+        dir_line2 = test_base.dir_line(mode_string="lrwxrwxrwx",
+                                       datetime_=datetime.datetime.now(),
+                                       name="bad_link",
+                                       link_target="subdir/bad_link")
+        dir_line3 = test_base.dir_line(mode_string="dr-xr-xr-x",
+                                       datetime_=datetime.datetime.now(),
+                                       name="subdir")
+        dir_line4 = test_base.dir_line(mode_string="lrwxrwxrwx",
+                                       datetime_=datetime.datetime.now(),
+                                       name="bad_link",
+                                       link_target="/home/bad_link")
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir", args=("",), result=dir_line1),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/home",)),
+          Call("dir", args=("",), result=dir_line2+"\n"+dir_line3),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/home/subdir",)),
+          Call("dir", args=("",), result=dir_line4),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            assert host.path.isdir("/home/bad_link") is False
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            assert host.path.isfile("/home/bad_link") is False
 
     def test_exists(self):
         """Test `FTPHost.path.exists`."""
         # Regular use of `exists`
-        host = test_base.ftp_host_factory()
-        testdir = "/home/sschwarzer"
-        host.chdir(testdir)
-        assert host.path.exists("index.html")
-        assert not host.path.exists("notthere")
-        # Test if exceptions are propagated.
-        host = test_base.ftp_host_factory(ftp_host_class=FailingFTPHost)
-        with pytest.raises(ftputil.error.FTPOSError):
-            host.path.exists("index.html")
+        dir_line1 = test_base.dir_line(datetime_=datetime.datetime.now(),
+                                       name="some_file")
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          # `exists("some_file")`
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir", args=("",), result=dir_line1),
+          Call("cwd", args=("/",)),
+          # `exists("notthere")`
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir", args=("",), result=dir_line1),
+          Call("cwd", args=("/",)),
+          # `exists` with failing `dir` call
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir", args=("",), result=ftplib.error_perm),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            assert host.path.exists("some_file")
+            assert not host.path.exists("notthere")
+            # Test if exceptions are propagated.
+            with pytest.raises(ftputil.error.FTPOSError):
+                host.path.exists("some_file")
 
 
 class TestAcceptEitherBytesOrUnicode:
