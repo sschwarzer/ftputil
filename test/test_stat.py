@@ -405,7 +405,7 @@ class TestLstatAndStat:
         """Test `lstat` for a file described in Unix-style format."""
         stat_result = self.stat._lstat("/home/sschwarzer/index.html")
         # Second form is needed for Python 3
-        assert oct(stat_result.st_mode) in ("0100644", "0o100644")
+        assert oct(stat_result.st_mode) == "0o100644"
         assert stat_result.st_size == 4604
         assert stat_result._st_mtime_precision == 60
 
@@ -419,7 +419,7 @@ class TestLstatAndStat:
         """Test `lstat` for a directory described in Unix-style format."""
         stat_result = self.stat._lstat("/home/sschwarzer/scios2")
         # Second form is needed for Python 3
-        assert oct(stat_result.st_mode) in ("042755", "0o42755")
+        assert oct(stat_result.st_mode) == "0o42755"
         assert stat_result.st_ino is None
         assert stat_result.st_dev is None
         assert stat_result.st_nlink == 6
