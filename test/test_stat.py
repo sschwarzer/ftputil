@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2019, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -14,6 +14,10 @@ from ftputil.stat import MINUTE_PRECISION, DAY_PRECISION, UNKNOWN_PRECISION
 
 from test import test_base
 from test import mock_ftplib
+from test import scripted_session
+
+
+Call = scripted_session.Call
 
 
 def _test_stat(session_factory):
@@ -315,14 +319,20 @@ class TestParsers:
         time shift and the supposed time shift, which is rounded
         to full hours.
         """
-        host = test_base.ftp_host_factory()
-        # Explicitly use Unix format parser here.
-        host._stat._parser = ftputil.stat.UnixParser()
-        host.set_time_shift(supposed_time_shift)
-        server_time = time.time() + supposed_time_shift + deviation
-        stat_result = host._stat._parser.parse_line(self.dir_line(server_time),
-                                                    host.time_shift())
-        self.assert_equal_times(stat_result.st_mtime, server_time)
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            # Explicitly use Unix format parser here.
+            host._stat._parser = ftputil.stat.UnixParser()
+            host.set_time_shift(supposed_time_shift)
+            server_time = time.time() + supposed_time_shift + deviation
+            stat_result = host._stat._parser.parse_line(self.dir_line(server_time),
+                                                        host.time_shift())
+            self.assert_equal_times(stat_result.st_mtime, server_time)
 
     def test_time_shifts(self):
         """Test correct year depending on time shift value."""
