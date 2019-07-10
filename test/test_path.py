@@ -12,7 +12,6 @@ import ftputil
 import ftputil.error
 import ftputil.tool
 
-from test import mock_ftplib
 from test import test_base
 from test import scripted_session
 
@@ -366,9 +365,6 @@ class TestPath:
 
 class TestAcceptEitherBytesOrUnicode:
 
-    def setup_method(self, method):
-        self.host = test_base.ftp_host_factory()
-
     def _test_method_string_types(self, method, path):
         expected_type = type(path)
         assert isinstance(method(path), expected_type)
@@ -377,89 +373,260 @@ class TestAcceptEitherBytesOrUnicode:
         """
         Test whether the same string type as for the argument is returned.
         """
-        method_names = ("abspath basename dirname join normcase normpath".
-                        split())
-        for method_name in method_names:
-            method = getattr(self.host.path, method_name)
-            self._test_method_string_types(method, "/")
-            self._test_method_string_types(method, ".")
-            self._test_method_string_types(method, b"/")
-            self._test_method_string_types(method, b".")
+        method_names = ["abspath", "basename", "dirname", "join", "normcase",
+                        "normpath"]
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            for method_name in method_names:
+                method = getattr(host.path, method_name)
+                self._test_method_string_types(method, "/")
+                self._test_method_string_types(method, ".")
+                self._test_method_string_types(method, b"/")
+                self._test_method_string_types(method, b".")
 
     def test_methods_that_take_a_string_and_return_a_bool(self):
         """Test whether the methods accept byte and unicode strings."""
-        host = self.host
         as_bytes = ftputil.tool.as_bytes
-        host.chdir("/home/file_name_test")
-        # `isabs`
-        assert not host.path.isabs("ä")
-        assert not host.path.isabs(as_bytes("ä"))
-        # `exists`
-        assert host.path.exists("ä")
-        assert host.path.exists(as_bytes("ä"))
-        # `isdir`, `isfile`, `islink`
-        assert host.path.isdir("ä")
-        assert host.path.isdir(as_bytes("ä"))
-        assert host.path.isfile("ö")
-        assert host.path.isfile(as_bytes("ö"))
-        assert host.path.islink("ü")
-        assert host.path.islink(as_bytes("ü"))
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          # `exists` test 1
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result=test_base.dir_line(name="ä",
+                                         datetime_=datetime.datetime.now())),
+          Call("cwd", args=("/",)),
+          # `exists` test 2
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result=test_base.dir_line(name="ä",
+                                         datetime_=datetime.datetime.now())),
+          Call("cwd", args=("/",)),
+          # `isdir` test 1
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result=test_base.dir_line(mode_string="dr-xr-xr-x",
+                                         name="ä",
+                                         datetime_=datetime.datetime.now())),
+          Call("cwd", args=("/",)),
+          # `isdir` test 2
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result=test_base.dir_line(mode_string="dr-xr-xr-x",
+                                         name="ä",
+                                         datetime_=datetime.datetime.now())),
+          Call("cwd", args=("/",)),
+          # `isfile` test 1
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result=test_base.dir_line(name="ö",
+                                         datetime_=datetime.datetime.now())),
+          Call("cwd", args=("/",)),
+          # `isfile` test 2
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result=test_base.dir_line(name="ö",
+                                         datetime_=datetime.datetime.now())),
+          Call("cwd", args=("/",)),
+          # `islink` test 1
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result=test_base.dir_line(mode_string="lrwxrwxrwx",
+                                         name="ü",
+                                         datetime_=datetime.datetime.now(),
+                                         link_target="unimportant")),
+          Call("cwd", args=("/",)),
+          # `islink` test 2
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result=test_base.dir_line(mode_string="lrwxrwxrwx",
+                                         name="ü",
+                                         datetime_=datetime.datetime.now(),
+                                         link_target="unimportant")),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            # `isabs`
+            assert not host.path.isabs("ä")
+            assert not host.path.isabs(as_bytes("ä"))
+            # `exists`
+            assert host.path.exists("ä")
+            assert host.path.exists(as_bytes("ä"))
+            # `isdir`, `isfile`, `islink`
+            assert host.path.isdir("ä")
+            assert host.path.isdir(as_bytes("ä"))
+            assert host.path.isfile("ö")
+            assert host.path.isfile(as_bytes("ö"))
+            assert host.path.islink("ü")
+            assert host.path.islink(as_bytes("ü"))
 
     def test_join(self):
         """
         Test whether `FTPHost.path.join` accepts only arguments of
         the same string type and returns the same string type.
         """
-        join = self.host.path.join
         as_bytes = ftputil.tool.as_bytes
-        # Only unicode
-        parts = list("äöü")
-        result = join(*parts)
-        assert result == "ä/ö/ü"
-        # Only bytes
-        parts = [as_bytes(s) for s in "äöü"]
-        result = join(*parts)
-        assert result == as_bytes("ä/ö/ü")
-        # Mixture of unicode and bytes
-        parts = ["ä", as_bytes("ö")]
-        with pytest.raises(TypeError):
-            join(*parts)
-        parts = [as_bytes("ä"), as_bytes("ö"), "ü"]
-        with pytest.raises(TypeError):
-            join(*parts)
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            join = host.path.join
+            # Only unicode
+            parts = ["ä", "ö", "ü"]
+            result = join(*parts)
+            assert result == "ä/ö/ü"
+            # Only bytes
+            parts = [as_bytes(s) for s in parts]
+            result = join(*parts)
+            assert result == as_bytes("ä/ö/ü")
+            # Mixture of unicode and bytes
+            parts = ["ä", as_bytes("ö")]
+            with pytest.raises(TypeError):
+                join(*parts)
+            parts = [as_bytes("ä"), as_bytes("ö"), "ü"]
+            with pytest.raises(TypeError):
+                join(*parts)
 
     def test_getmtime(self):
         """
         Test whether `FTPHost.path.getmtime` accepts byte and unicode
         paths.
         """
-        host = self.host
         as_bytes = ftputil.tool.as_bytes
-        host.chdir("/home/file_name_test")
-        # We don't care about the _exact_ time, so don't bother with
-        # timezone differences. Instead, do a simple sanity check.
-        day = 24 * 60 * 60  # seconds
-        expected_mtime = time.mktime((2000, 5, 29, 0, 0, 0, 0, 0, 0))
-        mtime_makes_sense = (lambda mtime: expected_mtime - day <= mtime <=
-                                           expected_mtime + day)
-        assert mtime_makes_sense(host.path.getmtime("ä"))
-        assert mtime_makes_sense(host.path.getmtime(as_bytes("ä")))
+        now = datetime.datetime.now()
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          # `getmtime` call 1
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result=test_base.dir_line(name="ä",
+                                         datetime_=now)),
+          Call("cwd", args=("/",)),
+          # `getmtime` call 2
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result=test_base.dir_line(name="ä",
+                                         datetime_=now)),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            expected_mtime = now.timestamp()
+            # We don't care about the _exact_ time, so don't bother with
+            # timezone differences. Instead, do a simple sanity check.
+            day = 24 * 60 * 60  # seconds
+            mtime_makes_sense = (lambda mtime: expected_mtime - day <= mtime <=
+                                               expected_mtime + day)
+            assert mtime_makes_sense(host.path.getmtime("ä"))
+            assert mtime_makes_sense(host.path.getmtime(as_bytes("ä")))
 
     def test_getsize(self):
         """
         Test whether `FTPHost.path.getsize` accepts byte and unicode paths.
         """
-        host = self.host
         as_bytes = ftputil.tool.as_bytes
-        host.chdir("/home/file_name_test")
-        assert host.path.getsize("ä") == 512
-        assert host.path.getsize(as_bytes("ä")) == 512
+        now = datetime.datetime.now()
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          # `getsize` call 1
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result=test_base.dir_line(name="ä",
+                                         size=512,
+                                         datetime_=now)),
+          Call("cwd", args=("/",)),
+          # `getsize` call 2
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result=test_base.dir_line(name="ä",
+                                         size=512,
+                                         datetime_=now)),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            assert host.path.getsize("ä") == 512
+            assert host.path.getsize(as_bytes("ä")) == 512
 
     def test_walk(self):
         """Test whether `FTPHost.path.walk` accepts bytes and unicode paths."""
-        host = self.host
         as_bytes = ftputil.tool.as_bytes
+        now = datetime.datetime.now()
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          # `walk` call 1
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result=test_base.dir_line(mode_string="dr-xr-xr-x",
+                                         name="ä",
+                                         size=512,
+                                         datetime_=now)),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/ä",)),
+          #  Assume directory `ä` is empty.
+          Call("dir", args=("",), result=""),
+          Call("cwd", args=("/",)),
+          # `walk` call 2
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result=test_base.dir_line(mode_string="dr-xr-xr-x",
+                                         name="ä",
+                                         size=512,
+                                         datetime_=now)),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/ä",)),
+          #  Assume directory `ä` is empty.
+          Call("dir", args=("",), result=""),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
         def noop(arg, top, names):
             del names[:]
-        host.path.walk("ä", noop, None)
-        host.path.walk(as_bytes("ä"), noop, None)
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            host.path.walk("ä", func=noop, arg=None)
+            host.path.walk(as_bytes("ä"), func=noop, arg=None)
