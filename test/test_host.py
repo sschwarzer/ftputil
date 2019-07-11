@@ -84,10 +84,11 @@ class TestConstructor:
           # Deliberately return the current working directory with a
           # trailing slash to test if it's removed when stored in the
           # `FTPHost` instance.
-          Call("pwd", result="/home/")
+          Call("pwd", result="/home/"),
+          Call("close")
         ]
-        host = test_base.ftp_host_factory(scripted_session.factory(script))
-        assert host.getcwd() == "/home"
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            assert host.getcwd() == "/home"
 
 
 class TestKeepAlive:
@@ -112,10 +113,11 @@ class TestKeepAlive:
           # Simulate failing `pwd` call after the server closed the connection
           # due to a session timeout.
           Call("pwd", result=ftplib.error_temp),
+          Call("close")
         ]
-        host = test_base.ftp_host_factory(scripted_session.factory(script))
-        with pytest.raises(ftputil.error.TemporaryError):
-            host.keep_alive()
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            with pytest.raises(ftputil.error.TemporaryError):
+                host.keep_alive()
 
 
 class TestSetParser:
@@ -148,15 +150,16 @@ class TestSetParser:
           Call("cwd", args=("/",)),
           Call("dir",
                result="drwxr-xr-x   2 45854    200           512 May  4  2000 home"),
-          Call("cwd", args=("/",))
+          Call("cwd", args=("/",)),
+          Call("close")
         ]
-        host = test_base.ftp_host_factory(scripted_session.factory(script))
-        assert host._stat._allow_parser_switching is True
-        trivial_parser = TestSetParser.TrivialParser()
-        host.set_parser(trivial_parser)
-        stat_result = host.stat("/home")
-        assert stat_result == trivial_parser.default_stat_result
-        assert host._stat._allow_parser_switching is False
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            assert host._stat._allow_parser_switching is True
+            trivial_parser = TestSetParser.TrivialParser()
+            host.set_parser(trivial_parser)
+            stat_result = host.stat("/home")
+            assert stat_result == trivial_parser.default_stat_result
+            assert host._stat._allow_parser_switching is False
 
 
 class TestCommandNotImplementedError:
@@ -185,13 +188,14 @@ class TestCommandNotImplementedError:
                result=ftplib.error_perm("502 command not implemented"),
                args=("SITE CHMOD 0644 nonexistent",)),
           Call("cwd", args=("/",)),
+          Call("close")
         ]
-        host = test_base.ftp_host_factory(scripted_session.factory(script))
-        with pytest.raises(ftputil.error.CommandNotImplementedError):
-            host.chmod("nonexistent", 0o644)
-        # `CommandNotImplementedError` is a subclass of `PermanentError`.
-        with pytest.raises(ftputil.error.PermanentError):
-            host.chmod("nonexistent", 0o644)
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            with pytest.raises(ftputil.error.CommandNotImplementedError):
+                host.chmod("nonexistent", 0o644)
+            # `CommandNotImplementedError` is a subclass of `PermanentError`.
+            with pytest.raises(ftputil.error.PermanentError):
+                host.chmod("nonexistent", 0o644)
 
 
 class TestRecursiveListingForDotAsPath:
@@ -215,10 +219,9 @@ class TestRecursiveListingForDotAsPath:
           Call("cwd", args=("/",)),
           Call("close")
         ]
-        host = test_base.ftp_host_factory(scripted_session.factory(script))
-        lines = host._dir(host.curdir)
-        assert lines[0] == "non-recursive listing"
-        host.close()
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            lines = host._dir(host.curdir)
+            assert lines[0] == "non-recursive listing"
 
     def test_empty_string_instead_of_dot_workaround(self):
         """
@@ -226,13 +229,13 @@ class TestRecursiveListingForDotAsPath:
         `session.dir` should _not_ be called with the dot as argument, but with
         an empty string.
         """
-        dir_result = """\
-total 10
-lrwxrwxrwx   1 staff          7 Aug 13  2003 bin -> usr/bin
-d--x--x--x   2 staff        512 Sep 24  2000 dev
-d--x--x--x   3 staff        512 Sep 25  2000 etc
-dr-xr-xr-x   3 staff        512 Oct  3  2000 pub
-d--x--x--x   5 staff        512 Oct  3  2000 usr"""
+        dir_result = (
+          "total 10\n"
+          "lrwxrwxrwx   1 staff     7 Aug 13  2003 bin -> usr/bin\n"
+          "d--x--x--x   2 staff   512 Sep 24  2000 dev\n"
+          "d--x--x--x   3 staff   512 Sep 25  2000 etc\n"
+          "dr-xr-xr-x   3 staff   512 Oct  3  2000 pub\n"
+          "d--x--x--x   5 staff   512 Oct  3  2000 usr\n")
         script = [
           Call("__init__"),
           Call("pwd", result="/"),
@@ -242,10 +245,9 @@ d--x--x--x   5 staff        512 Oct  3  2000 usr"""
           Call("cwd", args=("/",)),
           Call("close")
         ]
-        host = test_base.ftp_host_factory(scripted_session.factory(script))
-        files = host.listdir(host.curdir)
-        assert files == ["bin", "dev", "etc", "pub", "usr"]
-        host.close()
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            files = host.listdir(host.curdir)
+            assert files == ["bin", "dev", "etc", "pub", "usr"]
 
 
 class TestUploadAndDownload:
