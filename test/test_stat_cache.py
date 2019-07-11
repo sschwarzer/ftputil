@@ -9,7 +9,11 @@ import pytest
 import ftputil.error
 import ftputil.stat_cache
 
+from test import scripted_session
 from test import test_base
+
+
+Call = scripted_session.Call
 
 
 class TestStatCache:
@@ -93,9 +97,24 @@ class TestStatCache:
         self.cache.invalidate("/path2")
 
     def test_cache_size_zero(self):
-        host = test_base.ftp_host_factory()
-        with pytest.raises(ValueError):
-            host.stat_cache.resize(0)
-        # If bug #38 was present, this raised an `IndexError`.
-        items = host.listdir(host.curdir)
-        assert items[:3] == ["chemeng", "download", "image"]
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result=
+                 "drwxr-sr-x   2 45854   200    512 Jan  3 17:17 download\n"
+                 "drwxr-sr-x   2 45854   200    512 Jul 30 17:14 dir with spaces\n"
+                 "lrwxrwxrwx   2 45854   200      6 May 29  2000 link -> ../link_target\n"
+                 "-rw-r--r--   1 45854   200   4604 Jan 19 23:11 index.html"),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            with pytest.raises(ValueError):
+                host.stat_cache.resize(0)
+            # If bug #38 was present, this would raise an `IndexError`.
+            items = host.listdir(host.curdir)
+            assert items == ["download", "dir with spaces", "link", "index.html"]
