@@ -651,6 +651,11 @@ class _Stat:
         # we want to collect as many stat results in the cache as
         # possible.
         lstat_result_for_path = None
+        # FIXME: Here we try to list the contents of `dirname` even
+        # though the above `isdir` call might/could have shown that
+        # the directory doesn't exist. This may be related to ticket
+        # #108. That said, we may need to consider virtual directories
+        # here (see tickets #86 / #87).
         for stat_result in self._stat_results_from_dir(dirname):
             # Needed to work without cache or with disabled cache.
             if stat_result._st_name == basename:
