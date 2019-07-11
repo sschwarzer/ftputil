@@ -844,6 +844,7 @@ class FTPHost:
     # The `listdir`, `lstat` and `stat` methods don't use
     # `_robust_ftp_command` because they implicitly already use
     # `_dir` which actually uses `_robust_ftp_command`.
+
     def listdir(self, path):
         """
         Return a list of directories, files etc. in the directory
