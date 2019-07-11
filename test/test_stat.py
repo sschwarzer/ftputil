@@ -15,20 +15,10 @@ import ftputil.stat
 from ftputil.stat import MINUTE_PRECISION, DAY_PRECISION, UNKNOWN_PRECISION
 
 from test import test_base
-from test import mock_ftplib
 from test import scripted_session
 
 
 Call = scripted_session.Call
-
-
-def _test_stat(session_factory):
-    host = test_base.ftp_host_factory(session_factory=session_factory)
-    stat = ftputil.stat._Stat(host)
-    # Use Unix format parser explicitly. This doesn't exclude switching
-    # to the MS format parser later if the test allows this switching.
-    stat._parser = ftputil.stat.UnixParser()
-    return stat
 
 
 # Special value to handle special case of datetimes before the epoch.
