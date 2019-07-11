@@ -778,22 +778,44 @@ class TestLstatAndStat:
 class TestListdir:
     """Test `FTPHost.listdir`."""
 
-    def setup_method(self, method):
-        self.stat = \
-          _test_stat(session_factory=mock_ftplib.MockUnixFormatSession)
-
     def test_failing_listdir(self):
         """Test failing `FTPHost.listdir`."""
-        with pytest.raises(ftputil.error.PermanentError):
-            self.stat._listdir("notthere")
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir", args=("",), result=""),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            with pytest.raises(ftputil.error.PermanentError):
+                host.listdir("notthere")
 
     def test_succeeding_listdir(self):
         """Test succeeding `FTPHost.listdir`."""
-        # Do we have all expected "files"?
-        assert len(self.stat._listdir(".")) == 9
-        # Have they the expected names?
-        expected = ("chemeng download image index.html os2 "
-                    "osup publications python scios2").split()
-        remote_file_list = self.stat._listdir(".")
-        for file in expected:
-            assert file in remote_file_list
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result=
+                 "drwxr-sr-x   2 45854   200    512 Jan  3 17:17 download\n"
+                 "drwxr-sr-x   2 45854   200    512 Jul 30 17:14 dir with spaces\n"
+                 "lrwxrwxrwx   2 45854   200      6 May 29  2000 link -> ../link_target\n"
+                 "-rw-r--r--   1 45854   200   4604 Jan 19 23:11 index.html"),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            remote_file_list = host.listdir(".")
+            # Do we have all expected "files"?
+            assert len(remote_file_list) == 4
+            expected_names = ["download", "dir with spaces", "link", "index.html"]
+            for name in expected_names:
+                assert name in remote_file_list
