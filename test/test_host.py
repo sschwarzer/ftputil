@@ -94,8 +94,15 @@ class TestKeepAlive:
 
     def test_succeeding_keep_alive(self):
         """Assume the connection is still alive."""
-        host = test_base.ftp_host_factory()
-        host.keep_alive()
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          # `pwd` due to `keep_alive` call.
+          Call("pwd", result="/"),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.keep_alive()
 
     def test_failing_keep_alive(self):
         """Assume the connection has timed out, so `keep_alive` fails."""
