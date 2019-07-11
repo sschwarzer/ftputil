@@ -2,6 +2,8 @@
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
+import datetime
+import ftplib
 import stat
 import time
 
@@ -362,30 +364,72 @@ class TestLstatAndStat:
     implemented for Unix server format).
     """
 
-    def setup_method(self, method):
-        # Most tests in this class need the mock session class with
-        # Unix format, so make this the default. Tests which need
-        # the MS format can overwrite `self.stat` later.
-        self.stat = \
-          _test_stat(session_factory=mock_ftplib.MockUnixFormatSession)
-
     def test_repr(self):
         """Test if the `repr` result looks like a named tuple."""
-        stat_result = self.stat._lstat("/home/sschwarzer/chemeng")
-        # TODO: Make the value for `st_mtime` robust against DST "time
-        # zone" changes.
-        expected_result = (
-          "StatResult(st_mode=17901, st_ino=None, st_dev=None, "
-          "st_nlink=2, st_uid='45854', st_gid='200', st_size=512, "
-          "st_atime=None, st_mtime=957391200.0, st_ctime=None)")
-        assert repr(stat_result) == expected_result
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result="drwxr-sr-x   2 45854   200   512 May  4  2000 foo"),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            stat_result = host.stat("/foo")
+            # TODO: Make the value for `st_mtime` robust against DST "time
+            # zone" changes.
+            expected_result = (
+              "StatResult(st_mode=17901, st_ino=None, st_dev=None, "
+              "st_nlink=2, st_uid='45854', st_gid='200', st_size=512, "
+              "st_atime=None, st_mtime=957391200.0, st_ctime=None)")
+            assert repr(stat_result) == expected_result
 
     def test_failing_lstat(self):
         """Test whether `lstat` fails for a nonexistent path."""
-        with pytest.raises(ftputil.error.PermanentError):
-            self.stat._lstat("/home/sschw/notthere")
-        with pytest.raises(ftputil.error.PermanentError):
-            self.stat._lstat("/home/sschwarzer/notthere")
+        # Directory with presumed file item doesn't exist.
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir", args=("",), result=""),
+          Call("cwd", args=("/",)),
+          # See FIXME comment in `ftputil.stat._Stat._real_lstat`
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/notthere",), result=ftplib.error_perm),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            with pytest.raises(ftputil.error.PermanentError):
+                host.lstat("/notthere/irrelevant")
+        # Directory exists, but not the file system item in the directory.
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result=test_base.dir_line(mode_string="dr-xr-xr-x",
+                                         datetime_=datetime.datetime.now(),
+                                         name="some_dir")),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/some_dir",)),
+          Call("dir", args=("",), result=""),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            with pytest.raises(ftputil.error.PermanentError):
+                host.lstat("/some_dir/notthere")
 
     def test_lstat_for_root(self):
         """
@@ -395,30 +439,83 @@ class TestLstatAndStat:
         the output of an FTP `LIST` command. Unfortunately, it's not
         possible to do this for the root directory `/`.
         """
-        with pytest.raises(ftputil.error.RootDirError) as exc_info:
-            self.stat._lstat("/")
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            with pytest.raises(ftputil.error.RootDirError) as exc_info:
+                host.lstat("/")
         # `RootDirError` is "outside" the `FTPOSError` hierarchy.
         assert not isinstance(exc_info.value, ftputil.error.FTPOSError)
         del exc_info
 
     def test_lstat_one_unix_file(self):
         """Test `lstat` for a file described in Unix-style format."""
-        stat_result = self.stat._lstat("/home/sschwarzer/index.html")
-        # Second form is needed for Python 3
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result="-rw-r--r--   1 45854   200   4604 Jan 19 23:11 some_file"),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            stat_result = host.lstat("/some_file")
         assert oct(stat_result.st_mode) == "0o100644"
         assert stat_result.st_size == 4604
         assert stat_result._st_mtime_precision == 60
 
     def test_lstat_one_ms_file(self):
         """Test `lstat` for a file described in DOS-style format."""
-        self.stat = _test_stat(session_factory=mock_ftplib.MockMSFormatSession)
-        stat_result = self.stat._lstat("/home/msformat/abcd.exe")
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          # First try with unix parser, but this parser can't parse
+          # this line.
+          Call("dir",
+               args=("",),
+               result="07-17-00  02:08PM             12266720 some_file"),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          # Now try with MS parser.
+          Call("dir",
+               args=("",),
+               result="07-17-00  02:08PM             12266720 some_file"),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            stat_result = host.lstat("/some_file")
+        assert stat_result._st_name == "some_file"
         assert stat_result._st_mtime_precision == 60
 
     def test_lstat_one_unix_dir(self):
         """Test `lstat` for a directory described in Unix-style format."""
-        stat_result = self.stat._lstat("/home/sschwarzer/scios2")
-        # Second form is needed for Python 3
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result="drwxr-sr-x   6 45854   200   512 Sep 20  1999 some_dir"),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            stat_result = host.lstat("/some_dir")
         assert oct(stat_result.st_mode) == "0o42755"
         assert stat_result.st_ino is None
         assert stat_result.st_dev is None
@@ -437,79 +534,245 @@ class TestLstatAndStat:
 
     def test_lstat_one_ms_dir(self):
         """Test `lstat` for a directory described in DOS-style format."""
-        self.stat = _test_stat(session_factory=mock_ftplib.MockMSFormatSession)
-        stat_result = self.stat._lstat("/home/msformat/WindowsXP")
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          # First try with unix parser, but this parser can't parse
+          # this line.
+          Call("dir",
+               args=("",),
+               result="10-23-01  03:25PM       <DIR>          some_dir"),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          # Now try with MS parser.
+          Call("dir",
+               args=("",),
+               result="10-23-01  03:25PM       <DIR>          some_dir"),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            stat_result = host.lstat("/some_dir")
         assert stat_result._st_mtime_precision == 60
 
     def test_lstat_via_stat_module(self):
         """Test `lstat` indirectly via `stat` module."""
-        stat_result = self.stat._lstat("/home/sschwarzer/")
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result="drwxr-sr-x   2 45854   200   512 May  4  2000 some_dir"),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            stat_result = host.lstat("/some_dir")
         assert stat.S_ISDIR(stat_result.st_mode)
 
     def test_stat_following_link(self):
         """Test `stat` when invoked on a link."""
         # Simple link
-        stat_result = self.stat._stat("/home/link")
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result="lrwxrwxrwx   1 45854   200   21 Jan 19  2002 link -> link_target"),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result="-rw-r--r--   1 45854   200   4604 Jan 19 23:11 link_target"),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            stat_result = host.stat("/link")
         assert stat_result.st_size == 4604
         # Link pointing to a link
-        stat_result = self.stat._stat("/home/python/link_link")
+        dir_lines = (
+          "lrwxrwxrwx   1 45854   200   7    Jan 19  2002 link_link -> link\n"
+          "lrwxrwxrwx   1 45854   200   14   Jan 19  2002 link -> link_target\n"
+          "-rw-r--r--   1 45854   200   4604 Jan 19 23:11 link_target")
+        # Note that only one `dir` call would be needed in case of an
+        # enabled cache.
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          # Look up `/link_link`.
+          Call("dir", args=("",), result=dir_lines),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          # Look up `/link`.
+          Call("dir", args=("",), result=dir_lines),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          # Look up `/link_target`.
+          Call("dir", args=("",), result=dir_lines),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            stat_result = host.stat("/link_link")
         assert stat_result.st_size == 4604
-        stat_result = self.stat._stat("../python/link_link")
-        assert stat_result.st_size == 4604
-        # Recursive link structures
-        with pytest.raises(ftputil.error.PermanentError):
-            self.stat._stat("../python/bad_link")
-        with pytest.raises(ftputil.error.PermanentError):
-            self.stat._stat("/home/bad_link")
+        # Recursive link structure
+        dir_lines = (
+          "lrwxrwxrwx   1 45854   200   7    Jan 19  2002 bad_link1 -> bad_link2\n"
+          "lrwxrwxrwx   1 45854   200   14   Jan 19  2002 bad_link2 -> bad_link1")
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          # This dir finds the `bad_link1` name requested in the `stat` call.
+          Call("dir", args=("",), result=dir_lines),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          # Look up link target `bad_link2`.
+          Call("dir", args=("",), result=dir_lines),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          # FIXME: `stat` looks up the link target pointed to by
+          # `bad_link2`, which is `bad_link1`. Only here ftputil
+          # notices the recursive link chain. Obviously the start of
+          # the link chain hadn't been stored in `visited_paths` (see
+          # also ticket #108).
+          Call("dir", args=("",), result=dir_lines),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            with pytest.raises(ftputil.error.PermanentError):
+                host.stat("bad_link1")
 
     #
     # Test automatic switching of Unix/MS parsers
     #
     def test_parser_switching_with_permanent_error(self):
         """Test non-switching of parser format with `PermanentError`."""
-        self.stat = _test_stat(session_factory=mock_ftplib.MockMSFormatSession)
-        assert self.stat._allow_parser_switching is True
-        # With these directory contents, we get a `ParserError` for
-        # the Unix parser first, so `_allow_parser_switching` can be
-        # switched off no matter whether we got a `PermanentError`
-        # afterward or not.
-        with pytest.raises(ftputil.error.PermanentError):
-            self.stat._lstat("/home/msformat/nonexistent")
-        assert self.stat._allow_parser_switching is False
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result="10-23-01  03:25PM       <DIR>          home"),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result="10-23-01  03:25PM       <DIR>          home"),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            assert host._stat._allow_parser_switching is True
+            # With these directory contents, we get a `ParserError` for
+            # the Unix parser first, so `_allow_parser_switching` can be
+            # switched off no matter whether we got a `PermanentError`
+            # afterward or not.
+            with pytest.raises(ftputil.error.PermanentError):
+                host.lstat("/nonexistent")
+            assert host._stat._allow_parser_switching is False
 
     def test_parser_switching_default_to_unix(self):
         """Test non-switching of parser format; stay with Unix."""
-        assert self.stat._allow_parser_switching is True
-        assert isinstance(self.stat._parser, ftputil.stat.UnixParser)
-        stat_result = self.stat._lstat("/home/sschwarzer/index.html")
-        # The Unix parser worked, so keep it.
-        assert isinstance(self.stat._parser, ftputil.stat.UnixParser)
-        assert self.stat._allow_parser_switching is False
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result="-rw-r--r--   1 45854   200   4604 Jan 19 23:11 some_file"),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            assert host._stat._allow_parser_switching is True
+            assert host._stat._allow_parser_switching is True
+            assert isinstance(host._stat._parser, ftputil.stat.UnixParser)
+            stat_result = host.lstat("some_file")
+            # The Unix parser worked, so keep it.
+            assert isinstance(host._stat._parser, ftputil.stat.UnixParser)
+            assert host._stat._allow_parser_switching is False
 
     def test_parser_switching_to_ms(self):
         """Test switching of parser from Unix to MS format."""
-        self.stat = _test_stat(session_factory=mock_ftplib.MockMSFormatSession)
-        assert self.stat._allow_parser_switching is True
-        assert isinstance(self.stat._parser, ftputil.stat.UnixParser)
-        # Parsing the directory `/home/msformat` with the Unix parser
-        # fails, so switch to the MS parser.
-        stat_result = self.stat._lstat("/home/msformat/abcd.exe")
-        assert isinstance(self.stat._parser, ftputil.stat.MSParser)
-        assert self.stat._allow_parser_switching is False
-        assert stat_result._st_name == "abcd.exe"
-        assert stat_result.st_size == 12266720
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result="07-17-00  02:08PM             12266720 some_file"),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir",
+               args=("",),
+               result="07-17-00  02:08PM             12266720 some_file"),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            assert host._stat._allow_parser_switching is True
+            assert isinstance(host._stat._parser, ftputil.stat.UnixParser)
+            # Parsing the directory `/` with the Unix parser fails, so
+            # switch to the MS parser.
+            stat_result = host.lstat("/some_file")
+            assert isinstance(host._stat._parser, ftputil.stat.MSParser)
+            assert host._stat._allow_parser_switching is False
+            assert stat_result._st_name == "some_file"
+            assert stat_result.st_size == 12266720
 
     def test_parser_switching_regarding_empty_dir(self):
         """Test switching of parser if a directory is empty."""
-        self.stat = _test_stat(session_factory=mock_ftplib.MockMSFormatSession)
-        assert self.stat._allow_parser_switching is True
-        # When the directory we're looking into doesn't give us any
-        # lines we can't decide whether the first parser worked,
-        # because it wasn't applied. So keep the parser for now.
-        result = self.stat._listdir("/home/msformat/XPLaunch/empty")
-        assert result == []
-        assert self.stat._allow_parser_switching is True
-        assert isinstance(self.stat._parser, ftputil.stat.UnixParser)
+        script = [
+          Call("__init__"),
+          Call("pwd", result="/"),
+          Call("cwd", args=("/",)),
+          Call("cwd", args=("/",)),
+          Call("dir", args=("",), result=""),
+          Call("cwd", args=("/",)),
+          Call("close")
+        ]
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.stat_cache.disable()
+            assert host._stat._allow_parser_switching is True
+            # When the directory we're looking into doesn't give us any
+            # lines we can't decide whether the first parser worked,
+            # because it wasn't applied. So keep the parser for now.
+            result = host.listdir("/")
+            assert result == []
+            assert host._stat._allow_parser_switching is True
+            assert isinstance(host._stat._parser, ftputil.stat.UnixParser)
 
 
 class TestListdir:
