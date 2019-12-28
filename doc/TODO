@@ -12,5 +12,3 @@ Ideas for future development:
   possible, to speed up `test_public_servers.py` with this.
 
 - Support `FTPFile.seek` and `FTPFile.tell` as far as it makes sense.
-
-- WebDAV support?
