@@ -25,16 +25,15 @@ class ClientCodeException(Exception):
 # Test cases
 #
 class TestHostContextManager:
-
     def test_normal_operation(self):
         """
         If an `FTPHost` instance is created, it should be closed by the host
         context manager.
         """
         script = [
-          Call(method_name="__init__"),
-          Call(method_name="pwd", result="/"),
-          Call(method_name="close")
+            Call(method_name="__init__"),
+            Call(method_name="pwd", result="/"),
+            Call(method_name="close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             assert host.closed is False
@@ -46,10 +45,10 @@ class TestHostContextManager:
         the host context manager and the host object should be closed.
         """
         script = [
-          # Since `__init__` raises an exception, `pwd` isn't called. However,
-          # `close` is called via the context manager.
-          Call(method_name="__init__", result=ftplib.error_perm),
-          Call(method_name="close")
+            # Since `__init__` raises an exception, `pwd` isn't called. However,
+            # `close` is called via the context manager.
+            Call(method_name="__init__", result=ftplib.error_perm),
+            Call(method_name="close"),
         ]
         with pytest.raises(ftputil.error.FTPOSError):
             with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
@@ -65,9 +64,9 @@ class TestHostContextManager:
         host object should be closed by the context manager.
         """
         script = [
-          Call(method_name="__init__"),
-          Call(method_name="pwd", result="/"),
-          Call(method_name="close")
+            Call(method_name="__init__"),
+            Call(method_name="pwd", result="/"),
+            Call(method_name="close"),
         ]
         try:
             with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
@@ -80,27 +79,28 @@ class TestHostContextManager:
 
 
 class TestFileContextManager:
-
     def test_normal_operation(self):
         """
         If an `FTPFile` object is created in the `FTPFile` context manager, the
         context manager should close the file at the end of the `with` block.
         """
         host_script = [
-          Call(method_name="__init__"),
-          Call(method_name="pwd", result="/"),
-          Call(method_name="close")
+            Call(method_name="__init__"),
+            Call(method_name="pwd", result="/"),
+            Call(method_name="close"),
         ]
         file_script = [
-          Call(method_name="__init__"),
-          Call(method_name="pwd", result="/"),
-          Call(method_name="cwd", result=None, args=("/",)),
-          Call(method_name="voidcmd", result=None, args=("TYPE I",)),
-          Call(method_name="transfercmd",
-               result=io.BytesIO(b"line 1\nline 2"),
-               args=("RETR dummy", None)),
-          Call(method_name="voidresp", result=None),
-          Call(method_name="close")
+            Call(method_name="__init__"),
+            Call(method_name="pwd", result="/"),
+            Call(method_name="cwd", result=None, args=("/",)),
+            Call(method_name="voidcmd", result=None, args=("TYPE I",)),
+            Call(
+                method_name="transfercmd",
+                result=io.BytesIO(b"line 1\nline 2"),
+                args=("RETR dummy", None),
+            ),
+            Call(method_name="voidresp", result=None),
+            Call(method_name="close"),
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:
@@ -117,22 +117,24 @@ class TestFileContextManager:
         manager should try to close the file.
         """
         host_script = [
-          Call(method_name="__init__"),
-          Call(method_name="pwd", result="/"),
-          Call(method_name="close")
+            Call(method_name="__init__"),
+            Call(method_name="pwd", result="/"),
+            Call(method_name="close"),
         ]
         file_script = [
-          Call(method_name="__init__"),
-          Call(method_name="pwd", result="/"),
-          Call(method_name="cwd", result=None, args=("/",)),
-          Call(method_name="voidcmd", result=None, args=("TYPE I",)),
-          # Raise exception. `voidresp` therefore won't be called, but `close`
-          # will be called by the context manager.
-          Call(method_name="transfercmd",
-               result=ftplib.error_perm,
-               args=("STOR inaccessible", None)),
-          # Call(method_name="voidresp", result=None),
-          Call(method_name="close")
+            Call(method_name="__init__"),
+            Call(method_name="pwd", result="/"),
+            Call(method_name="cwd", result=None, args=("/",)),
+            Call(method_name="voidcmd", result=None, args=("TYPE I",)),
+            # Raise exception. `voidresp` therefore won't be called, but `close`
+            # will be called by the context manager.
+            Call(
+                method_name="transfercmd",
+                result=ftplib.error_perm,
+                args=("STOR inaccessible", None),
+            ),
+            # Call(method_name="voidresp", result=None),
+            Call(method_name="close"),
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:
@@ -150,20 +152,22 @@ class TestFileContextManager:
         block, the file object should be closed by the context manager.
         """
         host_script = [
-          Call(method_name="__init__"),
-          Call(method_name="pwd", result="/"),
-          Call(method_name="close")
+            Call(method_name="__init__"),
+            Call(method_name="pwd", result="/"),
+            Call(method_name="close"),
         ]
         file_script = [
-          Call(method_name="__init__"),
-          Call(method_name="pwd", result="/"),
-          Call(method_name="cwd", result=None, args=("/",)),
-          Call(method_name="voidcmd", result=None, args=("TYPE I",)),
-          Call(method_name="transfercmd",
-               result=io.BytesIO(b""),
-               args=("RETR dummy", None)),
-          Call(method_name="voidresp", result=None),
-          Call(method_name="close")
+            Call(method_name="__init__"),
+            Call(method_name="pwd", result="/"),
+            Call(method_name="cwd", result=None, args=("/",)),
+            Call(method_name="voidcmd", result=None, args=("TYPE I",)),
+            Call(
+                method_name="transfercmd",
+                result=io.BytesIO(b""),
+                args=("RETR dummy", None),
+            ),
+            Call(method_name="voidresp", result=None),
+            Call(method_name="close"),
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:

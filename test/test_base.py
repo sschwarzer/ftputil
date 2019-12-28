@@ -14,27 +14,30 @@ import ftputil
 class MockableBytesIO(io.BytesIO):
     pass
 
+
 class MockableStringIO(io.StringIO):
     pass
 
 
 # Factory to produce `FTPHost`-like classes from a given `FTPHost`
 # class and (usually) a given `MockSession` class.
-def ftp_host_factory(session_factory,
-                     ftp_host_class=ftputil.FTPHost):
-    return ftp_host_class("dummy_host", "dummy_user", "dummy_password",
-                          session_factory=session_factory)
+def ftp_host_factory(session_factory, ftp_host_class=ftputil.FTPHost):
+    return ftp_host_class(
+        "dummy_host", "dummy_user", "dummy_password", session_factory=session_factory
+    )
 
 
-def dir_line(mode_string="-r--r--r--",
-             nlink=1,
-             user="dummy_user",
-             group="dummy_group",
-             size=512,
-             date_=None,
-             datetime_=None,
-             name="dummy_name",
-             link_target=None):
+def dir_line(
+    mode_string="-r--r--r--",
+    nlink=1,
+    user="dummy_user",
+    group="dummy_group",
+    size=512,
+    date_=None,
+    datetime_=None,
+    name="dummy_name",
+    link_target=None,
+):
     """
     Return a line as it would be returned by an FTP `DIR` invocation.
 
@@ -79,7 +82,9 @@ def dir_line(mode_string="-r--r--r--",
     """
     # Date or datetime. We must have exactly one of `date_` and `datetime_`
     # set. The other value must be `None`.
-    assert [date_, datetime_].count(None) == 1, "specify exactly one of `date_` and `datetime_`"
+    assert [date_, datetime_].count(
+        None
+    ) == 1, "specify exactly one of `date_` and `datetime_`"
     if date_:
         datetime_string = date_.strftime("%b %d %Y")
     else:
@@ -90,5 +95,6 @@ def dir_line(mode_string="-r--r--r--",
     else:
         name_string = "{} -> {}".format(name, link_target)
     #
-    return "{}  {}  {} {}  {}  {}  {}".format(mode_string, nlink, user, group, size,
-                                              datetime_string, name_string)
+    return "{}  {}  {} {}  {}  {}  {}".format(
+        mode_string, nlink, user, group, size, datetime_string, name_string
+    )

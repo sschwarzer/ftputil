@@ -17,18 +17,18 @@ import ftputil.version
 # You _can_ import these with `from ftputil.error import *`, - but
 # it's _not_ recommended.
 __all__ = [
-  "InternalError",
-  "RootDirError",
-  "InaccessibleLoginDirError",
-  "TimeShiftError",
-  "ParserError",
-  "KeepAliveError",
-  "FTPOSError",
-  "TemporaryError",
-  "PermanentError",
-  "CommandNotImplementedError",
-  "SyncError",
-  "FTPIOError",
+    "InternalError",
+    "RootDirError",
+    "InaccessibleLoginDirError",
+    "TimeShiftError",
+    "ParserError",
+    "KeepAliveError",
+    "FTPOSError",
+    "TemporaryError",
+    "PermanentError",
+    "CommandNotImplementedError",
+    "SyncError",
+    "FTPIOError",
 ]
 
 
@@ -58,64 +58,90 @@ class FTPError(Exception):
         self.file_name = None
 
     def __str__(self):
-        return "{}\nDebugging info: {}".format(self.strerror,
-                                               ftputil.version.version_info)
+        return "{}\nDebugging info: {}".format(
+            self.strerror, ftputil.version.version_info
+        )
 
 
 # Internal errors are those that have more to do with the inner
 # workings of ftputil than with errors on the server side.
 class InternalError(FTPError):
     """Internal error."""
+
     pass
+
 
 class RootDirError(InternalError):
     """Raised for generic stat calls on the remote root directory."""
+
     pass
+
 
 class InaccessibleLoginDirError(InternalError):
     """May be raised if the login directory isn't accessible."""
+
     pass
+
 
 class TimeShiftError(InternalError):
     """Raised for invalid time shift values."""
+
     pass
+
 
 class ParserError(InternalError):
     """Raised if a line of a remote directory can't be parsed."""
+
     pass
+
 
 class CacheMissError(InternalError):
     """Raised if a path isn't found in the cache."""
+
     pass
+
 
 # Currently not used
 class KeepAliveError(InternalError):
     """Raised if the keep-alive feature failed."""
+
     pass
+
 
 class FTPOSError(FTPError, OSError):
     """Generic FTP error related to `OSError`."""
+
     pass
+
 
 class TemporaryError(FTPOSError):
     """Raised for temporary FTP errors (4xx)."""
+
     pass
+
 
 class PermanentError(FTPOSError):
     """Raised for permanent FTP errors (5xx)."""
+
     pass
+
 
 class CommandNotImplementedError(PermanentError):
     """Raised if the server doesn't implement a certain feature (502)."""
+
     pass
+
 
 class RecursiveLinksError(PermanentError):
     """Raised if an infinite link structure is detected."""
+
     pass
+
 
 # Currently not used
 class SyncError(PermanentError):
     """Raised for problems specific to syncing directories."""
+
     pass
 
 
@@ -137,24 +163,24 @@ class FtplibErrorToFTPOSError:
         elif isinstance(exc_value, ftplib.error_perm):
             # If `exc_value.args[0]` is present, assume it's a byte or
             # unicode string.
-            if (
-              exc_value.args and
-              ftputil.tool.as_unicode(exc_value.args[0]).startswith("502")
+            if exc_value.args and ftputil.tool.as_unicode(exc_value.args[0]).startswith(
+                "502"
             ):
                 raise CommandNotImplementedError(*exc_value.args)
             else:
-                raise PermanentError(*exc_value.args,
-                                     original_exception=exc_value)
+                raise PermanentError(*exc_value.args, original_exception=exc_value)
         elif isinstance(exc_value, ftplib.all_errors):
             raise FTPOSError(*exc_value.args, original_exception=exc_value)
         else:
             raise
+
 
 ftplib_error_to_ftp_os_error = FtplibErrorToFTPOSError()
 
 
 class FTPIOError(FTPError, IOError):
     """Generic FTP error related to `IOError`."""
+
     pass
 
 
@@ -175,5 +201,6 @@ class FtplibErrorToFTPIOError:
             raise FTPIOError(*exc_value.args, original_exception=exc_value)
         else:
             raise
+
 
 ftplib_error_to_ftp_io_error = FtplibErrorToFTPIOError()

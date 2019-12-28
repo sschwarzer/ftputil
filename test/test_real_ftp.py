@@ -40,14 +40,14 @@ def utc_local_time_shift():
     # To calculate the correct times shift, we need to ignore the
     # DST component in the localtime tuple, i. e. set it to 0.
     localtime_tuple = localtime_tuple[:-1] + (0,)
-    time_shift_in_seconds = (time.mktime(utc_tuple) -
-                             time.mktime(localtime_tuple))
+    time_shift_in_seconds = time.mktime(utc_tuple) - time.mktime(localtime_tuple)
     # To be safe, round the above value to units of 3600 s (1 hour).
     return round(time_shift_in_seconds / 3600.0) * 3600
 
+
 # Difference between local times of server and client. If 0.0, server
 # and client use the same timezone.
-#EXPECTED_TIME_SHIFT = utc_local_time_shift()
+# EXPECTED_TIME_SHIFT = utc_local_time_shift()
 # Pure-FTPd seems to have changed its mind (see docstring of
 # `utc_local_time_shift`).
 EXPECTED_TIME_SHIFT = 0.0
@@ -96,11 +96,9 @@ class Cleaner:
 
 
 class RealFTPTest:
-
     def setup_method(self, method):
         # Server, username, password.
-        self.login_data = ("localhost", "ftptest",
-                            "d605581757de5eb56d568a4419f4126e")
+        self.login_data = ("localhost", "ftptest", "d605581757de5eb56d568a4419f4126e")
         self.host = ftputil.FTPHost(*self.login_data)
         self.cleaner = Cleaner(self.host)
 
@@ -126,7 +124,6 @@ class RealFTPTest:
 
 
 class TestMkdir(RealFTPTest):
-
     def test_mkdir_rmdir(self):
         host = self.host
         dir_name = "_testdir_"
@@ -149,8 +146,7 @@ class TestMkdir(RealFTPTest):
             try:
                 host.remove(dir_name)
             except ftputil.error.PermanentError as exc:
-                assert str(exc).startswith(
-                         "remove/unlink can only delete files")
+                assert str(exc).startswith("remove/unlink can only delete files")
             else:
                 pytest.fail("we shouldn't have come here")
         finally:
@@ -243,7 +239,6 @@ class TestMkdir(RealFTPTest):
 
 
 class TestRemoval(RealFTPTest):
-
     def test_rmtree_without_error_handler(self):
         host = self.host
         # Build a tree.
@@ -274,8 +269,10 @@ class TestRemoval(RealFTPTest):
         self.make_remote_file("_dir1_/file1")
         # Prepare error "handler"
         log = []
+
         def error_handler(*args):
             log.append(args)
+
         # Try to remove a file as root "directory".
         host.rmtree("_dir1_/file1", ignore_errors=True, onerror=error_handler)
         assert log == []
@@ -344,121 +341,70 @@ class TestWalk(RealFTPTest):
     def test_walk_topdown(self):
         # Preparation: build tree in directory `walk_test`.
         expected_result = [
-          ("walk_test",
-           ["dir1", "dir2", "dir3"],
-           ["file4"]),
-          #
-          ("walk_test/dir1",
-           ["dir11", "dir12"],
-           []),
-          #
-          ("walk_test/dir1/dir11",
-           [],
-           []),
-          #
-          ("walk_test/dir1/dir12",
-           ["dir123"],
-           ["file121", "file122"]),
-          #
-          ("walk_test/dir1/dir12/dir123",
-           [],
-           ["file1234"]),
-          #
-          ("walk_test/dir2",
-           [],
-           []),
-          #
-          ("walk_test/dir3",
-           ["dir31", "dir32"],
-           ["file31", "file32"]),
-          #
-          ("walk_test/dir3/dir31",
-           [],
-           []),
-          ]
+            ("walk_test", ["dir1", "dir2", "dir3"], ["file4"]),
+            #
+            ("walk_test/dir1", ["dir11", "dir12"], []),
+            #
+            ("walk_test/dir1/dir11", [], []),
+            #
+            ("walk_test/dir1/dir12", ["dir123"], ["file121", "file122"]),
+            #
+            ("walk_test/dir1/dir12/dir123", [], ["file1234"]),
+            #
+            ("walk_test/dir2", [], []),
+            #
+            ("walk_test/dir3", ["dir31", "dir32"], ["file31", "file32"]),
+            #
+            ("walk_test/dir3/dir31", [], []),
+        ]
         self._walk_test(expected_result, top="walk_test")
 
     def test_walk_depth_first(self):
         # Preparation: build tree in directory `walk_test`
         expected_result = [
-          ("walk_test/dir1/dir11",
-           [],
-           []),
-          #
-          ("walk_test/dir1/dir12/dir123",
-           [],
-           ["file1234"]),
-          #
-          ("walk_test/dir1/dir12",
-           ["dir123"],
-           ["file121", "file122"]),
-          #
-          ("walk_test/dir1",
-           ["dir11", "dir12"],
-           []),
-          #
-          ("walk_test/dir2",
-           [],
-           []),
-          #
-          ("walk_test/dir3/dir31",
-           [],
-           []),
-          #
-          ("walk_test/dir3",
-           ["dir31", "dir32"],
-           ["file31", "file32"]),
-          #
-          ("walk_test",
-           ["dir1", "dir2", "dir3"],
-           ["file4"])
-          ]
+            ("walk_test/dir1/dir11", [], []),
+            #
+            ("walk_test/dir1/dir12/dir123", [], ["file1234"]),
+            #
+            ("walk_test/dir1/dir12", ["dir123"], ["file121", "file122"]),
+            #
+            ("walk_test/dir1", ["dir11", "dir12"], []),
+            #
+            ("walk_test/dir2", [], []),
+            #
+            ("walk_test/dir3/dir31", [], []),
+            #
+            ("walk_test/dir3", ["dir31", "dir32"], ["file31", "file32"]),
+            #
+            ("walk_test", ["dir1", "dir2", "dir3"], ["file4"]),
+        ]
         self._walk_test(expected_result, top="walk_test", topdown=False)
 
     def test_walk_following_links(self):
         # Preparation: build tree in directory `walk_test`.
         expected_result = [
-          ("walk_test",
-           ["dir1", "dir2", "dir3"],
-           ["file4"]),
-          #
-          ("walk_test/dir1",
-           ["dir11", "dir12"],
-           []),
-          #
-          ("walk_test/dir1/dir11",
-           [],
-           []),
-          #
-          ("walk_test/dir1/dir12",
-           ["dir123"],
-           ["file121", "file122"]),
-          #
-          ("walk_test/dir1/dir12/dir123",
-           [],
-           ["file1234"]),
-          #
-          ("walk_test/dir2",
-           [],
-           []),
-          #
-          ("walk_test/dir3",
-           ["dir31", "dir32"],
-           ["file31", "file32"]),
-          #
-          ("walk_test/dir3/dir31",
-           [],
-           []),
-          #
-          ("walk_test/dir3/dir32",
-           [],
-           ["file1234"]),
-          ]
+            ("walk_test", ["dir1", "dir2", "dir3"], ["file4"]),
+            #
+            ("walk_test/dir1", ["dir11", "dir12"], []),
+            #
+            ("walk_test/dir1/dir11", [], []),
+            #
+            ("walk_test/dir1/dir12", ["dir123"], ["file121", "file122"]),
+            #
+            ("walk_test/dir1/dir12/dir123", [], ["file1234"]),
+            #
+            ("walk_test/dir2", [], []),
+            #
+            ("walk_test/dir3", ["dir31", "dir32"], ["file31", "file32"]),
+            #
+            ("walk_test/dir3/dir31", [], []),
+            #
+            ("walk_test/dir3/dir32", [], ["file1234"]),
+        ]
         self._walk_test(expected_result, top="walk_test", followlinks=True)
 
 
 class TestRename(RealFTPTest):
-
     def test_rename(self):
         host = self.host
         # Make sure the target of the renaming operation is removed.
@@ -480,7 +426,6 @@ class TestRename(RealFTPTest):
 
 
 class TestStat(RealFTPTest):
-
     def test_stat(self):
         host = self.host
         dir_name = "_testdir_"
@@ -510,7 +455,7 @@ class TestStat(RealFTPTest):
         server_mtime = host.path.getmtime(file_name)
         client_mtime = time.mktime(time.localtime())
         calculated_time_shift = server_mtime - client_mtime
-        assert not abs(calculated_time_shift-host.time_shift()) > 120
+        assert not abs(calculated_time_shift - host.time_shift()) > 120
 
     def test_issomething_for_nonexistent_directory(self):
         host = self.host
@@ -525,8 +470,7 @@ class TestStat(RealFTPTest):
         # Test for ticket #39.
         host = self.host
         broken_link_name = os.path.join("dir_with_broken_link", "nonexistent")
-        assert (host.lstat(broken_link_name)._st_target ==
-                "../nonexistent/nonexistent")
+        assert host.lstat(broken_link_name)._st_target == "../nonexistent/nonexistent"
         assert not host.path.isdir(broken_link_name)
         assert not host.path.isfile(broken_link_name)
         assert host.path.islink(broken_link_name)
@@ -564,8 +508,7 @@ class TestStat(RealFTPTest):
         # The adjusted cache size should be larger or equal to the
         # number of items in `walk_test` and its parent directory. The
         # latter is read implicitly upon `listdir`'s `isdir` call.
-        expected_min_cache_size = max(len(host.listdir(host.curdir)),
-                                      len(entries))
+        expected_min_cache_size = max(len(host.listdir(host.curdir)), len(entries))
         assert cache.size >= expected_min_cache_size
 
 
@@ -647,8 +590,10 @@ class TestUploadAndDownload(RealFTPTest):
         chunk_count += 1
         # Define a callback that just collects all data passed to it.
         transferred_chunks_list = []
+
         def test_callback(chunk):
             transferred_chunks_list.append(chunk)
+
         try:
             host.download(FILE_NAME, FILE_NAME, callback=test_callback)
             # Construct a list of data chunks we expect.
@@ -667,7 +612,6 @@ class TestUploadAndDownload(RealFTPTest):
 
 
 class TestFTPFiles(RealFTPTest):
-
     def test_only_closed_children(self):
         REMOTE_FILE_NAME = "CONTENTS"
         host = self.host
@@ -690,6 +634,7 @@ class TestFTPFiles(RealFTPTest):
         # Monkey-patch file to simulate an FTP server timeout below.
         def timed_out_pwd():
             raise ftplib.error_temp("simulated timeout")
+
         file_obj1._host._session.pwd = timed_out_pwd
         # Try to get a file - which shouldn't be the timed-out file.
         with host.open(REMOTE_FILE_NAME, "rb") as file_obj2:
@@ -708,6 +653,7 @@ class TestFTPFiles(RealFTPTest):
         # Monkey-patch file to simulate an FTP server timeout below.
         def timed_out_pwd():
             raise ftplib.error_reply("delayed 226 reply")
+
         file_obj1._host._session.pwd = timed_out_pwd
         # Try to get a file - which shouldn't be the timed-out file.
         with host.open(REMOTE_FILE_NAME, "rb") as file_obj2:
@@ -719,7 +665,6 @@ class TestFTPFiles(RealFTPTest):
 
 
 class TestChmod(RealFTPTest):
-
     def assert_mode(self, path, expected_mode):
         """
         Return an integer containing the allowed bits in the mode
@@ -731,15 +676,30 @@ class TestChmod(RealFTPTest):
         # Remove flags we can't set via `chmod`.
         # Allowed flags according to Python documentation
         # https://docs.python.org/library/stat.html
-        allowed_flags = [stat.S_ISUID, stat.S_ISGID, stat.S_ENFMT,
-          stat.S_ISVTX, stat.S_IREAD, stat.S_IWRITE, stat.S_IEXEC,
-          stat.S_IRWXU, stat.S_IRUSR, stat.S_IWUSR, stat.S_IXUSR,
-          stat.S_IRWXG, stat.S_IRGRP, stat.S_IWGRP, stat.S_IXGRP,
-          stat.S_IRWXO, stat.S_IROTH, stat.S_IWOTH, stat.S_IXOTH]
+        allowed_flags = [
+            stat.S_ISUID,
+            stat.S_ISGID,
+            stat.S_ENFMT,
+            stat.S_ISVTX,
+            stat.S_IREAD,
+            stat.S_IWRITE,
+            stat.S_IEXEC,
+            stat.S_IRWXU,
+            stat.S_IRUSR,
+            stat.S_IWUSR,
+            stat.S_IXUSR,
+            stat.S_IRWXG,
+            stat.S_IRGRP,
+            stat.S_IWGRP,
+            stat.S_IXGRP,
+            stat.S_IRWXO,
+            stat.S_IROTH,
+            stat.S_IWOTH,
+            stat.S_IXOTH,
+        ]
         allowed_mask = functools.reduce(operator.or_, allowed_flags)
         mode = full_mode & allowed_mask
-        assert mode == expected_mode, (
-                 "mode {0:o} != {1:o}".format(mode, expected_mode))
+        assert mode == expected_mode, "mode {0:o} != {1:o}".format(mode, expected_mode)
 
     def test_chmod_existing_directory(self):
         host = self.host
@@ -854,7 +814,6 @@ class TestRestArgument(RealFTPTest):
 
 
 class TestOther(RealFTPTest):
-
     def test_open_for_reading(self):
         # Test for issues #17 and #51,
         # http://ftputil.sschwarzer.net/trac/ticket/17 and
@@ -880,8 +839,11 @@ class TestOther(RealFTPTest):
         # can be used.
         host = self.host
         assert host.path.isdir("dir with spaces")
-        assert (host.listdir("dir with spaces") ==
-                ["second dir", "some file", "some_file"])
+        assert host.listdir("dir with spaces") == [
+            "second dir",
+            "some file",
+            "some_file",
+        ]
         assert host.path.isdir("dir with spaces/second dir")
         assert host.path.isfile("dir with spaces/some_file")
         assert host.path.isfile("dir with spaces/some file")

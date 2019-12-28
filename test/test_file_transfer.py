@@ -26,7 +26,6 @@ class MockFile:
 
 
 class TestTimestampComparison:
-
     def test_source_is_newer_than_target(self):
         """
         Test whether the source is newer than the target, i. e. if the
@@ -42,31 +41,36 @@ class TestTimestampComparison:
         # Fields are source datetime/precision, target datetime/precision,
         # expected comparison result.
         file_data = [
-          # Non-overlapping modification datetimes/precisions
-          (1000.0, second,  900.0,  second,  True),
-          (900.0,  second,  1000.0, second,  False),
-          # Equal modification datetimes/precisions (if in doubt, transfer)
-          (1000.0, second,  1000.0, second,  True),
-          # Just touching intervals
-          (1000.0,        second,  1000.0+second, minute,  True),
-          (1000.0+second, minute,  1000.0,        second,  True),
-          # Other overlapping intervals
-          (10000.0-0.5*hour, hour,      10000.0, day,   True),
-          (10000.0+0.5*hour, hour,      10000.0, day,   True),
-          (10000.0+0.2*hour, 0.2*hour,  10000.0, hour,  True),
-          (10000.0-0.2*hour, 2*hour,    10000.0, hour,  True),
-          # Unknown precision
-          (1000.0, None,    1000.0, second,  True),
-          (1000.0, second,  1000.0, None,    True),
-          (1000.0, None,    1000.0, None,    True),
+            # Non-overlapping modification datetimes/precisions
+            (1000.0, second, 900.0, second, True),
+            (900.0, second, 1000.0, second, False),
+            # Equal modification datetimes/precisions (if in doubt, transfer)
+            (1000.0, second, 1000.0, second, True),
+            # Just touching intervals
+            (1000.0, second, 1000.0 + second, minute, True),
+            (1000.0 + second, minute, 1000.0, second, True),
+            # Other overlapping intervals
+            (10000.0 - 0.5 * hour, hour, 10000.0, day, True),
+            (10000.0 + 0.5 * hour, hour, 10000.0, day, True),
+            (10000.0 + 0.2 * hour, 0.2 * hour, 10000.0, hour, True),
+            (10000.0 - 0.2 * hour, 2 * hour, 10000.0, hour, True),
+            # Unknown precision
+            (1000.0, None, 1000.0, second, True),
+            (1000.0, second, 1000.0, None, True),
+            (1000.0, None, 1000.0, None, True),
         ]
-        for (source_mtime, source_mtime_precision,
-             target_mtime, target_mtime_precision,
-             expected_result) in file_data:
+        for (
+            source_mtime,
+            source_mtime_precision,
+            target_mtime,
+            target_mtime_precision,
+            expected_result,
+        ) in file_data:
             source_file = MockFile(source_mtime, source_mtime_precision)
             target_file = MockFile(target_mtime, target_mtime_precision)
             result = ftputil.file_transfer.source_is_newer_than_target(
-                       source_file, target_file)
+                source_file, target_file
+            )
             assert result == expected_result
 
 
@@ -81,7 +85,6 @@ class FailingStringIO(io.BytesIO):
 
 
 class TestChunkwiseTransfer:
-
     def _random_string(self, count):
         """Return a `BytesIO` object containing `count` "random" bytes."""
         ints = (random.randint(0, 255) for i in range(count))

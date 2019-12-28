@@ -21,8 +21,8 @@ __all__ = ["StatResult", "Parser", "UnixParser", "MSParser"]
 
 
 # Datetime precision values in seconds.
-MINUTE_PRECISION  = 60
-DAY_PRECISION     = 24 * 60 * 60
+MINUTE_PRECISION = 60
+DAY_PRECISION = 24 * 60 * 60
 UNKNOWN_PRECISION = None
 
 
@@ -33,9 +33,19 @@ class StatResult(tuple):
     """
 
     _index_mapping = {
-      "st_mode":  0, "st_ino":   1, "st_dev":    2, "st_nlink":    3,
-      "st_uid":   4, "st_gid":   5, "st_size":   6, "st_atime":    7,
-      "st_mtime": 8, "st_ctime": 9, "_st_name": 10, "_st_target": 11}
+        "st_mode": 0,
+        "st_ino": 1,
+        "st_dev": 2,
+        "st_nlink": 3,
+        "st_uid": 4,
+        "st_gid": 5,
+        "st_size": 6,
+        "st_atime": 7,
+        "st_mtime": 8,
+        "st_ctime": 9,
+        "_st_name": 10,
+        "_st_target": 11,
+    }
 
     def __init__(self, sequence):
         # Don't call `__init__` via `super`. Construction from a
@@ -56,8 +66,9 @@ class StatResult(tuple):
         if attr_name in self._index_mapping:
             return self[self._index_mapping[attr_name]]
         else:
-            raise AttributeError("'StatResult' object has no attribute '{}'".
-                                 format(attr_name))
+            raise AttributeError(
+                "'StatResult' object has no attribute '{}'".format(attr_name)
+            )
 
     def __repr__(self):
         # "Invert" `_index_mapping` so that we can look up the names
@@ -65,10 +76,8 @@ class StatResult(tuple):
         index_to_name = dict((v, k) for k, v in self._index_mapping.items())
         argument_strings = []
         for index, item in enumerate(self):
-            argument_strings.append("{}={!r}".format(index_to_name[index],
-                                                     item))
-        return "{}({})".format(type(self).__name__,
-                               ", ".join(argument_strings))
+            argument_strings.append("{}={!r}".format(index_to_name[index], item))
+        return "{}({})".format(type(self).__name__, ", ".join(argument_strings))
 
 
 #
@@ -82,9 +91,19 @@ class Parser:
 
     # Map month abbreviations to month numbers.
     _month_numbers = {
-      "jan":  1, "feb":  2, "mar":  3, "apr":  4,
-      "may":  5, "jun":  6, "jul":  7, "aug":  8,
-      "sep":  9, "oct": 10, "nov": 11, "dec": 12}
+        "jan": 1,
+        "feb": 2,
+        "mar": 3,
+        "apr": 4,
+        "may": 5,
+        "jun": 6,
+        "jul": 7,
+        "aug": 8,
+        "sep": 9,
+        "oct": 10,
+        "nov": 11,
+        "dec": 12,
+    }
 
     _total_regex = re.compile(r"^total\s+\d+")
 
@@ -135,32 +154,38 @@ class Parser:
         # Allow derived classes to make use of `self`.
         # pylint: disable=no-self-use
         if len(mode_string) != 10:
-            raise ftputil.error.ParserError("invalid mode string '{}'".
-                                            format(mode_string))
+            raise ftputil.error.ParserError(
+                "invalid mode string '{}'".format(mode_string)
+            )
         st_mode = 0
         # TODO: Add support for "S" and sticky bit ("t", "T").
         for bit in mode_string[1:10]:
-            bit = (bit != "-")
+            bit = bit != "-"
             st_mode = (st_mode << 1) + bit
         if mode_string[3] == "s":
             st_mode = st_mode | stat.S_ISUID
         if mode_string[6] == "s":
             st_mode = st_mode | stat.S_ISGID
-        file_type_to_mode = {"b": stat.S_IFBLK, "c": stat.S_IFCHR,
-                             "d": stat.S_IFDIR, "l": stat.S_IFLNK,
-                             "p": stat.S_IFIFO, "s": stat.S_IFSOCK,
-                             "-": stat.S_IFREG,
-                             # Ignore types which `ls` can't make sense of
-                             # (assuming the FTP server returns listings
-                             # like `ls` does).
-                             "?": 0,
-                            }
+        file_type_to_mode = {
+            "b": stat.S_IFBLK,
+            "c": stat.S_IFCHR,
+            "d": stat.S_IFDIR,
+            "l": stat.S_IFLNK,
+            "p": stat.S_IFIFO,
+            "s": stat.S_IFSOCK,
+            "-": stat.S_IFREG,
+            # Ignore types which `ls` can't make sense of
+            # (assuming the FTP server returns listings
+            # like `ls` does).
+            "?": 0,
+        }
         file_type = mode_string[0]
         if file_type in file_type_to_mode:
             st_mode = st_mode | file_type_to_mode[file_type]
         else:
             raise ftputil.error.ParserError(
-                    "unknown file type character '{}'".format(file_type))
+                "unknown file type character '{}'".format(file_type)
+            )
         return st_mode
 
     # pylint: disable=no-self-use
@@ -175,9 +200,9 @@ class Parser:
         try:
             return int(int_string)
         except ValueError:
-            raise ftputil.error.ParserError("non-integer {} value {!r}".
-                                            format(int_description,
-                                                   int_string))
+            raise ftputil.error.ParserError(
+                "non-integer {} value {!r}".format(int_description, int_string)
+            )
 
     # pylint: disable=no-self-use
     def _mktime(self, mktime_tuple):
@@ -200,10 +225,10 @@ class Parser:
         # For example, day == 32. Not all implementations of `mktime`
         # catch this kind of error.
         except ValueError:
-            invalid_datetime = ("%04d-%02d-%02d %02d:%02d:%02d" %
-                                datetime_tuple)
-            raise ftputil.error.ParserError("invalid datetime {0!r}".
-                                            format(invalid_datetime))
+            invalid_datetime = "%04d-%02d-%02d %02d:%02d:%02d" % datetime_tuple
+            raise ftputil.error.ParserError(
+                "invalid datetime {0!r}".format(invalid_datetime)
+            )
         try:
             time_float = time.mktime(mktime_tuple)
         except (OverflowError, ValueError):
@@ -214,8 +239,9 @@ class Parser:
         # these might be undefined for some platforms.
         return max(0.0, time_float)
 
-    def parse_unix_time(self, month_abbreviation, day, year_or_time,
-                        time_shift, with_precision=False):
+    def parse_unix_time(
+        self, month_abbreviation, day, year_or_time, time_shift, with_precision=False
+    ):
         """
         Return a floating point number, like from `time.mktime`, by
         parsing the string arguments `month_abbreviation`, `day` and
@@ -247,24 +273,26 @@ class Parser:
         try:
             month = self._month_numbers[month_abbreviation.lower()]
         except KeyError:
-            raise ftputil.error.ParserError("invalid month abbreviation {0!r}".
-                                            format(month_abbreviation))
+            raise ftputil.error.ParserError(
+                "invalid month abbreviation {0!r}".format(month_abbreviation)
+            )
         day = self._as_int(day, "day")
         if ":" not in year_or_time:
             # `year_or_time` is really a year.
             year, hour, minute = self._as_int(year_or_time, "year"), 0, 0
-            st_mtime = self._mktime( (year, month, day,
-                                      hour, minute, 0, 0, 0, -1) )
+            st_mtime = self._mktime((year, month, day, hour, minute, 0, 0, 0, -1))
             st_mtime_precision = DAY_PRECISION
         else:
             # `year_or_time` is a time hh:mm.
             hour, minute = year_or_time.split(":")
             year, hour, minute = (
-              None, self._as_int(hour, "hour"), self._as_int(minute, "minute"))
+                None,
+                self._as_int(hour, "hour"),
+                self._as_int(minute, "minute"),
+            )
             # Try the current year
             year = time.localtime()[0]
-            st_mtime = self._mktime( (year, month, day,
-                                      hour, minute, 0, 0, 0, -1) )
+            st_mtime = self._mktime((year, month, day, hour, minute, 0, 0, 0, -1))
             st_mtime_precision = MINUTE_PRECISION
             # Rhs of comparison: Transform client time to server time
             # (as on the lhs), so both can be compared with respect
@@ -280,8 +308,9 @@ class Parser:
             # can only be exact up to a minute.
             if st_mtime > time.time() + time_shift + st_mtime_precision:
                 # If it's in the future, use previous year.
-                st_mtime = self._mktime( (year-1, month, day,
-                                          hour, minute, 0, 0, 0, -1) )
+                st_mtime = self._mktime(
+                    (year - 1, month, day, hour, minute, 0, 0, 0, -1)
+                )
         # If we had a datetime before the epoch, the resulting value
         # 0.0 doesn't tell us anything about the precision.
         if st_mtime == 0.0:
@@ -322,8 +351,9 @@ class Parser:
         # `MSParser.parse_line`. Should you find yourself needing
         # support for `with_precision` for a derived class, please
         # send a mail (see ftputil.txt/html).
-        month, day, year = [self._as_int(part, "year/month/day")
-                            for part in date.split("-")]
+        month, day, year = [
+            self._as_int(part, "year/month/day") for part in date.split("-")
+        ]
         if year >= 1000:
             # We have a four-digit year, so no need for heuristics.
             pass
@@ -334,16 +364,13 @@ class Parser:
         try:
             hour, minute, am_pm = time_[0:2], time_[3:5], time_[5]
         except IndexError:
-            raise ftputil.error.ParserError("invalid time string '{}'".
-                                            format(time_))
-        hour, minute = (
-          self._as_int(hour, "hour"), self._as_int(minute, "minute"))
+            raise ftputil.error.ParserError("invalid time string '{}'".format(time_))
+        hour, minute = (self._as_int(hour, "hour"), self._as_int(minute, "minute"))
         if hour == 12 and am_pm == "A":
             hour = 0
         if hour != 12 and am_pm == "P":
             hour += 12
-        st_mtime = self._mktime( (year, month, day,
-                                  hour, minute, 0, 0, 0, -1) )
+        st_mtime = self._mktime((year, month, day, hour, minute, 0, 0, 0, -1))
         return st_mtime
 
 
@@ -366,18 +393,17 @@ class UnixParser(Parser):
         FIELD_COUNT_WITH_USERID = FIELD_COUNT_WITHOUT_USERID + 1
         if len(line_parts) < FIELD_COUNT_WITHOUT_USERID:
             # No known Unix-style format
-            raise ftputil.error.ParserError("line '{}' can't be parsed".
-                                            format(line))
+            raise ftputil.error.ParserError("line '{}' can't be parsed".format(line))
         # If we have a valid format (either with or without user id field),
         # the field with index 5 is either the month abbreviation or a day.
         try:
             int(line_parts[5])
         except ValueError:
             # Month abbreviation, "invalid literal for int"
-            line_parts = line.split(None, FIELD_COUNT_WITH_USERID-1)
+            line_parts = line.split(None, FIELD_COUNT_WITH_USERID - 1)
         else:
             # Day
-            line_parts = line.split(None, FIELD_COUNT_WITHOUT_USERID-1)
+            line_parts = line.split(None, FIELD_COUNT_WITHOUT_USERID - 1)
             USER_FIELD_INDEX = 2
             line_parts.insert(USER_FIELD_INDEX, None)
         return line_parts
@@ -393,8 +419,9 @@ class UnixParser(Parser):
         # The local variables are rather simple.
         # pylint: disable=too-many-locals
         try:
-            mode_string, nlink, user, group, size, month, day, \
-              year_or_time, name = self._split_line(line)
+            mode_string, nlink, user, group, size, month, day, year_or_time, name = self._split_line(
+                line
+            )
         # We can get a `ValueError` here if the name is blank (see
         # ticket #69). This is a strange use case, but at least we
         # should raise the exception the docstring mentions.
@@ -411,9 +438,9 @@ class UnixParser(Parser):
         st_size = int(size)
         st_atime = None
         # st_mtime
-        st_mtime, st_mtime_precision = \
-          self.parse_unix_time(month, day, year_or_time, time_shift,
-                               with_precision=True)
+        st_mtime, st_mtime_precision = self.parse_unix_time(
+            month, day, year_or_time, time_shift, with_precision=True
+        )
         # st_ctime
         st_ctime = None
         # st_name
@@ -421,14 +448,26 @@ class UnixParser(Parser):
             # If we have more than one arrow we can't tell where the link
             # name ends and the target name starts.
             raise ftputil.error.ParserError(
-                    '''name '{}' contains more than one "->"'''.format(name))
+                '''name '{}' contains more than one "->"'''.format(name)
+            )
         elif name.count(" -> ") == 1:
             st_name, st_target = name.split(" -> ")
         else:
             st_name, st_target = name, None
         stat_result = StatResult(
-                      (st_mode, st_ino, st_dev, st_nlink, st_uid,
-                       st_gid, st_size, st_atime, st_mtime, st_ctime) )
+            (
+                st_mode,
+                st_ino,
+                st_dev,
+                st_nlink,
+                st_uid,
+                st_gid,
+                st_size,
+                st_atime,
+                st_mtime,
+                st_ctime,
+            )
+        )
         # These attributes are kind of "half-official". I'm not
         # sure whether they should be used by ftputil client code.
         # pylint: disable=protected-access
@@ -458,8 +497,7 @@ class MSParser(Parser):
             date, time_, dir_or_size, name = line.split(None, 3)
         except ValueError:
             # "unpack list of wrong size"
-            raise ftputil.error.ParserError("line '{}' can't be parsed".
-                                            format(line))
+            raise ftputil.error.ParserError("line '{}' can't be parsed".format(line))
         # st_mode
         #  Default to read access only; in fact, we can't tell.
         st_mode = 0o400
@@ -478,8 +516,7 @@ class MSParser(Parser):
             try:
                 st_size = int(dir_or_size)
             except ValueError:
-                raise ftputil.error.ParserError("invalid size {}".
-                                                format(dir_or_size))
+                raise ftputil.error.ParserError("invalid size {}".format(dir_or_size))
         else:
             st_size = None
         # st_atime
@@ -489,8 +526,19 @@ class MSParser(Parser):
         # st_ctime
         st_ctime = None
         stat_result = StatResult(
-                      (st_mode, st_ino, st_dev, st_nlink, st_uid,
-                       st_gid, st_size, st_atime, st_mtime, st_ctime) )
+            (
+                st_mode,
+                st_ino,
+                st_dev,
+                st_nlink,
+                st_uid,
+                st_gid,
+                st_size,
+                st_atime,
+                st_mtime,
+                st_ctime,
+            )
+        )
         # These attributes are kind of "half-official". I'm not
         # sure whether they should be used by ftputil client code.
         # pylint: disable=protected-access
@@ -505,6 +553,7 @@ class MSParser(Parser):
         else:
             stat_result._st_mtime_precision = MINUTE_PRECISION
         return stat_result
+
 
 #
 # Stat'ing operations for files on an FTP server
@@ -554,8 +603,7 @@ class _Stat:
             # Although for a `listdir` call we're only interested in
             # the names, use the `time_shift` parameter to store the
             # correct timestamp values in the cache.
-            stat_result = self._parser.parse_line(line,
-                                                  self._host.time_shift())
+            stat_result = self._parser.parse_line(line, self._host.time_shift())
             # Skip entries "." and "..".
             if stat_result._st_name in [self._host.curdir, self._host.pardir]:
                 continue
@@ -605,8 +653,8 @@ class _Stat:
         # `listdir` should only be allowed for directories and links to them.
         if not self._path.isdir(path):
             raise ftputil.error.PermanentError(
-                  "550 {}: no such directory or wrong directory parser used".
-                  format(path))
+                "550 {}: no such directory or wrong directory parser used".format(path)
+            )
         # Set up for `for` loop.
         names = []
         for stat_result in self._stat_results_from_dir(path):
@@ -636,8 +684,7 @@ class _Stat:
         # the output of an FTP `LIST` command. Unfortunately, it is
         # not possible to do this for the root directory `/`.
         if path == "/":
-            raise ftputil.error.RootDirError(
-                  "can't stat remote root directory")
+            raise ftputil.error.RootDirError("can't stat remote root directory")
         dirname, basename = self._path.split(path)
         # If even the directory doesn't exist and we don't want the
         # exception, treat it the same as if the path wasn't found in the
@@ -668,7 +715,8 @@ class _Stat:
             # use the usual status code of the server for missing
             # files (450 vs. 550).
             raise ftputil.error.PermanentError(
-                  "550 {}: no such file or directory".format(path))
+                "550 {}: no such file or directory".format(path)
+            )
         else:
             # Be explicit. Returning `None` is a signal for
             # `_Path.exists/isfile/isdir/islink` that the path was
@@ -713,8 +761,10 @@ class _Stat:
             if path in visited_paths:
                 # We had seen this path already.
                 raise ftputil.error.RecursiveLinksError(
-                  "recursive link structure detected for remote path '{}'".
-                  format(original_path))
+                    "recursive link structure detected for remote path '{}'".format(
+                        original_path
+                    )
+                )
             # Remember the path we have encountered.
             visited_paths.add(path)
 
@@ -766,8 +816,9 @@ class _Stat:
         maybe raise other exceptions depending on the state of
         the server (e. g. timeout).
         """
-        return self.__call_with_parser_retry(self._real_lstat, path,
-                                             _exception_for_missing_path)
+        return self.__call_with_parser_retry(
+            self._real_lstat, path, _exception_for_missing_path
+        )
 
     def _stat(self, path, _exception_for_missing_path=True):
         """
@@ -777,5 +828,6 @@ class _Stat:
         maybe raise other exceptions depending on the state of
         the server (e. g. timeout).
         """
-        return self.__call_with_parser_retry(self._real_stat, path,
-                                             _exception_for_missing_path)
+        return self.__call_with_parser_retry(
+            self._real_stat, path, _exception_for_missing_path
+        )

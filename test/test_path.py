@@ -28,24 +28,24 @@ class TestPath:
         """Test regular `FTPHost._Path.isdir/isfile/islink`."""
         # Test a path which isn't there.
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          # `isdir` call
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=""),
-          Call("cwd", args=("/",)),
-          # `isfile` call
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=""),
-          Call("cwd", args=("/",)),
-          # `islink` call
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=""),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            # `isdir` call
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=""),
+            Call("cwd", args=("/",)),
+            # `isfile` call
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=""),
+            Call("cwd", args=("/",)),
+            # `islink` call
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=""),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             host.stat_cache.disable()
@@ -54,24 +54,24 @@ class TestPath:
             assert not host.path.islink("notthere")
         # This checks additional code (see ticket #66).
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          # `isdir` call
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=""),
-          Call("cwd", args=("/",)),
-          # `isfile` call
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=""),
-          Call("cwd", args=("/",)),
-          # `islink` call
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=""),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            # `isdir` call
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=""),
+            Call("cwd", args=("/",)),
+            # `isfile` call
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=""),
+            Call("cwd", args=("/",)),
+            # `islink` call
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=""),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             host.stat_cache.disable()
@@ -80,28 +80,30 @@ class TestPath:
             assert not host.path.islink("/notthere/notthere")
         # Test a directory.
         test_dir = "/some_dir"
-        dir_line = test_base.dir_line(mode_string="dr-xr-xr-x",
-                                      datetime_=datetime.datetime.now(),
-                                      name=test_dir.lstrip("/"))
+        dir_line = test_base.dir_line(
+            mode_string="dr-xr-xr-x",
+            datetime_=datetime.datetime.now(),
+            name=test_dir.lstrip("/"),
+        )
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          # `isdir` call
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=dir_line),
-          Call("cwd", args=("/",)),
-          # `isfile` call
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=dir_line),
-          Call("cwd", args=("/",)),
-          # `islink` call
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=dir_line),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            # `isdir` call
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=dir_line),
+            Call("cwd", args=("/",)),
+            # `isfile` call
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=dir_line),
+            Call("cwd", args=("/",)),
+            # `islink` call
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=dir_line),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             host.stat_cache.disable()
@@ -110,27 +112,28 @@ class TestPath:
             assert not host.path.islink(test_dir)
         # Test a file.
         test_file = "/some_file"
-        dir_line = test_base.dir_line(datetime_=datetime.datetime.now(),
-                                      name=test_file.lstrip("/"))
+        dir_line = test_base.dir_line(
+            datetime_=datetime.datetime.now(), name=test_file.lstrip("/")
+        )
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          # `isdir` call
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=dir_line),
-          Call("cwd", args=("/",)),
-          # `isfile` call
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=dir_line),
-          Call("cwd", args=("/",)),
-          # `islink` call
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=dir_line),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            # `isdir` call
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=dir_line),
+            Call("cwd", args=("/",)),
+            # `isfile` call
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=dir_line),
+            Call("cwd", args=("/",)),
+            # `islink` call
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=dir_line),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             host.stat_cache.disable()
@@ -140,43 +143,45 @@ class TestPath:
         # Test a link. Since the link target doesn't exist, neither
         # `isdir` nor `isfile` return `True`.
         test_link = "/some_link"
-        dir_line = test_base.dir_line(mode_string="lrwxrwxrwx",
-                                      datetime_=datetime.datetime.now(),
-                                      name=test_link.lstrip("/"),
-                                      link_target="nonexistent")
+        dir_line = test_base.dir_line(
+            mode_string="lrwxrwxrwx",
+            datetime_=datetime.datetime.now(),
+            name=test_link.lstrip("/"),
+            link_target="nonexistent",
+        )
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          # `isdir` call
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          #  Look for `/some_link`
-          Call("dir", args=("",), result=dir_line),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          #  Look for `/nonexistent`
-          Call("dir", args=("",), result=dir_line),
-          Call("cwd", args=("/",)),
-          # `isfile` call
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          #  Look for `/some_link`
-          Call("dir", args=("",), result=dir_line),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          #  Look for `/nonexistent`
-          Call("dir", args=("",), result=dir_line),
-          Call("cwd", args=("/",)),
-          # `islink` call
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          #  Look for `/some_link`. `islink` doesn't try to dereference
-          #  the link.
-          Call("dir", args=("",), result=dir_line),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            # `isdir` call
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            #  Look for `/some_link`
+            Call("dir", args=("",), result=dir_line),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            #  Look for `/nonexistent`
+            Call("dir", args=("",), result=dir_line),
+            Call("cwd", args=("/",)),
+            # `isfile` call
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            #  Look for `/some_link`
+            Call("dir", args=("",), result=dir_line),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            #  Look for `/nonexistent`
+            Call("dir", args=("",), result=dir_line),
+            Call("cwd", args=("/",)),
+            # `islink` call
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            #  Look for `/some_link`. `islink` doesn't try to dereference
+            #  the link.
+            Call("dir", args=("",), result=dir_line),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             host.stat_cache.disable()
@@ -188,59 +193,62 @@ class TestPath:
         """Test whether the workaround for space-containing paths is used."""
         # Test a file name containing spaces.
         test_file = "/home/dir with spaces/file with spaces"
-        dir_line1 = test_base.dir_line(mode_string="dr-xr-xr-x",
-                                       datetime_=datetime.datetime.now(),
-                                       name="home")
-        dir_line2 = test_base.dir_line(mode_string="dr-xr-xr-x",
-                                       datetime_=datetime.datetime.now(),
-                                       name="dir with spaces")
-        dir_line3 = test_base.dir_line(mode_string="-r--r--r--",
-                                       datetime_=datetime.datetime.now(),
-                                       name="file with spaces")
+        dir_line1 = test_base.dir_line(
+            mode_string="dr-xr-xr-x", datetime_=datetime.datetime.now(), name="home"
+        )
+        dir_line2 = test_base.dir_line(
+            mode_string="dr-xr-xr-x",
+            datetime_=datetime.datetime.now(),
+            name="dir with spaces",
+        )
+        dir_line3 = test_base.dir_line(
+            mode_string="-r--r--r--",
+            datetime_=datetime.datetime.now(),
+            name="file with spaces",
+        )
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          # `isdir` call
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=dir_line1),
-          Call("cwd", args=("/",)),
-
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/home",)),
-          Call("dir", args=("",), result=dir_line2),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/home/dir with spaces",)),
-          Call("dir", args=("",), result=dir_line3),
-          Call("cwd", args=("/",)),
-          # `isfile` call
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=dir_line1),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/home",)),
-          Call("dir", args=("",), result=dir_line2),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/home/dir with spaces",)),
-          Call("dir", args=("",), result=dir_line3),
-          Call("cwd", args=("/",)),
-          # `islink` call
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=dir_line1),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/home",)),
-          Call("dir", args=("",), result=dir_line2),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/home/dir with spaces",)),
-          Call("dir", args=("",), result=dir_line3),
-          Call("cwd", args=("/",)),
-          Call("close"),
+            Call("__init__"),
+            Call("pwd", result="/"),
+            # `isdir` call
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=dir_line1),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/home",)),
+            Call("dir", args=("",), result=dir_line2),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/home/dir with spaces",)),
+            Call("dir", args=("",), result=dir_line3),
+            Call("cwd", args=("/",)),
+            # `isfile` call
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=dir_line1),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/home",)),
+            Call("dir", args=("",), result=dir_line2),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/home/dir with spaces",)),
+            Call("dir", args=("",), result=dir_line3),
+            Call("cwd", args=("/",)),
+            # `islink` call
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=dir_line1),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/home",)),
+            Call("dir", args=("",), result=dir_line2),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/home/dir with spaces",)),
+            Call("dir", args=("",), result=dir_line3),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             host.stat_cache.disable()
@@ -251,10 +259,10 @@ class TestPath:
     def test_inaccessible_home_directory_and_whitespace_workaround(self):
         "Test combination of inaccessible home directory + whitespace in path."
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", result=ftplib.error_perm),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", result=ftplib.error_perm),
+            Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             with pytest.raises(ftputil.error.InaccessibleLoginDirError):
@@ -266,13 +274,13 @@ class TestPath:
         failing `_dir` call.
         """
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=ftplib.error_perm),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=ftplib.error_perm),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         FTPOSError = ftputil.error.FTPOSError
         # Test if exceptions are propagated.
@@ -293,36 +301,40 @@ class TestPath:
         """
         # `/home/bad_link` links to `/home/subdir/bad_link`, which
         # links back to `/home/bad_link` etc.
-        dir_line1 = test_base.dir_line(mode_string="dr-xr-xr-x",
-                                       datetime_=datetime.datetime.now(),
-                                       name="home")
-        dir_line2 = test_base.dir_line(mode_string="lrwxrwxrwx",
-                                       datetime_=datetime.datetime.now(),
-                                       name="bad_link",
-                                       link_target="subdir/bad_link")
-        dir_line3 = test_base.dir_line(mode_string="dr-xr-xr-x",
-                                       datetime_=datetime.datetime.now(),
-                                       name="subdir")
-        dir_line4 = test_base.dir_line(mode_string="lrwxrwxrwx",
-                                       datetime_=datetime.datetime.now(),
-                                       name="bad_link",
-                                       link_target="/home/bad_link")
+        dir_line1 = test_base.dir_line(
+            mode_string="dr-xr-xr-x", datetime_=datetime.datetime.now(), name="home"
+        )
+        dir_line2 = test_base.dir_line(
+            mode_string="lrwxrwxrwx",
+            datetime_=datetime.datetime.now(),
+            name="bad_link",
+            link_target="subdir/bad_link",
+        )
+        dir_line3 = test_base.dir_line(
+            mode_string="dr-xr-xr-x", datetime_=datetime.datetime.now(), name="subdir"
+        )
+        dir_line4 = test_base.dir_line(
+            mode_string="lrwxrwxrwx",
+            datetime_=datetime.datetime.now(),
+            name="bad_link",
+            link_target="/home/bad_link",
+        )
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=dir_line1),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/home",)),
-          Call("dir", args=("",), result=dir_line2+"\n"+dir_line3),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/home/subdir",)),
-          Call("dir", args=("",), result=dir_line4),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=dir_line1),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/home",)),
+            Call("dir", args=("",), result=dir_line2 + "\n" + dir_line3),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/home/subdir",)),
+            Call("dir", args=("",), result=dir_line4),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             assert host.path.isdir("/home/bad_link") is False
@@ -332,27 +344,28 @@ class TestPath:
     def test_exists(self):
         """Test `FTPHost.path.exists`."""
         # Regular use of `exists`
-        dir_line1 = test_base.dir_line(datetime_=datetime.datetime.now(),
-                                       name="some_file")
+        dir_line1 = test_base.dir_line(
+            datetime_=datetime.datetime.now(), name="some_file"
+        )
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          # `exists("some_file")`
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=dir_line1),
-          Call("cwd", args=("/",)),
-          # `exists("notthere")`
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=dir_line1),
-          Call("cwd", args=("/",)),
-          # `exists` with failing `dir` call
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=ftplib.error_perm),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            # `exists("some_file")`
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=dir_line1),
+            Call("cwd", args=("/",)),
+            # `exists("notthere")`
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=dir_line1),
+            Call("cwd", args=("/",)),
+            # `exists` with failing `dir` call
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=ftplib.error_perm),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             host.stat_cache.disable()
@@ -364,7 +377,6 @@ class TestPath:
 
 
 class TestAcceptEitherBytesOrUnicode:
-
     def _test_method_string_types(self, method, path):
         expected_type = type(path)
         assert isinstance(method(path), expected_type)
@@ -373,13 +385,15 @@ class TestAcceptEitherBytesOrUnicode:
         """
         Test whether the same string type as for the argument is returned.
         """
-        method_names = ["abspath", "basename", "dirname", "join", "normcase",
-                        "normpath"]
-        script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("close")
+        method_names = [
+            "abspath",
+            "basename",
+            "dirname",
+            "join",
+            "normcase",
+            "normpath",
         ]
+        script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             for method_name in method_names:
                 method = getattr(host.path, method_name)
@@ -392,79 +406,99 @@ class TestAcceptEitherBytesOrUnicode:
         """Test whether the methods accept byte and unicode strings."""
         as_bytes = ftputil.tool.as_bytes
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          # `exists` test 1
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir",
-               args=("",),
-               result=test_base.dir_line(name="ä",
-                                         datetime_=datetime.datetime.now())),
-          Call("cwd", args=("/",)),
-          # `exists` test 2
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir",
-               args=("",),
-               result=test_base.dir_line(name="ä",
-                                         datetime_=datetime.datetime.now())),
-          Call("cwd", args=("/",)),
-          # `isdir` test 1
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir",
-               args=("",),
-               result=test_base.dir_line(mode_string="dr-xr-xr-x",
-                                         name="ä",
-                                         datetime_=datetime.datetime.now())),
-          Call("cwd", args=("/",)),
-          # `isdir` test 2
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir",
-               args=("",),
-               result=test_base.dir_line(mode_string="dr-xr-xr-x",
-                                         name="ä",
-                                         datetime_=datetime.datetime.now())),
-          Call("cwd", args=("/",)),
-          # `isfile` test 1
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir",
-               args=("",),
-               result=test_base.dir_line(name="ö",
-                                         datetime_=datetime.datetime.now())),
-          Call("cwd", args=("/",)),
-          # `isfile` test 2
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir",
-               args=("",),
-               result=test_base.dir_line(name="ö",
-                                         datetime_=datetime.datetime.now())),
-          Call("cwd", args=("/",)),
-          # `islink` test 1
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir",
-               args=("",),
-               result=test_base.dir_line(mode_string="lrwxrwxrwx",
-                                         name="ü",
-                                         datetime_=datetime.datetime.now(),
-                                         link_target="unimportant")),
-          Call("cwd", args=("/",)),
-          # `islink` test 2
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir",
-               args=("",),
-               result=test_base.dir_line(mode_string="lrwxrwxrwx",
-                                         name="ü",
-                                         datetime_=datetime.datetime.now(),
-                                         link_target="unimportant")),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            # `exists` test 1
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call(
+                "dir",
+                args=("",),
+                result=test_base.dir_line(name="ä", datetime_=datetime.datetime.now()),
+            ),
+            Call("cwd", args=("/",)),
+            # `exists` test 2
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call(
+                "dir",
+                args=("",),
+                result=test_base.dir_line(name="ä", datetime_=datetime.datetime.now()),
+            ),
+            Call("cwd", args=("/",)),
+            # `isdir` test 1
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call(
+                "dir",
+                args=("",),
+                result=test_base.dir_line(
+                    mode_string="dr-xr-xr-x",
+                    name="ä",
+                    datetime_=datetime.datetime.now(),
+                ),
+            ),
+            Call("cwd", args=("/",)),
+            # `isdir` test 2
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call(
+                "dir",
+                args=("",),
+                result=test_base.dir_line(
+                    mode_string="dr-xr-xr-x",
+                    name="ä",
+                    datetime_=datetime.datetime.now(),
+                ),
+            ),
+            Call("cwd", args=("/",)),
+            # `isfile` test 1
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call(
+                "dir",
+                args=("",),
+                result=test_base.dir_line(name="ö", datetime_=datetime.datetime.now()),
+            ),
+            Call("cwd", args=("/",)),
+            # `isfile` test 2
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call(
+                "dir",
+                args=("",),
+                result=test_base.dir_line(name="ö", datetime_=datetime.datetime.now()),
+            ),
+            Call("cwd", args=("/",)),
+            # `islink` test 1
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call(
+                "dir",
+                args=("",),
+                result=test_base.dir_line(
+                    mode_string="lrwxrwxrwx",
+                    name="ü",
+                    datetime_=datetime.datetime.now(),
+                    link_target="unimportant",
+                ),
+            ),
+            Call("cwd", args=("/",)),
+            # `islink` test 2
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call(
+                "dir",
+                args=("",),
+                result=test_base.dir_line(
+                    mode_string="lrwxrwxrwx",
+                    name="ü",
+                    datetime_=datetime.datetime.now(),
+                    link_target="unimportant",
+                ),
+            ),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             host.stat_cache.disable()
@@ -488,11 +522,7 @@ class TestAcceptEitherBytesOrUnicode:
         the same string type and returns the same string type.
         """
         as_bytes = ftputil.tool.as_bytes
-        script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("close")
-        ]
+        script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             host.stat_cache.disable()
             join = host.path.join
@@ -520,25 +550,19 @@ class TestAcceptEitherBytesOrUnicode:
         as_bytes = ftputil.tool.as_bytes
         now = datetime.datetime.now()
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          # `getmtime` call 1
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir",
-               args=("",),
-               result=test_base.dir_line(name="ä",
-                                         datetime_=now)),
-          Call("cwd", args=("/",)),
-          # `getmtime` call 2
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir",
-               args=("",),
-               result=test_base.dir_line(name="ä",
-                                         datetime_=now)),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            # `getmtime` call 1
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=test_base.dir_line(name="ä", datetime_=now)),
+            Call("cwd", args=("/",)),
+            # `getmtime` call 2
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=test_base.dir_line(name="ä", datetime_=now)),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             host.stat_cache.disable()
@@ -546,8 +570,9 @@ class TestAcceptEitherBytesOrUnicode:
             # We don't care about the _exact_ time, so don't bother with
             # timezone differences. Instead, do a simple sanity check.
             day = 24 * 60 * 60  # seconds
-            mtime_makes_sense = (lambda mtime: expected_mtime - day <= mtime <=
-                                               expected_mtime + day)
+            mtime_makes_sense = (
+                lambda mtime: expected_mtime - day <= mtime <= expected_mtime + day
+            )
             assert mtime_makes_sense(host.path.getmtime("ä"))
             assert mtime_makes_sense(host.path.getmtime(as_bytes("ä")))
 
@@ -558,27 +583,27 @@ class TestAcceptEitherBytesOrUnicode:
         as_bytes = ftputil.tool.as_bytes
         now = datetime.datetime.now()
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          # `getsize` call 1
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir",
-               args=("",),
-               result=test_base.dir_line(name="ä",
-                                         size=512,
-                                         datetime_=now)),
-          Call("cwd", args=("/",)),
-          # `getsize` call 2
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir",
-               args=("",),
-               result=test_base.dir_line(name="ä",
-                                         size=512,
-                                         datetime_=now)),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            # `getsize` call 1
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call(
+                "dir",
+                args=("",),
+                result=test_base.dir_line(name="ä", size=512, datetime_=now),
+            ),
+            Call("cwd", args=("/",)),
+            # `getsize` call 2
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call(
+                "dir",
+                args=("",),
+                result=test_base.dir_line(name="ä", size=512, datetime_=now),
+            ),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             host.stat_cache.disable()
@@ -590,42 +615,46 @@ class TestAcceptEitherBytesOrUnicode:
         as_bytes = ftputil.tool.as_bytes
         now = datetime.datetime.now()
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          # `walk` call 1
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir",
-               args=("",),
-               result=test_base.dir_line(mode_string="dr-xr-xr-x",
-                                         name="ä",
-                                         size=512,
-                                         datetime_=now)),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/ä",)),
-          #  Assume directory `ä` is empty.
-          Call("dir", args=("",), result=""),
-          Call("cwd", args=("/",)),
-          # `walk` call 2
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir",
-               args=("",),
-               result=test_base.dir_line(mode_string="dr-xr-xr-x",
-                                         name="ä",
-                                         size=512,
-                                         datetime_=now)),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/ä",)),
-          #  Assume directory `ä` is empty.
-          Call("dir", args=("",), result=""),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            # `walk` call 1
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call(
+                "dir",
+                args=("",),
+                result=test_base.dir_line(
+                    mode_string="dr-xr-xr-x", name="ä", size=512, datetime_=now
+                ),
+            ),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/ä",)),
+            #  Assume directory `ä` is empty.
+            Call("dir", args=("",), result=""),
+            Call("cwd", args=("/",)),
+            # `walk` call 2
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call(
+                "dir",
+                args=("",),
+                result=test_base.dir_line(
+                    mode_string="dr-xr-xr-x", name="ä", size=512, datetime_=now
+                ),
+            ),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/ä",)),
+            #  Assume directory `ä` is empty.
+            Call("dir", args=("",), result=""),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
+
         def noop(arg, top, names):
             del names[:]
+
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             host.stat_cache.disable()
             host.path.walk("ä", func=noop, arg=None)

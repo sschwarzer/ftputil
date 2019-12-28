@@ -16,7 +16,6 @@ TEST_ROOT = os.getcwd()
 
 
 class TestLocalToLocal:
-
     def setup_method(self, method):
         if not os.path.exists("test_empty"):
             os.mkdir("test_empty")
@@ -43,8 +42,8 @@ class TestLocalToLocal:
 
 # Helper classes for `TestUploadFromWindows`
 
-class LocalWindowsHost(ftputil.sync.LocalHost):
 
+class LocalWindowsHost(ftputil.sync.LocalHost):
     def __init__(self):
         self.path = ntpath
         self.sep = "\\"
@@ -67,36 +66,30 @@ class LocalWindowsHost(ftputil.sync.LocalHost):
         where <root> is the string passed in as `root`.
         """
         join = ntpath.join
-        return [(root,
-                 [join(root, "dir1")],
-                 []),
-                (join(root, "dir1"),
-                 ["dir11"],
-                 ["file1", "file2"])
-                ]
+        return [
+            (root, [join(root, "dir1")], []),
+            (join(root, "dir1"), ["dir11"], ["file1", "file2"]),
+        ]
 
 
 class DummyFTPSession:
-
     def pwd(self):
         return "/"
 
 
 class DummyFTPPath:
-
     def abspath(self, path):
         # Don't care here if the path is absolute or not.
         return path
 
     def isdir(self, path):
-        return ("dir" in path)
+        return "dir" in path
 
     def isfile(self, path):
-        return ("file" in path)
+        return "file" in path
 
 
 class ArgumentCheckingFTPHost(ftputil.FTPHost):
-
     def __init__(self, *args, **kwargs):
         super(ArgumentCheckingFTPHost, self).__init__(*args, **kwargs)
         self.path = DummyFTPPath()
@@ -113,7 +106,6 @@ class ArgumentCheckingFTPHost(ftputil.FTPHost):
 
 
 class TestUploadFromWindows:
-
     def test_no_mixed_separators(self):
         source = LocalWindowsHost()
         target = ArgumentCheckingFTPHost()

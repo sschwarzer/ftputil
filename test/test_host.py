@@ -56,11 +56,7 @@ class TestConstructor:
         Test if opening and closing an `FTPHost` object works as
         expected.
         """
-        script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("close")
-        ]
+        script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         host = test_base.ftp_host_factory(scripted_session.factory(script))
         host.close()
         assert host.closed is True
@@ -68,10 +64,7 @@ class TestConstructor:
 
     def test_invalid_login(self):
         """Login to invalid host must fail."""
-        script = [
-          Call("__init__", result=ftplib.error_perm),
-          Call("pwd", result="/"),
-        ]
+        script = [Call("__init__", result=ftplib.error_perm), Call("pwd", result="/")]
         with pytest.raises(ftputil.error.FTPOSError):
             test_base.ftp_host_factory(scripted_session.factory(script))
 
@@ -80,27 +73,26 @@ class TestConstructor:
         Test if the stored current directory is normalized.
         """
         script = [
-          Call("__init__"),
-          # Deliberately return the current working directory with a
-          # trailing slash to test if it's removed when stored in the
-          # `FTPHost` instance.
-          Call("pwd", result="/home/"),
-          Call("close")
+            Call("__init__"),
+            # Deliberately return the current working directory with a
+            # trailing slash to test if it's removed when stored in the
+            # `FTPHost` instance.
+            Call("pwd", result="/home/"),
+            Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             assert host.getcwd() == "/home"
 
 
 class TestKeepAlive:
-
     def test_succeeding_keep_alive(self):
         """Assume the connection is still alive."""
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          # `pwd` due to `keep_alive` call.
-          Call("pwd", result="/"),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            # `pwd` due to `keep_alive` call.
+            Call("pwd", result="/"),
+            Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             host.keep_alive()
@@ -108,12 +100,12 @@ class TestKeepAlive:
     def test_failing_keep_alive(self):
         """Assume the connection has timed out, so `keep_alive` fails."""
         script = [
-          Call("__init__"),
-          Call("pwd", result="/home"),
-          # Simulate failing `pwd` call after the server closed the connection
-          # due to a session timeout.
-          Call("pwd", result=ftplib.error_temp),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/home"),
+            # Simulate failing `pwd` call after the server closed the connection
+            # due to a session timeout.
+            Call("pwd", result=ftplib.error_temp),
+            Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             with pytest.raises(ftputil.error.TemporaryError):
@@ -121,7 +113,6 @@ class TestKeepAlive:
 
 
 class TestSetParser:
-
     class TrivialParser(ftputil.stat.Parser):
         """
         An instance of this parser always returns the same result
@@ -144,14 +135,16 @@ class TestSetParser:
     def test_set_parser(self):
         """Test if the selected parser is used."""
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir",
-               result="drwxr-xr-x   2 45854    200           512 May  4  2000 home"),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call(
+                "dir",
+                result="drwxr-xr-x   2 45854    200           512 May  4  2000 home",
+            ),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             assert host._stat._allow_parser_switching is True
@@ -163,32 +156,35 @@ class TestSetParser:
 
 
 class TestCommandNotImplementedError:
-
     def test_command_not_implemented_error(self):
         """
         Test if we get the anticipated exception if a command isn't
         implemented by the server.
         """
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          # `FTPHost.chmod` only raises a `CommandNotImplementedError` when
-          # the exception text of the `ftplib.error_perm` starts with "502".
-          Call("voidcmd",
-               result=ftplib.error_perm("502 command not implemented"),
-               args=("SITE CHMOD 0644 nonexistent",)),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          # `FTPHost.chmod` only raises a `CommandNotImplementedError` when
-          # the exception text of the `ftplib.error_perm` starts with "502".
-          Call("voidcmd",
-               result=ftplib.error_perm("502 command not implemented"),
-               args=("SITE CHMOD 0644 nonexistent",)),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            # `FTPHost.chmod` only raises a `CommandNotImplementedError` when
+            # the exception text of the `ftplib.error_perm` starts with "502".
+            Call(
+                "voidcmd",
+                result=ftplib.error_perm("502 command not implemented"),
+                args=("SITE CHMOD 0644 nonexistent",),
+            ),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            # `FTPHost.chmod` only raises a `CommandNotImplementedError` when
+            # the exception text of the `ftplib.error_perm` starts with "502".
+            Call(
+                "voidcmd",
+                result=ftplib.error_perm("502 command not implemented"),
+                args=("SITE CHMOD 0644 nonexistent",),
+            ),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             with pytest.raises(ftputil.error.CommandNotImplementedError):
@@ -210,14 +206,14 @@ class TestRecursiveListingForDotAsPath:
         `session.dir` unmodified.
         """
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=(".",)),
-          # Check that the empty string is passed on to `session.dir`.
-          Call("dir", args=("",), result="non-recursive listing"),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=(".",)),
+            # Check that the empty string is passed on to `session.dir`.
+            Call("dir", args=("",), result="non-recursive listing"),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             lines = host._dir(host.curdir)
@@ -230,20 +226,21 @@ class TestRecursiveListingForDotAsPath:
         an empty string.
         """
         dir_result = (
-          "total 10\n"
-          "lrwxrwxrwx   1 staff     7 Aug 13  2003 bin -> usr/bin\n"
-          "d--x--x--x   2 staff   512 Sep 24  2000 dev\n"
-          "d--x--x--x   3 staff   512 Sep 25  2000 etc\n"
-          "dr-xr-xr-x   3 staff   512 Oct  3  2000 pub\n"
-          "d--x--x--x   5 staff   512 Oct  3  2000 usr\n")
+            "total 10\n"
+            "lrwxrwxrwx   1 staff     7 Aug 13  2003 bin -> usr/bin\n"
+            "d--x--x--x   2 staff   512 Sep 24  2000 dev\n"
+            "d--x--x--x   3 staff   512 Sep 25  2000 etc\n"
+            "dr-xr-xr-x   3 staff   512 Oct  3  2000 pub\n"
+            "d--x--x--x   5 staff   512 Oct  3  2000 usr\n"
+        )
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=dir_result),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=dir_result),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             files = host.listdir(host.curdir)
@@ -258,21 +255,19 @@ class TestUploadAndDownload:
         remote_file_name = "dummy_name"
         remote_file_content = b"dummy_content"
         local_target = tmp_path / "test_target"
-        host_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("close")
-        ]
+        host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=("TYPE I",)),
-          Call("transfercmd",
-               args=("RETR {}".format(remote_file_name), None),
-               result=io.BytesIO(remote_file_content)),
-          Call("voidresp"),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call(
+                "transfercmd",
+                args=("RETR {}".format(remote_file_name), None),
+                result=io.BytesIO(remote_file_content),
+            ),
+            Call("voidresp"),
+            Call("close"),
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
         # Download
@@ -283,10 +278,14 @@ class TestUploadAndDownload:
         file_session = multisession_factory.scripted_sessions[1]
         file_session.sock.gettimeout.assert_called_once_with()
         assert len(file_session.sock.settimeout.call_args_list) == 2
-        assert (file_session.sock.settimeout.call_args_list[0] ==
-                ((ftputil.file.FTPFile._close_timeout,), {}) )
-        assert (file_session.sock.settimeout.call_args_list[1] ==
-                ((file_session.sock.gettimeout(),), {}))
+        assert file_session.sock.settimeout.call_args_list[0] == (
+            (ftputil.file.FTPFile._close_timeout,),
+            {},
+        )
+        assert file_session.sock.settimeout.call_args_list[1] == (
+            (file_session.sock.gettimeout(),),
+            {},
+        )
         assert local_target.read_bytes() == remote_file_content
 
     def test_conditional_upload_without_upload(self, tmp_path):
@@ -296,18 +295,19 @@ class TestUploadAndDownload:
         local_source = tmp_path / "test_source"
         data = binary_data()
         local_source.write_bytes(data)
-        dir_result = test_base.dir_line(mode_string="-rw-r--r--",
-                                        date_=datetime.date.today() +
-                                              datetime.timedelta(days=1),
-                                        name="newer")
+        dir_result = test_base.dir_line(
+            mode_string="-rw-r--r--",
+            date_=datetime.date.today() + datetime.timedelta(days=1),
+            name="newer",
+        )
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=dir_result),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=dir_result),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         # Target is newer, so don't upload.
         #
@@ -328,29 +328,32 @@ class TestUploadAndDownload:
         file_content = b"dummy_content"
         local_source.write_bytes(file_content)
         remote_file_name = "dummy_name"
-        dir_result = test_base.dir_line(mode_string="-rw-r--r--",
-                                        date_=datetime.date.today() -
-                                              datetime.timedelta(days=1),
-                                        name="older")
+        dir_result = test_base.dir_line(
+            mode_string="-rw-r--r--",
+            date_=datetime.date.today() - datetime.timedelta(days=1),
+            name="older",
+        )
         host_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=dir_result),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=dir_result),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         file_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=("TYPE I",)),
-          Call("transfercmd",
-               args=("STOR older", None),
-               result=test_base.MockableBytesIO()),
-          Call("voidresp"),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call(
+                "transfercmd",
+                args=("STOR older", None),
+                result=test_base.MockableBytesIO(),
+            ),
+            Call("voidresp"),
+            Call("close"),
         ]
         # Target is older, so upload.
         multisession_factory = scripted_session.factory(host_script, file_script)
@@ -361,9 +364,11 @@ class TestUploadAndDownload:
         assert flag is True
         # Target doesn't exist, so upload.
         #  Use correct file name for this test.
-        file_script[4] = Call("transfercmd",
-                              args=("STOR notthere", None),
-                              result=test_base.MockableBytesIO())
+        file_script[4] = Call(
+            "transfercmd",
+            args=("STOR notthere", None),
+            result=test_base.MockableBytesIO(),
+        )
         multisession_factory = scripted_session.factory(host_script, file_script)
         with unittest.mock.patch("test.test_base.MockableBytesIO.write") as write_mock:
             with test_base.ftp_host_factory(multisession_factory) as host:
@@ -383,21 +388,15 @@ class TestUploadAndDownload:
         #  remote and the target file because the local `exists` call
         #  for the local target returns `False` and the datetime
         #  comparison therefore isn't done.
-        host_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("close")
-        ]
+        host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=("TYPE I",)),
-          Call("transfercmd",
-               args=("RETR newer", None),
-               result=io.BytesIO(data)),
-          Call("voidresp"),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call("transfercmd", args=("RETR newer", None), result=io.BytesIO(data)),
+            Call("voidresp"),
+            Call("close"),
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:
@@ -415,29 +414,28 @@ class TestUploadAndDownload:
         #  Use a date in the future. That isn't realistic, but for the
         #  purpose of the test it's an easy way to make sure the source
         #  file is newer than the target file.
-        dir_result = test_base.dir_line(mode_string="-rw-r--r--",
-                                        date_=datetime.date.today() +
-                                              datetime.timedelta(days=1),
-                                        name="newer")
+        dir_result = test_base.dir_line(
+            mode_string="-rw-r--r--",
+            date_=datetime.date.today() + datetime.timedelta(days=1),
+            name="newer",
+        )
         host_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=dir_result),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=dir_result),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         file_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=("TYPE I",)),
-          Call("transfercmd",
-               args=("RETR newer", None),
-               result=io.BytesIO(data)),
-          Call("voidresp"),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call("transfercmd", args=("RETR newer", None), result=io.BytesIO(data)),
+            Call("voidresp"),
+            Call("close"),
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:
@@ -453,29 +451,28 @@ class TestUploadAndDownload:
         data = binary_data()
         # Use date in the past, so the target file is newer and no
         # download happens.
-        dir_result = test_base.dir_line(mode_string="-rw-r--r--",
-                                        date_=datetime.date.today() -
-                                              datetime.timedelta(days=1),
-                                        name="newer")
+        dir_result = test_base.dir_line(
+            mode_string="-rw-r--r--",
+            date_=datetime.date.today() - datetime.timedelta(days=1),
+            name="newer",
+        )
         host_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=dir_result),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=dir_result),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         file_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=("TYPE I",)),
-          Call("transfercmd",
-               args=("RETR newer", None),
-               result=io.BytesIO(data)),
-          Call("voidresp"),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call("transfercmd", args=("RETR newer", None), result=io.BytesIO(data)),
+            Call("voidresp"),
+            Call("close"),
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:
@@ -490,128 +487,130 @@ class TestTimeShift:
     class _Path:
         def split(self, path):
             return posixpath.split(path)
+
         def set_mtime(self, mtime):
             self._mtime = mtime
+
         def getmtime(self, file_name):
             return self._mtime
+
         def join(self, *args):
             return posixpath.join(*args)
+
         def normpath(self, path):
             return posixpath.normpath(path)
+
         def isabs(self, path):
             return posixpath.isabs(path)
+
         def abspath(self, path):
             return "/_ftputil_sync_"
+
         # Needed for `isdir` in `FTPHost.remove`
         def isfile(self, path):
             return True
 
     def test_rounded_time_shift(self):
         """Test if time shift is rounded correctly."""
-        script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("close")
-        ]
+        script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         multisession_factory = scripted_session.factory(script)
         with test_base.ftp_host_factory(multisession_factory) as host:
             # Use private bound method.
             rounded_time_shift = host._FTPHost__rounded_time_shift
             # Pairs consisting of original value and expected result
             test_data = [
-              (      0,           0),
-              (      0.1,         0),
-              (     -0.1,         0),
-              (   1500,        1800),
-              (  -1500,       -1800),
-              (   1800,        1800),
-              (  -1800,       -1800),
-              (   2000,        1800),
-              (  -2000,       -1800),
-              ( 5*3600-100,  5*3600),
-              (-5*3600+100, -5*3600)]
+                (0, 0),
+                (0.1, 0),
+                (-0.1, 0),
+                (1500, 1800),
+                (-1500, -1800),
+                (1800, 1800),
+                (-1800, -1800),
+                (2000, 1800),
+                (-2000, -1800),
+                (5 * 3600 - 100, 5 * 3600),
+                (-5 * 3600 + 100, -5 * 3600),
+            ]
             for time_shift, expected_time_shift in test_data:
                 calculated_time_shift = rounded_time_shift(time_shift)
                 assert calculated_time_shift == expected_time_shift
 
     def test_assert_valid_time_shift(self):
         """Test time shift sanity checks."""
-        script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("close")
-        ]
+        script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         multisession_factory = scripted_session.factory(script)
         with test_base.ftp_host_factory(multisession_factory) as host:
             # Use private bound method.
             assert_time_shift = host._FTPHost__assert_valid_time_shift
             # Valid time shifts
-            test_data = [23*3600, -23*3600, 3600+30, -3600+30]
+            test_data = [23 * 3600, -23 * 3600, 3600 + 30, -3600 + 30]
             for time_shift in test_data:
                 assert assert_time_shift(time_shift) is None
             # Invalid time shift (exceeds one day)
             with pytest.raises(ftputil.error.TimeShiftError):
-                assert_time_shift(25*3600)
+                assert_time_shift(25 * 3600)
             with pytest.raises(ftputil.error.TimeShiftError):
-                assert_time_shift(-25*3600)
+                assert_time_shift(-25 * 3600)
             # Invalid time shift (too large deviation from 15-minute units
             # is unacceptable)
             with pytest.raises(ftputil.error.TimeShiftError):
-                assert_time_shift(8*60)
+                assert_time_shift(8 * 60)
             with pytest.raises(ftputil.error.TimeShiftError):
-                assert_time_shift(-3600-8*60)
+                assert_time_shift(-3600 - 8 * 60)
 
     def test_synchronize_times(self):
         """Test time synchronization with server."""
         host_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("delete", args=("_ftputil_sync_",)),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("delete", args=("_ftputil_sync_",)),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         file_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=("TYPE I",)),
-          Call("transfercmd", args=("STOR _ftputil_sync_", None), result=io.BytesIO()),
-          Call("voidresp"),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call(
+                "transfercmd", args=("STOR _ftputil_sync_", None), result=io.BytesIO()
+            ),
+            Call("voidresp"),
+            Call("close"),
         ]
         # Valid time shifts
         test_data = [
-          (60*60+30,  60*60),
-          (60*60-100, 60*60),
-          (30*60+100, 30*60),
-          (45*60-100, 45*60),
+            (60 * 60 + 30, 60 * 60),
+            (60 * 60 - 100, 60 * 60),
+            (30 * 60 + 100, 30 * 60),
+            (45 * 60 - 100, 45 * 60),
         ]
         for measured_time_shift, expected_time_shift in test_data:
             print("=== measured_time_shift:", measured_time_shift)
             print("=== expected_time_shift:", expected_time_shift)
             # Use a new `BytesIO` object to avoid exception
             # `ValueError: I/O operation on closed file`.
-            file_script[4] = Call("transfercmd", result=io.BytesIO(),
-                                  args=("STOR _ftputil_sync_", None))
-            multisession_factory = scripted_session.factory(host_script,
-                                                            file_script)
+            file_script[4] = Call(
+                "transfercmd", result=io.BytesIO(), args=("STOR _ftputil_sync_", None)
+            )
+            multisession_factory = scripted_session.factory(host_script, file_script)
             with test_base.ftp_host_factory(multisession_factory) as host:
                 host.path = self._Path()
                 host.path.set_mtime(time.time() + measured_time_shift)
                 host.synchronize_times()
                 assert host.time_shift() == expected_time_shift
         # Invalid time shifts
-        measured_time_shifts = [60*60+8*60, 45*60-6*60]
+        measured_time_shifts = [60 * 60 + 8 * 60, 45 * 60 - 6 * 60]
         for measured_time_shift in measured_time_shifts:
             print("=== measured_time_shift:", measured_time_shift)
             # Use a new `BytesIO` object to avoid exception
             # `ValueError: I/O operation on closed file`.
-            file_script[4] = Call("transfercmd", result=io.BytesIO(),
-                                  args=("STOR _ftputil_sync_", None))
-            multisession_factory = scripted_session.factory(host_script,
-                                                            file_script)
+            file_script[4] = Call(
+                "transfercmd", result=io.BytesIO(), args=("STOR _ftputil_sync_", None)
+            )
+            multisession_factory = scripted_session.factory(host_script, file_script)
             with test_base.ftp_host_factory(multisession_factory) as host:
                 host.path = self._Path()
                 host.path.set_mtime(time.time() + measured_time_shift)
@@ -621,22 +620,24 @@ class TestTimeShift:
     def test_synchronize_times_for_server_in_east(self):
         """Test for timestamp correction (see ticket #55)."""
         host_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("delete", args=("_ftputil_sync_",)),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("delete", args=("_ftputil_sync_",)),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         file_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=("TYPE I",)),
-          Call("transfercmd", args=("STOR _ftputil_sync_", None), result=io.BytesIO()),
-          Call("voidresp", args=()),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call(
+                "transfercmd", args=("STOR _ftputil_sync_", None), result=io.BytesIO()
+            ),
+            Call("voidresp", args=()),
+            Call("close"),
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(session_factory=multisession_factory) as host:
@@ -656,9 +657,10 @@ class TestTimeShift:
             # I don't think it's a bug in `parse_unix_time` because the
             # method should work once the time shift is set correctly.
             local_time = time.localtime()
-            local_time_with_wrong_year = (local_time.tm_year-1,) + local_time[1:]
-            presumed_server_time = \
-              time.mktime(local_time_with_wrong_year) + presumed_time_shift
+            local_time_with_wrong_year = (local_time.tm_year - 1,) + local_time[1:]
+            presumed_server_time = (
+                time.mktime(local_time_with_wrong_year) + presumed_time_shift
+            )
             host.path.set_mtime(presumed_server_time)
             host.synchronize_times()
             assert host.time_shift() == presumed_time_shift
@@ -672,28 +674,24 @@ class TestAcceptEitherUnicodeOrBytes:
 
     def test_upload(self):
         """Test whether `upload` accepts either unicode or bytes."""
-        host_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("close")
-        ]
+        host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=("TYPE I",)),
-          Call("transfercmd", args=("STOR target", None), result=io.BytesIO()),
-          Call("voidresp"),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call("transfercmd", args=("STOR target", None), result=io.BytesIO()),
+            Call("voidresp"),
+            Call("close"),
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
         # The source file needs to be present in the current directory.
         with test_base.ftp_host_factory(multisession_factory) as host:
             host.upload("Makefile", "target")
         # Create new `BytesIO` object.
-        file_script[4] = Call("transfercmd",
-                              args=("STOR target", None),
-                              result=io.BytesIO())
+        file_script[4] = Call(
+            "transfercmd", args=("STOR target", None), result=io.BytesIO()
+        )
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:
             host.upload("Makefile", ftputil.tool.as_bytes("target"))
@@ -701,28 +699,24 @@ class TestAcceptEitherUnicodeOrBytes:
     def test_download(self, tmp_path):
         """Test whether `download` accepts either unicode or bytes."""
         local_target = tmp_path / "local_target"
-        host_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("close")
-        ]
+        host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=("TYPE I",)),
-          Call("transfercmd", args=("RETR source", None), result=io.BytesIO()),
-          Call("voidresp"),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call("transfercmd", args=("RETR source", None), result=io.BytesIO()),
+            Call("voidresp"),
+            Call("close"),
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
         # The source file needs to be present in the current directory.
         with test_base.ftp_host_factory(multisession_factory) as host:
             host.download("source", str(local_target))
         # Create new `BytesIO` object.
-        file_script[4] = Call("transfercmd",
-                              args=("RETR source", None),
-                              result=io.BytesIO())
+        file_script[4] = Call(
+            "transfercmd", args=("RETR source", None), result=io.BytesIO()
+        )
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:
             host.download(ftputil.tool.as_bytes("source"), str(local_target))
@@ -730,11 +724,11 @@ class TestAcceptEitherUnicodeOrBytes:
     def test_rename(self):
         """Test whether `rename` accepts either unicode or bytes."""
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("rename", args=("/ä", "/ä")),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("rename", args=("/ä", "/ä")),
+            Call("close"),
         ]
         # It's possible to mix argument types, as for `os.rename`.
         path_as_unicode = "/ä"
@@ -748,28 +742,28 @@ class TestAcceptEitherUnicodeOrBytes:
     def test_listdir(self):
         """Test whether `listdir` accepts either unicode or bytes."""
         as_bytes = ftputil.tool.as_bytes
-        top_level_dir_line = test_base.dir_line(mode_string="drwxr-xr-x",
-                                                date_=datetime.date.today(),
-                                                name="ä")
-        dir_line1 = test_base.dir_line(mode_string="-rw-r--r--",
-                                       date_=datetime.date.today(),
-                                       name="ö")
-        dir_line2 = test_base.dir_line(mode_string="-rw-r--r--",
-                                       date_=datetime.date.today(),
-                                       name="o")
+        top_level_dir_line = test_base.dir_line(
+            mode_string="drwxr-xr-x", date_=datetime.date.today(), name="ä"
+        )
+        dir_line1 = test_base.dir_line(
+            mode_string="-rw-r--r--", date_=datetime.date.today(), name="ö"
+        )
+        dir_line2 = test_base.dir_line(
+            mode_string="-rw-r--r--", date_=datetime.date.today(), name="o"
+        )
         dir_result = dir_line1 + "\n" + dir_line2
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=top_level_dir_line),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/ä",)),
-          Call("dir", args=("",), result=dir_result),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=top_level_dir_line),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/ä",)),
+            Call("dir", args=("",), result=dir_result),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         # Unicode
         session_factory = scripted_session.factory(script)
@@ -785,13 +779,13 @@ class TestAcceptEitherUnicodeOrBytes:
     def test_chmod(self):
         """Test whether `chmod` accepts either unicode or bytes."""
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=("SITE CHMOD 0755 ä",)),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("SITE CHMOD 0755 ä",)),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         path = "/ä"
         # Unicode
@@ -818,47 +812,47 @@ class TestAcceptEitherUnicodeOrBytes:
     def test_chdir(self):
         """Test whether `chdir` accepts either unicode or bytes."""
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/ö",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/ö",)),
+            Call("close"),
         ]
         self._test_method_with_single_path_argument("chdir", "/ö", script)
 
     def test_mkdir(self):
         """Test whether `mkdir` accepts either unicode or bytes."""
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("mkd", args=("ä",)),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("mkd", args=("ä",)),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         self._test_method_with_single_path_argument("mkdir", "/ä", script)
 
     def test_makedirs(self):
         """Test whether `makedirs` accepts either unicode or bytes."""
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          # To deal with ticket #86 (virtual directories), `makedirs` tries to
-          # change into each directory and if it exists (changing doesn't raise
-          # an exception), doesn't try to create it. That's why you don't see
-          # an `mkd` calls here despite originally having a `makedirs` call.
-          Call("cwd", args=("/ä",)),
-          Call("cwd", args=("/ä/ö",)),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            # To deal with ticket #86 (virtual directories), `makedirs` tries to
+            # change into each directory and if it exists (changing doesn't raise
+            # an exception), doesn't try to create it. That's why you don't see
+            # an `mkd` calls here despite originally having a `makedirs` call.
+            Call("cwd", args=("/ä",)),
+            Call("cwd", args=("/ä/ö",)),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         self._test_method_with_single_path_argument("makedirs", "/ä/ö", script)
 
     def test_rmdir(self):
         """Test whether `rmdir` accepts either unicode or bytes."""
-        dir_line = test_base.dir_line(mode_string="drwxr-xr-x",
-                                      date_=datetime.date.today(),
-                                      name="empty_ä")
+        dir_line = test_base.dir_line(
+            mode_string="drwxr-xr-x", date_=datetime.date.today(), name="empty_ä"
+        )
         # Since the session script isn't at all obvious, I checked it with a
         # debugger and added comments on some of the calls that happen during
         # the `rmdir` call.
@@ -869,142 +863,144 @@ class TestAcceptEitherUnicodeOrBytes:
         # method, `cwd`). It would be great if all the roundtrips to the server
         # could be reduced.
         script = [
-          # `FTPHost` initialization
-          Call("__init__"),
-          Call("pwd", result="/"),
-          # `host.rmdir("/empty_ä")`
-          #  `host.listdir("/empty_ä")`
-          #   `host._stat._listdir("/empty_ä")`
-          #    `host._stat.__call_with_parser_retry("/empty_ä")`
-          #     `host._stat._real_listdir("/empty_ä")`
-          #      `host.path.isdir("/empty_ä")`
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=dir_line),
-          Call("cwd", args=("/",)),
-          #      `host.path.isdir` end
-          #      `host._stat._stat_results_from_dir("/empty_ä")`
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/empty_ä",)),
-          Call("dir", args=("",), result=""),
-          Call("cwd", args=("/",)),
-          #      `host._stat._stat_results_from_dir("/empty_ä")` end
-          #  `host._session.rmd` in `host._robust_ftp_command`
-          #   `host._check_inaccessible_login_directory()`
-          Call("cwd", args=("/",)),
-          #   `host.chdir(head)` ("/")
-          Call("cwd", args=("/",)),
-          #   `host.rmd(tail)` ("empty_ä")
-          Call("rmd", args=("empty_ä",)),
-          #   `host.chdir(old_dir)` ("/")
-          Call("cwd", args=("/",)),
-          #
-          Call("close")
+            # `FTPHost` initialization
+            Call("__init__"),
+            Call("pwd", result="/"),
+            # `host.rmdir("/empty_ä")`
+            #  `host.listdir("/empty_ä")`
+            #   `host._stat._listdir("/empty_ä")`
+            #    `host._stat.__call_with_parser_retry("/empty_ä")`
+            #     `host._stat._real_listdir("/empty_ä")`
+            #      `host.path.isdir("/empty_ä")`
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=dir_line),
+            Call("cwd", args=("/",)),
+            #      `host.path.isdir` end
+            #      `host._stat._stat_results_from_dir("/empty_ä")`
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/empty_ä",)),
+            Call("dir", args=("",), result=""),
+            Call("cwd", args=("/",)),
+            #      `host._stat._stat_results_from_dir("/empty_ä")` end
+            #  `host._session.rmd` in `host._robust_ftp_command`
+            #   `host._check_inaccessible_login_directory()`
+            Call("cwd", args=("/",)),
+            #   `host.chdir(head)` ("/")
+            Call("cwd", args=("/",)),
+            #   `host.rmd(tail)` ("empty_ä")
+            Call("rmd", args=("empty_ä",)),
+            #   `host.chdir(old_dir)` ("/")
+            Call("cwd", args=("/",)),
+            #
+            Call("close"),
         ]
         empty_directory_as_required_by_rmdir = "/empty_ä"
         self._test_method_with_single_path_argument(
-          "rmdir", empty_directory_as_required_by_rmdir, script)
+            "rmdir", empty_directory_as_required_by_rmdir, script
+        )
 
     def test_remove(self):
         """Test whether `remove` accepts either unicode or bytes."""
-        dir_line = test_base.dir_line(mode_string="-rw-r--r--",
-                                      date_=datetime.date.today(),
-                                      name="ö")
+        dir_line = test_base.dir_line(
+            mode_string="-rw-r--r--", date_=datetime.date.today(), name="ö"
+        )
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=dir_line),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("delete", args=("ö",)),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=dir_line),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("delete", args=("ö",)),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         self._test_method_with_single_path_argument("remove", "/ö", script)
 
     def test_rmtree(self):
         """Test whether `rmtree` accepts either unicode or bytes."""
-        dir_line = test_base.dir_line(mode_string="drwxr-xr-x",
-                                      date_=datetime.date.today(),
-                                      name="empty_ä")
+        dir_line = test_base.dir_line(
+            mode_string="drwxr-xr-x", date_=datetime.date.today(), name="empty_ä"
+        )
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          # Recursive `listdir`
-          #  Check parent (root) directory.
-          Call("dir", args=("",), result=dir_line),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/empty_ä",)),
-          #  Child directory (inside `empty_ä`)
-          Call("dir", args=("",), result=""),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/empty_ä",)),
-          # Recursive `rmdir` (repeated `cwd` calls because of
-          # `_robust_ftp_command`)
-          Call("dir", result="", args=("",)),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("rmd", args=("empty_ä",)),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            # Recursive `listdir`
+            #  Check parent (root) directory.
+            Call("dir", args=("",), result=dir_line),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/empty_ä",)),
+            #  Child directory (inside `empty_ä`)
+            Call("dir", args=("",), result=""),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/empty_ä",)),
+            # Recursive `rmdir` (repeated `cwd` calls because of
+            # `_robust_ftp_command`)
+            Call("dir", result="", args=("",)),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("rmd", args=("empty_ä",)),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         empty_directory_as_required_by_rmtree = "/empty_ä"
         self._test_method_with_single_path_argument(
-          "rmtree", empty_directory_as_required_by_rmtree, script)
+            "rmtree", empty_directory_as_required_by_rmtree, script
+        )
 
     def test_lstat(self):
         """Test whether `lstat` accepts either unicode or bytes."""
-        dir_line = test_base.dir_line(mode_string="-rw-r--r--",
-                                      date_=datetime.date.today(),
-                                      name="ä")
+        dir_line = test_base.dir_line(
+            mode_string="-rw-r--r--", date_=datetime.date.today(), name="ä"
+        )
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=dir_line),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=dir_line),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         self._test_method_with_single_path_argument("lstat", "/ä", script)
 
     def test_stat(self):
         """Test whether `stat` accepts either unicode or bytes."""
-        dir_line = test_base.dir_line(mode_string="-rw-r--r--",
-                                      date_=datetime.date.today(),
-                                      name="ä")
+        dir_line = test_base.dir_line(
+            mode_string="-rw-r--r--", date_=datetime.date.today(), name="ä"
+        )
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=dir_line),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=dir_line),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         self._test_method_with_single_path_argument("stat", "/ä", script)
 
     def test_walk(self):
         """Test whether `walk` accepts either unicode or bytes."""
-        dir_line = test_base.dir_line(mode_string="-rw-r--r--",
-                                      date_=datetime.date.today(),
-                                      name="ä")
+        dir_line = test_base.dir_line(
+            mode_string="-rw-r--r--", date_=datetime.date.today(), name="ä"
+        )
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir", args=("",), result=dir_line),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("dir", args=("",), result=dir_line),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         # We're not interested in the return value of `walk`.
         # Unicode
@@ -1018,22 +1014,17 @@ class TestAcceptEitherUnicodeOrBytes:
 
 
 class TestFailingPickling:
-
     def test_failing_pickling(self):
         """Test if pickling (intentionally) isn't supported."""
-        host_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("close"),
-        ]
+        host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=("TYPE I",)),
-          Call("transfercmd", args=("RETR test", None), result=io.BytesIO()),
-          Call("voidresp", args=()),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call("transfercmd", args=("RETR test", None), result=io.BytesIO()),
+            Call("voidresp", args=()),
+            Call("close"),
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:

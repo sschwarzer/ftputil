@@ -34,15 +34,15 @@ class _Path:
         # Delegate these to the `posixpath` module.
         # pylint: disable=invalid-name
         pp = posixpath
-        self.dirname      = pp.dirname
-        self.basename     = pp.basename
-        self.isabs        = pp.isabs
+        self.dirname = pp.dirname
+        self.basename = pp.basename
+        self.isabs = pp.isabs
         self.commonprefix = pp.commonprefix
-        self.split        = pp.split
-        self.splitdrive   = pp.splitdrive
-        self.splitext     = pp.splitext
-        self.normcase     = pp.normcase
-        self.normpath     = pp.normpath
+        self.split = pp.split
+        self.splitdrive = pp.splitdrive
+        self.splitext = pp.splitext
+        self.normcase = pp.normcase
+        self.normpath = pp.normpath
 
     def abspath(self, path):
         """Return an absolute path."""
@@ -50,14 +50,12 @@ class _Path:
         path = ftputil.tool.as_unicode(path)
         if not self.isabs(path):
             path = self.join(self._host.getcwd(), path)
-        return ftputil.tool.same_string_type_as(original_path,
-                                                self.normpath(path))
+        return ftputil.tool.same_string_type_as(original_path, self.normpath(path))
 
     def exists(self, path):
         """Return true if the path exists."""
         try:
-            lstat_result = self._host.lstat(
-                             path, _exception_for_missing_path=False)
+            lstat_result = self._host.lstat(path, _exception_for_missing_path=False)
             return lstat_result is not None
         except ftputil.error.RootDirError:
             return True
@@ -94,17 +92,14 @@ class _Path:
         """
         # These checks are implicitly done by Python 3, but not by
         # Python 2.
-        all_paths_are_unicode = all((isinstance(path, str)
-                                     for path in paths))
-        all_paths_are_bytes = all((isinstance(path, bytes)
-                                   for path in paths))
+        all_paths_are_unicode = all((isinstance(path, str) for path in paths))
+        all_paths_are_bytes = all((isinstance(path, bytes) for path in paths))
         if all_paths_are_unicode or all_paths_are_bytes:
             return posixpath.join(*paths)
         else:
             # Python 3 raises this exception for mixed strings
             # in `os.path.join`, so also use this exception.
-            raise TypeError(
-                    "can't mix unicode strings and bytes in path components")
+            raise TypeError("can't mix unicode strings and bytes in path components")
 
     # Check whether a path is a regular file/dir/link. For the first
     # two cases follow links (like in `os.path`).
@@ -139,8 +134,7 @@ class _Path:
         if self.normpath(path) == self._host.getcwd():
             return should_look_for_dir
         try:
-            stat_result = self._host.stat(
-                            path, _exception_for_missing_path=False)
+            stat_result = self._host.stat(path, _exception_for_missing_path=False)
         except ftputil.error.RecursiveLinksError:
             return False
         except ftputil.error.RootDirError:
@@ -181,8 +175,7 @@ class _Path:
         """
         path = ftputil.tool.as_unicode(path)
         try:
-            lstat_result = self._host.lstat(
-                             path, _exception_for_missing_path=False)
+            lstat_result = self._host.lstat(path, _exception_for_missing_path=False)
         except ftputil.error.RootDirError:
             return False
         else:

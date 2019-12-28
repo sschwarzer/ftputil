@@ -121,8 +121,9 @@ def source_is_newer_than_target(source_file, target_file):
     if source_file.mtime_precision() is ftputil.stat.UNKNOWN_PRECISION:
         return True
     else:
-        return (source_file.mtime() + source_file.mtime_precision() >=
-                target_file.mtime())
+        return (
+            source_file.mtime() + source_file.mtime_precision() >= target_file.mtime()
+        )
 
 
 def chunks(fobj, max_chunk_size=MAX_COPY_CHUNK_SIZE):
@@ -144,8 +145,9 @@ def chunks(fobj, max_chunk_size=MAX_COPY_CHUNK_SIZE):
         yield chunk
 
 
-def copyfileobj(source_fobj, target_fobj, max_chunk_size=MAX_COPY_CHUNK_SIZE,
-                callback=None):
+def copyfileobj(
+    source_fobj, target_fobj, max_chunk_size=MAX_COPY_CHUNK_SIZE, callback=None
+):
     """Copy data from file-like object source to file-like object target."""
     # Inspired by `shutil.copyfileobj` (I don't use the `shutil`
     # code directly because it might change)
@@ -171,8 +173,9 @@ def copy_file(source_file, target_file, conditional, callback):
         # Evaluate condition: The target file either doesn't exist or is
         # older than the source file. If in doubt (due to imprecise
         # timestamps), perform the transfer.
-        transfer_condition = not target_file.exists() or \
-          source_is_newer_than_target(source_file, target_file)
+        transfer_condition = not target_file.exists() or source_is_newer_than_target(
+            source_file, target_file
+        )
         if not transfer_condition:
             # We didn't transfer.
             return False

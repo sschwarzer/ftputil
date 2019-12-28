@@ -17,7 +17,6 @@ Call = scripted_session.Call
 
 
 class TestStatCache:
-
     def setup_method(self, method):
         self.cache = ftputil.stat_cache.StatCache()
 
@@ -98,19 +97,20 @@ class TestStatCache:
 
     def test_cache_size_zero(self):
         script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("cwd", args=("/",)),
-          Call("dir",
-               args=("",),
-               result=
-                 "drwxr-sr-x   2 45854   200    512 Jan  3 17:17 download\n"
-                 "drwxr-sr-x   2 45854   200    512 Jul 30 17:14 dir with spaces\n"
-                 "lrwxrwxrwx   2 45854   200      6 May 29  2000 link -> ../link_target\n"
-                 "-rw-r--r--   1 45854   200   4604 Jan 19 23:11 index.html"),
-          Call("cwd", args=("/",)),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call(
+                "dir",
+                args=("",),
+                result="drwxr-sr-x   2 45854   200    512 Jan  3 17:17 download\n"
+                "drwxr-sr-x   2 45854   200    512 Jul 30 17:14 dir with spaces\n"
+                "lrwxrwxrwx   2 45854   200      6 May 29  2000 link -> ../link_target\n"
+                "-rw-r--r--   1 45854   200   4604 Jan 19 23:11 index.html",
+            ),
+            Call("cwd", args=("/",)),
+            Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             with pytest.raises(ValueError):
