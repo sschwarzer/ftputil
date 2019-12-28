@@ -1,3 +1,11 @@
+- Improve text/binary read/write tests.
+
+- Simplify `FTPFile._open`. Instead of wrapping a socket with
+  `TextIOWrapper`, use the mode in `socket.makefile` directly. This
+  wasn't possible with Python 2, whose `socket.makefile` didn't know
+  text/binary modes. However, in Python 3 it _is_ possible.
+
+
 Planned:
 
 - Improve sync code.
