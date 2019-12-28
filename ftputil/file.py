@@ -56,6 +56,9 @@ class FTPFile:
         # pylint: disable=too-many-arguments
         #
         # Check mode.
+        if mode is None:
+            # This is Python's behavior for local files.
+            raise TypeError("open() argument 2 must be str, not None")
         if "a" in mode:
             raise ftputil.error.FTPIOError("append mode not supported")
         if mode not in ("r", "rb", "rt", "w", "wb", "wt"):
