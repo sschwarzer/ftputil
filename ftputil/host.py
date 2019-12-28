@@ -821,7 +821,10 @@ class FTPHost:
     # know about `FTPHost`'s `_session` attribute and in turn about
     # `_session`'s `dir` method.
     def _dir(self, path):
-        """Return a directory listing as made by FTP's `LIST` command."""
+        """
+        Return a directory listing as made by FTP's `LIST` command as
+        a list of strings.
+        """
         # Don't use `self.path.isdir` in this method because that
         # would cause a call of `(l)stat` and thus a call to `_dir`,
         # so we would end up with an infinite recursion.
