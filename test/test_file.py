@@ -136,7 +136,7 @@ class TestFileOperations:
     def test_binary_read(self):
         """Read data from a binary file."""
         host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
-        file_content = b"some\ntest"
+        file_content = b"\000a\001b\r\n\002c\003\n\004\r\005"
         file_script = [
             Call("__init__"),
             Call("pwd", result="/"),
