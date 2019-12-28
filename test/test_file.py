@@ -17,6 +17,11 @@ from test import test_base
 Call = scripted_session.Call
 
 
+# Test data for use in text/binary read/write tests.
+TEXT_TEST_DATA = " söme line\r\nänother line\n almost done\n"
+BINARY_TEST_DATA = TEXT_TEST_DATA.encode("UTF-8")
+
+
 class TestFileOperations:
     """Test operations with file-like objects."""
 
@@ -133,20 +138,9 @@ class TestFileOperations:
             with pytest.raises(ftputil.error.FTPIOError):
                 host.open("/some_directory", "w")
 
-    # TODO: Improve tests.
-    #
-    # - Use the same test string in all text/binary read/write tests.
-    #
-    # - Test if "half umlauts" are split correctly in binary mode. For
-    #   example, a German "ä" is encoded as b"\xc3\xa4", hence reading
-    #   the first byte should give b"\xc3" and reading the second byte
-    #   should give b"\xa4". On the other hand, if reading one _character_
-    #   from a text file, we'd read the whole single character.
-
     def test_binary_read(self):
         """Read data from a binary file."""
         host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
-        file_content = b"\000a\001b\r\n\002c\003\n\004\r\005"
         file_script = [
             Call("__init__"),
             Call("pwd", result="/"),
@@ -155,7 +149,7 @@ class TestFileOperations:
             Call(
                 "transfercmd",
                 args=("RETR some_file", None),
-                result=io.BytesIO(file_content),
+                result=io.BytesIO(BINARY_TEST_DATA),
             ),
             Call("voidresp"),
             Call("close"),
@@ -164,7 +158,7 @@ class TestFileOperations:
         with test_base.ftp_host_factory(multisession_factory) as host:
             with host.open("some_file", "rb") as fobj:
                 data = fobj.read()
-            assert data == file_content
+            assert data == BINARY_TEST_DATA
 
     def test_binary_write(self):
         """Write binary data with `write`."""
@@ -182,13 +176,12 @@ class TestFileOperations:
             Call("voidresp"),
             Call("close"),
         ]
-        data = b"\000a\001b\r\n\002c\003\n\004\r\005"
         multisession_factory = scripted_session.factory(host_script, file_script)
         with unittest.mock.patch("test.test_base.MockableBytesIO.write") as write_mock:
             with test_base.ftp_host_factory(multisession_factory) as host:
                 with host.open("some_file", "wb") as output:
-                    output.write(data)
-            write_mock.assert_called_with(data)
+                    output.write(BINARY_TEST_DATA)
+            write_mock.assert_called_with(BINARY_TEST_DATA)
 
     def test_text_read(self):
         """Read text with plain `read`."""
@@ -204,9 +197,7 @@ class TestFileOperations:
                 # Since the file is eventually opened as a text file
                 # (wrapped in a `TextIOWrapper`), line endings should
                 # be converted.
-                result=io.BytesIO(
-                    "line 1\r\nänother line\nyet anöther line".encode("UTF-8")
-                ),
+                result=io.BytesIO(BINARY_TEST_DATA),
             ),
             Call("voidresp"),
             Call("close"),
@@ -217,15 +208,15 @@ class TestFileOperations:
                 data = input_.read(0)
                 assert data == ""
                 data = input_.read(3)
-                assert data == "lin"
+                assert data == " sö"
                 # Specifically check the behavior around the line ending
                 # character.
-                data = input_.read(3)
-                assert data == "e 1"
+                data = input_.read(7)
+                assert data == "me line"
                 data = input_.read(1)
                 assert data == "\n"
                 data = input_.read()
-                assert data == "änother line\nyet anöther line"
+                assert data == "änother line\n almost done\n"
                 data = input_.read()
                 assert data == ""
 
@@ -245,16 +236,20 @@ class TestFileOperations:
             Call("voidresp"),
             Call("close"),
         ]
-        input_data = " äöü\nline 2\nline 3"
         multisession_factory = scripted_session.factory(host_script, file_script)
         with unittest.mock.patch("test.test_base.MockableBytesIO.write") as write_mock:
             with test_base.ftp_host_factory(multisession_factory) as host:
                 with host.open("dummy", "w", newline="\r\n") as output:
-                    output.write(input_data)
-        write_mock.assert_called_with(" äöü\r\nline 2\r\nline 3".encode("UTF-8"))
+                    output.write(TEXT_TEST_DATA)
+        # At the end of the first line, the first `\r` is left over from the
+        # original string. The second `\r` comes from converting the original
+        # `\n` to `\r\n`.
+        write_mock.assert_called_with(
+            b" s\xc3\xb6me line\r\r\n\xc3\xa4nother line\r\n almost done\r\n"
+        )
 
     def test_text_writelines(self):
-        """Write ASCII text with `writelines`."""
+        """Write text with `writelines`."""
         host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
             Call("__init__"),
@@ -269,14 +264,20 @@ class TestFileOperations:
             Call("voidresp"),
             Call("close"),
         ]
-        data = [" äöü\n", "line 2\n", "line 3"]
+        data = [" söme line\r\n", "änother line\n", " almost done\n"]
+        print("=== data:", data)
         backup_data = data[:]
         multisession_factory = scripted_session.factory(host_script, file_script)
         with unittest.mock.patch("test.test_base.MockableBytesIO.write") as write_mock:
             with test_base.ftp_host_factory(multisession_factory) as host:
                 with host.open("dummy", "w", newline="\r\n") as output:
                     output.writelines(data)
-        write_mock.assert_called_with(" äöü\r\nline 2\r\nline 3".encode("UTF-8"))
+        # At the end of the first line, the first `\r` is left over from the
+        # original lines. The second `\r` comes from converting the original
+        # `\n` to `\r\n`.
+        write_mock.assert_called_with(
+            b" s\xc3\xb6me line\r\r\n\xc3\xa4nother line\r\n almost done\r\n"
+        )
         # Ensure that the original data was not modified.
         assert data == backup_data
 
@@ -291,7 +292,7 @@ class TestFileOperations:
             Call(
                 "transfercmd",
                 args=("RETR dummy", None),
-                result=io.BytesIO(b"line 1\nanother line\r\nyet another line\nanother"),
+                result=io.BytesIO(BINARY_TEST_DATA),
             ),
             Call("voidresp"),
             Call("close"),
@@ -300,17 +301,16 @@ class TestFileOperations:
         with test_base.ftp_host_factory(multisession_factory) as host:
             with host.open("dummy", "rb") as input_:
                 data = input_.readline(3)
-                assert data == b"lin"
+                assert data == b" s\xc3"
                 data = input_.readline(9)
-                assert data == b"e 1\n"
-                data = input_.readline(13)
-                assert data == b"another line\r"
-                data = input_.readline()
+                assert data == b"\xb6me line\r"
+                # 30 = at most 30 bytes
+                data = input_.readline(30)
                 assert data == b"\n"
                 data = input_.readline()
-                assert data == b"yet another line\n"
+                assert data == b"\xc3\xa4nother line\n"
                 data = input_.readline()
-                assert data == b"another"
+                assert data == b" almost done\n"
                 data = input_.readline()
                 assert data == b""
 
@@ -325,9 +325,7 @@ class TestFileOperations:
             Call(
                 "transfercmd",
                 args=("RETR dummy", None),
-                result=io.BytesIO(
-                    "line 1\r\nänother line\r\nyet anöther line".encode("UTF-8")
-                ),
+                result=io.BytesIO(BINARY_TEST_DATA),
             ),
             Call("voidresp"),
             Call("close"),
@@ -336,13 +334,16 @@ class TestFileOperations:
         with test_base.ftp_host_factory(multisession_factory) as host:
             with host.open("dummy", "r") as input_:
                 data = input_.readline(3)
-                assert data == "lin"
+                assert data == " sö"
+                data = input_.readline(7)
+                assert data == "me line"
                 data = input_.readline(10)
-                assert data == "e 1\n"
-                data = input_.readline(13)
+                assert data == "\n"
+                # 30 = at most 30 bytes
+                data = input_.readline(30)
                 assert data == "änother line\n"
                 data = input_.readline()
-                assert data == "yet anöther line"
+                assert data == " almost done\n"
                 data = input_.readline()
                 assert data == ""
 
@@ -357,7 +358,7 @@ class TestFileOperations:
             Call(
                 "transfercmd",
                 args=("RETR dummy", None),
-                result=io.BytesIO("line 1\r\nänother line\r\nyet anöther line".encode("UTF-8")),
+                result=io.BytesIO(BINARY_TEST_DATA),
             ),
             Call("voidresp"),
             Call("close"),
@@ -366,9 +367,9 @@ class TestFileOperations:
         with test_base.ftp_host_factory(multisession_factory) as host:
             with host.open("dummy", "r") as input_:
                 data = input_.read(3)
-                assert data == "lin"
+                assert data == " sö"
                 data = input_.readlines()
-                assert data == ["e 1\n", "änother line\n", "yet anöther line"]
+                assert data == ["me line\n", "änother line\n", " almost done\n"]
                 input_.close()
 
     def test_binary_iterator(self):
@@ -384,7 +385,7 @@ class TestFileOperations:
             Call(
                 "transfercmd",
                 args=("RETR dummy", None),
-                result=io.BytesIO(b"line 1\r\nanother line\r\nyet another line"),
+                result=io.BytesIO(BINARY_TEST_DATA),
             ),
             Call("voidresp"),
             Call("close"),
@@ -393,9 +394,10 @@ class TestFileOperations:
         with test_base.ftp_host_factory(multisession_factory) as host:
             with host.open("dummy", "rb") as input_:
                 input_iterator = iter(input_)
-                assert next(input_iterator) == b"line 1\r\n"
-                assert next(input_iterator) == b"another line\r\n"
-                assert next(input_iterator) == b"yet another line"
+                assert next(input_iterator) == b" s\xc3\xb6me line\r\n"
+                # The last two lines don't have a `\r`.
+                assert next(input_iterator) == b"\xc3\xa4nother line\n"
+                assert next(input_iterator) == b" almost done\n"
                 with pytest.raises(StopIteration):
                     input_iterator.__next__()
 
@@ -412,7 +414,7 @@ class TestFileOperations:
             Call(
                 "transfercmd",
                 args=("RETR dummy", None),
-                result=io.BytesIO(b"line 1\r\nanother line\r\nyet another line"),
+                result=io.BytesIO(BINARY_TEST_DATA),
             ),
             Call("voidresp"),
             Call("close"),
@@ -421,9 +423,9 @@ class TestFileOperations:
         with test_base.ftp_host_factory(multisession_factory) as host:
             with host.open("dummy", "r") as input_:
                 input_iterator = iter(input_)
-                assert next(input_iterator) == "line 1\n"
-                assert next(input_iterator) == "another line\n"
-                assert next(input_iterator) == "yet another line"
+                assert next(input_iterator) == " söme line\n"
+                assert next(input_iterator) == "änother line\n"
+                assert next(input_iterator) == " almost done\n"
                 with pytest.raises(StopIteration):
                     input_iterator.__next__()
 
