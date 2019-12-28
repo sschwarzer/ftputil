@@ -127,6 +127,30 @@ class TestFileOperations:
             with pytest.raises(ftputil.error.FTPIOError):
                 host.open("/some_directory", "w")
 
+    def test_mode_not_given(self):
+        """
+        If the mode isn't given, a file should be opened in text read mode.
+        """
+        host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
+        file_script = [
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call(
+                "transfercmd",
+                args=("RETR some_file", None),
+                result=io.StringIO(TEXT_TEST_DATA),
+            ),
+            Call("voidresp"),
+            Call("close"),
+        ]
+        multisession_factory = scripted_session.factory(host_script, file_script)
+        with test_base.ftp_host_factory(multisession_factory) as host:
+            with host.open("some_file") as fobj:
+                data = fobj.read()
+            assert data == TEXT_TEST_DATA
+
     def test_binary_read(self):
         """Read data from a binary file."""
         host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
