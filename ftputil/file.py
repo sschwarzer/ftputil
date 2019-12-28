@@ -35,8 +35,16 @@ class FTPFile:
         self._conn = None
         self._fobj = None
 
-    def _open(self, path, mode, buffering=None, encoding=None, errors=None,
-              newline=None, rest=None):
+    def _open(
+        self,
+        path,
+        mode,
+        buffering=None,
+        encoding=None,
+        errors=None,
+        newline=None,
+        rest=None,
+    ):
         """
         Open the remote file with given path name and mode.
 
@@ -63,7 +71,8 @@ class FTPFile:
         # `rest` is only allowed for binary mode.
         if (not is_binary_mode) and (rest is not None):
             raise ftputil.error.CommandNotImplementedError(
-                    "`rest` argument can't be used for text files")
+                "`rest` argument can't be used for text files"
+            )
         # Always use binary mode (see comments above).
         transfer_type = "I"
         command = "TYPE {}".format(transfer_type)
@@ -88,8 +97,9 @@ class FTPFile:
         # file objects directly since Python 3's `socket.makefile`
         # supports a `mode` argument.
         if not is_binary_mode:
-            fobj = io.TextIOWrapper(fobj, encoding=encoding,
-                                    errors=errors, newline=newline)
+            fobj = io.TextIOWrapper(
+                fobj, encoding=encoding, errors=errors, newline=newline
+            )
         self._fobj = fobj
         # This comes last so that `close` won't try to close `FTPFile`
         # objects without `_conn` and `_fobj` attributes in case of an
@@ -139,12 +149,13 @@ class FTPFile:
         Handle requests for attributes unknown to `FTPFile` objects:
         delegate the requests to the contained file object.
         """
-        if attr_name in ("encoding flush isatty fileno read readline "
-                         "readlines seek tell truncate name softspace "
-                         "write writelines".split()):
+        if attr_name in (
+            "encoding flush isatty fileno read readline "
+            "readlines seek tell truncate name softspace "
+            "write writelines".split()
+        ):
             return getattr(self._fobj, attr_name)
-        raise AttributeError(
-                "'FTPFile' object has no attribute '{}'".format(attr_name))
+        raise AttributeError("'FTPFile' object has no attribute '{}'".format(attr_name))
 
     # TODO: Implement `__dir__`? (See
     # http://docs.python.org/whatsnew/2.6.html#other-language-changes )
@@ -175,8 +186,12 @@ class FTPFile:
                 # respectively.
                 exc = str(exc)
                 error_code = exc[:3]
-                if exc.splitlines()[0] != "timed out" and \
-                  error_code not in ("150", "426", "450", "451"):
+                if exc.splitlines()[0] != "timed out" and error_code not in (
+                    "150",
+                    "426",
+                    "450",
+                    "451",
+                ):
                     raise
         finally:
             # Restore timeout for socket of `FTPFile`'s `ftplib.FTP`

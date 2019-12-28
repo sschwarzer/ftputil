@@ -29,7 +29,6 @@ class TestSameStringTypeAs:
 
 
 class TestSimpleConversions:
-
     def test_as_bytes(self):
         result = ftputil.tool.as_bytes(b"abc")
         assert result == b"abc"
@@ -44,7 +43,6 @@ class TestSimpleConversions:
 
 
 class TestEncodeIfUnicode:
-
     def test_do_encode(self):
         string = "abc"
         converted_string = ftputil.tool.encode_if_unicode(string, "latin1")

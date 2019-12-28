@@ -33,18 +33,18 @@ class TestFileOperations:
 
     def test_inaccessible_dir(self):
         """Test whether opening a file at an invalid location fails."""
-        host_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("close")
-        ]
+        host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=("TYPE I",)),
-          Call("transfercmd", args=("STOR inaccessible", None), result=ftplib.error_perm),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call(
+                "transfercmd",
+                args=("STOR inaccessible", None),
+                result=ftplib.error_perm,
+            ),
+            Call("close"),
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:
@@ -53,40 +53,35 @@ class TestFileOperations:
 
     def test_caching_of_children(self):
         """Test whether `FTPFile` cache of `FTPHost` object works."""
-        host_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("close"),
-        ]
+        host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file1_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=("TYPE I",)),
-          Call("transfercmd", args=("STOR path1", None), result=io.StringIO("")),
-          Call("voidresp"),
-          # Open a file again while reusing the child object and with it its
-          # `_session` attribute (the `ftplib.FTP` object).
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=("TYPE I",)),
-          Call("transfercmd", args=("STOR path1", None), result=io.StringIO("")),
-          Call("voidresp"),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call("transfercmd", args=("STOR path1", None), result=io.StringIO("")),
+            Call("voidresp"),
+            # Open a file again while reusing the child object and with it its
+            # `_session` attribute (the `ftplib.FTP` object).
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call("transfercmd", args=("STOR path1", None), result=io.StringIO("")),
+            Call("voidresp"),
+            Call("close"),
         ]
         file2_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=("TYPE I",)),
-          Call("transfercmd",
-               result=io.StringIO(""),
-               args=("STOR path2", None)),
-          Call("voidresp"),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call("transfercmd", result=io.StringIO(""), args=("STOR path2", None)),
+            Call("voidresp"),
+            Call("close"),
         ]
-        multisession_factory = scripted_session.factory(host_script,
-                                                        file1_script, file2_script)
+        multisession_factory = scripted_session.factory(
+            host_script, file1_script, file2_script
+        )
         with test_base.ftp_host_factory(multisession_factory) as host:
             assert len(host._children) == 0
             path1 = "path1"
@@ -119,21 +114,19 @@ class TestFileOperations:
 
     def test_write_to_directory(self):
         """Test whether attempting to write to a directory fails."""
-        host_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("close")
-        ]
+        host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=("TYPE I",)),
-          Call("transfercmd",
-               args=("STOR some_directory", None),
-               result=ftplib.error_perm),
-          # Because of the exception, `voidresp` isn't called.
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call(
+                "transfercmd",
+                args=("STOR some_directory", None),
+                result=ftplib.error_perm,
+            ),
+            # Because of the exception, `voidresp` isn't called.
+            Call("close"),
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:
@@ -142,22 +135,20 @@ class TestFileOperations:
 
     def test_binary_read(self):
         """Read data from a binary file."""
-        host_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("close")
-        ]
+        host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_content = b"some\ntest"
         file_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=("TYPE I",)),
-          Call("transfercmd",
-               args=("RETR some_file", None),
-               result=io.BytesIO(file_content)),
-          Call("voidresp"),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call(
+                "transfercmd",
+                args=("RETR some_file", None),
+                result=io.BytesIO(file_content),
+            ),
+            Call("voidresp"),
+            Call("close"),
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:
@@ -167,21 +158,19 @@ class TestFileOperations:
 
     def test_binary_write(self):
         """Write binary data with `write`."""
-        host_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("close")
-        ]
+        host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=("TYPE I",)),
-          Call("transfercmd",
-               args=("STOR some_file", None),
-               result=test_base.MockableBytesIO(b"")),
-          Call("voidresp"),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call(
+                "transfercmd",
+                args=("STOR some_file", None),
+                result=test_base.MockableBytesIO(b""),
+            ),
+            Call("voidresp"),
+            Call("close"),
         ]
         data = b"\000a\001b\r\n\002c\003\n\004\r\005"
         multisession_factory = scripted_session.factory(host_script, file_script)
@@ -193,24 +182,22 @@ class TestFileOperations:
 
     def test_ascii_read(self):
         """Read ASCII text with plain `read`."""
-        host_script = [
-          Call("__init__"),
-          Call("pwd", result="/",),
-          Call("close")
-        ]
+        host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
-          Call("__init__"),
-          Call("pwd", result="/",),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=('TYPE I',)),
-          Call("transfercmd",
-               args=('RETR dummy', None),
-               # Since the file is eventually opened as a text file
-               # (wrapped in a `TextIOWrapper`), line endings should
-               # be converted.
-               result=io.BytesIO(b"line 1\r\nanother line\nyet another line")),
-          Call("voidresp"),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call(
+                "transfercmd",
+                args=("RETR dummy", None),
+                # Since the file is eventually opened as a text file
+                # (wrapped in a `TextIOWrapper`), line endings should
+                # be converted.
+                result=io.BytesIO(b"line 1\r\nanother line\nyet another line"),
+            ),
+            Call("voidresp"),
+            Call("close"),
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:
@@ -232,21 +219,19 @@ class TestFileOperations:
 
     def test_ascii_write(self):
         """Write text with `write`."""
-        host_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("close")
-        ]
+        host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=('TYPE I',)),
-          Call("transfercmd",
-               args=('STOR dummy', None),
-               result=test_base.MockableBytesIO()),
-          Call("voidresp"),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call(
+                "transfercmd",
+                args=("STOR dummy", None),
+                result=test_base.MockableBytesIO(),
+            ),
+            Call("voidresp"),
+            Call("close"),
         ]
         input_data = " \nline 2\nline 3"
         multisession_factory = scripted_session.factory(host_script, file_script)
@@ -260,21 +245,19 @@ class TestFileOperations:
 
     def test_ascii_writelines(self):
         """Write ASCII text with `writelines`."""
-        host_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("close")
-        ]
+        host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=('TYPE I',)),
-          Call("transfercmd",
-               args=('STOR dummy', None),
-               result=test_base.MockableBytesIO()),
-          Call("voidresp"),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call(
+                "transfercmd",
+                args=("STOR dummy", None),
+                result=test_base.MockableBytesIO(),
+            ),
+            Call("voidresp"),
+            Call("close"),
         ]
         data = [" \n", "line 2\n", "line 3"]
         backup_data = data[:]
@@ -289,21 +272,19 @@ class TestFileOperations:
 
     def test_binary_readline(self):
         """Read binary data with `readline`."""
-        host_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("close")
-        ]
+        host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=('TYPE I',)),
-          Call("transfercmd",
-               args=('RETR dummy', None),
-               result=io.BytesIO(b"line 1\r\nanother line\r\nyet another line")),
-          Call("voidresp"),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call(
+                "transfercmd",
+                args=("RETR dummy", None),
+                result=io.BytesIO(b"line 1\r\nanother line\r\nyet another line"),
+            ),
+            Call("voidresp"),
+            Call("close"),
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:
@@ -323,21 +304,19 @@ class TestFileOperations:
 
     def test_ascii_readline(self):
         """Read ASCII text with `readline`."""
-        host_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("close")
-        ]
+        host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=('TYPE I',)),
-          Call("transfercmd",
-               args=('RETR dummy', None),
-               result=io.BytesIO(b"line 1\r\nanother line\r\nyet another line")),
-          Call("voidresp"),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call(
+                "transfercmd",
+                args=("RETR dummy", None),
+                result=io.BytesIO(b"line 1\r\nanother line\r\nyet another line"),
+            ),
+            Call("voidresp"),
+            Call("close"),
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:
@@ -355,21 +334,19 @@ class TestFileOperations:
 
     def test_ascii_readlines(self):
         """Read ASCII text with `readlines`."""
-        host_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("close")
-        ]
+        host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=('TYPE I',)),
-          Call("transfercmd",
-               args=('RETR dummy', None),
-               result=io.BytesIO(b"line 1\r\nanother line\r\nyet another line")),
-          Call("voidresp"),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call(
+                "transfercmd",
+                args=("RETR dummy", None),
+                result=io.BytesIO(b"line 1\r\nanother line\r\nyet another line"),
+            ),
+            Call("voidresp"),
+            Call("close"),
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:
@@ -385,21 +362,19 @@ class TestFileOperations:
         Test the iterator interface of `FTPFile` objects (without
         newline conversion.
         """
-        host_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("close")
-        ]
+        host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=('TYPE I',)),
-          Call("transfercmd",
-               args=('RETR dummy', None),
-               result=io.BytesIO(b"line 1\r\nanother line\r\nyet another line")),
-          Call("voidresp"),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call(
+                "transfercmd",
+                args=("RETR dummy", None),
+                result=io.BytesIO(b"line 1\r\nanother line\r\nyet another line"),
+            ),
+            Call("voidresp"),
+            Call("close"),
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:
@@ -416,21 +391,19 @@ class TestFileOperations:
         Test the iterator interface of `FTPFile` objects (with newline
         conversion).
         """
-        host_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("close")
-        ]
+        host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=('TYPE I',)),
-          Call("transfercmd",
-               args=('RETR dummy', None),
-               result=io.BytesIO(b"line 1\r\nanother line\r\nyet another line")),
-          Call("voidresp"),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call(
+                "transfercmd",
+                args=("RETR dummy", None),
+                result=io.BytesIO(b"line 1\r\nanother line\r\nyet another line"),
+            ),
+            Call("voidresp"),
+            Call("close"),
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:
@@ -444,20 +417,14 @@ class TestFileOperations:
 
     def test_read_unknown_file(self):
         """Test whether reading a file which isn't there fails."""
-        host_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("close")
-        ]
+        host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=("/",)),
-          Call("voidcmd", args=('TYPE I',)),
-          Call("transfercmd",
-               args=('RETR notthere', None),
-               result=ftplib.error_perm),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call("transfercmd", args=("RETR notthere", None), result=ftplib.error_perm),
+            Call("close"),
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:
@@ -467,15 +434,16 @@ class TestFileOperations:
 
 
 class TestAvailableChild:
-
     def _failing_pwd(self, exception_class):
         """
         Return a function that will be used instead of the
         `session.pwd` and will raise the exception
         `exception_to_raise`.
         """
+
         def new_pwd():
             raise exception_class("")
+
         return new_pwd
 
     def _test_with_pwd_error(self, exception_class):
@@ -484,38 +452,30 @@ class TestAvailableChild:
         `child_host._session.pwd` raising an exception of type
         `exception_class`.
         """
-        host_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("close")
-        ]
+        host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         first_file_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=('/',)),
-          Call("voidcmd", args=('TYPE I',)),
-          Call("transfercmd",
-               args=('RETR dummy1', None),
-               result=io.StringIO("")),
-          Call("voidresp"),
-          # This `pwd` is executed from `FTPHost._available_child`.
-          Call("pwd", result=exception_class),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call("transfercmd", args=("RETR dummy1", None), result=io.StringIO("")),
+            Call("voidresp"),
+            # This `pwd` is executed from `FTPHost._available_child`.
+            Call("pwd", result=exception_class),
+            Call("close"),
         ]
         second_file_script = [
-          Call("__init__"),
-          Call("pwd", result="/"),
-          Call("cwd", args=('/',)),
-          Call("voidcmd", args=('TYPE I',)),
-          Call("transfercmd",
-               args=('RETR dummy2', None),
-               result=io.StringIO("")),
-          Call("voidresp"),
-          Call("close")
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call("transfercmd", args=("RETR dummy2", None), result=io.StringIO("")),
+            Call("voidresp"),
+            Call("close"),
         ]
-        multisession_factory = scripted_session.factory(host_script,
-                                                        first_file_script,
-                                                        second_file_script)
+        multisession_factory = scripted_session.factory(
+            host_script, first_file_script, second_file_script
+        )
         with test_base.ftp_host_factory(multisession_factory) as host:
             # Implicitly create a child session.
             with host.open("/dummy1") as _:

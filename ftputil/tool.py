@@ -6,8 +6,7 @@
 tool.py - helper code
 """
 
-__all__ = ["same_string_type_as", "as_bytes", "as_unicode",
-           "as_default_string"]
+__all__ = ["same_string_type_as", "as_bytes", "as_unicode", "as_default_string"]
 
 
 # Encoding to convert between byte string and unicode string. This is
@@ -29,11 +28,9 @@ def same_string_type_as(type_source, content_source):
     type, use `LOSSLESS_ENCODING` above to encode or decode, whatever
     operation is needed.
     """
-    if (
-      isinstance(type_source, bytes) and isinstance(content_source, str)):
+    if isinstance(type_source, bytes) and isinstance(content_source, str):
         return content_source.encode(LOSSLESS_ENCODING)
-    elif (
-      isinstance(type_source, str) and isinstance(content_source, bytes)):
+    elif isinstance(type_source, str) and isinstance(content_source, bytes):
         return content_source.decode(LOSSLESS_ENCODING)
     else:
         return content_source

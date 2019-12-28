@@ -9,7 +9,6 @@ __all__ = ["Call", "factory"]
 
 
 class Call:
-
     def __init__(self, method_name, *, args=None, kwargs=None, result=None):
         self.method_name = method_name
         self.result = result
@@ -17,11 +16,13 @@ class Call:
         self.kwargs = kwargs
 
     def __repr__(self):
-        return ("{0.__class__.__name__}("
-                "method_name={0.method_name!r}, "
-                "result={0.result!r}, "
-                "args={0.args!r}, "
-                "kwargs={0.kwargs!r})".format(self))
+        return (
+            "{0.__class__.__name__}("
+            "method_name={0.method_name!r}, "
+            "result={0.result!r}, "
+            "args={0.args!r}, "
+            "kwargs={0.kwargs!r})".format(self)
+        )
 
     def check_call(self, method_name, args=None, kwargs=None):
         # TODO: Mention printing in the docstring.
@@ -32,18 +33,29 @@ class Call:
 
         Raise an `AssertionError` if there's a mismatch.
         """
-        print("  Call from session script:    {} | {!r} | {!r}".format(
-              self.method_name, self.args, self.kwargs))
-        print("  Call from system under test: {} | {!r} | {!r}".format(
-              method_name, args, kwargs))
+        print(
+            "  Call from session script:    {} | {!r} | {!r}".format(
+                self.method_name, self.args, self.kwargs
+            )
+        )
+        print(
+            "  Call from system under test: {} | {!r} | {!r}".format(
+                method_name, args, kwargs
+            )
+        )
+
         def compare(value_name, script_value, sut_value):
             if script_value is not None:
                 try:
                     assert script_value == sut_value
                 except AssertionError:
-                    print("  Mismatch for `{}`: {!r} != {!r}".format(
-                          value_name, script_value, sut_value))
+                    print(
+                        "  Mismatch for `{}`: {!r} != {!r}".format(
+                            value_name, script_value, sut_value
+                        )
+                    )
                     raise
+
         compare("method_name", self.method_name, method_name)
         compare("args", self.args, args)
         compare("kwargs", self.kwargs, kwargs)
@@ -138,10 +150,12 @@ class ScriptedSession:
 
     def __getattr__(self, attribute_name):
         script_call = self._next_script_call(attribute_name)
+
         def dummy_method(*args, **kwargs):
             print(self, "(in `__getattr__`)")
             script_call.check_call(attribute_name, args, kwargs)
             return script_call()
+
         return dummy_method
 
     # ----------------------------------------------------------------------

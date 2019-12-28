@@ -27,7 +27,6 @@ class TestFTPErrorArguments:
 
 
 class TestErrorConversion:
-
     def callee(self):
         raise ftplib.error_perm()
 
@@ -40,8 +39,7 @@ class TestErrorConversion:
             with ftputil.error.ftplib_error_to_ftp_os_error:
                 self.callee()
         exc = exc_info.value
-        assert not (exc.args and 
-                    isinstance(exc.args[0], ftplib.error_perm))
+        assert not (exc.args and isinstance(exc.args[0], ftplib.error_perm))
         del exc_info
 
     def test_ftplib_error_to_ftp_os_error_non_ascii_server_message(self):
@@ -50,9 +48,7 @@ class TestErrorConversion:
         sends a message containing non-ASCII characters.
         """
         # See ticket #77.
-        message = \
-          ftputil.tool.as_bytes(
-            "Não é possível criar um arquivo já existente.")
+        message = ftputil.tool.as_bytes("Não é possível criar um arquivo já existente.")
         with pytest.raises(ftputil.error.PermanentError):
             with ftputil.error.ftplib_error_to_ftp_os_error:
                 raise ftplib.error_perm(message)
@@ -66,8 +62,7 @@ class TestErrorConversion:
             with ftputil.error.ftplib_error_to_ftp_io_error:
                 self.callee()
         exc = exc_info.value
-        assert not (exc.args and
-                    isinstance(exc.args[0], ftplib.error_perm))
+        assert not (exc.args and isinstance(exc.args[0], ftplib.error_perm))
         del exc_info
 
     def test_error_message_reuse(self):
@@ -82,7 +77,7 @@ class TestErrorConversion:
         exc = exc_info.value
         # The error message may be different for different Python
         # versions.
-        assert (
-          "No address associated with hostname" in str(exc) or
-          "Name or service not known" in str(exc))
+        assert "No address associated with hostname" in str(
+            exc
+        ) or "Name or service not known" in str(exc)
         del exc_info

@@ -33,6 +33,7 @@ def email_address():
             email = dummy_address
     return email
 
+
 EMAIL = email_address()
 
 
@@ -43,10 +44,12 @@ def ftp_client_listing(server, directory):
     Return the list of items found as an `os.listdir` would return it.
     """
     # The `-n` option prevents an auto-login.
-    ftp_popen = subprocess.Popen(["ftp", "-n", server],
-                                 stdin=subprocess.PIPE,
-                                 stdout=subprocess.PIPE,
-                                 universal_newlines=True)
+    ftp_popen = subprocess.Popen(
+        ["ftp", "-n", server],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        universal_newlines=True,
+    )
     commands = ["user anonymous {}".format(EMAIL), "dir", "bye"]
     if directory:
         # Change to this directory before calling "dir".
@@ -67,8 +70,7 @@ def ftp_client_listing(server, directory):
         names.append(name)
     # Remove entries for current and parent directory since they
     # aren't included in the result of `FTPHost.listdir` either.
-    names = [name for name in names
-                  if name not in (".", "..")]
+    names = [name for name in names if name not in (".", "..")]
     return names
 
 
@@ -96,16 +98,16 @@ class TestPublicServers:
     # List of pairs with server name and a directory "guaranteed
     # to exist" under the login directory which is assumed to be
     # the root directory.
-    servers = [# Posix format
-               ("ftp.de.debian.org", "debian"),
-               ("ftp.gnome.org",  "pub"),
-               ("ftp.heanet.ie",  "pub"),
-               ("ftp.heise.de",   "pub"),
-               # DOS/Microsoft format
-               # Do you know any FTP servers that use Microsoft
-               # format? `ftp.microsoft.com` doesn't seem to be
-               # reachable anymore.
-              ]
+    servers = [  # Posix format
+        ("ftp.de.debian.org", "debian"),
+        ("ftp.gnome.org", "pub"),
+        ("ftp.heanet.ie", "pub"),
+        ("ftp.heise.de", "pub"),
+        # DOS/Microsoft format
+        # Do you know any FTP servers that use Microsoft
+        # format? `ftp.microsoft.com` doesn't seem to be
+        # reachable anymore.
+    ]
 
     # This data structure contains the initial directories "." and
     # "DIR" (which will be replaced by a valid directory name for
@@ -114,10 +116,25 @@ class TestPublicServers:
     # directory. All items in these lists are actually supposed to
     # yield the same directory contents.
     paths_table = [
-      (".", ["", ".", "/", "/.", "./.", "././", "..", "../.", "../..",
-             "DIR/..", "/DIR/../.", "/DIR/../.."]),
-      ("DIR", ["", ".", "/DIR", "/DIR/", "../DIR", "../../DIR"])
-      ]
+        (
+            ".",
+            [
+                "",
+                ".",
+                "/",
+                "/.",
+                "./.",
+                "././",
+                "..",
+                "../.",
+                "../..",
+                "DIR/..",
+                "/DIR/../.",
+                "/DIR/../..",
+            ],
+        ),
+        ("DIR", ["", ".", "/DIR", "/DIR/", "../DIR", "../../DIR"]),
+    ]
 
     def inner_test_server(self, server, initial_directory, paths):
         """
@@ -142,17 +159,21 @@ class TestPublicServers:
                 names = host.listdir(path)
                 # Filter out "hidden" names since the FTP command line
                 # client won't include them in its listing either.
-                names = [name for name in names
-                              if not (
-                                name.startswith(".") or
-                                # The login directory of `ftp.microsoft.com`
-                                # contains this "hidden" entry that ftputil
-                                # finds but not the FTP command line client.
-                                name == "mscomtest"
-                              )]
-                failure_message = ("For server {}, directory {}: {} != {}".
-                                   format(server, initial_directory, names,
-                                          canonical_names))
+                names = [
+                    name
+                    for name in names
+                    if not (
+                        name.startswith(".")
+                        or
+                        # The login directory of `ftp.microsoft.com`
+                        # contains this "hidden" entry that ftputil
+                        # finds but not the FTP command line client.
+                        name == "mscomtest"
+                    )
+                ]
+                failure_message = "For server {}, directory {}: {} != {}".format(
+                    server, initial_directory, names, canonical_names
+                )
                 assert names == canonical_names, failure_message
         finally:
             host.close()
@@ -170,6 +191,7 @@ class TestPublicServers:
         for server, actual_initial_directory in self.servers:
             for initial_directory, paths in self.paths_table:
                 initial_directory = initial_directory.replace(
-                                      "DIR", actual_initial_directory)
+                    "DIR", actual_initial_directory
+                )
                 print(server, initial_directory)
                 self.inner_test_server(server, initial_directory, paths)

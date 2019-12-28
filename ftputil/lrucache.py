@@ -48,8 +48,8 @@ import time
 # The suffix after the hyphen denotes modifications by the
 # ftputil project with respect to the original version.
 __version__ = "0.2-15"
-__all__ = ['CacheKeyError', 'LRUCache', 'DEFAULT_SIZE']
-__docformat__ = 'reStructuredText en'
+__all__ = ["CacheKeyError", "LRUCache", "DEFAULT_SIZE"]
+__docformat__ = "reStructuredText en"
 
 # Default size of a new LRUCache object, if no 'size' argument is given.
 DEFAULT_SIZE = 16
@@ -62,6 +62,7 @@ class CacheKeyError(KeyError):
     this error is raised. To avoid it, you may want to check for the existence
     of a cache record before reading or deleting it.
     """
+
     pass
 
 
@@ -124,10 +125,12 @@ class LRUCache:
             return self._sort_key < other._sort_key
 
         def __repr__(self):
-            return "<%s %s => %s (%s)>" % \
-                   (self.__class__, self.key, self.obj, \
-                    time.asctime(time.localtime(self.atime)))
-
+            return "<%s %s => %s (%s)>" % (
+                self.__class__,
+                self.key,
+                self.obj,
+                time.asctime(time.localtime(self.atime)),
+            )
 
     def __init__(self, size=DEFAULT_SIZE):
         """Init the `LRUCache` object. `size` is the initial
@@ -248,7 +251,7 @@ class LRUCache:
         """
         object.__setattr__(self, name, value)
         # Automagically shrink heap on resize.
-        if name == 'size':
+        if name == "size":
             size = value
             if not isinstance(size, int):
                 raise TypeError("cache size (%r) must be an integer" % size)
@@ -293,7 +296,7 @@ if __name__ == "__main__":
     print(cache)
     cache.size = 10
     print(cache)
-    cache[46] = '46'
+    cache[46] = "46"
     print(cache)
     print(len(cache))
     for c in cache:

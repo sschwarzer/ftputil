@@ -33,6 +33,7 @@ __all__ = ["FTPHost"]
 #####################################################################
 # `FTPHost` class with several methods similar to those of `os`
 
+
 class FTPHost:
     """FTP host class."""
 
@@ -72,8 +73,9 @@ class FTPHost:
         self.stat_cache = self._stat._lstat_cache
         self.stat_cache.enable()
         with ftputil.error.ftplib_error_to_ftp_os_error:
-            self._cached_current_dir = \
-              self.path.normpath(ftputil.tool.as_unicode(self._session.pwd()))
+            self._cached_current_dir = self.path.normpath(
+                ftputil.tool.as_unicode(self._session.pwd())
+            )
         # Associated `FTPHost` objects for data transfer.
         self._children = []
         # This is only set to something else than `None` if this
@@ -183,8 +185,16 @@ class FTPHost:
         # Be explicit.
         return None
 
-    def open(self, path, mode="r", buffering=None, encoding=None, errors=None,
-             newline=None, rest=None):
+    def open(
+        self,
+        path,
+        mode="r",
+        buffering=None,
+        encoding=None,
+        errors=None,
+        newline=None,
+        rest=None,
+    ):
         """
         Return an open file(-like) object which is associated with
         this `FTPHost` object.
@@ -221,12 +231,19 @@ class FTPHost:
         except ftputil.error.PermanentError:
             # Similarly to a failed `file` in a local file system,
             # raise an `IOError`, not an `OSError`.
-            raise ftputil.error.FTPIOError("remote directory '{}' doesn't "
-                    "exist or has insufficient access rights".
-                    format(effective_dir))
-        host._file._open(effective_file, mode=mode, buffering=buffering,
-                         encoding=encoding, errors=errors, newline=newline,
-                         rest=rest)
+            raise ftputil.error.FTPIOError(
+                "remote directory '{}' doesn't "
+                "exist or has insufficient access rights".format(effective_dir)
+            )
+        host._file._open(
+            effective_file,
+            mode=mode,
+            buffering=buffering,
+            encoding=encoding,
+            errors=errors,
+            newline=newline,
+            rest=rest,
+        )
         if "w" in mode:
             # Invalidate cache entry because size and timestamps will change.
             self.stat_cache.invalidate(effective_path)
@@ -328,9 +345,9 @@ class FTPHost:
         absolute_time_shift = abs(time_shift)
         signum = time_shift / absolute_time_shift
         # Round absolute time shift to 15-minute units.
-        absolute_rounded_time_shift = (
-          int( (absolute_time_shift + (7.5*minute)) / (15.0*minute) ) *
-          (15.0*minute))
+        absolute_rounded_time_shift = int(
+            (absolute_time_shift + (7.5 * minute)) / (15.0 * minute)
+        ) * (15.0 * minute)
         # Return with correct sign.
         return signum * absolute_rounded_time_shift
 
@@ -342,22 +359,21 @@ class FTPHost:
         """
         minute = 60.0  # seconds
         hour = 60.0 * minute
-        absolute_rounded_time_shift = \
-          abs(self.__rounded_time_shift(time_shift))
+        absolute_rounded_time_shift = abs(self.__rounded_time_shift(time_shift))
         # Test 1: Fail if the absolute time shift is greater than
         #         a full day (24 hours).
         if absolute_rounded_time_shift > 24 * hour:
             raise ftputil.error.TimeShiftError(
-                  "time shift abs({0:.2f} s) > 1 day".format(time_shift))
+                "time shift abs({0:.2f} s) > 1 day".format(time_shift)
+            )
         # Test 2: Fail if the deviation between given time shift and
         #         15-minute units is greater than a certain limit.
         maximum_deviation = 5 * minute
-        if abs(time_shift - self.__rounded_time_shift(time_shift)) > \
-           maximum_deviation:
+        if abs(time_shift - self.__rounded_time_shift(time_shift)) > maximum_deviation:
             raise ftputil.error.TimeShiftError(
-                    "time shift ({0:.2f} s) deviates more than {1:d} s "
-                    "from 15-minute units".format(
-                      time_shift, int(maximum_deviation)))
+                "time shift ({0:.2f} s) deviates more than {1:d} s "
+                "from 15-minute units".format(time_shift, int(maximum_deviation))
+            )
 
     def synchronize_times(self):
         """
@@ -390,8 +406,8 @@ class FTPHost:
             file_.close()
         except ftputil.error.FTPIOError:
             raise ftputil.error.TimeShiftError(
-                    """couldn't write helper file in directory '{}'""".
-                    format(self.getcwd()))
+                """couldn't write helper file in directory '{}'""".format(self.getcwd())
+            )
         # If everything worked up to here it should be possible to stat
         # and then remove the just-written file.
         try:
@@ -405,7 +421,8 @@ class FTPHost:
             # removing the helper file or write permission from the
             # directory or helper file after it has been written to.
             raise ftputil.error.TimeShiftError(
-                    "could write helper file but not unlink it")
+                "could write helper file but not unlink it"
+            )
         # Calculate the difference between server and client.
         now = time.time()
         time_shift = server_time - now
@@ -419,8 +436,9 @@ class FTPHost:
             # a leap year), so go the route via `time.localtime` and
             # `time.mktime`.
             server_time_struct = time.localtime(server_time)
-            server_time_struct = (server_time_struct.tm_year+1,) + \
-                                 server_time_struct[1:]
+            server_time_struct = (server_time_struct.tm_year + 1,) + server_time_struct[
+                1:
+            ]
             server_time = time.mktime(server_time_struct)
             time_shift = server_time - now
         # Do some sanity checks.
@@ -436,15 +454,17 @@ class FTPHost:
     # positional argument but emits a deprecation warning if `length`
     # is used as a keyword argument.
     @staticmethod
-    def copyfileobj(source, target,
-                    max_chunk_size=ftputil.file_transfer.MAX_COPY_CHUNK_SIZE,
-                    callback=None):
+    def copyfileobj(
+        source,
+        target,
+        max_chunk_size=ftputil.file_transfer.MAX_COPY_CHUNK_SIZE,
+        callback=None,
+    ):
         """
         Copy data from file-like object `source` to file-like object
         `target`.
         """
-        ftputil.file_transfer.copyfileobj(source, target, max_chunk_size,
-                                          callback)
+        ftputil.file_transfer.copyfileobj(source, target, max_chunk_size, callback)
 
     def _upload_files(self, source_path, target_path):
         """
@@ -472,8 +492,9 @@ class FTPHost:
         """
         target = ftputil.tool.as_unicode(target)
         source_file, target_file = self._upload_files(source, target)
-        ftputil.file_transfer.copy_file(source_file, target_file,
-                                        conditional=False, callback=callback)
+        ftputil.file_transfer.copy_file(
+            source_file, target_file, conditional=False, callback=callback
+        )
 
     def upload_if_newer(self, source, target, callback=None):
         """
@@ -491,9 +512,9 @@ class FTPHost:
         """
         target = ftputil.tool.as_unicode(target)
         source_file, target_file = self._upload_files(source, target)
-        return ftputil.file_transfer.copy_file(source_file, target_file,
-                                               conditional=True,
-                                               callback=callback)
+        return ftputil.file_transfer.copy_file(
+            source_file, target_file, conditional=True, callback=callback
+        )
 
     def _download_files(self, source_path, target_path):
         """
@@ -520,8 +541,9 @@ class FTPHost:
         """
         source = ftputil.tool.as_unicode(source)
         source_file, target_file = self._download_files(source, target)
-        ftputil.file_transfer.copy_file(source_file, target_file,
-                                        conditional=False, callback=callback)
+        ftputil.file_transfer.copy_file(
+            source_file, target_file, conditional=False, callback=callback
+        )
 
     def download_if_newer(self, source, target, callback=None):
         """
@@ -540,9 +562,9 @@ class FTPHost:
         """
         source = ftputil.tool.as_unicode(source)
         source_file, target_file = self._download_files(source, target)
-        return ftputil.file_transfer.copy_file(source_file, target_file,
-                                               conditional=True,
-                                               callback=callback)
+        return ftputil.file_transfer.copy_file(
+            source_file, target_file, conditional=True, callback=callback
+        )
 
     #
     # Helper methods to descend into a directory before executing a command
@@ -560,8 +582,8 @@ class FTPHost:
             self.chdir(presumable_login_dir)
         except ftputil.error.PermanentError:
             raise ftputil.error.InaccessibleLoginDirError(
-                    "directory '{}' is not accessible".
-                    format(presumable_login_dir))
+                "directory '{}' is not accessible".format(presumable_login_dir)
+            )
 
     def _robust_ftp_command(self, command, path, descend_deeply=False):
         """
@@ -614,8 +636,9 @@ class FTPHost:
             self._session.cwd(path)
         # The path given as the argument is relative to the old current
         # directory, therefore join them.
-        self._cached_current_dir = \
-          self.path.normpath(self.path.join(self._cached_current_dir, path))
+        self._cached_current_dir = self.path.normpath(
+            self.path.join(self._cached_current_dir, path)
+        )
 
     # Ignore unused argument `mode`
     # pylint: disable=unused-argument
@@ -626,10 +649,12 @@ class FTPHost:
         `os.mkdir`.
         """
         path = ftputil.tool.as_unicode(path)
+
         def command(self, path):
             """Callback function."""
             with ftputil.error.ftplib_error_to_ftp_os_error:
                 self._session.mkd(path)
+
         self._robust_ftp_command(command, path)
 
     # TODO: The virtual directory support doesn't have unit tests yet
@@ -656,8 +681,7 @@ class FTPHost:
             for index in range(1, len(directories)):
                 # Re-insert the separator which got lost by using
                 # `path.split`.
-                next_directory = (self.sep +
-                                  self.path.join(*directories[:index+1]))
+                next_directory = self.sep + self.path.join(*directories[: index + 1])
                 # If we have "virtual directories" (see #86), just
                 # listing the parent directory won't tell us if a
                 # directory actually exists. So try to change into the
@@ -691,13 +715,13 @@ class FTPHost:
         path = ftputil.tool.as_unicode(path)
         path = self.path.abspath(path)
         if self.listdir(path):
-            raise ftputil.error.PermanentError("directory '{}' not empty".
-                                               format(path))
+            raise ftputil.error.PermanentError("directory '{}' not empty".format(path))
         # XXX: How does `rmd` work with links?
         def command(self, path):
             """Callback function."""
             with ftputil.error.ftplib_error_to_ftp_os_error:
                 self._session.rmd(path)
+
         self._robust_ftp_command(command, path)
         self.stat_cache.invalidate(path)
 
@@ -713,19 +737,23 @@ class FTPHost:
         path = self.path.abspath(path)
         # Though `isfile` includes also links to files, `islink`
         # is needed to include links to directories.
-        if self.path.isfile(path) or self.path.islink(path) or \
-           not self.path.exists(path):
+        if (
+            self.path.isfile(path)
+            or self.path.islink(path)
+            or not self.path.exists(path)
+        ):
             # If the path doesn't exist, let the removal command trigger
             # an exception with a more appropriate error message.
             def command(self, path):
                 """Callback function."""
                 with ftputil.error.ftplib_error_to_ftp_os_error:
                     self._session.delete(path)
+
             self._robust_ftp_command(command, path)
         else:
             raise ftputil.error.PermanentError(
-                    "remove/unlink can only delete files and links, "
-                    "not directories")
+                "remove/unlink can only delete files and links, " "not directories"
+            )
         self.stat_cache.invalidate(path)
 
     unlink = remove
@@ -757,15 +785,19 @@ class FTPHost:
         # The following code is an adapted version of Python 2.4's
         # `shutil.rmtree` function.
         if ignore_errors:
+
             def new_onerror(*args):
                 """Do nothing."""
                 # pylint: disable=unused-argument
                 pass
+
         elif onerror is None:
+
             def new_onerror(*args):
                 """Re-raise exception."""
                 # pylint: disable=misplaced-bare-raise, unused-argument
                 raise
+
         else:
             new_onerror = onerror
         names = []
@@ -831,17 +863,21 @@ class FTPHost:
         def _FTPHost_dir_command(self, path):
             """Callback function."""
             lines = []
+
             def callback(line):
                 """Callback function."""
                 lines.append(ftputil.tool.as_unicode(line))
+
             with ftputil.error.ftplib_error_to_ftp_os_error:
                 if self.use_list_a_option:
                     self._session.dir("-a", path, callback)
                 else:
                     self._session.dir(path, callback)
             return lines
-        lines = self._robust_ftp_command(_FTPHost_dir_command, path,
-                                         descend_deeply=True)
+
+        lines = self._robust_ftp_command(
+            _FTPHost_dir_command, path, descend_deeply=True
+        )
         return lines
 
     # The `listdir`, `lstat` and `stat` methods don't use
@@ -859,8 +895,7 @@ class FTPHost:
         original_path = path
         path = ftputil.tool.as_unicode(path)
         items = self._stat._listdir(path)
-        return [ftputil.tool.same_string_type_as(original_path, item)
-                for item in items]
+        return [ftputil.tool.same_string_type_as(original_path, item) for item in items]
 
     def lstat(self, path, _exception_for_missing_path=True):
         """
@@ -937,11 +972,12 @@ class FTPHost:
         """
         path = ftputil.tool.as_unicode(path)
         path = self.path.abspath(path)
+
         def command(self, path):
             """Callback function."""
             with ftputil.error.ftplib_error_to_ftp_os_error:
-                self._session.voidcmd("SITE CHMOD 0{0:o} {1}".
-                                      format(mode, path))
+                self._session.voidcmd("SITE CHMOD 0{0:o} {1}".format(mode, path))
+
         self._robust_ftp_command(command, path)
         self.stat_cache.invalidate(path)
 

@@ -17,8 +17,13 @@ __all__ = ["session_factory"]
 # `session_factory_factory`, but that's cumbersome to use. Think of
 # the function returning a session factory and the shorter name should
 # be fine.
-def session_factory(base_class=ftplib.FTP, port=21, use_passive_mode=None,
-                    encrypt_data_channel=True, debug_level=None):
+def session_factory(
+    base_class=ftplib.FTP,
+    port=21,
+    use_passive_mode=None,
+    encrypt_data_channel=True,
+    debug_level=None,
+):
     """
     Create and return a session factory according to the keyword
     arguments.
@@ -57,6 +62,7 @@ def session_factory(base_class=ftplib.FTP, port=21, use_passive_mode=None,
                            session_factory=my_session_factory) as host:
         ...
     """
+
     class Session(base_class):
         """Session factory class created by `session_factory`."""
 
