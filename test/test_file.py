@@ -151,6 +151,25 @@ class TestFileOperations:
                 data = fobj.read()
             assert data == TEXT_TEST_DATA
 
+    def test_mode_is_none(self):
+        """
+        If the mode is passed as `None`, a `TypeError` should be raised.
+
+        (This is Python's behavior for local files.)
+        """
+        host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
+        file_script = [
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("close"),
+        ]
+        multisession_factory = scripted_session.factory(host_script, file_script)
+        with test_base.ftp_host_factory(multisession_factory) as host:
+            with pytest.raises(TypeError):
+                with host.open("some_file", None) as fobj:
+                    pass
+
     def test_binary_read(self):
         """Read data from a binary file."""
         host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
