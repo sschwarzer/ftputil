@@ -133,6 +133,16 @@ class TestFileOperations:
             with pytest.raises(ftputil.error.FTPIOError):
                 host.open("/some_directory", "w")
 
+    # TODO: Improve tests.
+    #
+    # - Use the same test string in all text/binary read/write tests.
+    #
+    # - Test if "half umlauts" are split correctly in binary mode. For
+    #   example, a German "ä" is encoded as b"\xc3\xa4", hence reading
+    #   the first byte should give b"\xc3" and reading the second byte
+    #   should give b"\xa4". On the other hand, if reading one _character_
+    #   from a text file, we'd read the whole single character.
+
     def test_binary_read(self):
         """Read data from a binary file."""
         host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
@@ -180,8 +190,8 @@ class TestFileOperations:
                     output.write(data)
             write_mock.assert_called_with(data)
 
-    def test_ascii_read(self):
-        """Read ASCII text with plain `read`."""
+    def test_text_read(self):
+        """Read text with plain `read`."""
         host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
             Call("__init__"),
@@ -194,7 +204,9 @@ class TestFileOperations:
                 # Since the file is eventually opened as a text file
                 # (wrapped in a `TextIOWrapper`), line endings should
                 # be converted.
-                result=io.BytesIO(b"line 1\r\nanother line\nyet another line"),
+                result=io.BytesIO(
+                    "line 1\r\nänother line\nyet anöther line".encode("UTF-8")
+                ),
             ),
             Call("voidresp"),
             Call("close"),
@@ -213,11 +225,11 @@ class TestFileOperations:
                 data = input_.read(1)
                 assert data == "\n"
                 data = input_.read()
-                assert data == "another line\nyet another line"
+                assert data == "änother line\nyet anöther line"
                 data = input_.read()
                 assert data == ""
 
-    def test_ascii_write(self):
+    def test_text_write(self):
         """Write text with `write`."""
         host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
@@ -233,17 +245,15 @@ class TestFileOperations:
             Call("voidresp"),
             Call("close"),
         ]
-        input_data = " \nline 2\nline 3"
+        input_data = " äöü\nline 2\nline 3"
         multisession_factory = scripted_session.factory(host_script, file_script)
         with unittest.mock.patch("test.test_base.MockableBytesIO.write") as write_mock:
             with test_base.ftp_host_factory(multisession_factory) as host:
                 with host.open("dummy", "w", newline="\r\n") as output:
                     output.write(input_data)
-        write_mock.assert_called_with(b" \r\nline 2\r\nline 3")
+        write_mock.assert_called_with(" äöü\r\nline 2\r\nline 3".encode("UTF-8"))
 
-    # TODO: Add tests with given encoding and possibly buffering.
-
-    def test_ascii_writelines(self):
+    def test_text_writelines(self):
         """Write ASCII text with `writelines`."""
         host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
@@ -259,14 +269,14 @@ class TestFileOperations:
             Call("voidresp"),
             Call("close"),
         ]
-        data = [" \n", "line 2\n", "line 3"]
+        data = [" äöü\n", "line 2\n", "line 3"]
         backup_data = data[:]
         multisession_factory = scripted_session.factory(host_script, file_script)
         with unittest.mock.patch("test.test_base.MockableBytesIO.write") as write_mock:
             with test_base.ftp_host_factory(multisession_factory) as host:
                 with host.open("dummy", "w", newline="\r\n") as output:
                     output.writelines(data)
-        write_mock.assert_called_with(b" \r\nline 2\r\nline 3")
+        write_mock.assert_called_with(" äöü\r\nline 2\r\nline 3".encode("UTF-8"))
         # Ensure that the original data was not modified.
         assert data == backup_data
 
@@ -281,7 +291,7 @@ class TestFileOperations:
             Call(
                 "transfercmd",
                 args=("RETR dummy", None),
-                result=io.BytesIO(b"line 1\r\nanother line\r\nyet another line"),
+                result=io.BytesIO(b"line 1\nanother line\r\nyet another line\nanother"),
             ),
             Call("voidresp"),
             Call("close"),
@@ -291,19 +301,21 @@ class TestFileOperations:
             with host.open("dummy", "rb") as input_:
                 data = input_.readline(3)
                 assert data == b"lin"
-                data = input_.readline(10)
-                assert data == b"e 1\r\n"
+                data = input_.readline(9)
+                assert data == b"e 1\n"
                 data = input_.readline(13)
                 assert data == b"another line\r"
                 data = input_.readline()
                 assert data == b"\n"
                 data = input_.readline()
-                assert data == b"yet another line"
+                assert data == b"yet another line\n"
+                data = input_.readline()
+                assert data == b"another"
                 data = input_.readline()
                 assert data == b""
 
-    def test_ascii_readline(self):
-        """Read ASCII text with `readline`."""
+    def test_text_readline(self):
+        """Read text with `readline`."""
         host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
             Call("__init__"),
@@ -313,7 +325,9 @@ class TestFileOperations:
             Call(
                 "transfercmd",
                 args=("RETR dummy", None),
-                result=io.BytesIO(b"line 1\r\nanother line\r\nyet another line"),
+                result=io.BytesIO(
+                    "line 1\r\nänother line\r\nyet anöther line".encode("UTF-8")
+                ),
             ),
             Call("voidresp"),
             Call("close"),
@@ -326,14 +340,14 @@ class TestFileOperations:
                 data = input_.readline(10)
                 assert data == "e 1\n"
                 data = input_.readline(13)
-                assert data == "another line\n"
+                assert data == "änother line\n"
                 data = input_.readline()
-                assert data == "yet another line"
+                assert data == "yet anöther line"
                 data = input_.readline()
                 assert data == ""
 
-    def test_ascii_readlines(self):
-        """Read ASCII text with `readlines`."""
+    def test_text_readlines(self):
+        """Read text with `readlines`."""
         host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
             Call("__init__"),
@@ -343,7 +357,7 @@ class TestFileOperations:
             Call(
                 "transfercmd",
                 args=("RETR dummy", None),
-                result=io.BytesIO(b"line 1\r\nanother line\r\nyet another line"),
+                result=io.BytesIO("line 1\r\nänother line\r\nyet anöther line".encode("UTF-8")),
             ),
             Call("voidresp"),
             Call("close"),
@@ -354,13 +368,12 @@ class TestFileOperations:
                 data = input_.read(3)
                 assert data == "lin"
                 data = input_.readlines()
-                assert data == ["e 1\n", "another line\n", "yet another line"]
+                assert data == ["e 1\n", "änother line\n", "yet anöther line"]
                 input_.close()
 
     def test_binary_iterator(self):
         """
-        Test the iterator interface of `FTPFile` objects (without
-        newline conversion.
+        Test iterator interface of `FTPFile` objects for binary files.
         """
         host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
@@ -386,10 +399,9 @@ class TestFileOperations:
                 with pytest.raises(StopIteration):
                     input_iterator.__next__()
 
-    def test_ascii_iterator(self):
+    def test_text_iterator(self):
         """
-        Test the iterator interface of `FTPFile` objects (with newline
-        conversion).
+        Test iterator interface of `FTPFile` objects for text files.
         """
         host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
