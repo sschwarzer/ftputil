@@ -183,10 +183,7 @@ class TestFileOperations:
             Call(
                 "transfercmd",
                 args=("RETR dummy", None),
-                # Since the file is eventually opened as a text file
-                # (wrapped in a `TextIOWrapper`), line endings should
-                # be converted.
-                result=io.BytesIO(BINARY_TEST_DATA),
+                result=io.StringIO(TEXT_TEST_DATA),
             ),
             Call("voidresp"),
             Call("close"),
@@ -202,6 +199,9 @@ class TestFileOperations:
                 # character.
                 data = input_.read(7)
                 assert data == "me line"
+                data = input_.read(1)
+                # At least on Posix, text mode doesn't convert `\r\n` to `\n`.
+                assert data == "\r"
                 data = input_.read(1)
                 assert data == "\n"
                 data = input_.read()
@@ -220,22 +220,17 @@ class TestFileOperations:
             Call(
                 "transfercmd",
                 args=("STOR dummy", None),
-                result=test_base.MockableBytesIO(),
+                result=test_base.MockableStringIO(),
             ),
             Call("voidresp"),
             Call("close"),
         ]
         multisession_factory = scripted_session.factory(host_script, file_script)
-        with unittest.mock.patch("test.test_base.MockableBytesIO.write") as write_mock:
+        with unittest.mock.patch("test.test_base.MockableStringIO.write") as write_mock:
             with test_base.ftp_host_factory(multisession_factory) as host:
                 with host.open("dummy", "w", newline="\r\n") as output:
                     output.write(TEXT_TEST_DATA)
-        # At the end of the first line, the first `\r` is left over from the
-        # original string. The second `\r` comes from converting the original
-        # `\n` to `\r\n`.
-        write_mock.assert_called_with(
-            b" s\xc3\xb6me line\r\r\n\xc3\xa4nother line\r\n almost done\r\n"
-        )
+        write_mock.assert_called_with(TEXT_TEST_DATA)
 
     def test_text_writelines(self):
         """Write text with `writelines`."""
@@ -248,7 +243,7 @@ class TestFileOperations:
             Call(
                 "transfercmd",
                 args=("STOR dummy", None),
-                result=test_base.MockableBytesIO(),
+                result=test_base.MockableStringIO(),
             ),
             Call("voidresp"),
             Call("close"),
@@ -257,16 +252,13 @@ class TestFileOperations:
         print("=== data:", data)
         backup_data = data[:]
         multisession_factory = scripted_session.factory(host_script, file_script)
-        with unittest.mock.patch("test.test_base.MockableBytesIO.write") as write_mock:
+        with unittest.mock.patch(
+            "test.test_base.MockableStringIO.writelines"
+        ) as write_mock:
             with test_base.ftp_host_factory(multisession_factory) as host:
                 with host.open("dummy", "w", newline="\r\n") as output:
                     output.writelines(data)
-        # At the end of the first line, the first `\r` is left over from the
-        # original lines. The second `\r` comes from converting the original
-        # `\n` to `\r\n`.
-        write_mock.assert_called_with(
-            b" s\xc3\xb6me line\r\r\n\xc3\xa4nother line\r\n almost done\r\n"
-        )
+        write_mock.assert_called_with(data)
         # Ensure that the original data was not modified.
         assert data == backup_data
 
@@ -314,7 +306,7 @@ class TestFileOperations:
             Call(
                 "transfercmd",
                 args=("RETR dummy", None),
-                result=io.BytesIO(BINARY_TEST_DATA),
+                result=io.StringIO(TEXT_TEST_DATA),
             ),
             Call("voidresp"),
             Call("close"),
@@ -327,7 +319,7 @@ class TestFileOperations:
                 data = input_.readline(7)
                 assert data == "me line"
                 data = input_.readline(10)
-                assert data == "\n"
+                assert data == "\r\n"
                 # 30 = at most 30 bytes
                 data = input_.readline(30)
                 assert data == "änother line\n"
@@ -347,7 +339,7 @@ class TestFileOperations:
             Call(
                 "transfercmd",
                 args=("RETR dummy", None),
-                result=io.BytesIO(BINARY_TEST_DATA),
+                result=io.StringIO(TEXT_TEST_DATA),
             ),
             Call("voidresp"),
             Call("close"),
@@ -358,7 +350,7 @@ class TestFileOperations:
                 data = input_.read(3)
                 assert data == " sö"
                 data = input_.readlines()
-                assert data == ["me line\n", "änother line\n", " almost done\n"]
+                assert data == ["me line\r\n", "änother line\n", " almost done\n"]
                 input_.close()
 
     def test_binary_iterator(self):
@@ -403,7 +395,7 @@ class TestFileOperations:
             Call(
                 "transfercmd",
                 args=("RETR dummy", None),
-                result=io.BytesIO(BINARY_TEST_DATA),
+                result=io.StringIO(TEXT_TEST_DATA),
             ),
             Call("voidresp"),
             Call("close"),
@@ -412,7 +404,7 @@ class TestFileOperations:
         with test_base.ftp_host_factory(multisession_factory) as host:
             with host.open("dummy", "r") as input_:
                 input_iterator = iter(input_)
-                assert next(input_iterator) == " söme line\n"
+                assert next(input_iterator) == " söme line\r\n"
                 assert next(input_iterator) == "änother line\n"
                 assert next(input_iterator) == " almost done\n"
                 with pytest.raises(StopIteration):
