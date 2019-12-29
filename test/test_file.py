@@ -226,7 +226,10 @@ class TestFileOperations:
             Call(
                 "transfercmd",
                 args=("RETR dummy", None),
-                result=io.StringIO(TEXT_TEST_DATA),
+                # Use the same `newline` as `host.open` call. The default for
+                # `StringIO`'s `newline` differs from the default for `open`
+                # and `socket.makefile`.
+                result=io.StringIO(TEXT_TEST_DATA, newline=None),
             ),
             Call("voidresp"),
             Call("close"),
@@ -242,9 +245,6 @@ class TestFileOperations:
                 # character.
                 data = input_.read(7)
                 assert data == "me line"
-                data = input_.read(1)
-                # At least on Posix, text mode doesn't convert `\r\n` to `\n`.
-                assert data == "\r"
                 data = input_.read(1)
                 assert data == "\n"
                 data = input_.read()
@@ -263,7 +263,10 @@ class TestFileOperations:
             Call(
                 "transfercmd",
                 args=("STOR dummy", None),
-                result=test_base.MockableStringIO(),
+                # Use the same `newline` as `host.open` call. The default for
+                # `StringIO`'s `newline` differs from the default for `open`
+                # and `socket.makefile`.
+                result=test_base.MockableStringIO(newline="\r\n"),
             ),
             Call("voidresp"),
             Call("close"),
@@ -286,7 +289,10 @@ class TestFileOperations:
             Call(
                 "transfercmd",
                 args=("STOR dummy", None),
-                result=test_base.MockableStringIO(),
+                # Use the same `newline` as `host.open` call. The default for
+                # `StringIO`'s `newline` differs from the default for `open`
+                # and `socket.makefile`.
+                result=test_base.MockableStringIO(newline="\r\n"),
             ),
             Call("voidresp"),
             Call("close"),
@@ -349,7 +355,10 @@ class TestFileOperations:
             Call(
                 "transfercmd",
                 args=("RETR dummy", None),
-                result=io.StringIO(TEXT_TEST_DATA),
+                # Use the same `newline` as `host.open` call. The default for
+                # `StringIO`'s `newline` differs from the default for `open`
+                # and `socket.makefile`.
+                result=io.StringIO(TEXT_TEST_DATA, newline=None),
             ),
             Call("voidresp"),
             Call("close"),
@@ -362,7 +371,8 @@ class TestFileOperations:
                 data = input_.readline(7)
                 assert data == "me line"
                 data = input_.readline(10)
-                assert data == "\r\n"
+                # Does implicit newline conversion.
+                assert data == "\n"
                 # 30 = at most 30 bytes
                 data = input_.readline(30)
                 assert data == "änother line\n"
@@ -382,7 +392,10 @@ class TestFileOperations:
             Call(
                 "transfercmd",
                 args=("RETR dummy", None),
-                result=io.StringIO(TEXT_TEST_DATA),
+                # Use the same `newline` as `host.open` call. The default for
+                # `StringIO`'s `newline` differs from the default for `open`
+                # and `socket.makefile`.
+                result=io.StringIO(TEXT_TEST_DATA, newline=None),
             ),
             Call("voidresp"),
             Call("close"),
@@ -393,7 +406,7 @@ class TestFileOperations:
                 data = input_.read(3)
                 assert data == " sö"
                 data = input_.readlines()
-                assert data == ["me line\r\n", "änother line\n", " almost done\n"]
+                assert data == ["me line\n", "änother line\n", " almost done\n"]
                 input_.close()
 
     def test_binary_iterator(self):
@@ -438,7 +451,10 @@ class TestFileOperations:
             Call(
                 "transfercmd",
                 args=("RETR dummy", None),
-                result=io.StringIO(TEXT_TEST_DATA),
+                # Use the same `newline` as `host.open` call. The default for
+                # `StringIO`'s `newline` differs from the default for `open`
+                # and `socket.makefile`.
+                result=io.StringIO(TEXT_TEST_DATA, newline=None),
             ),
             Call("voidresp"),
             Call("close"),
@@ -447,7 +463,7 @@ class TestFileOperations:
         with test_base.ftp_host_factory(multisession_factory) as host:
             with host.open("dummy", "r") as input_:
                 input_iterator = iter(input_)
-                assert next(input_iterator) == " söme line\r\n"
+                assert next(input_iterator) == " söme line\n"
                 assert next(input_iterator) == "änother line\n"
                 assert next(input_iterator) == " almost done\n"
                 with pytest.raises(StopIteration):
