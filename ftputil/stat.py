@@ -608,7 +608,7 @@ class _Stat:
             if stat_result._st_name in [self._host.curdir, self._host.pardir]:
                 continue
             loop_path = self._path.join(path, stat_result._st_name)
-            self._lstat_cache[loop_path] = stat_result
+            cache[loop_path] = stat_result
             yield stat_result
 
     # The methods `listdir`, `lstat` and `stat` come in two variants.
