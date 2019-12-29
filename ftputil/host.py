@@ -954,8 +954,7 @@ class FTPHost:
         for name in dirs:
             path = self.path.join(top, name)
             if followlinks or not self.path.islink(path):
-                for item in self.walk(path, topdown, onerror, followlinks):
-                    yield item
+                yield from self.walk(path, topdown, onerror, followlinks)
         if not topdown:
             yield top, dirs, nondirs
 
