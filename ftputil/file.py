@@ -52,10 +52,8 @@ class FTPFile:
         instead this file object is modified in-place.
         """
         # We use the same arguments as in `open`.
-        # pylint: disable=too-many-arguments
-        #
-        # `buffering` argument isn't used at this time.
         # pylint: disable=unused-argument
+        # pylint: disable=too-many-arguments
         #
         # Check mode.
         if "a" in mode:
@@ -73,7 +71,8 @@ class FTPFile:
             raise ftputil.error.CommandNotImplementedError(
                 "`rest` argument can't be used for text files"
             )
-        # Always use binary mode (see comments above).
+        # Always use binary mode and leave any conversions to Python,
+        # controlled by the arguments to `makefile` below.
         transfer_type = "I"
         command = "TYPE {}".format(transfer_type)
         with ftputil.error.ftplib_error_to_ftp_io_error:
@@ -81,26 +80,12 @@ class FTPFile:
         # Make transfer command.
         command_type = "RETR" if is_read_mode else "STOR"
         command = "{} {}".format(command_type, path)
-        # Force to binary regardless of transfer type (see above).
-        makefile_mode = mode
-        makefile_mode = makefile_mode.replace("t", "")
-        if not "b" in makefile_mode:
-            makefile_mode += "b"
         # Get connection and file object.
         with ftputil.error.ftplib_error_to_ftp_io_error:
             self._conn = self._session.transfercmd(command, rest)
-        # The file object. Under Python 3, this will already be a
-        # `BufferedReader` or `BufferedWriter` object.
-        fobj = self._conn.makefile(makefile_mode)
-        # XXX: I think this is only a leftover from the times of
-        # Python 2 support. It would be more elegant to create text
-        # file objects directly since Python 3's `socket.makefile`
-        # supports a `mode` argument.
-        if not is_binary_mode:
-            fobj = io.TextIOWrapper(
-                fobj, encoding=encoding, errors=errors, newline=newline
-            )
-        self._fobj = fobj
+        self._fobj = self._conn.makefile(
+            mode, buffering=buffering, encoding=encoding, errors=errors, newline=newline
+        )
         # This comes last so that `close` won't try to close `FTPFile`
         # objects without `_conn` and `_fobj` attributes in case of an
         # error.

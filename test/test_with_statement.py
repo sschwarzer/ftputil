@@ -96,7 +96,7 @@ class TestFileContextManager:
             Call(method_name="voidcmd", result=None, args=("TYPE I",)),
             Call(
                 method_name="transfercmd",
-                result=io.BytesIO(b"line 1\nline 2"),
+                result=io.StringIO("line 1\nline 2"),
                 args=("RETR dummy", None),
             ),
             Call(method_name="voidresp", result=None),
