@@ -1,5 +1,9 @@
 Planned:
 
+- Support `PathLike` API
+  - Change `tool.as_unicode` to `tool.as_str` and accept `PathLike`
+    objects
+  - Add class `ftputil.pathlib.FTPPath` (inherit from `os.PathLike`)
 - Possibly introduce keyword-only arguments (ticket 130)
 - Improve caching (ticket 129)
 - Improve sync code.
