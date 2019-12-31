@@ -74,7 +74,7 @@ class FTPHost:
         self.stat_cache.enable()
         with ftputil.error.ftplib_error_to_ftp_os_error:
             self._cached_current_dir = self.path.normpath(
-                ftputil.tool.as_unicode(self._session.pwd())
+                ftputil.tool.as_str(self._session.pwd())
             )
         # Associated `FTPHost` objects for data transfer.
         self._children = []
@@ -211,7 +211,7 @@ class FTPHost:
         """
         # Support the same arguments as `open`.
         # pylint: disable=too-many-arguments
-        path = ftputil.tool.as_unicode(path)
+        path = ftputil.tool.as_str(path)
         host = self._available_child()
         if host is None:
             host = self._copy()
@@ -490,7 +490,7 @@ class FTPHost:
         single argument, the data chunk that was transferred before
         the callback was called.
         """
-        target = ftputil.tool.as_unicode(target)
+        target = ftputil.tool.as_str(target)
         source_file, target_file = self._upload_files(source, target)
         ftputil.file_transfer.copy_file(
             source_file, target_file, conditional=False, callback=callback
@@ -510,7 +510,7 @@ class FTPHost:
         single argument, the data chunk that was transferred before
         the callback was called.
         """
-        target = ftputil.tool.as_unicode(target)
+        target = ftputil.tool.as_str(target)
         source_file, target_file = self._upload_files(source, target)
         return ftputil.file_transfer.copy_file(
             source_file, target_file, conditional=True, callback=callback
@@ -539,7 +539,7 @@ class FTPHost:
         single argument, the data chunk that was transferred before
         the callback was called.
         """
-        source = ftputil.tool.as_unicode(source)
+        source = ftputil.tool.as_str(source)
         source_file, target_file = self._download_files(source, target)
         ftputil.file_transfer.copy_file(
             source_file, target_file, conditional=False, callback=callback
@@ -560,7 +560,7 @@ class FTPHost:
         single argument, the data chunk that was transferred before
         the callback was called.
         """
-        source = ftputil.tool.as_unicode(source)
+        source = ftputil.tool.as_str(source)
         source_file, target_file = self._download_files(source, target)
         return ftputil.file_transfer.copy_file(
             source_file, target_file, conditional=True, callback=callback
@@ -631,7 +631,7 @@ class FTPHost:
 
     def chdir(self, path):
         """Change the directory on the host."""
-        path = ftputil.tool.as_unicode(path)
+        path = ftputil.tool.as_str(path)
         with ftputil.error.ftplib_error_to_ftp_os_error:
             self._session.cwd(path)
         # The path given as the argument is relative to the old current
@@ -648,7 +648,7 @@ class FTPHost:
         `mode` is ignored and only "supported" for similarity with
         `os.mkdir`.
         """
-        path = ftputil.tool.as_unicode(path)
+        path = ftputil.tool.as_str(path)
 
         def command(self, path):
             """Callback function."""
@@ -671,7 +671,7 @@ class FTPHost:
         `mode` is only accepted for compatibility with `os.makedirs`
         but otherwise ignored.
         """
-        path = ftputil.tool.as_unicode(path)
+        path = ftputil.tool.as_str(path)
         path = self.path.abspath(path)
         directories = path.split(self.sep)
         old_dir = self.getcwd()
@@ -712,7 +712,7 @@ class FTPHost:
         empty directories as well, - if the server allowed it. This
         is no longer supported.
         """
-        path = ftputil.tool.as_unicode(path)
+        path = ftputil.tool.as_str(path)
         path = self.path.abspath(path)
         if self.listdir(path):
             raise ftputil.error.PermanentError("directory '{}' not empty".format(path))
@@ -733,7 +733,7 @@ class FTPHost:
         raise other exceptions depending on the state of the server
         (e. g. timeout).
         """
-        path = ftputil.tool.as_unicode(path)
+        path = ftputil.tool.as_str(path)
         path = self.path.abspath(path)
         # Though `isfile` includes also links to files, `islink`
         # is needed to include links to directories.
@@ -781,7 +781,7 @@ class FTPHost:
         Implementation note: The code is copied from `shutil.rmtree`
         in Python 2.4 and adapted to ftputil.
         """
-        path = ftputil.tool.as_unicode(path)
+        path = ftputil.tool.as_str(path)
         # The following code is an adapted version of Python 2.4's
         # `shutil.rmtree` function.
         if ignore_errors:
@@ -825,8 +825,8 @@ class FTPHost:
 
     def rename(self, source, target):
         """Rename the source on the FTP host to target."""
-        source = ftputil.tool.as_unicode(source)
-        target = ftputil.tool.as_unicode(target)
+        source = ftputil.tool.as_str(source)
+        target = ftputil.tool.as_str(target)
         # The following code is in spirit similar to the code in the
         # method `_robust_ftp_command`, though we do _not_ do
         # _everything_ imaginable.
@@ -866,7 +866,7 @@ class FTPHost:
 
             def callback(line):
                 """Callback function."""
-                lines.append(ftputil.tool.as_unicode(line))
+                lines.append(ftputil.tool.as_str(line))
 
             with ftputil.error.ftplib_error_to_ftp_os_error:
                 if self.use_list_a_option:
@@ -893,7 +893,7 @@ class FTPHost:
         any of the available parsers raise a `ParserError`.
         """
         original_path = path
-        path = ftputil.tool.as_unicode(path)
+        path = ftputil.tool.as_str(path)
         items = self._stat._listdir(path)
         return [ftputil.tool.same_string_type_as(original_path, item) for item in items]
 
@@ -909,7 +909,7 @@ class FTPHost:
         (`_exception_for_missing_path` is an implementation aid and
         _not_ intended for use by ftputil clients.)
         """
-        path = ftputil.tool.as_unicode(path)
+        path = ftputil.tool.as_str(path)
         return self._stat._lstat(path, _exception_for_missing_path)
 
     def stat(self, path, _exception_for_missing_path=True):
@@ -925,7 +925,7 @@ class FTPHost:
         (`_exception_for_missing_path` is an implementation aid and
         _not_ intended for use by ftputil clients.)
         """
-        path = ftputil.tool.as_unicode(path)
+        path = ftputil.tool.as_str(path)
         return self._stat._stat(path, _exception_for_missing_path)
 
     def walk(self, top, topdown=True, onerror=None, followlinks=False):
@@ -934,7 +934,7 @@ class FTPHost:
         dirnames, filenames) on each iteration, like the `os.walk`
         function (see https://docs.python.org/library/os.html#os.walk ).
         """
-        top = ftputil.tool.as_unicode(top)
+        top = ftputil.tool.as_str(top)
         # The following code is copied from `os.walk` in Python 2.4
         # and adapted to ftputil.
         try:
@@ -969,7 +969,7 @@ class FTPHost:
         the server. In particular, a non-existent path usually
         causes a `PermanentError`.
         """
-        path = ftputil.tool.as_unicode(path)
+        path = ftputil.tool.as_str(path)
         path = self.path.abspath(path)
 
         def command(self, path):

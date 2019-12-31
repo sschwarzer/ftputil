@@ -42,12 +42,12 @@ class FTPError(Exception):
         if "original_exception" in kwargs:
             # Byte string under Python 2.
             exception_string = str(kwargs.pop("original_exception"))
-            self.strerror = ftputil.tool.as_unicode(exception_string)
+            self.strerror = ftputil.tool.as_str(exception_string)
         elif args:
             # If there was no `original_exception` argument, assume
             # the first argument is a string. It may be a byte string
             # though.
-            self.strerror = ftputil.tool.as_unicode(args[0])
+            self.strerror = ftputil.tool.as_str(args[0])
         else:
             self.strerror = ""
         try:
@@ -163,7 +163,7 @@ class FtplibErrorToFTPOSError:
         elif isinstance(exc_value, ftplib.error_perm):
             # If `exc_value.args[0]` is present, assume it's a byte or
             # unicode string.
-            if exc_value.args and ftputil.tool.as_unicode(exc_value.args[0]).startswith(
+            if exc_value.args and ftputil.tool.as_str(exc_value.args[0]).startswith(
                 "502"
             ):
                 raise CommandNotImplementedError(*exc_value.args)
