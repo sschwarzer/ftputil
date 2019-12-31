@@ -1,3 +1,72 @@
+ftputil 4.0.0-beta is now available from
+http://ftputil.sschwarzer.net/download .
+
+Changes since the last stable release 3.4
+-----------------------------------------
+
+Backward-incompatible changes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This ftputil version isn't fully backward-compatible with the previous
+version. The backward-incompatible changes are:
+
+- Python 2 is no longer supported.
+
+- The minimal supported Python 3 version is 3.6.
+
+- The flag `use_list_a_option` of `FTPHost` instances will be set to
+  `False` by default. This option was intended to make life easier for
+  users, but turned out to be problematic [1].
+
+If you need to use Python versions lower than 3.6, please use the
+previous stable ftputil version 3.4.
+
+
+Other changes
+~~~~~~~~~~~~~
+
+- Functions and methods which used to accept only `str` or `bytes`
+  paths now _also_ accept `PathLike` objects [2, 3].
+
+- ftputil now officially follows semantic versioning (SemVer) [4].
+  Actually ftputil has been following semantic versioning since a long
+  time (probably since version 2.0 in 2004), but it was never
+  explicitly guaranteed and new major versions were named x.0 instead
+  of x.0.0.
+
+
+What is ftputil?
+----------------
+
+ftputil is a high-level FTP client library for the Python programming
+language. ftputil implements a virtual file system for accessing FTP
+servers, that is, it can generate file-like objects for remote files.
+The library supports many functions similar to those in the `os`,
+`os.path` and `shutil` modules. ftputil has convenience functions for
+conditional uploads and downloads, and handles FTP clients and servers
+in different timezones.
+
+See the documentation for details:
+http://ftputil.sschwarzer.net/trac/wiki/Documentation
+
+
+License
+-------
+
+ftputil is open source software, released under the 3-clause BSD
+license (see https://opensource.org/licenses/BSD-3-Clause ).
+
+
+[1] https://ftputil.sschwarzer.net/trac/ticket/110
+[2] https://docs.python.org/3/library/os.html#os.PathLike
+[3] https://ftputil.sschwarzer.net/trac/ticket/119
+[4] https://semver.org/
+
+
+Best regards,
+Stefan
+
+----------------------------------------------------------------------
 ftputil 3.4 is now available from
 http://ftputil.sschwarzer.net/download .
 
