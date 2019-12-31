@@ -36,9 +36,9 @@ class TestSimpleConversions:
         assert result == b"abc"
 
     def test_as_unicode(self):
-        result = ftputil.tool.as_unicode(b"abc")
+        result = ftputil.tool.as_str(b"abc")
         assert result == "abc"
-        result = ftputil.tool.as_unicode("abc")
+        result = ftputil.tool.as_str("abc")
         assert result == "abc"
 
 

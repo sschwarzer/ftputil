@@ -6,7 +6,7 @@
 tool.py - helper code
 """
 
-__all__ = ["same_string_type_as", "as_bytes", "as_unicode", "as_default_string"]
+__all__ = ["same_string_type_as", "as_bytes", "as_str", "as_default_string"]
 
 
 # Encoding to convert between byte string and unicode string. This is
@@ -44,10 +44,10 @@ def as_bytes(string):
     return same_string_type_as(b"", string)
 
 
-def as_unicode(string):
+def as_str(string):
     """
     Return the argument `string` converted to a unicode string if it's
-    a byte string. Otherwise just return the string.
+    a `bytes` object. Otherwise just return the string.
     """
     return same_string_type_as("", string)
 
