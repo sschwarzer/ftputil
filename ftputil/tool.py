@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2018, Stefan Schwarzer
+# Copyright (C) 2013-2019, Stefan Schwarzer
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -50,14 +50,3 @@ def as_str(string):
     a `bytes` object. Otherwise just return the string.
     """
     return same_string_type_as("", string)
-
-
-def encode_if_unicode(string, encoding):
-    """
-    Return the string `string`, encoded with `encoding` if `string` is
-    a unicode string. Otherwise return `string` unchanged.
-    """
-    if isinstance(string, str):
-        return string.encode(encoding)
-    else:
-        return string
