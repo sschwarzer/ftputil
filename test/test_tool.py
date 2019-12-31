@@ -40,15 +40,3 @@ class TestSimpleConversions:
         assert result == "abc"
         result = ftputil.tool.as_str("abc")
         assert result == "abc"
-
-
-class TestEncodeIfUnicode:
-    def test_do_encode(self):
-        string = "abc"
-        converted_string = ftputil.tool.encode_if_unicode(string, "latin1")
-        assert converted_string == b"abc"
-
-    def test_dont_encode(self):
-        string = b"abc"
-        not_converted_string = ftputil.tool.encode_if_unicode(string, "latin1")
-        assert string == not_converted_string
