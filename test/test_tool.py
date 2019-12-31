@@ -6,11 +6,6 @@ import ftputil.tool
 
 
 class TestSameStringTypeAs:
-
-    # The first check for equality is enough for Python 3, where
-    # comparing a byte string and unicode string would raise an
-    # exception. However, we need the second test for Python 2.
-
     def test_to_bytes(self):
         result = ftputil.tool.same_string_type_as(b"abc", "def")
         assert result == b"def"
