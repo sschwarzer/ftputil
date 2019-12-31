@@ -6,7 +6,7 @@
 tool.py - helper code
 """
 
-__all__ = ["same_string_type_as", "as_bytes", "as_str", "as_default_string"]
+__all__ = ["same_string_type_as", "as_bytes", "as_str"]
 
 
 # Encoding to convert between byte string and unicode string. This is
@@ -48,15 +48,6 @@ def as_str(string):
     """
     Return the argument `string` converted to a unicode string if it's
     a `bytes` object. Otherwise just return the string.
-    """
-    return same_string_type_as("", string)
-
-
-def as_default_string(string):
-    """
-    Return the argument `string` converted to a the default string
-    type for the Python version. For unicode strings,
-    `LOSSLESS_ENCODING` is used for encoding or decoding.
     """
     return same_string_type_as("", string)
 
