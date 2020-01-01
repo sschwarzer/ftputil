@@ -376,10 +376,15 @@ class TestPath:
                 host.path.exists("some_file")
 
 
-class TestAcceptEitherBytesOrUnicode:
+class TestAcceptEitherBytesOrStr:
+
+    # Use path arguments directly
+    path_converter = staticmethod(lambda path: path)
+
     def _test_method_string_types(self, method, path):
         expected_type = type(path)
-        assert isinstance(method(path), expected_type)
+        path_converter = self.path_converter
+        assert isinstance(method(path_converter(path)), expected_type)
 
     def test_methods_that_take_and_return_one_string(self):
         """
@@ -405,6 +410,7 @@ class TestAcceptEitherBytesOrUnicode:
     def test_methods_that_take_a_string_and_return_a_bool(self):
         """Test whether the methods accept byte and unicode strings."""
         as_bytes = ftputil.tool.as_bytes
+        path_converter = self.path_converter
         script = [
             Call("__init__"),
             Call("pwd", result="/"),
@@ -504,17 +510,17 @@ class TestAcceptEitherBytesOrUnicode:
             host.stat_cache.disable()
             # `isabs`
             assert not host.path.isabs("ä")
-            assert not host.path.isabs(as_bytes("ä"))
+            assert not host.path.isabs(path_converter(as_bytes("ä")))
             # `exists`
-            assert host.path.exists("ä")
-            assert host.path.exists(as_bytes("ä"))
+            assert host.path.exists(path_converter("ä"))
+            assert host.path.exists(path_converter(as_bytes("ä")))
             # `isdir`, `isfile`, `islink`
-            assert host.path.isdir("ä")
-            assert host.path.isdir(as_bytes("ä"))
-            assert host.path.isfile("ö")
-            assert host.path.isfile(as_bytes("ö"))
-            assert host.path.islink("ü")
-            assert host.path.islink(as_bytes("ü"))
+            assert host.path.isdir(path_converter("ä"))
+            assert host.path.isdir(path_converter(as_bytes("ä")))
+            assert host.path.isfile(path_converter("ö"))
+            assert host.path.isfile(path_converter(as_bytes("ö")))
+            assert host.path.islink(path_converter("ü"))
+            assert host.path.islink(path_converter(as_bytes("ü")))
 
     def test_getmtime(self):
         """
@@ -522,6 +528,7 @@ class TestAcceptEitherBytesOrUnicode:
         paths.
         """
         as_bytes = ftputil.tool.as_bytes
+        path_converter = self.path_converter
         now = datetime.datetime.now()
         script = [
             Call("__init__"),
@@ -538,23 +545,24 @@ class TestAcceptEitherBytesOrUnicode:
             Call("cwd", args=("/",)),
             Call("close"),
         ]
+        expected_mtime = now.timestamp()
+        # We don't care about the _exact_ time, so don't bother with
+        # timezone differences. Instead, do a simple sanity check.
+        day = 24 * 60 * 60  # seconds
+        mtime_makes_sense = (
+            lambda mtime: expected_mtime - day <= mtime <= expected_mtime + day
+        )
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             host.stat_cache.disable()
-            expected_mtime = now.timestamp()
-            # We don't care about the _exact_ time, so don't bother with
-            # timezone differences. Instead, do a simple sanity check.
-            day = 24 * 60 * 60  # seconds
-            mtime_makes_sense = (
-                lambda mtime: expected_mtime - day <= mtime <= expected_mtime + day
-            )
-            assert mtime_makes_sense(host.path.getmtime("ä"))
-            assert mtime_makes_sense(host.path.getmtime(as_bytes("ä")))
+            assert mtime_makes_sense(host.path.getmtime(path_converter(("ä"))))
+            assert mtime_makes_sense(host.path.getmtime(path_converter(as_bytes("ä"))))
 
     def test_getsize(self):
         """
         Test whether `FTPHost.path.getsize` accepts byte and unicode paths.
         """
         as_bytes = ftputil.tool.as_bytes
+        path_converter = self.path_converter
         now = datetime.datetime.now()
         script = [
             Call("__init__"),
@@ -581,12 +589,13 @@ class TestAcceptEitherBytesOrUnicode:
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             host.stat_cache.disable()
-            assert host.path.getsize("ä") == 512
-            assert host.path.getsize(as_bytes("ä")) == 512
+            assert host.path.getsize(path_converter("ä")) == 512
+            assert host.path.getsize(path_converter(as_bytes("ä"))) == 512
 
     def test_walk(self):
         """Test whether `FTPHost.path.walk` accepts bytes and unicode paths."""
         as_bytes = ftputil.tool.as_bytes
+        path_converter = self.path_converter
         now = datetime.datetime.now()
         script = [
             Call("__init__"),
@@ -631,5 +640,19 @@ class TestAcceptEitherBytesOrUnicode:
 
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             host.stat_cache.disable()
-            host.path.walk("ä", func=noop, arg=None)
-            host.path.walk(as_bytes("ä"), func=noop, arg=None)
+            host.path.walk(path_converter("ä"), func=noop, arg=None)
+            host.path.walk(path_converter(as_bytes("ä")), func=noop, arg=None)
+
+
+class Path:
+    def __init__(self, path):
+        self.path = path
+
+    def __fspath__(self):
+        return self.path
+
+
+class TestAcceptEitherBytesOrStrFromPath(TestAcceptEitherBytesOrStr):
+
+    # Take path arguments from `Path(...)` objects
+    path_converter = Path
