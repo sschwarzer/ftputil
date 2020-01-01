@@ -450,9 +450,6 @@ class FTPHost:
     # Operations based on file-like objects (rather high-level),
     # like upload and download
     #
-    # This code doesn't complain if the chunk size is passed as a
-    # positional argument but emits a deprecation warning if `length`
-    # is used as a keyword argument.
     @staticmethod
     def copyfileobj(
         source,
