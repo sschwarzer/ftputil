@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2019, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2020, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -43,6 +43,7 @@ class _Path:
         self.splitext = pp.splitext
         self.normcase = pp.normcase
         self.normpath = pp.normpath
+        self.join = pp.join
 
     def abspath(self, path):
         """Return an absolute path."""
@@ -80,26 +81,6 @@ class _Path:
         server (e. g. timeout).
         """
         return self._host.stat(path).st_size
-
-    @staticmethod
-    def join(*paths):
-        """
-        Join the path components from `paths` and return the joined
-        path.
-
-        All of these paths must be either unicode strings or byte
-        strings. If not, `join` raises a `TypeError`.
-        """
-        # These checks are implicitly done by Python 3, but not by
-        # Python 2.
-        all_paths_are_unicode = all((isinstance(path, str) for path in paths))
-        all_paths_are_bytes = all((isinstance(path, bytes) for path in paths))
-        if all_paths_are_unicode or all_paths_are_bytes:
-            return posixpath.join(*paths)
-        else:
-            # Python 3 raises this exception for mixed strings
-            # in `os.path.join`, so also use this exception.
-            raise TypeError("can't mix unicode strings and bytes in path components")
 
     # Check whether a path is a regular file/dir/link. For the first
     # two cases follow links (like in `os.path`).
