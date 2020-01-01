@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2020, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -43,6 +43,7 @@ class FTPFile:
         encoding=None,
         errors=None,
         newline=None,
+        *,
         rest=None,
     ):
         """
