@@ -65,7 +65,7 @@ to `os.stat`_. `FTPHost.walk`_ and `FTPHost.path.walk`_ work, too.
 
 * Get information about directories, files and links (``listdir``,
   ``stat``, ``lstat``, ``exists``, ``isdir``, ``isfile``, ``islink``,
-  ``abspath``, ``split``, ``join``, ``dirname``, ``basename`` etc.)
+  ``abspath``, ``dirname``, ``basename`` etc.)
 
 * Iterate over remote file systems (``walk``)
 
