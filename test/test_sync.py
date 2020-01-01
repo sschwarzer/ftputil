@@ -91,7 +91,7 @@ class DummyFTPPath:
 
 class ArgumentCheckingFTPHost(ftputil.FTPHost):
     def __init__(self, *args, **kwargs):
-        super(ArgumentCheckingFTPHost, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.path = DummyFTPPath()
 
     def _make_session(self, *args, **kwargs):

@@ -1390,7 +1390,7 @@ class ``Parser`` in the ``ftputil.stat`` module. Here's an example::
             lines like "total 17". On the other hand, if the line
             should be used for stat'ing, return a false value.
             """
-            is_total_line = super(XyzParser, self).ignores_line(line)
+            is_total_line = super().ignores_line(line)
             my_test = ...
             return is_total_line or my_test
 
