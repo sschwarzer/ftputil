@@ -31,19 +31,21 @@ class _Path:
 
     def __init__(self, host):
         self._host = host
-        # Delegate these to the `posixpath` module.
+        # Delegate these methods to the `posixpath` module because they don't
+        # need file system access but work on the path strings (possibly
+        # extracted from `PathLike` objects).
         # pylint: disable=invalid-name
         pp = posixpath
-        self.dirname = pp.dirname
         self.basename = pp.basename
-        self.isabs = pp.isabs
         self.commonprefix = pp.commonprefix
+        self.dirname = pp.dirname
+        self.isabs = pp.isabs
+        self.join = pp.join
+        self.normcase = pp.normcase
+        self.normpath = pp.normpath
         self.split = pp.split
         self.splitdrive = pp.splitdrive
         self.splitext = pp.splitext
-        self.normcase = pp.normcase
-        self.normpath = pp.normpath
-        self.join = pp.join
 
     def abspath(self, path):
         """Return an absolute path."""
