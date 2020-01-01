@@ -516,32 +516,6 @@ class TestAcceptEitherBytesOrUnicode:
             assert host.path.islink("ü")
             assert host.path.islink(as_bytes("ü"))
 
-    def test_join(self):
-        """
-        Test whether `FTPHost.path.join` accepts only arguments of
-        the same string type and returns the same string type.
-        """
-        as_bytes = ftputil.tool.as_bytes
-        script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
-        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
-            host.stat_cache.disable()
-            join = host.path.join
-            # Only unicode
-            parts = ["ä", "ö", "ü"]
-            result = join(*parts)
-            assert result == "ä/ö/ü"
-            # Only bytes
-            parts = [as_bytes(s) for s in parts]
-            result = join(*parts)
-            assert result == as_bytes("ä/ö/ü")
-            # Mixture of unicode and bytes
-            parts = ["ä", as_bytes("ö")]
-            with pytest.raises(TypeError):
-                join(*parts)
-            parts = [as_bytes("ä"), as_bytes("ö"), "ü"]
-            with pytest.raises(TypeError):
-                join(*parts)
-
     def test_getmtime(self):
         """
         Test whether `FTPHost.path.getmtime` accepts byte and unicode
