@@ -34,6 +34,9 @@ def same_string_type_as(type_source, path):
     and `content_source` don't have the same type, use
     `LOSSLESS_ENCODING` above to encode or decode, whatever operation
     is needed.
+
+    If the `path` can't be converted to a `bytes` or `str`, a `TypeError`
+    is raised.
     """
     actual_type_source = os.fspath(type_source)
     if isinstance(actual_type_source, bytes) and isinstance(path, str):
