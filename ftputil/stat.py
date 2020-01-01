@@ -279,12 +279,12 @@ class Parser:
         day = self._as_int(day, "day")
         if ":" not in year_or_time:
             # `year_or_time` is really a year.
+            st_mtime_precision = DAY_PRECISION
             year, hour, minute = self._as_int(year_or_time, "year"), 0, 0
             st_mtime = self._mktime((year, month, day, hour, minute, 0, 0, 0, -1))
-            st_mtime_precision = DAY_PRECISION
         else:
-            st_mtime_precision = MINUTE_PRECISION
             # `year_or_time` is a time hh:mm.
+            st_mtime_precision = MINUTE_PRECISION
             hour, minute = year_or_time.split(":")
             year, hour, minute = (
                 None,
