@@ -486,24 +486,15 @@ class TestParsers:
     # The following code checks if the decision logic in the Unix
     # line parser for determining the year works.
     #
-    def datetime_string(self, time_float):
-        """
-        Return a datetime string generated from the value in
-        `time_float`. The parameter value is a floating point value
-        as returned by `time.time()`. The returned string is built as
-        if it were from a Unix FTP server (format: MMM dd hh:mm")
-        """
-        time_tuple = time.localtime(time_float)
-        return time.strftime("%b %d %H:%M", time_tuple)
-
-    def dir_line(self, time_float):
+    def dir_line(self, datetime_):
         """
         Return a directory line as from a Unix FTP server. Most of
         the contents are fixed, but the timestamp is made from
         `time_float` (seconds since the epoch, as from `time.time()`).
         """
         line_template = "-rw-r--r--   1   45854   200   4604   {}   index.html"
-        return line_template.format(self.datetime_string(time_float))
+        datetime_string = datetime_.strftime("%b %d %H:%M")
+        return line_template.format(datetime_string)
 
     def assert_equal_times(self, time1, time2):
         """
@@ -527,13 +518,22 @@ class TestParsers:
             # Explicitly use Unix format parser here.
             host._stat._parser = ftputil.stat.UnixParser()
             host.set_time_shift(supposed_time_shift)
-            utc_time = time.time()
-            server_time = utc_time + supposed_time_shift + deviation
+            local_server_time = datetime.datetime.now() + datetime.timedelta(
+                seconds=supposed_time_shift + deviation
+            )
             stat_result = host._stat._parser.parse_line(
-                self.dir_line(server_time), host.time_shift()
+                self.dir_line(local_server_time), host.time_shift()
             )
             # We expect `st_mtime` in UTC.
-            self.assert_equal_times(stat_result.st_mtime, utc_time + deviation)
+            self.assert_equal_times(
+                stat_result.st_mtime,
+                (
+                    local_server_time
+                    # Convert back to local client time.
+                    - datetime.timedelta(seconds=supposed_time_shift)
+                    # `timestamp()` implicitly converts from local time to UTC.
+                ).timestamp(),
+            )
 
     def test_time_shifts(self):
         """Test correct year depending on time shift value."""
