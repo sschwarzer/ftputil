@@ -283,6 +283,7 @@ class Parser:
             st_mtime = self._mktime((year, month, day, hour, minute, 0, 0, 0, -1))
             st_mtime_precision = DAY_PRECISION
         else:
+            st_mtime_precision = MINUTE_PRECISION
             # `year_or_time` is a time hh:mm.
             hour, minute = year_or_time.split(":")
             year, hour, minute = (
@@ -290,29 +291,30 @@ class Parser:
                 self._as_int(hour, "hour"),
                 self._as_int(minute, "minute"),
             )
-            # Try the current year
-            year = time.localtime()[0]
-            st_mtime = self._mktime((year, month, day, hour, minute, 0, 0, 0, -1))
-            st_mtime_precision = MINUTE_PRECISION
-            # Rhs of comparison: Transform client time to server time
-            # (as on the lhs), so both can be compared with respect
-            # to the set time shift (see the definition of the time
-            # shift in `FTPHost.set_time_shift`'s docstring). The
-            # last addend allows for small deviations between the
-            # supposed (rounded) and the actual time shift.
-            #
-            # XXX: The downside of this "correction" is that there is
-            # a one-minute time interval exactly one year ago that
-            # may cause that datetime to be recognized as the current
-            # datetime, but after all the datetime from the server
-            # can only be exact up to a minute.
-            if st_mtime > time.time() + time_shift + st_mtime_precision:
-                # If it's in the future, use previous year.
-                st_mtime = self._mktime(
-                    (year - 1, month, day, hour, minute, 0, 0, 0, -1)
-                )
-        # If we had a datetime before the epoch, the resulting value
-        # 0.0 doesn't tell us anything about the precision.
+            # Year and datetime in the local server time
+            server_year = (
+                datetime.datetime.now() + datetime.timedelta(seconds=time_shift)
+            ).year
+            server_datetime = datetime.datetime(
+                server_year, month, day, hour, minute, 0
+            )
+            # Datetime in the local client time
+            client_datetime = server_datetime - datetime.timedelta(seconds=time_shift)
+            # If the client datetime is in the future, the timestamp is actually
+            # in the past, from last year. Add the deviation (the `timedelta`
+            # value to account for differences because of limited precision in
+            # the directory listing.
+            if client_datetime > datetime.datetime.now() + datetime.timedelta(
+                seconds=st_mtime_precision
+            ):
+                client_datetime = client_datetime.replace(year=client_datetime.year - 1)
+            # According to
+            # https://docs.python.org/3/library/datetime.html#datetime.datetime.timestamp
+            # this assumes that the datetime is in local time and returns the
+            # seconds since the epoch, just what we want.
+            st_mtime = client_datetime.timestamp()
+        # If we had a datetime before the epoch, the resulting value 0.0 doesn't
+        # tell us anything about the precision.
         if st_mtime == 0.0:
             st_mtime_precision = UNKNOWN_PRECISION
         #

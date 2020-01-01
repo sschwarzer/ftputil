@@ -527,11 +527,13 @@ class TestParsers:
             # Explicitly use Unix format parser here.
             host._stat._parser = ftputil.stat.UnixParser()
             host.set_time_shift(supposed_time_shift)
-            server_time = time.time() + supposed_time_shift + deviation
+            utc_time = time.time()
+            server_time = utc_time + supposed_time_shift + deviation
             stat_result = host._stat._parser.parse_line(
                 self.dir_line(server_time), host.time_shift()
             )
-            self.assert_equal_times(stat_result.st_mtime, server_time)
+            # We expect `st_mtime` in UTC.
+            self.assert_equal_times(stat_result.st_mtime, utc_time + deviation)
 
     def test_time_shifts(self):
         """Test correct year depending on time shift value."""
