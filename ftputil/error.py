@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2020, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -38,7 +38,7 @@ class FTPError(Exception):
     # In Python 2, we can't use a keyword argument after `*args`, so
     # `pop` from `**kwargs`.
     def __init__(self, *args, **kwargs):
-        super(FTPError, self).__init__(*args)
+        super().__init__(*args)
         if "original_exception" in kwargs:
             # Byte string under Python 2.
             exception_string = str(kwargs.pop("original_exception"))

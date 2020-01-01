@@ -752,7 +752,7 @@ class TestRestArgument(RealFTPTest):
     TEST_FILE_NAME = "rest_test"
 
     def setup_method(self, method):
-        super(TestRestArgument, self).setup_method(method)
+        super().setup_method(method)
         # Write test file.
         with self.host.open(self.TEST_FILE_NAME, "wb") as fobj:
             fobj.write(b"abcdefghijkl")
