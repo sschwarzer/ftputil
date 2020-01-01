@@ -6,6 +6,9 @@
 tool.py - helper code
 """
 
+import os
+
+
 __all__ = ["same_string_type_as", "as_bytes", "as_str"]
 
 
@@ -24,13 +27,18 @@ def same_string_type_as(type_source, content_source):
     Return a string of the same type as `type_source` with the content
     from `content_source`.
 
-    If the `type_source` and `content_source` don't have the same
-    type, use `LOSSLESS_ENCODING` above to encode or decode, whatever
-    operation is needed.
+    `type_source` may be a `PathLike` object. In that case, the type
+    source is determined as `type_source.__fspath__()`.
+
+    If the `type_source` (possibly after the described transformation)
+    and `content_source` don't have the same type, use
+    `LOSSLESS_ENCODING` above to encode or decode, whatever operation
+    is needed.
     """
-    if isinstance(type_source, bytes) and isinstance(content_source, str):
+    actual_type_source = os.fspath(type_source)
+    if isinstance(actual_type_source, bytes) and isinstance(content_source, str):
         return content_source.encode(LOSSLESS_ENCODING)
-    elif isinstance(type_source, str) and isinstance(content_source, bytes):
+    elif isinstance(actual_type_source, str) and isinstance(content_source, bytes):
         return content_source.decode(LOSSLESS_ENCODING)
     else:
         return content_source
