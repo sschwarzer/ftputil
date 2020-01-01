@@ -302,7 +302,7 @@ class Parser:
             client_datetime = server_datetime - datetime.timedelta(seconds=time_shift)
             # If the client datetime is in the future, the timestamp is actually
             # in the past, from last year. Add the deviation (the `timedelta`
-            # value to account for differences because of limited precision in
+            # value) to account for differences because of limited precision in
             # the directory listing.
             if client_datetime > datetime.datetime.now() + datetime.timedelta(
                 seconds=st_mtime_precision
