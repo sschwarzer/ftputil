@@ -248,15 +248,15 @@ Directory and file names
    contents is handled by the ``encoding`` argument for
    `FTPHost.open`_.
 
-First off: If your directory and file names (both as
-arguments and on the server) contain only ISO 8859-1 (latin-1)
-characters, you can use such names in the form of byte strings or
-unicode strings. However, you can't mix different string types (bytes
-and unicode) in one call (for example in ``FTPHost.path.join``).
+First off: If your directory and file names (both as arguments and on
+the server) contain only ISO 8859-1 (latin-1) characters, you can use
+such names in the form of ``bytes`` or ``str`` objects. However, you
+can't mix different string types (``bytes`` and ``str``) in one call
+(for example in ``FTPHost.path.join``).
 
 If you have directory or file names with characters that aren't in
-latin-1, it's recommended to use byte strings. In that case,
-returned paths will be byte strings, too.
+latin-1, it's recommended to use ``bytes`` objects. In that case,
+returned paths will be ``bytes`` objects, too.
 
 Read on for details.
 
@@ -271,34 +271,40 @@ Read on for details.
    file name with ``ftputil``, but get an exception when trying to
    read the same file with Python 3's ``ftplib`` module.
 
-Methods that take names of directories and/or files can take either
-byte or unicode strings. If a method got a string argument and returns
-one or more strings, these strings will have the same string type as
-the argument(s). Mixing different string arguments in one call (for
-example in ``FTPHost.path.join``) isn't allowed and will cause a
-``TypeError``. These rules are the same as for local file system
-operations in Python 3. Since ``ftputil`` uses the same API for Python
-2, ``ftputil`` will do the same when run on Python 2.
+Methods that take paths of directories and/or files can take either
+``bytes`` or ``str`` objects, or `PathLike`_ objects that can be
+converted to ``bytes`` or ``str``.
 
-Byte strings for directory and file names will be sent to the server
-as-is. On the other hand, unicode strings will be encoded to byte
-strings, assuming latin-1 encoding. This implies that such unicode
-strings must only contain code points 0-255 for the latin-1 character
-set. Using any other characters will result in a
+.. _PathLike: https://docs.python.org/3/library/os.html#os.PathLike
+
+If a method gets a string argument (or a string argument wrapped in a
+PathLike_ object) and returns one or more strings, these strings will
+have the same string type (``bytes`` or ``str``) as the argument(s).
+Mixing different string types in one call (for example in
+``FTPHost.path.join``) isn't allowed and will cause a ``TypeError``.
+These rules are the same as for local file system operations in Python 3.
+
+``bytes`` objects for directory and file names will be sent to the
+server as-is. On the other hand, ``str`` objects will be encoded to
+``bytes`` objects, assuming latin-1 encoding. This implies that such
+``str`` objects must only contain code points 0-255 for the latin-1
+character set. Using any other characters will result in a
 ``UnicodeEncodeError`` exception.
 
-If you have directory or file names as unicode strings with non-latin-1
-characters, encode the unicode strings to byte strings yourself, using
-the encoding you know the server uses. Decode received paths with the
-same encoding. Encapsulate these conversions as far as you can.
-Otherwise, you'd have to adapt potentially a lot of code if the server
-encoding changes.
+If you have directory or file names as ``str`` objects with
+non-latin-1 characters, encode the strings to ``bytes`` yourself,
+using the encoding you know the server uses for its file system.
+Decode received paths with the same encoding. Encapsulate these
+conversions as far as you can. Otherwise, you'd have to adapt
+potentially a lot of code if the server encoding changes.
 
-If you *don't* know the encoding on the server side,
-it's probably the best to only use byte strings for directory and file
-names. That said, as soon as you *show* the names to a user, you -- or
-the library you use for displaying the names -- has to guess an
-encoding.
+If you *don't* know the encoding on the server side, it's probably the
+best to only use ``bytes`` for directory and file names. That said, as
+soon as you *show* the names to a user, you -- or the library you use
+for displaying the names -- has to guess an encoding.
+
+If you can decide about paths yourself, it's generally safest to use
+only ASCII characters in FTP paths.
 
 
 ``FTPHost`` objects
