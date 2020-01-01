@@ -110,10 +110,6 @@ class FTPFile:
         else:
             raise StopIteration
 
-    # Although Python 2.6+ has the `next` builtin function already, it
-    # still requires iterators to have a `next` method.
-    next = __next__
-
     #
     # Context manager methods
     #
