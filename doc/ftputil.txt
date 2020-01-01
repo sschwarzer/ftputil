@@ -386,9 +386,9 @@ class as a session factory::
 
 On login, the format of the directory listings (needed for stat'ing
 files and directories) should be determined automatically. If not,
-please `file a bug report`_.
+please `enter a ticket`_.
 
-.. _`file a bug report`: http://ftputil.sschwarzer.net/issuetrackernotes
+.. _`enter a ticket`: http://ftputil.sschwarzer.net/issuetrackernotes
 
 For the most common uses you don't need to create your own session
 factory class though. The ``ftputil.session`` module has a function
@@ -454,9 +454,9 @@ as described at the start of this section. However, the class
 ``M2Crypto.ftpslib.FTP_TLS`` has a limitation so that you can't use
 it with ftputil out of the box. The function ``session_factory``
 contains a workaround for this limitation. For details refer to `this
-bug report`_.
+ticket`_.
 
-.. _`this bug report`: http://ftputil.sschwarzer.net/trac/ticket/78
+.. _`this ticket`: http://ftputil.sschwarzer.net/trac/ticket/78
 
 Hidden files and directories
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -736,8 +736,8 @@ The methods ``lstat`` and ``stat`` (and some others) rely on the
 directory listing format used by the FTP server. When connecting to a
 host, ``FTPHost``'s constructor tries to guess the right format, which
 succeeds in most cases. However, if you get strange results or
-``ParserError`` exceptions by a mere ``lstat`` call, please `file a
-bug report`_.
+``ParserError`` exceptions by a mere ``lstat`` call, please `enter a
+ticket`_.
 
 If ``lstat`` or ``stat`` give wrong modification dates or times, look
 at the methods that deal with time zone differences (`time zone
