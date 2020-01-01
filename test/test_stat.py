@@ -7,6 +7,7 @@ import ftplib
 import stat
 import time
 
+import freezegun
 import pytest
 
 import ftputil
@@ -541,6 +542,9 @@ class TestParsers:
         self._test_time_shift(0.0)
         # 2. test: Server is three hours ahead of client
         self._test_time_shift(3 * 60 * 60)
+        # Ditto, but with client and server in different years. See ticket #131.
+        with freezegun.freeze_time("2019-12-31 22:37"):
+            self._test_time_shift(3 * 60 * 60)
         # 3. test: Client is three hours ahead of server
         self._test_time_shift(-3 * 60 * 60)
         # 4. test: Server is supposed to be three hours ahead, but
