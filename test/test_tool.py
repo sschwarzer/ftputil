@@ -1,13 +1,15 @@
-# Copyright (C) 2013-2018, Stefan Schwarzer
+# Copyright (C) 2013-2020, Stefan Schwarzer
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
 import os
 
+import pytest
+
 import ftputil.tool
 
 
-class TypeSourcePath(os.PathLike):
+class Path(os.PathLike):
     """
     Helper class for `TestSameStringTypeAs`
     """
@@ -21,24 +23,20 @@ class TypeSourcePath(os.PathLike):
 
 class TestSameStringTypeAs:
     @staticmethod
-    def _test_string_and_pathlike_object(type_source, content_source, expected_result):
+    def _test_string_and_pathlike_object(type_source, path, expected_result):
         """
-        Check if the results from
-        `tool.same_string_type_as(type_source, content_source)` and
-        `tool.same_string_type_as(TypeSourcePath(type_source), content_source)`
-        both are the same as `expected_result`.
+        Check if the results from `tool.same_string_type_as(type_source, path)`
+        and `tool.same_string_type_as(Path(type_source), path)` both are the
+        same as `expected_result`.
 
-        `TypeSourcePath(type_source)` means that the type source
-        string is wrapped in a `PathLike` object whose `__fspath__`
-        method returns `type_source`.
+        `Path(type_source)` means that the type source string is wrapped in a
+        `PathLike` object whose `__fspath__` method returns `type_source`.
 
-        `type_source` must be a unicode string or byte string.
+        `type_source` must be a `bytes` or `str` object or a `PathLike` object.
         """
-        result = ftputil.tool.same_string_type_as(type_source, content_source)
+        result = ftputil.tool.same_string_type_as(type_source, path)
         assert result == expected_result
-        #
-        type_source = TypeSourcePath(type_source)
-        result = ftputil.tool.same_string_type_as(type_source, content_source)
+        result = ftputil.tool.same_string_type_as(Path(type_source), path)
         assert result == expected_result
 
     def test_to_bytes(self):
@@ -54,15 +52,43 @@ class TestSameStringTypeAs:
         self._test_string_and_pathlike_object("abc", "def", expected_result="def")
 
 
-class TestSimpleConversions:
-    def test_as_bytes(self):
-        result = ftputil.tool.as_bytes(b"abc")
-        assert result == b"abc"
-        result = ftputil.tool.as_bytes("abc")
-        assert result == b"abc"
+as_bytes = ftputil.tool.as_bytes
 
-    def test_as_str(self):
-        result = ftputil.tool.as_str(b"abc")
-        assert result == "abc"
-        result = ftputil.tool.as_str("abc")
-        assert result == "abc"
+
+class TestAsBytes:
+    def test_from_bytes(self):
+        assert as_bytes(b"abc") == b"abc"
+
+    def test_from_str(self):
+        assert as_bytes("abc") == b"abc"
+
+    def test_from_bytes_path(self):
+        assert as_bytes(Path(b"abc")) == b"abc"
+
+    def test_from_str_path(self):
+        assert as_bytes(Path("abc")) == b"abc"
+
+    def test_type_error(self):
+        with pytest.raises(TypeError):
+            as_bytes(1)
+
+
+as_str = ftputil.tool.as_str
+
+
+class TestAsStr:
+    def test_from_bytes(self):
+        assert as_str(b"abc") == "abc"
+
+    def test_from_str(self):
+        assert as_str("abc") == "abc"
+
+    def test_from_bytes_path(self):
+        assert as_str(Path(b"abc")) == "abc"
+
+    def test_from_str_path(self):
+        assert as_str(Path("abc")) == "abc"
+
+    def test_type_error(self):
+        with pytest.raises(TypeError):
+            as_str(1)
