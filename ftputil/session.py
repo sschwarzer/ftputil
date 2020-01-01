@@ -21,6 +21,7 @@ def session_factory(
     base_class=ftplib.FTP,
     port=21,
     use_passive_mode=None,
+    *,
     encrypt_data_channel=True,
     debug_level=None,
 ):
