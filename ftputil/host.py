@@ -450,6 +450,10 @@ class FTPHost:
     # Operations based on file-like objects (rather high-level),
     # like upload and download
     #
+    # XXX: This has a different API from `shutil.copyfileobj`, on which this
+    # method is modeled. But I don't think it makes sense to change this method
+    # here because the method is probably rarely used and a change would break
+    # client code.
     @staticmethod
     def copyfileobj(
         source,
