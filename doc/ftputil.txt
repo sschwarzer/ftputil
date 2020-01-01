@@ -346,7 +346,7 @@ Session factories
 
 The keyword argument ``session_factory`` may be used to generate FTP
 connections with other factories than the default ``ftplib.FTP``. For
-example, the standard library of Python 2.7 contains a class
+example, the standard library of Python 3 contains a class
 ``ftplib.FTP_TLS`` which extends ``ftplib.FTP`` to use an encrypted
 connection.
 
@@ -388,7 +388,7 @@ On login, the format of the directory listings (needed for stat'ing
 files and directories) should be determined automatically. If not,
 please `enter a ticket`_.
 
-.. _`enter a ticket`: http://ftputil.sschwarzer.net/issuetrackernotes
+.. _`enter a ticket`: https://ftputil.sschwarzer.net/issuetrackernotes
 
 For the most common uses you don't need to create your own session
 factory class though. The ``ftputil.session`` module has a function
@@ -417,7 +417,7 @@ with
 - ``encrypt_data_channel`` defines whether to encrypt the data channel
   for secure connections. This is only supported for the base classes
   ``ftplib.FTP_TLS`` and ``M2Crypto.ftpslib.FTP_TLS``, otherwise the
-  the parameter is ignored.
+  parameter is ignored.
 
 - ``debug_level`` sets the debug level for FTP session instances. The
   semantics is defined by the base class. For example, a debug level
@@ -456,7 +456,7 @@ it with ftputil out of the box. The function ``session_factory``
 contains a workaround for this limitation. For details refer to `this
 ticket`_.
 
-.. _`this ticket`: http://ftputil.sschwarzer.net/trac/ticket/78
+.. _`this ticket`: https://ftputil.sschwarzer.net/trac/ticket/78
 
 Hidden files and directories
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -609,15 +609,14 @@ Uploading and downloading files
 Time zone correction
 ````````````````````
 
-If the client where ``ftputil`` runs and the server have a different
-understanding of their local times, this has to be taken into account
+If the client where ``ftputil`` runs and the server have different
+understandings of their local times, this has to be taken into account
 for ``upload_if_newer`` and ``download_if_newer`` to work correctly.
 
 Note that even if the client and the server are in the same time zone
 (or even on the same computer), the time shift value (see below) may
 be different from zero. For example, my computer is set to use local
-time whereas the server running on the very same host insists on using
-UTC time.
+time whereas the server running on the very same host uses UTC time.
 
 .. _`set_time_shift`:
 
@@ -747,8 +746,8 @@ correction`_).
 
 - ``lstat(path)``
 
-  returns an object similar to that from `os.lstat`_. This is a
-  "tuple" with additional attributes; see the documentation of the
+  returns an object similar to that from `os.lstat`_. This is a kind
+  of tuple with additional attributes; see the documentation of the
   ``os`` module for details.
 
   The result is derived by parsing the output of a ``LIST`` command on
@@ -758,12 +757,12 @@ correction`_).
   - User and group ids can only be determined as strings, not as
     numbers, and that only if the server supplies them. This is
     usually the case with Unix servers but maybe not for other FTP
-    server programs.
+    servers.
 
   - Values for the time of the last modification may be rough,
     depending on the information from the server. For timestamps
     older than a year, this usually means that the precision of the
-    modification timestamp value is not better than days. For newer
+    modification timestamp value is not better than a day. For newer
     files, the information may be accurate to a minute.
 
     If the time of the last modification is before the epoch (usually
@@ -789,7 +788,7 @@ correction`_).
 
 .. _`os.listdir`: https://docs.python.org/library/os.html#os.listdir
 .. _`os.lstat`: https://docs.python.org/library/os.html#os.lstat
-.. _`ftputil mailing list`: http://ftputil.sschwarzer.net/mailinglist
+.. _`ftputil mailing list`: https://ftputil.sschwarzer.net/mailinglist
 .. _`writing your own parser`: `Writing directory parsers`_
 
 .. _`FTPHost.stat`:
@@ -1076,7 +1075,8 @@ Other methods
   when written to ``target``. For example, if you open ``source`` in
   Python 3 as a local text file and ``target`` as a remote file object
   in binary mode, the transfer will fail since ``source.read`` gives
-  unicode strings whereas ``target.write`` only accepts byte strings.
+  unicode strings (``str``) whereas ``target.write`` only accepts byte
+  strings (``bytes``).
 
   See `File-like objects`_ for the construction and use of remote
   file-like objects.
@@ -1121,7 +1121,7 @@ Other methods
           with ftp_host.open("some_remote_file", "rb") as fobj:
               data = fobj.read(100)
               # _Futile_ attempt to avoid file connection timeout.
-              for i in xrange(15):
+              for i in range(15):
                   time.sleep(60)
                   ftp_host.keep_alive()
               # Will raise an `ftputil.error.TemporaryError`.
@@ -1142,11 +1142,8 @@ Basics
 ``FTPFile`` objects are returned by a call to ``FTPHost.open``;
 never use the ``FTPFile`` constructor directly.
 
-The API of remote file-like objects are is modeled after the API of
-the io_ module in Python 3, which has also been backported to Python
-2.6 and 2.7.
-
-.. _io: http://docs.python.org/library/io.html
+The APIs for remote file-like objects is modeled after the APIs of
+the built-in ``open`` function and its return value.
 
 - ``FTPHost.open(path, mode="r", buffering=None, encoding=None,
   errors=None, newline=None, rest=None)``
@@ -1165,27 +1162,14 @@ the io_ module in Python 3, which has also been backported to Python
   specify a distinct encoding.
 
   If you open a file in binary mode, the read and write operations use
-  byte strings (``str`` in Python 2, ``bytes`` in Python 3). That is,
-  read operations return byte strings and write operations only accept
-  byte strings.
+  ``bytes`` objects. That is, read operations return ``bytes`` and
+  write operations only accept ``bytes``.
 
-  Similarly, text files always work with unicode strings (``unicode``
-  in Python 2, ``str`` in Python 3). Here, read operations return
-  unicode strings and write operations only accept unicode strings.
+  Similarly, text files always work with strings (``str``). Here, read
+  operations return string and write operations only accept strings.
 
-  .. warning::
-
-     Note that the semantics of "text mode" has changed fundamentally
-     from ftputil 2.8 and earlier. Previously, "text mode" implied
-     converting newline characters to ``\r\n`` when writing remote
-     files and converting newlines to ``\n`` when reading remote
-     files. This is in line with the "text mode" notion of FTP command
-     line clients. Now, "text mode" follows the semantics in Python's
-     ``io`` module.
-
-  The arguments ``errors`` and ``newline`` have the same semantics as
-  in `io.open`_. The argument ``buffering`` currently is ignored.
-  It's only there for compatibility with the ``io.open`` interface.
+  The arguments ``buffering``, ``errors`` and ``newline`` have the
+  same semantics as in open_.
 
   If the file is opened in binary mode, you may pass 0 or a positive
   integer for the ``rest`` argument. The argument is passed to the
@@ -1203,7 +1187,7 @@ the io_ module in Python 3, which has also been backported to Python
      of the transferred data so that you can provide a valid ``rest``
      argument for a resumed transfer.
 
-.. _`io.open`: http://docs.python.org/library/io.html#io.open
+.. _`open`: https://docs.python.org/3/library/functions.html#open
 
 ``FTPHost.open`` can also be used in a ``with`` statement::
 
@@ -1249,7 +1233,7 @@ line::
 For more on file objects, see the section `File objects`_ in the
 Python Library Reference.
 
-.. _`file objects`: https://docs.python.org/2.7/library/stdtypes.html#file-objects
+.. _`file objects`: https://docs.python.org/3/glossary.html#term-file-object
 
 
 .. _`child_connections`:
@@ -1485,16 +1469,16 @@ Where can I get the latest version?
 
 See the `download page`_. Announcements will be sent to the `mailing
 list`_. Announcements on major updates will also be posted to the
-newsgroup `comp.lang.python.announce`_ .
+`Python announcements list`_.
 
-.. _`download page`: http://ftputil.sschwarzer.net/download
-.. _`mailing list`: http://ftputil.sschwarzer.net/mailinglist
-.. _`comp.lang.python.announce`: news:comp.lang.python.announce
+.. _`download page`: https://ftputil.sschwarzer.net/download
+.. _`mailing list`: https://ftputil.sschwarzer.net/mailinglist
+.. _`Python announcements list`: https://mail.python.org/mailman3/lists/python-announce-list.python.org/
 
 Is there a mailing list on ``ftputil``?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Yes, please visit http://ftputil.sschwarzer.net/mailinglist to
+Yes, please visit https://ftputil.sschwarzer.net/mailinglist to
 subscribe or read the archives.
 
 Though you can *technically* post without subscribing first I can't
@@ -1509,33 +1493,32 @@ Before reporting a bug, make sure that you already read this manual
 and tried the `latest version`_ of ``ftputil``. There the bug might
 have already been fixed.
 
-.. _`latest version`: http://ftputil.sschwarzer.net/download
+.. _`latest version`: https://ftputil.sschwarzer.net/download
 
-Please see http://ftputil.sschwarzer.net/issuetrackernotes for
+Please see https://ftputil.sschwarzer.net/issuetrackernotes for
 guidelines on entering a bug in ``ftputil``'s ticket system. If you
 are unsure if the behaviour you found is a bug or not, you should write
-to the `ftputil mailing list`_. In *either* case you *must not*
-include confidential information (user id, password, file names, etc.)
-in the problem report! Be careful!
+to the `ftputil mailing list`_. *Never* include confidential information
+(user id, password, file names, etc.) in the problem report! Be
+careful!
 
-Does ``ftputil`` support SSL/TLS?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Does ``ftputil`` support TLS?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``ftputil`` has no *built-in* SSL/TLS support.
+``ftputil`` has no *built-in* TLS support.
 
 On the other hand, there are two ways to get TLS support with
 ftputil:
 
-- In Python 2.7 and Python 3.2 and up, the ``ftplib`` library has a
-  class ``FTP_TLS`` that you can use for the ``session_factory``
-  keyword argument in the ``FTPHost`` constructor. You can't use the
-  class directly though if you need additional setup code in
-  comparison to ``ftplib.FTP``, for example calling ``prot_p``, to
-  secure the data connection. On the other hand,
-  `ftputil.session.session_factory`_ can be used to create a custom
-  session factory.
-  
-  If you have other requirements that ``session_factory`` can't
+- The ``ftplib`` library has a class ``FTP_TLS`` that you can use for
+  the ``session_factory`` keyword argument in the ``FTPHost``
+  constructor. You can't use the class directly though *if* you need
+  additional setup code in comparison to ``ftplib.FTP``, for example
+  calling ``prot_p``, to secure the data connection. On the other
+  hand, `ftputil.session.session_factory`_ can be used to create a
+  custom session factory.
+
+- If you have other requirements that ``session_factory`` can't
   fulfill, you may create your own session factory by inheriting from
   ``ftplib.FTP_TLS``::
 
@@ -1563,59 +1546,6 @@ ftputil:
 
 .. _`ftputil.session.session_factory`: `Session factories`_
 
-- If you need to work with Python 2.6, you can use the
-  ``ftpslib.FTP_TLS`` class from the M2Crypto_ project. Again, you
-  can't use the class directly but need to use
-  ``ftputil.session.session_factory`` or a recipe similar to that
-  above.
-
-  Unfortunately, ``M2Crypto.ftpslib.FTP_TLS`` (at least in version
-  0.22.3) doesn't work correctly if you pass unicode strings to its
-  methods. Since ``ftputil`` does exactly that at some point (even if
-  you used byte strings in ``ftputil`` calls) you need a workaround in
-  the session factory class::
-
-    import M2Crypto
-
-    import ftputil
-    import ftputil.tool
-
-
-    class M2CryptoSession(M2Crypto.ftpslib.FTP_TLS):
-
-        def __init__(self, host, user, password):
-            M2Crypto.ftpslib.FTP_TLS.__init__(self)
-            # Change the port number if needed.
-            self.connect(host, 21)
-            self.auth_tls()
-            self.login(user, password)
-            self.prot_p()
-            self._fix_socket()
-            ...
-
-        def _fix_socket(self):
-            """
-            Change the socket object so that arguments to `sendall`
-            are converted to byte strings before being used.
-            """
-            original_sendall = self.sock.sendall
-            # Bound method, therefore no `self` argument.
-            def sendall(data):
-                data = ftputil.tool.as_bytes(data)
-                return original_sendall(data)
-            self.sock.sendall = sendall
-
-    # Note the `session_factory` parameter. Pass the class, not
-    # an instance.
-    with ftputil.FTPHost(server, user, password,
-                         session_factory=M2CryptoSession) as ftp_host:
-        # Use `ftp_host` as usual.
-        ...
-
-  That said, ``session_factory`` has this workaround built in, so
-  normally you don't need to define the session factory yourself!
-
-.. _M2Crypto: https://github.com/martinpaljak/M2Crypto
 
 How do I connect to a non-default port?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1657,10 +1587,10 @@ When I use ``ftputil``, all I get is a ``ParserError`` exception
 
 The FTP server you connect to may use a directory format that
 ``ftputil`` doesn't understand. You can either write and
-`plug in an own parser`_ or ask on the `mailing list`_ for
+`plug in your own parser`_ or ask on the `mailing list`_ for
 help.
 
-.. _`plug in an own parser`: `Writing directory parsers`_
+.. _`plug in your own parser`: `Writing directory parsers`_
 
 ``isdir``, ``isfile`` or ``islink`` incorrectly return ``False``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1683,7 +1613,7 @@ Please send an email with your problem report or question to the
 Bugs and limitations
 --------------------
 
-- ``ftputil`` needs at least Python 2.6 to work.
+- ``ftputil`` needs at least Python 3.6 to work.
 
 - Whether ``ftputil`` "sees" "hidden" directory and file names (i. e.
   names starting with a dot) depends on the configuration of the FTP
@@ -1716,27 +1646,22 @@ reside in the ``ftputil`` package. There's also documentation in
 `reStructuredText`_ and in HTML format. The locations of these
 files after installation is system-dependent.
 
-.. _`reStructuredText`: http://docutils.sourceforge.net/rst.html
+.. _`reStructuredText`: https://docutils.sourceforge.net/rst.html
 
-The files ``test_*.py`` and ``mock_ftplib.py`` are for unit-testing.
-If you only *use* ``ftputil``, i. e. *don't* modify it, you can
-delete these files.
+The files ``test_*.py`` and ``scripted_session.py`` are for
+unit-testing. If you only *use* ``ftputil``, i. e. *don't* modify it,
+you can delete these files.
 
 
 References
 ----------
 
-- Mackinnon T, Freeman S, Craig P. 2000. `Endo-Testing:
-  Unit Testing with Mock Objects`_.
-
 - Postel J, Reynolds J. 1985. `RFC 959 - File Transfer Protocol (FTP)`_.
 
-- Van Rossum G et al. 2013. `Python Library Reference`_.
+- Python Software Foundation. 2020. `The Python Standard Library`_.
 
-.. _`Endo-Testing: Unit Testing with Mock Objects`:
-   http://www.connextra.com/aboutUs/mockobjects.pdf
-.. _`RFC 959 - File Transfer Protocol (FTP)`: http://www.ietf.org/rfc/rfc959.txt
-.. _`Python Library Reference`: https://docs.python.org/library/index.html
+.. _`RFC 959 - File Transfer Protocol (FTP)`: https://www.ietf.org/rfc/rfc959.txt
+.. _`The Python Standard Library`: https://docs.python.org/library/index.html
 
 
 Authors
