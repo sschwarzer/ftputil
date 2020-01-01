@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2019, Stefan Schwarzer
+# Copyright (C) 2013-2020, Stefan Schwarzer
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -47,17 +47,33 @@ def same_string_type_as(type_source, path):
         return path
 
 
-def as_bytes(string):
+def as_bytes(path):
     """
-    Return the argument `string` converted to a `bytes` object if it's
+    Return the argument `path` converted to a `bytes` object if it's
     a unicode string. Otherwise just return the `bytes` object.
+
+    Instead of passing a `bytes` or `str` object for `path`, you can
+    pass a `PathLike` object that can be converted to a `bytes` or
+    `str` object.
+
+    If the `path` can't be converted to a `bytes` or `str`, a `TypeError`
+    is raised.
     """
-    return same_string_type_as(b"", string)
+    path = os.fspath(path)
+    return same_string_type_as(b"", path)
 
 
-def as_str(string):
+def as_str(path):
     """
-    Return the argument `string` converted to a unicode string if it's
+    Return the argument `path` converted to a unicode string if it's
     a `bytes` object. Otherwise just return the string.
+
+    Instead of passing a `bytes` or `str` object for `path`, you can
+    pass a `PathLike` object that can be converted to a `bytes` or
+    `str` object.
+
+    If the `path` can't be converted to a `bytes` or `str`, a `TypeError`
+    is raised.
     """
-    return same_string_type_as("", string)
+    path = os.fspath(path)
+    return same_string_type_as("", path)
