@@ -50,7 +50,7 @@ class _Path:
     def abspath(self, path):
         """Return an absolute path."""
         original_path = path
-        path = ftputil.tool.as_str(path)
+        path = ftputil.tool.as_str_path(path)
         if not self.isabs(path):
             path = self.join(self._host.getcwd(), path)
         return ftputil.tool.same_string_type_as(original_path, self.normpath(path))
@@ -111,7 +111,7 @@ class _Path:
             should_look_for_dir = False
             stat_function = stat.S_ISREG
         #
-        path = ftputil.tool.as_str(path)
+        path = ftputil.tool.as_str_path(path)
         #  Workaround if we can't go up from the current directory.
         #  The result from `getcwd` should already be normalized.
         if self.normpath(path) == self._host.getcwd():
@@ -156,7 +156,7 @@ class _Path:
         A non-existing path does _not_ cause a `PermanentError`,
         instead return `False`.
         """
-        path = ftputil.tool.as_str(path)
+        path = ftputil.tool.as_str_path(path)
         try:
             lstat_result = self._host.lstat(path, _exception_for_missing_path=False)
         except ftputil.error.RootDirError:
@@ -186,7 +186,7 @@ class _Path:
         e.g., to pass a filename pattern, or a mutable object designed
         to accumulate statistics.  Passing None for arg is common.
         """
-        top = ftputil.tool.as_str(top)
+        top = ftputil.tool.as_str_path(top)
         # This code (and the above documentation) is taken from
         # `posixpath.py`, with slight modifications.
         try:
