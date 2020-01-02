@@ -53,20 +53,23 @@ class TestSameStringTypeAs:
 
 
 as_str = ftputil.tool.as_str
+as_str_path = ftputil.tool.as_str_path
 
 
 class TestAsStr:
     def test_from_bytes(self):
         assert as_str(b"abc") == "abc"
+        assert as_str_path(b"abc") == "abc"
 
     def test_from_str(self):
         assert as_str("abc") == "abc"
+        assert as_str_path("abc") == "abc"
 
     def test_from_bytes_path(self):
-        assert as_str(Path(b"abc")) == "abc"
+        assert as_str_path(Path(b"abc")) == "abc"
 
     def test_from_str_path(self):
-        assert as_str(Path("abc")) == "abc"
+        assert as_str_path(Path("abc")) == "abc"
 
     def test_type_error(self):
         with pytest.raises(TypeError):
