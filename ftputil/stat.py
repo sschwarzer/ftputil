@@ -239,6 +239,26 @@ class Parser:
         # these might be undefined for some platforms.
         return max(0.0, time_float)
 
+    @staticmethod
+    def _datetime(year, month, day, hour, minute, second):
+        """
+        Return naive `datetime.datetime` object for the given year, month, day,
+        hour, minute and second.
+
+        If there are invalid values, for example minute > 59, raise a
+        `ParserError`.
+        """
+        try:
+            return datetime.datetime(year, month, day, hour, minute, second)
+        except ValueError:
+            invalid_datetime = (
+                f"{year:04d}-{month:02d}-{day:02d} "
+                f"{hour:02d}:{minute:02d}:{second:02d}"
+            )
+            raise ftputil.error.ParserError(
+                "invalid datetime {0!r}".format(invalid_datetime)
+            )
+
     def parse_unix_time(
         self, month_abbreviation, day, year_or_time, time_shift, with_precision=False
     ):
@@ -277,12 +297,8 @@ class Parser:
                 "invalid month abbreviation {0!r}".format(month_abbreviation)
             )
         day = self._as_int(day, "day")
-        if ":" not in year_or_time:
-            # `year_or_time` is really a year.
-            st_mtime_precision = DAY_PRECISION
-            year, hour, minute = self._as_int(year_or_time, "year"), 0, 0
-            st_mtime = self._mktime((year, month, day, hour, minute, 0, 0, 0, -1))
-        else:
+        year_is_unknown = ":" in year_or_time
+        if year_is_unknown:
             # `year_or_time` is a time hh:mm.
             st_mtime_precision = MINUTE_PRECISION
             hour, minute = year_or_time.split(":")
@@ -295,11 +311,14 @@ class Parser:
             server_year = (
                 datetime.datetime.now() + datetime.timedelta(seconds=time_shift)
             ).year
-            server_datetime = datetime.datetime(
-                server_year, month, day, hour, minute, 0
-            )
-            # Datetime in the local client time
-            client_datetime = server_datetime - datetime.timedelta(seconds=time_shift)
+        else:
+            # `year_or_time` is really a year.
+            st_mtime_precision = DAY_PRECISION
+            server_year, hour, minute = self._as_int(year_or_time, "year"), 0, 0
+        server_datetime = self._datetime(server_year, month, day, hour, minute, 0)
+        # Datetime in the local client time
+        client_datetime = server_datetime - datetime.timedelta(seconds=time_shift)
+        if year_is_unknown:
             # If the client datetime is in the future, the timestamp is actually
             # in the past, from last year. Add the deviation (the `timedelta`
             # value) to account for differences because of limited precision in
@@ -308,15 +327,16 @@ class Parser:
                 seconds=st_mtime_precision
             ):
                 client_datetime = client_datetime.replace(year=client_datetime.year - 1)
-            # According to
-            # https://docs.python.org/3/library/datetime.html#datetime.datetime.timestamp
-            # this assumes that the datetime is in local time and returns the
-            # seconds since the epoch, just what we want.
-            st_mtime = client_datetime.timestamp()
+        # According to
+        # https://docs.python.org/3/library/datetime.html#datetime.datetime.timestamp
+        # this assumes that the datetime is in local time and returns the
+        # seconds since the epoch, just what we want.
+        st_mtime = client_datetime.timestamp()
         # If we had a datetime before the epoch, the resulting value 0.0 doesn't
         # tell us anything about the precision.
-        if st_mtime == 0.0:
+        if st_mtime < 0.0:
             st_mtime_precision = UNKNOWN_PRECISION
+            st_mtime = 0.0
         #
         if with_precision:
             return st_mtime, st_mtime_precision
