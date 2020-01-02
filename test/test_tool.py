@@ -52,27 +52,6 @@ class TestSameStringTypeAs:
         self._test_string_and_pathlike_object("abc", "def", expected_result="def")
 
 
-as_bytes = ftputil.tool.as_bytes
-
-
-class TestAsBytes:
-    def test_from_bytes(self):
-        assert as_bytes(b"abc") == b"abc"
-
-    def test_from_str(self):
-        assert as_bytes("abc") == b"abc"
-
-    def test_from_bytes_path(self):
-        assert as_bytes(Path(b"abc")) == b"abc"
-
-    def test_from_str_path(self):
-        assert as_bytes(Path("abc")) == b"abc"
-
-    def test_type_error(self):
-        with pytest.raises(TypeError):
-            as_bytes(1)
-
-
 as_str = ftputil.tool.as_str
 
 

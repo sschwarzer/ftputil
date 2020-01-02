@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2020, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -41,6 +41,10 @@ def binary_data():
     size = 10000
     integer_list = [random.choice(pool) for i in range(size)]
     return bytes(integer_list)
+
+
+def as_bytes(string):
+    return string.encode(ftputil.tool.LOSSLESS_ENCODING)
 
 
 #
@@ -694,7 +698,7 @@ class TestAcceptEitherUnicodeOrBytes:
         )
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:
-            host.upload("Makefile", ftputil.tool.as_bytes("target"))
+            host.upload("Makefile", as_bytes("target"))
 
     def test_download(self, tmp_path):
         """Test whether `download` accepts either unicode or bytes."""
@@ -719,7 +723,7 @@ class TestAcceptEitherUnicodeOrBytes:
         )
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:
-            host.download(ftputil.tool.as_bytes("source"), str(local_target))
+            host.download(as_bytes("source"), str(local_target))
 
     def test_rename(self):
         """Test whether `rename` accepts either unicode or bytes."""
@@ -731,9 +735,9 @@ class TestAcceptEitherUnicodeOrBytes:
             Call("close"),
         ]
         # It's possible to mix argument types, as for `os.rename`.
-        path_as_unicode = "/ä"
-        path_as_bytes = ftputil.tool.as_bytes(path_as_unicode)
-        paths = [path_as_unicode, path_as_bytes]
+        path_as_str = "/ä"
+        path_as_bytes = as_bytes(path_as_str)
+        paths = [path_as_str, path_as_bytes]
         for source_path, target_path in itertools.product(paths, paths):
             session_factory = scripted_session.factory(script)
             with test_base.ftp_host_factory(session_factory) as host:
@@ -741,7 +745,6 @@ class TestAcceptEitherUnicodeOrBytes:
 
     def test_listdir(self):
         """Test whether `listdir` accepts either unicode or bytes."""
-        as_bytes = ftputil.tool.as_bytes
         top_level_dir_line = test_base.dir_line(
             mode_string="drwxr-xr-x", date_=datetime.date.today(), name="ä"
         )
@@ -795,7 +798,7 @@ class TestAcceptEitherUnicodeOrBytes:
         # Bytes
         session_factory = scripted_session.factory(script)
         with test_base.ftp_host_factory(session_factory) as host:
-            host.chmod(ftputil.tool.as_bytes(path), 0o755)
+            host.chmod(as_bytes(path), 0o755)
 
     def _test_method_with_single_path_argument(self, method_name, path, script):
         # Unicode
@@ -807,7 +810,7 @@ class TestAcceptEitherUnicodeOrBytes:
         session_factory = scripted_session.factory(script)
         with test_base.ftp_host_factory(session_factory) as host:
             method = getattr(host, method_name)
-            method(ftputil.tool.as_bytes(path))
+            method(as_bytes(path))
 
     def test_chdir(self):
         """Test whether `chdir` accepts either unicode or bytes."""
@@ -1010,7 +1013,7 @@ class TestAcceptEitherUnicodeOrBytes:
         # Bytes
         session_factory = scripted_session.factory(script)
         with test_base.ftp_host_factory(session_factory) as host:
-            result = list(host.walk(ftputil.tool.as_bytes("/ä")))
+            result = list(host.walk(as_bytes("/ä")))
 
 
 class TestFailingPickling:

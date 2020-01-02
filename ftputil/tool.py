@@ -9,7 +9,7 @@ tool.py - helper code
 import os
 
 
-__all__ = ["same_string_type_as", "as_bytes", "as_str"]
+__all__ = ["same_string_type_as", "as_str"]
 
 
 # Encoding to convert between byte string and unicode string. This is
@@ -45,22 +45,6 @@ def same_string_type_as(type_source, path):
         return path.decode(LOSSLESS_ENCODING)
     else:
         return path
-
-
-def as_bytes(path):
-    """
-    Return the argument `path` converted to a `bytes` object if it's
-    a unicode string. Otherwise just return the `bytes` object.
-
-    Instead of passing a `bytes` or `str` object for `path`, you can
-    pass a `PathLike` object that can be converted to a `bytes` or
-    `str` object.
-
-    If the `path` can't be converted to a `bytes` or `str`, a `TypeError`
-    is raised.
-    """
-    path = os.fspath(path)
-    return same_string_type_as(b"", path)
 
 
 def as_str(path):
