@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2020, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -41,17 +41,6 @@ class TestErrorConversion:
         exc = exc_info.value
         assert not (exc.args and isinstance(exc.args[0], ftplib.error_perm))
         del exc_info
-
-    def test_ftplib_error_to_ftp_os_error_non_ascii_server_message(self):
-        """
-        Test that we don't get a `UnicodeDecodeError` if the server
-        sends a message containing non-ASCII characters.
-        """
-        # See ticket #77.
-        message = ftputil.tool.as_bytes("Não é possível criar um arquivo já existente.")
-        with pytest.raises(ftputil.error.PermanentError):
-            with ftputil.error.ftplib_error_to_ftp_os_error:
-                raise ftplib.error_perm(message)
 
     def test_ftplib_error_to_ftp_io_error(self):
         """
