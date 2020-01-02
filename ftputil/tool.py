@@ -22,29 +22,20 @@ __all__ = ["same_string_type_as", "as_str", "as_str_path"]
 LOSSLESS_ENCODING = "latin1"
 
 
-def same_string_type_as(type_source, path):
+def same_string_type_as(type_source, string):
     """
-    Return a string of the same type as `type_source` with the content
-    from `path`.
+    Return a string of the same type as `type_source` with the content from
+    `string`.
 
-    `type_source` may be a `PathLike` object. In that case, the type
-    source is determined as `type_source.__fspath__()`.
-
-    If the `type_source` (possibly after the described transformation)
-    and `content_source` don't have the same type, use
-    `LOSSLESS_ENCODING` above to encode or decode, whatever operation
-    is needed.
-
-    If the `path` can't be converted to a `bytes` or `str`, a `TypeError`
-    is raised.
+    If the `type_source` and `string` don't have the same type, use
+    `LOSSLESS_ENCODING` above to encode or decode, whatever operation is needed.
     """
-    actual_type_source = os.fspath(type_source)
-    if isinstance(actual_type_source, bytes) and isinstance(path, str):
-        return path.encode(LOSSLESS_ENCODING)
-    elif isinstance(actual_type_source, str) and isinstance(path, bytes):
-        return path.decode(LOSSLESS_ENCODING)
+    if isinstance(type_source, bytes) and isinstance(string, str):
+        return string.encode(LOSSLESS_ENCODING)
+    elif isinstance(type_source, str) and isinstance(string, bytes):
+        return string.decode(LOSSLESS_ENCODING)
     else:
-        return path
+        return string
 
 
 def as_str(string):

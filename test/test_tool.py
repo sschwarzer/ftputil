@@ -21,35 +21,32 @@ class Path(os.PathLike):
         return self._type_source
 
 
+same_string_type_as = ftputil.tool.same_string_type_as
+
+
 class TestSameStringTypeAs:
     @staticmethod
-    def _test_string_and_pathlike_object(type_source, path, expected_result):
+    def _test_string(type_source, string, expected_result):
         """
-        Check if the results from `tool.same_string_type_as(type_source, path)`
-        and `tool.same_string_type_as(Path(type_source), path)` both are the
-        same as `expected_result`.
+        Check if the result from `tool.same_string_type_as(type_source, string)`
+        is the same as `expected_result`.
 
-        `Path(type_source)` means that the type source string is wrapped in a
-        `PathLike` object whose `__fspath__` method returns `type_source`.
-
-        `type_source` must be a `bytes` or `str` object or a `PathLike` object.
+        `type_source` must be a `bytes` or `str` object.
         """
         result = ftputil.tool.same_string_type_as(type_source, path)
         assert result == expected_result
-        result = ftputil.tool.same_string_type_as(Path(type_source), path)
-        assert result == expected_result
 
     def test_to_bytes(self):
-        self._test_string_and_pathlike_object(b"abc", "def", expected_result=b"def")
+        assert same_string_type_as(b"abc", "def") == b"def"
 
     def test_to_str(self):
-        self._test_string_and_pathlike_object("abc", b"def", expected_result="def")
+        assert same_string_type_as("abc", b"def") == "def"
 
     def test_both_bytes_type(self):
-        self._test_string_and_pathlike_object(b"abc", b"def", expected_result=b"def")
+        assert same_string_type_as(b"abc", b"def") == b"def"
 
     def test_both_str_type(self):
-        self._test_string_and_pathlike_object("abc", "def", expected_result="def")
+        assert same_string_type_as("abc", "def") == "def"
 
 
 as_str = ftputil.tool.as_str

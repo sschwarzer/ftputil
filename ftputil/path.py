@@ -6,6 +6,7 @@
 ftputil.path - simulate `os.path` for FTP servers
 """
 
+import os
 import posixpath
 import stat
 
@@ -53,7 +54,9 @@ class _Path:
         path = ftputil.tool.as_str_path(path)
         if not self.isabs(path):
             path = self.join(self._host.getcwd(), path)
-        return ftputil.tool.same_string_type_as(original_path, self.normpath(path))
+        return ftputil.tool.same_string_type_as(
+            os.fspath(original_path), self.normpath(path)
+        )
 
     def exists(self, path):
         """Return true if the path exists."""
