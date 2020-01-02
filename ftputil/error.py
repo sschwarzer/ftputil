@@ -40,9 +40,7 @@ class FTPError(Exception):
     def __init__(self, *args, **kwargs):
         super().__init__(*args)
         if "original_exception" in kwargs:
-            # Byte string under Python 2.
-            exception_string = str(kwargs.pop("original_exception"))
-            self.strerror = ftputil.tool.as_str(exception_string)
+            self.strerror = str(kwargs.pop("original_exception"))
         elif args:
             # If there was no `original_exception` argument, assume
             # the first argument is a string. It may be a byte string

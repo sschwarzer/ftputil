@@ -61,7 +61,7 @@ class TestErrorConversion:
         """
         # See ticket #76.
         with pytest.raises(ftputil.error.FTPOSError) as exc_info:
-            # Format "host:port" doesn't work.
+            # Format "host:port" doesn't work. The use here is intentional.
             host = ftputil.FTPHost("localhost:21", "", "")
         exc = exc_info.value
         # The error message may be different for different Python
