@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2019, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2020, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -17,6 +17,10 @@ from test import scripted_session
 
 
 Call = scripted_session.Call
+
+
+def as_bytes(string):
+    return string.encode(ftputil.tool.LOSSLESS_ENCODING)
 
 
 class TestPath:
@@ -409,7 +413,6 @@ class TestAcceptEitherBytesOrStr:
 
     def test_methods_that_take_a_string_and_return_a_bool(self):
         """Test whether the methods accept byte and unicode strings."""
-        as_bytes = ftputil.tool.as_bytes
         path_converter = self.path_converter
         script = [
             Call("__init__"),
@@ -527,7 +530,6 @@ class TestAcceptEitherBytesOrStr:
         Test whether `FTPHost.path.getmtime` accepts byte and unicode
         paths.
         """
-        as_bytes = ftputil.tool.as_bytes
         path_converter = self.path_converter
         now = datetime.datetime.now()
         script = [
@@ -561,7 +563,6 @@ class TestAcceptEitherBytesOrStr:
         """
         Test whether `FTPHost.path.getsize` accepts byte and unicode paths.
         """
-        as_bytes = ftputil.tool.as_bytes
         path_converter = self.path_converter
         now = datetime.datetime.now()
         script = [
@@ -594,7 +595,6 @@ class TestAcceptEitherBytesOrStr:
 
     def test_walk(self):
         """Test whether `FTPHost.path.walk` accepts bytes and unicode paths."""
-        as_bytes = ftputil.tool.as_bytes
         path_converter = self.path_converter
         now = datetime.datetime.now()
         script = [
