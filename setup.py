@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-# Copyright (C) 2003-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2020, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 """
@@ -41,7 +41,7 @@ core.setup(
   # Metadata
   author="Stefan Schwarzer",
   author_email="sschwarzer@sschwarzer.net",
-  url="http://ftputil.sschwarzer.net/",
+  url="https://ftputil.sschwarzer.net/",
   description="High-level FTP client library (virtual file system and more)",
   keywords="FTP, client, library, virtual file system",
   license="Open source (revised BSD license)",
