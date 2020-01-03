@@ -14,6 +14,7 @@ import functools
 import gc
 import operator
 import os
+import pathlib
 import time
 import stat
 
@@ -410,17 +411,17 @@ class TestRename(RealFTPTest):
         # Make sure the target of the renaming operation is removed.
         self.cleaner.add_file("_testfile2_")
         self.make_remote_file("_testfile1_")
-        host.rename("_testfile1_", "_testfile2_")
+        host.rename(pathlib.Path("_testfile1_"), "_testfile2_")
         assert not host.path.exists("_testfile1_")
-        assert host.path.exists("_testfile2_")
+        assert host.path.exists(pathlib.Path("_testfile2_"))
 
     def test_rename_with_spaces_in_directory(self):
         host = self.host
         dir_name = "_dir with spaces_"
         self.cleaner.add_dir(dir_name)
-        host.mkdir(dir_name)
+        host.mkdir(pathlib.Path(dir_name))
         self.make_remote_file(dir_name + "/testfile1")
-        host.rename(dir_name + "/testfile1", dir_name + "/testfile2")
+        host.rename(dir_name + "/testfile1", pathlib.Path(dir_name + "/testfile2"))
         assert not host.path.exists(dir_name + "/testfile1")
         assert host.path.exists(dir_name + "/testfile2")
 
