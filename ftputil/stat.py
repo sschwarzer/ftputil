@@ -368,7 +368,7 @@ class Parser:
         # pylint: disable=unused-argument
         #
         # For the time being, I don't add a `with_precision`
-        # parameter as in the Unix parser because the precision for
+        # parameter as in the MS parser because the precision for
         # the DOS format is always a minute and can be set in
         # `MSParser.parse_line`. Should you find yourself needing
         # support for `with_precision` for a derived class, please
