@@ -46,6 +46,8 @@ core.setup(
   keywords="FTP, client, library, virtual file system",
   license="Open source (revised BSD license)",
   platforms=["Pure Python"],
+  # See https://packaging.python.org/guides/distributing-packages-using-setuptools/#python-requires
+  python_requieres=">=3.6",
   long_description="""\
 ftputil is a high-level FTP client library for the Python programming
 language. ftputil implements a virtual file system for accessing FTP servers,
@@ -65,9 +67,6 @@ and downloads, and handles FTP clients and servers in different timezones.""",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3 :: 3.6",
-    "Programming Language :: Python :: 3 :: 3.7",
-    "Programming Language :: Python :: 3 :: 3.8",
     "Topic :: Internet :: File Transfer Protocol (FTP)",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: System :: Filesystems",
