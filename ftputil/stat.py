@@ -269,11 +269,11 @@ class Parser:
         "time on server" - "time on client" and is available as the
         `time_shift` parameter in the `parse_line` interface.
 
-        If `with_precision` is true (default: false), return a
-        two-element tuple consisting of the floating point number as
-        described in the previous paragraph and the precision of the
-        time in seconds. The default is `False` for backward
-        compatibility with custom parsers.
+        If `with_precision` is true return a two-element tuple
+        consisting of the floating point number as described in the
+        previous paragraph and the precision of the time in seconds.
+        The default is `False` for backward compatibility with custom
+        parsers.
 
         The precision value takes into account that, for example, a
         time string like "May 26  2005" has only a precision of one
@@ -343,7 +343,7 @@ class Parser:
         else:
             return st_mtime
 
-    def parse_ms_time(self, date, time_, time_shift):
+    def parse_ms_time(self, date, time_, time_shift, with_precision=False):
         """
         Return a floating point number, like from `time.mktime`, by
         parsing the string arguments `date` and `time_`. The parameter
@@ -353,6 +353,23 @@ class Parser:
 
         and can be set as the `time_shift` parameter in the
         `parse_line` interface.
+
+        If `with_precision` is true return a two-element tuple
+        consisting of the floating point number as described in the
+        previous paragraph and the precision of the time in seconds.
+        The default is `False` for backward compatibility with custom
+        parsers.
+
+        The precision value takes into account that, for example, a
+        time string like "10-23-2001 03:25PM" has only a precision of
+        one minute. This information is important for the
+        `upload_if_newer` and `download_if_newer` methods in the
+        `FTPHost` class.
+
+        Usually, the returned precision is `MINUTE_PRECISION`, except
+        when the date is before the epoch, in which case the returned
+        `st_mtime` value is set to 0.0 and the precision to
+        `UNKNOWN_PRECISION`.
 
         Times in MS-style directory listings typically have the
         format "10-23-01 03:25PM" (month-day_of_month-two_digit_year,
@@ -392,8 +409,18 @@ class Parser:
             hour = 0
         if hour != 12 and am_pm == "P":
             hour += 12
-        st_mtime = self._mktime((year, month, day, hour, minute, 0, 0, 0, -1))
-        return st_mtime
+        server_datetime = self._datetime(year, month, day, hour, minute, 0)
+        client_datetime = server_datetime - datetime.timedelta(seconds=time_shift)
+        st_mtime = client_datetime.timestamp()
+        if st_mtime < 0.0:
+            st_mtime_precision = UNKNOWN_PRECISION
+            st_mtime = 0.0
+        else:
+            st_mtime_precision = MINUTE_PRECISION
+        if with_precision:
+            return st_mtime, st_mtime_precision
+        else:
+            return st_mtime
 
 
 class UnixParser(Parser):
@@ -544,7 +571,7 @@ class MSParser(Parser):
         # st_atime
         st_atime = None
         # st_mtime
-        st_mtime = self.parse_ms_time(date, time_, time_shift)
+        st_mtime, st_mtime_precision = self.parse_ms_time(date, time_, time_shift, with_precision=True)
         # st_ctime
         st_ctime = None
         stat_result = StatResult(
@@ -568,12 +595,7 @@ class MSParser(Parser):
         stat_result._st_name = name
         stat_result._st_target = None
         # mtime precision in seconds
-        #  If we had a datetime before the epoch, the resulting value
-        #  0.0 doesn't tell us anything about the precision.
-        if st_mtime == 0.0:
-            stat_result._st_mtime_precision = UNKNOWN_PRECISION
-        else:
-            stat_result._st_mtime_precision = MINUTE_PRECISION
+        stat_result._st_mtime_precision = st_mtime_precision
         return stat_result
 
 
