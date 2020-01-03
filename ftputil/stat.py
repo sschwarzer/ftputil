@@ -297,8 +297,12 @@ class Parser:
                 "invalid month abbreviation {0!r}".format(month_abbreviation)
             )
         day = self._as_int(day, "day")
-        year_is_unknown = ":" in year_or_time
-        if year_is_unknown:
+        year_is_known = ":" not in year_or_time
+        if year_is_known:
+            # `year_or_time` is really a year.
+            st_mtime_precision = DAY_PRECISION
+            server_year, hour, minute = self._as_int(year_or_time, "year"), 0, 0
+        else:
             # `year_or_time` is a time hh:mm.
             st_mtime_precision = MINUTE_PRECISION
             hour, minute = year_or_time.split(":")
@@ -311,14 +315,10 @@ class Parser:
             server_year = (
                 datetime.datetime.now() + datetime.timedelta(seconds=time_shift)
             ).year
-        else:
-            # `year_or_time` is really a year.
-            st_mtime_precision = DAY_PRECISION
-            server_year, hour, minute = self._as_int(year_or_time, "year"), 0, 0
         server_datetime = self._datetime(server_year, month, day, hour, minute, 0)
         # Datetime in the local client time
         client_datetime = server_datetime - datetime.timedelta(seconds=time_shift)
-        if year_is_unknown:
+        if not year_is_known:
             # If the client datetime is in the future, the timestamp is actually
             # in the past, from last year. Add the deviation (the `timedelta`
             # value) to account for differences because of limited precision in
