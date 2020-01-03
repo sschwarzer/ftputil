@@ -1064,3 +1064,4 @@ class TestListdir:
             expected_names = ["download", "dir with spaces", "link", "index.html"]
             for name in expected_names:
                 assert name in remote_file_list
+            assert len(host.stat_cache) == 0
