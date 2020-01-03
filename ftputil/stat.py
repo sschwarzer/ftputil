@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2020, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -10,7 +10,6 @@ import datetime
 import math
 import re
 import stat
-import time
 
 import ftputil.error
 import ftputil.stat_cache
@@ -203,41 +202,6 @@ class Parser:
             raise ftputil.error.ParserError(
                 "non-integer {} value {!r}".format(int_description, int_string)
             )
-
-    # pylint: disable=no-self-use
-    def _mktime(self, mktime_tuple):
-        """
-        Return a float value like `time.mktime` does, but ...
-
-        - Raise a `ParserError` if parts of `mktime_tuple` are
-          invalid (say, a day is 32).
-
-        - If the resulting float value would be smaller than 0.0
-          (indicating a time before the "epoch") return a sentinel
-          value of 0.0. Do this also if the native `mktime`
-          implementation would raise an `OverflowError`.
-        """
-        datetime_tuple = mktime_tuple[:6]
-        try:
-            # Only for sanity checks, we're not interested in the
-            # return value.
-            datetime.datetime(*datetime_tuple)
-        # For example, day == 32. Not all implementations of `mktime`
-        # catch this kind of error.
-        except ValueError:
-            invalid_datetime = "%04d-%02d-%02d %02d:%02d:%02d" % datetime_tuple
-            raise ftputil.error.ParserError(
-                "invalid datetime {0!r}".format(invalid_datetime)
-            )
-        try:
-            time_float = time.mktime(mktime_tuple)
-        except (OverflowError, ValueError):
-            # Sentinel for times before the epoch, see ticket #83.
-            time_float = 0.0
-        # Don't allow float values smaller than 0.0 because, according
-        # to https://docs.python.org/3/library/time.html#module-time ,
-        # these might be undefined for some platforms.
-        return max(0.0, time_float)
 
     @staticmethod
     def _datetime(year, month, day, hour, minute, second):
@@ -571,7 +535,9 @@ class MSParser(Parser):
         # st_atime
         st_atime = None
         # st_mtime
-        st_mtime, st_mtime_precision = self.parse_ms_time(date, time_, time_shift, with_precision=True)
+        st_mtime, st_mtime_precision = self.parse_ms_time(
+            date, time_, time_shift, with_precision=True
+        )
         # st_ctime
         st_ctime = None
         stat_result = StatResult(
