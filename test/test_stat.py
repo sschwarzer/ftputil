@@ -49,7 +49,7 @@ class TestParsers:
         parser = parser_class()
         for line, expected_stat_result in zip(lines, expected_stat_results):
             # Convert to list to compare with the list `expected_stat_results`.
-            parse_result = parser.parse_line(line)
+            parse_result = parser.parse_line(line, time_shift=5 * 60 * 60)
             stat_result = list(parse_result) + [
                 parse_result._st_mtime_precision,
                 parse_result._st_name,
@@ -93,10 +93,12 @@ class TestParsers:
             "chemeng link -> chemeng target",
             # The year value for this line will change with the actual time.
             "-rw-r--r--   1 45854    200          4604 Dec 19 23:11 index.html",
-            "drwxr-sr-x   2 45854    200           512 May 29  2000 os2",
+            "drwxr-sr-x   2 45854    200           512 Jan 01  2000 os2",
             "----------   2 45854    200           512 May 29  2000 some_file",
             "lrwxrwxrwx   2 45854    200           512 May 29  2000 osup -> " "../os2",
         ]
+        # Note that the time shift is also subtracted from the datetimes that
+        # have only day precision, i. e. a year but no time.
         expected_stat_results = [
             [
                 17901,
@@ -107,7 +109,7 @@ class TestParsers:
                 "200",
                 512,
                 None,
-                (2000, 5, 4, 0, 0, 0),
+                (2000, 5, 3, 19, 0, 0),
                 None,
                 DAY_PRECISION,
                 "chemeng link",
@@ -122,7 +124,7 @@ class TestParsers:
                 "200",
                 4604,
                 None,
-                (self._expected_year(), 12, 19, 23, 11, 0),
+                (self._expected_year(), 12, 19, 18, 11, 0),
                 None,
                 MINUTE_PRECISION,
                 "index.html",
@@ -137,7 +139,7 @@ class TestParsers:
                 "200",
                 512,
                 None,
-                (2000, 5, 29, 0, 0, 0),
+                (1999, 12, 31, 19, 0, 0),
                 None,
                 DAY_PRECISION,
                 "os2",
@@ -152,7 +154,7 @@ class TestParsers:
                 "200",
                 512,
                 None,
-                (2000, 5, 29, 0, 0, 0),
+                (2000, 5, 28, 19, 0, 0),
                 None,
                 DAY_PRECISION,
                 "some_file",
@@ -167,7 +169,7 @@ class TestParsers:
                 "200",
                 512,
                 None,
-                (2000, 5, 29, 0, 0, 0),
+                (2000, 5, 28, 19, 0, 0),
                 None,
                 DAY_PRECISION,
                 "osup",
@@ -197,7 +199,7 @@ class TestParsers:
                 "200",
                 512,
                 None,
-                (2000, 5, 4, 0, 0, 0),
+                (2000, 5, 3, 19, 0, 0),
                 None,
                 DAY_PRECISION,
                 "chemeng link",
@@ -212,7 +214,7 @@ class TestParsers:
                 "200",
                 4604,
                 None,
-                (self._expected_year(), 12, 19, 23, 11, 0),
+                (self._expected_year(), 12, 19, 18, 11, 0),
                 None,
                 MINUTE_PRECISION,
                 "index.html",
@@ -227,7 +229,7 @@ class TestParsers:
                 "200",
                 512,
                 None,
-                (2000, 5, 29, 0, 0, 0),
+                (2000, 5, 28, 19, 0, 0),
                 None,
                 DAY_PRECISION,
                 "os2",
@@ -242,7 +244,7 @@ class TestParsers:
                 "200",
                 512,
                 None,
-                (2000, 5, 29, 0, 0, 0),
+                (2000, 5, 28, 19, 0, 0),
                 None,
                 DAY_PRECISION,
                 "osup",
@@ -302,6 +304,8 @@ class TestParsers:
             "-rw-r--r--   1 45854    200          4604 Dec 19 23:ab index.html",
             # Day value too large
             "drwxr-sr-x   2 45854    200           512 May 32  2000 chemeng",
+            # Ditto, for time instead of year
+            "drwxr-sr-x   2 45854    200           512 May 32 11:22 chemeng",
             # Incomplete mode
             "drwxr-sr-    2 45854    200           512 May  4  2000 chemeng",
             # Invalid first letter in mode
