@@ -59,7 +59,9 @@ and downloads, and handles FTP clients and servers in different timezones.""",
     "http://ftputil.sschwarzer.net/trac/attachment/wiki/Download/"
     "{}-{}.tar.gz?format=raw".format(_name, _version),
   classifiers=[
-    "Development Status :: 5 - Production/Stable",
+    # Commented-out for beta release
+    # "Development Status :: 5 - Production/Stable",
+    "Development Status :: 4 - Beta",
     "Environment :: Other Environment",
     "Intended Audience :: Developers",
     "Intended Audience :: System Administrators",
