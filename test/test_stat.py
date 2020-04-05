@@ -28,8 +28,8 @@ EPOCH = time.gmtime(0)[:6]
 
 def stat_tuple_to_seconds(t):
     """
-    Return a float number representing the local time associated with
-    the six-element tuple `t`.
+    Return a float number representing the UTC timestamp from the six-element
+    tuple `t`.
     """
     assert len(t) == 6, "need a six-element tuple (year, month, day, hour, min, sec)"
     # Do _not_ apply `time.mktime` to the `EPOCH` value below. On some
@@ -37,7 +37,7 @@ def stat_tuple_to_seconds(t):
     if t == EPOCH:
         return 0.0
     else:
-        return time.mktime(t + (0, 0, -1))
+        return datetime.datetime(*t, tzinfo=datetime.timezone.utc).timestamp()
 
 
 class TestParsers:
@@ -75,14 +75,16 @@ class TestParsers:
         # year, else use the previous year. This datetime value
         # corresponds to the hard-coded value in the string lists
         # below.
-        now = time.localtime()
-        # We need only month, day, hour and minute.
-        current_time_parts = now[1:5]
-        time_parts_in_listing = (12, 19, 23, 11)
-        if current_time_parts > time_parts_in_listing:
-            return now[0]
+        client_datetime = datetime.datetime.utcnow().replace(
+            tzinfo=datetime.timezone.utc
+        )
+        server_datetime_candidate = client_datetime.replace(
+            month=12, day=19, hour=23, minute=11, second=0
+        )
+        if server_datetime_candidate > client_datetime:
+            return server_datetime_candidate.year - 1
         else:
-            return now[0] - 1
+            return server_datetime_candidate.year
 
     #
     # Unix parser
@@ -523,26 +525,26 @@ class TestParsers:
             # Explicitly use Unix format parser here.
             host._stat._parser = ftputil.stat.UnixParser()
             host.set_time_shift(supposed_time_shift)
-            local_server_time = datetime.datetime.now() + datetime.timedelta(
-                seconds=supposed_time_shift + deviation
-            )
+            server_time = datetime.datetime.utcnow().replace(
+                tzinfo=datetime.timezone.utc
+            ) + datetime.timedelta(seconds=supposed_time_shift + deviation)
             stat_result = host._stat._parser.parse_line(
-                self.dir_line(local_server_time), host.time_shift()
+                self.dir_line(server_time), host.time_shift()
             )
             # We expect `st_mtime` in UTC.
             self.assert_equal_times(
                 stat_result.st_mtime,
                 (
-                    local_server_time
-                    # Convert back to local client time.
+                    server_time
+                    # Convert back to client time.
                     - datetime.timedelta(seconds=supposed_time_shift)
-                    # `timestamp()` implicitly converts from local time to UTC.
                 ).timestamp(),
             )
 
     def test_time_shifts(self):
         """Test correct year depending on time shift value."""
-        # 1. test: Client and server share the same local time
+        # 1. test: Client and server share the same time (UTC). This is true if
+        # the directory listing from the server is in UTC.
         self._test_time_shift(0.0)
         # 2. test: Server is three hours ahead of client
         self._test_time_shift(3 * 60 * 60)
@@ -589,12 +591,10 @@ class TestLstatAndStat:
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             host.stat_cache.disable()
             stat_result = host.stat("/foo")
-            # TODO: Make the value for `st_mtime` robust against DST "time
-            # zone" changes.
             expected_result = (
                 "StatResult(st_mode=17901, st_ino=None, st_dev=None, "
                 "st_nlink=2, st_uid='45854', st_gid='200', st_size=512, "
-                "st_atime=None, st_mtime=957391200.0, st_ctime=None)"
+                "st_atime=None, st_mtime=957398400.0, st_ctime=None)"
             )
             assert repr(stat_result) == expected_result
 

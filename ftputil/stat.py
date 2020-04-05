@@ -206,14 +206,16 @@ class Parser:
     @staticmethod
     def _datetime(year, month, day, hour, minute, second):
         """
-        Return naive `datetime.datetime` object for the given year, month, day,
+        Return UTC `datetime.datetime` object for the given year, month, day,
         hour, minute and second.
 
         If there are invalid values, for example minute > 59, raise a
         `ParserError`.
         """
         try:
-            return datetime.datetime(year, month, day, hour, minute, second)
+            return datetime.datetime(
+                year, month, day, hour, minute, second, tzinfo=datetime.timezone.utc
+            )
         except ValueError:
             invalid_datetime = (
                 f"{year:04d}-{month:02d}-{day:02d} "
@@ -275,27 +277,45 @@ class Parser:
                 self._as_int(hour, "hour"),
                 self._as_int(minute, "minute"),
             )
-            # Year and datetime in the local server time
-            server_year = (
-                datetime.datetime.now() + datetime.timedelta(seconds=time_shift)
-            ).year
-        server_datetime = self._datetime(server_year, month, day, hour, minute, 0)
-        # Datetime in the local client time
-        client_datetime = server_datetime - datetime.timedelta(seconds=time_shift)
-        if not year_is_known:
-            # If the client datetime is in the future, the timestamp is actually
-            # in the past, from last year. Add the deviation (the `timedelta`
-            # value) to account for differences because of limited precision in
-            # the directory listing.
-            if client_datetime > datetime.datetime.now() + datetime.timedelta(
-                seconds=st_mtime_precision
-            ):
-                client_datetime = client_datetime.replace(year=client_datetime.year - 1)
-        # According to
-        # https://docs.python.org/3/library/datetime.html#datetime.datetime.timestamp
-        # this assumes that the datetime is in local time and returns the
-        # seconds since the epoch, just what we want.
-        st_mtime = client_datetime.timestamp()
+            # First assume the year of the directory/file is the current year.
+            server_now = datetime.datetime.utcnow().replace(
+                tzinfo=datetime.timezone.utc
+            ) + datetime.timedelta(seconds=time_shift)
+            server_year = server_now.year
+            # If the server datetime derived from this year seems to be in the
+            # future, subtract one year.
+            #
+            # Things to consider:
+            #
+            # Since the server time will be rounded down to full minutes, apply
+            # the same truncation to the presumed current server time.
+            #
+            # Due to possible small errors in the time setting of the server
+            # (not only because of the parsing), there will always be a small
+            # time window in which we can't be sure whether the parsed time is
+            # in the future or not. Make a mistake of one second and the time
+            # is off one year.
+            #
+            # To resolve this conflict, if in doubt assume that a directory or
+            # file has just been created, not that it is by chance to the
+            # minute one year old.
+            #
+            # Hence, add a small time difference that must be exceeded in order
+            # to assume the time is in the future. This time difference is
+            # arbitrary, but we have to assume _some_ value.
+            if self._datetime(
+                server_year, month, day, hour, minute, 0
+            ) > server_now.replace(second=0) + datetime.timedelta(seconds=120):
+                server_year -= 1
+        # The time shift is the time difference the server is ahead. So to get
+        # back to client time (UTC), subtract the time shift. The calculation
+        # is supposed to be the same for negative time shifts; in this case we
+        # subtract a negative time shift, i. e. add the absolute value of the
+        # time shift to the server date time.
+        server_utc_datetime = self._datetime(
+            server_year, month, day, hour, minute, 0
+        ) - datetime.timedelta(seconds=time_shift)
+        st_mtime = server_utc_datetime.timestamp()
         # If we had a datetime before the epoch, the resulting value 0.0 doesn't
         # tell us anything about the precision.
         if st_mtime < 0.0:
@@ -432,9 +452,17 @@ class UnixParser(Parser):
         # The local variables are rather simple.
         # pylint: disable=too-many-locals
         try:
-            mode_string, nlink, user, group, size, month, day, year_or_time, name = self._split_line(
-                line
-            )
+            (
+                mode_string,
+                nlink,
+                user,
+                group,
+                size,
+                month,
+                day,
+                year_or_time,
+                name,
+            ) = self._split_line(line)
         # We can get a `ValueError` here if the name is blank (see
         # ticket #69). This is a strange use case, but at least we
         # should raise the exception the docstring mentions.
