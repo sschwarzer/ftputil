@@ -68,13 +68,12 @@ class TestParsers:
 
     def _expected_year(self):
         """
-        Return the expected year for the second line in the
-        listing in `test_valid_unix_lines`.
+        Return the expected year for the second line in the listing in
+        `test_valid_unix_lines`.
         """
-        # If in this year it's after Dec 19, 23:11, use the current
-        # year, else use the previous year. This datetime value
-        # corresponds to the hard-coded value in the string lists
-        # below.
+        # If in this year it's after Dec 19, 23:11, use the current year, else
+        # use the previous year. This datetime value corresponds to the
+        # hard-coded value in the string lists below.
         client_datetime = datetime.datetime.utcnow().replace(
             tzinfo=datetime.timezone.utc
         )
@@ -181,8 +180,8 @@ class TestParsers:
         self._test_valid_lines(ftputil.stat.UnixParser, lines, expected_stat_results)
 
     def test_alternative_unix_format(self):
-        # See http://ftputil.sschwarzer.net/trac/ticket/12 for a
-        # description for the need for an alternative format.
+        # See http://ftputil.sschwarzer.net/trac/ticket/12 for a description
+        # for the need for an alternative format.
         lines = [
             "drwxr-sr-x   2   200           512 May  4  2000 "
             "chemeng link -> chemeng target",
@@ -257,9 +256,8 @@ class TestParsers:
 
     def test_pre_epoch_times_for_unix(self):
         # See http://ftputil.sschwarzer.net/trac/ticket/83 .
-        # `mirrors.ibiblio.org` returns dates before the "epoch" that
-        # cause an `OverflowError` in `mktime` on some platforms,
-        # e. g. Windows.
+        # `mirrors.ibiblio.org` returns dates before the "epoch" that cause an
+        # `OverflowError` in `mktime` on some platforms, e. g. Windows.
         lines = [
             "-rw-r--r--   1 45854    200          4604 May  4  1968 index.html",
             "-rw-r--r--   1 45854    200          4604 Dec 31  1969 index.html",
@@ -280,8 +278,8 @@ class TestParsers:
             "index.html",
             None,
         ]
-        # Make shallow copies to avoid converting the time tuple more
-        # than once in _test_valid_lines`.
+        # Make shallow copies to avoid converting the time tuple more than once
+        # in _test_valid_lines`.
         expected_stat_results = [
             expected_stat_result[:],
             expected_stat_result[:],
@@ -314,9 +312,9 @@ class TestParsers:
             "xrwxr-sr-x   2 45854    200           512 May  4  2000 chemeng",
             # Ditto, plus invalid size value
             "xrwxr-sr-x   2 45854    200           51x May  4  2000 chemeng",
-            # Is this `os1 -> os2` pointing to `os3`, or `os1` pointing
-            # to `os2 -> os3` or the plain name `os1 -> os2 -> os3`? We
-            # don't know, so we consider the line invalid.
+            # Is this `os1 -> os2` pointing to `os3`, or `os1` pointing to
+            # `os2 -> os3` or the plain name `os1 -> os2 -> os3`? We don't
+            # know, so we consider the line invalid.
             "drwxr-sr-x   2 45854    200           512 May 29  2000 "
             "os1 -> os2 -> os3",
             # Missing name
@@ -490,14 +488,14 @@ class TestParsers:
         self._test_invalid_lines(ftputil.stat.MSParser, lines)
 
     #
-    # The following code checks if the decision logic in the Unix
-    # line parser for determining the year works.
+    # The following code checks if the decision logic in the Unix line parser
+    # for determining the year works.
     #
     def dir_line(self, datetime_):
         """
-        Return a directory line as from a Unix FTP server. Most of
-        the contents are fixed, but the timestamp is made from
-        `time_float` (seconds since the epoch, as from `time.time()`).
+        Return a directory line as from a Unix FTP server. Most of the contents
+        are fixed, but the timestamp is made from `time_float` (seconds since
+        the epoch, as from `time.time()`).
         """
         line_template = "-rw-r--r--   1   45854   200   4604   {}   index.html"
         datetime_string = datetime_.strftime("%b %d %H:%M")
@@ -505,19 +503,18 @@ class TestParsers:
 
     def assert_equal_times(self, time1, time2):
         """
-        Check if both times (seconds since the epoch) are equal. For
-        the purpose of this test, two times are "equal" if they
-        differ no more than one minute from each other.
+        Check if both times (seconds since the epoch) are equal. For the
+        purpose of this test, two times are "equal" if they differ no more than
+        one minute from each other.
         """
         abs_difference = abs(time1 - time2)
         assert abs_difference <= 60.0, "Difference is %s seconds" % abs_difference
 
     def _test_time_shift(self, supposed_time_shift, deviation=0.0):
         """
-        Check if the stat parser considers the time shift value
-        correctly. `deviation` is the difference between the actual
-        time shift and the supposed time shift, which is rounded
-        to full hours.
+        Check if the stat parser considers the time shift value correctly.
+        `deviation` is the difference between the actual time shift and the
+        supposed time shift, which is rounded to full hours.
         """
         script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
@@ -553,24 +550,24 @@ class TestParsers:
             self._test_time_shift(3 * 60 * 60)
         # 3. test: Client is three hours ahead of server
         self._test_time_shift(-3 * 60 * 60)
-        # 4. test: Server is supposed to be three hours ahead, but
-        #    is ahead three hours and one minute
+        # 4. test: Server is supposed to be three hours ahead, but is ahead
+        # three hours and one minute
         self._test_time_shift(3 * 60 * 60, 60)
-        # 5. test: Server is supposed to be three hours ahead, but
-        #    is ahead three hours minus one minute
+        # 5. test: Server is supposed to be three hours ahead, but is ahead
+        # three hours minus one minute
         self._test_time_shift(3 * 60 * 60, -60)
-        # 6. test: Client is supposed to be three hours ahead, but
-        #    is ahead three hours and one minute
+        # 6. test: Client is supposed to be three hours ahead, but is ahead
+        # three hours and one minute
         self._test_time_shift(-3 * 60 * 60, -60)
-        # 7. test: Client is supposed to be three hours ahead, but
-        #    is ahead three hours minus one minute
+        # 7. test: Client is supposed to be three hours ahead, but is ahead
+        # three hours minus one minute
         self._test_time_shift(-3 * 60 * 60, 60)
 
 
 class TestLstatAndStat:
     """
-    Test `FTPHost.lstat` and `FTPHost.stat` (test currently only
-    implemented for Unix server format).
+    Test `FTPHost.lstat` and `FTPHost.stat` (test currently only implemented
+    for Unix server format).
     """
 
     def test_repr(self):
@@ -649,9 +646,9 @@ class TestLstatAndStat:
         """
         Test `lstat` for `/` .
 
-        Note: `(l)stat` works by going one directory up and parsing
-        the output of an FTP `LIST` command. Unfortunately, it's not
-        possible to do this for the root directory `/`.
+        Note: `(l)stat` works by going one directory up and parsing the output
+        of an FTP `LIST` command. Unfortunately, it's not possible to do this
+        for the root directory `/`.
         """
         script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
@@ -691,8 +688,8 @@ class TestLstatAndStat:
             Call("pwd", result="/"),
             Call("cwd", args=("/",)),
             Call("cwd", args=("/",)),
-            # First try with unix parser, but this parser can't parse
-            # this line.
+            # First try with unix parser, but this parser can't parse this
+            # line.
             Call(
                 "dir",
                 args=("",),
@@ -765,8 +762,8 @@ class TestLstatAndStat:
             Call("pwd", result="/"),
             Call("cwd", args=("/",)),
             Call("cwd", args=("/",)),
-            # First try with unix parser, but this parser can't parse
-            # this line.
+            # First try with unix parser, but this parser can't parse this
+            # line.
             Call(
                 "dir",
                 args=("",),
@@ -843,8 +840,8 @@ class TestLstatAndStat:
             "lrwxrwxrwx   1 45854   200   14   Jan 19  2002 link -> link_target\n"
             "-rw-r--r--   1 45854   200   4604 Jan 19 23:11 link_target"
         )
-        # Note that only one `dir` call would be needed in case of an
-        # enabled cache.
+        # Note that only one `dir` call would be needed in case of an enabled
+        # cache.
         script = [
             Call("__init__"),
             Call("pwd", result="/"),
@@ -889,11 +886,10 @@ class TestLstatAndStat:
             Call("cwd", args=("/",)),
             Call("cwd", args=("/",)),
             Call("cwd", args=("/",)),
-            # FIXME: `stat` looks up the link target pointed to by
-            # `bad_link2`, which is `bad_link1`. Only here ftputil
-            # notices the recursive link chain. Obviously the start of
-            # the link chain hadn't been stored in `visited_paths` (see
-            # also ticket #108).
+            # FIXME: `stat` looks up the link target pointed to by `bad_link2`,
+            # which is `bad_link1`. Only here ftputil notices the recursive
+            # link chain. Obviously the start of the link chain hadn't been
+            # stored in `visited_paths` (see also ticket #108).
             Call("dir", args=("",), result=dir_lines),
             Call("cwd", args=("/",)),
             Call("close"),
@@ -928,10 +924,9 @@ class TestLstatAndStat:
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             host.stat_cache.disable()
             assert host._stat._allow_parser_switching is True
-            # With these directory contents, we get a `ParserError` for
-            # the Unix parser first, so `_allow_parser_switching` can be
-            # switched off no matter whether we got a `PermanentError`
-            # afterward or not.
+            # With these directory contents, we get a `ParserError` for the
+            # Unix parser first, so `_allow_parser_switching` can be switched
+            # off no matter whether we got a `PermanentError` afterward or not.
             with pytest.raises(ftputil.error.PermanentError):
                 host.lstat("/nonexistent")
             assert host._stat._allow_parser_switching is False
@@ -988,8 +983,8 @@ class TestLstatAndStat:
             host.stat_cache.disable()
             assert host._stat._allow_parser_switching is True
             assert isinstance(host._stat._parser, ftputil.stat.UnixParser)
-            # Parsing the directory `/` with the Unix parser fails, so
-            # switch to the MS parser.
+            # Parsing the directory `/` with the Unix parser fails, so switch
+            # to the MS parser.
             stat_result = host.lstat("/some_file")
             assert isinstance(host._stat._parser, ftputil.stat.MSParser)
             assert host._stat._allow_parser_switching is False
@@ -1010,9 +1005,9 @@ class TestLstatAndStat:
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             host.stat_cache.disable()
             assert host._stat._allow_parser_switching is True
-            # When the directory we're looking into doesn't give us any
-            # lines we can't decide whether the first parser worked,
-            # because it wasn't applied. So keep the parser for now.
+            # When the directory we're looking into doesn't give us any lines
+            # we can't decide whether the first parser worked, because it
+            # wasn't applied. So keep the parser for now.
             result = host.listdir("/")
             assert result == []
             assert host._stat._allow_parser_switching is True
