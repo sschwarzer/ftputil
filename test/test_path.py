@@ -531,7 +531,7 @@ class TestAcceptEitherBytesOrStr:
         paths.
         """
         path_converter = self.path_converter
-        now = datetime.datetime.now()
+        now = datetime.datetime.utcnow()
         script = [
             Call("__init__"),
             Call("pwd", result="/"),
