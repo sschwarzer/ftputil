@@ -55,9 +55,9 @@ class TestTimestampComparison:
             (10000.0 + 0.2 * hour, 0.2 * hour, 10000.0, hour, True),
             (10000.0 - 0.2 * hour, 2 * hour, 10000.0, hour, True),
             # Unknown precision
-            (1000.0, None, 1000.0, second, True),
-            (1000.0, second, 1000.0, None, True),
-            (1000.0, None, 1000.0, None, True),
+            (1000.0, unknown, 1000.0, second, True),
+            (1000.0, second, 1000.0, unknown, True),
+            (1000.0, unknown, 1000.0, unknown, True),
         ]
         for (
             source_mtime,
