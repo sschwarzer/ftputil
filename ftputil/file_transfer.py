@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2013-2020, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -79,7 +79,7 @@ class RemoteFile:
         """Return the timestamp for the last modification in seconds."""
         # Convert to client time zone (see definition of time
         # shift in docstring of `FTPHost.set_time_shift`).
-        return self._path.getmtime(self.name) - self._host.time_shift()
+        return self._path.getmtime(self.name)
 
     def mtime_precision(self):
         """Return the precision of the last modification time in seconds."""
