@@ -89,7 +89,7 @@ class FTPHost:
         self.curdir, self.pardir, self.sep = ".", "..", "/"
         # Set default time shift (used in `upload_if_newer` and
         # `download_if_newer`).
-        self.set_time_shift(0.0)
+        self._time_shift = 0.0
         # Don't use `LIST -a` option by default. If the server doesn't
         # understand the `-a` option and interprets it as a path, the
         # results can be surprising. See ticket #110.
@@ -320,9 +320,13 @@ class FTPHost:
 
         The time shift is measured in seconds.
         """
-        # Implicitly set via `set_time_shift` call in constructor
-        # pylint: disable=attribute-defined-outside-init
-        self._time_shift = time_shift
+        old_time_shift = self.time_shift()
+        if time_shift != old_time_shift:
+            # If the time shift changed, all entries in the cache will have
+            # wrong times with respect to the updated time shift, therefore
+            # clear the cache.
+            self.stat_cache.clear()
+            self._time_shift = time_shift
 
     def time_shift(self):
         """
