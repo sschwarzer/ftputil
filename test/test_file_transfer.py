@@ -74,7 +74,7 @@ class TestTimestampComparison:
         """
         # Define some time units/precisions.
         second = 1.0
-        minute = 60.0 * second
+        minute = 60 * second
         hour = 60 * minute
         day = 24 * hour
         unknown = ftputil.stat.UNKNOWN_PRECISION
