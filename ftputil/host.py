@@ -307,35 +307,6 @@ class FTPHost:
     #
     # Time shift adjustment between client (i. e. us) and server
     #
-    def set_time_shift(self, time_shift):
-        """
-        Set the time shift value (i. e. the time difference between
-        client and server, where the client time is in UTC) for this
-        `FTPHost` object. By (my) definition, the time shift value is
-        positive if the local time of the server is greater than the
-        local time of the client (for the same physical time), i. e.
-
-            time_shift =def= t_server - t_client_utc
-        <=> t_server = t_client_utc + time_shift
-        <=> t_client_utc = t_server - time_shift
-
-        The time shift is measured in seconds.
-        """
-        old_time_shift = self.time_shift()
-        if time_shift != old_time_shift:
-            # If the time shift changed, all entries in the cache will have
-            # wrong times with respect to the updated time shift, therefore
-            # clear the cache.
-            self.stat_cache.clear()
-            self._time_shift = time_shift
-
-    def time_shift(self):
-        """
-        Return the time shift between FTP server and client. See the
-        docstring of `set_time_shift` for more on this value.
-        """
-        return self._time_shift
-
     @staticmethod
     def __rounded_time_shift(time_shift):
         """
@@ -380,6 +351,36 @@ class FTPHost:
                 "time shift ({0:.2f} s) deviates more than {1:d} s "
                 "from 15-minute units".format(time_shift, int(maximum_deviation))
             )
+
+    def set_time_shift(self, time_shift):
+        """
+        Set the time shift value (i. e. the time difference between
+        client and server, where the client time is in UTC) for this
+        `FTPHost` object. By (my) definition, the time shift value is
+        positive if the local time of the server is greater than the
+        local time of the client (for the same physical time), i. e.
+
+            time_shift =def= t_server - t_client_utc
+        <=> t_server = t_client_utc + time_shift
+        <=> t_client_utc = t_server - time_shift
+
+        The time shift is measured in seconds.
+        """
+        self.__assert_valid_time_shift(time_shift)
+        old_time_shift = self.time_shift()
+        if time_shift != old_time_shift:
+            # If the time shift changed, all entries in the cache will have
+            # wrong times with respect to the updated time shift, therefore
+            # clear the cache.
+            self.stat_cache.clear()
+            self._time_shift = self.__rounded_time_shift(time_shift)
+
+    def time_shift(self):
+        """
+        Return the time shift between FTP server and client. See the
+        docstring of `set_time_shift` for more on this value.
+        """
+        return self._time_shift
 
     def synchronize_times(self):
         """
@@ -445,10 +446,7 @@ class FTPHost:
             )
             server_datetime = server_datetime.replace(year=server_datetime.year + 1)
             time_shift = server_datetime.timestamp() - now
-        # Do some sanity checks.
-        self.__assert_valid_time_shift(time_shift)
-        # If tests passed, store the time difference as time shift value.
-        self.set_time_shift(self.__rounded_time_shift(time_shift))
+        self.set_time_shift(time_shift)
 
     #
     # Operations based on file-like objects (rather high-level),
