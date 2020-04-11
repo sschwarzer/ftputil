@@ -658,14 +658,15 @@ class TestTimeShift:
             # `ftputil.stat.Parser.parse_unix_time`) will return a time which
             # is a year too far in the past. The `synchronize_times`
             # method needs to deal with this and add the year "back".
-            # I don't think it's a bug in `parse_unix_time` because the
-            # method should work once the time shift is set correctly.
-            local_time = time.localtime()
-            local_time_with_wrong_year = (local_time.tm_year - 1,) + local_time[1:]
-            presumed_server_time = (
-                time.mktime(local_time_with_wrong_year) + presumed_time_shift
+            # I don't think this is a bug in `parse_unix_time` because
+            # the method should work once the time shift is set correctly.
+            client_time = datetime.datetime.utcnow().replace(
+                tzinfo=datetime.timezone.utc
             )
-            host.path.set_mtime(presumed_server_time)
+            presumed_server_time = client_time.replace(
+                year=client_time.year - 1
+            ) + datetime.timedelta(seconds=presumed_time_shift)
+            host.path.set_mtime(presumed_server_time.timestamp())
             host.synchronize_times()
             assert host.time_shift() == presumed_time_shift
 
