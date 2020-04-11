@@ -592,8 +592,6 @@ class TestTimeShift:
             (45 * 60 - 100, 45 * 60),
         ]
         for measured_time_shift, expected_time_shift in test_data:
-            print("=== measured_time_shift:", measured_time_shift)
-            print("=== expected_time_shift:", expected_time_shift)
             # Use a new `BytesIO` object to avoid exception
             # `ValueError: I/O operation on closed file`.
             file_script[4] = Call(
@@ -608,7 +606,6 @@ class TestTimeShift:
         # Invalid time shifts
         measured_time_shifts = [60 * 60 + 8 * 60, 45 * 60 - 6 * 60]
         for measured_time_shift in measured_time_shifts:
-            print("=== measured_time_shift:", measured_time_shift)
             # Use a new `BytesIO` object to avoid exception
             # `ValueError: I/O operation on closed file`.
             file_script[4] = Call(
