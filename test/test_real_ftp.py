@@ -1,14 +1,15 @@
-# Copyright (C) 2003-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2020, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
-# Execute tests on a real FTP server (other tests use a mock server).
+# Execute tests on a real FTP server (other tests use mock code).
 #
 # This test writes some files and directories on the local client and
 # the remote server. You'll need write access in the login directory.
 # This test can take a few minutes because it has to wait to test the
 # timezone calculation.
 
+import datetime
 import ftplib
 import functools
 import gc
@@ -451,12 +452,17 @@ class TestStat(RealFTPTest):
         assert host.path.isfile(file_name)
         assert not host.path.islink(file_name)
         assert host.path.getsize(file_name) == 9
-        # - file's modification time; allow up to two minutes difference
+        # - file's modification time
         host.synchronize_times()
+        #  The returned server mtime is supposed to be converted to UTC, so
+        #  there should be only a small difference between server and client
+        #  time. Arbitrarily allow two minutes here to account for limited time
+        #  precision from parsing the directory.
         server_mtime = host.path.getmtime(file_name)
-        client_mtime = time.mktime(time.localtime())
-        calculated_time_shift = server_mtime - client_mtime
-        assert not abs(calculated_time_shift - host.time_shift()) > 120
+        client_mtime = (
+            datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).timestamp()
+        )
+        assert not (client_mtime - server_mtime > 120)
 
     def test_issomething_for_nonexistent_directory(self):
         host = self.host
