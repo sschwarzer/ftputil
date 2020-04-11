@@ -1,6 +1,5 @@
 Planned:
 
-- Use `datetime` module instead of `time` module
 - Add helper routines `server_time_from_client_time` and
   `client_time_from_server_time`
 - Update documentation for ticket 134
