@@ -688,6 +688,61 @@ class TestUploadAndDownload:
         assert flag is False
 
 
+class TestMakedirs:
+    def test_exist_ok_false(self):
+        """
+        If `exist_ok` is `False` or not specified, an existing leaf directory
+        should lead to a `PermanentError` with `errno` set to 17.
+        """
+        # No `exist_ok` specified
+        script = [
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/part1",)),
+            Call("cwd", args=("/part1/part2",)),
+            Call("cwd", args=("/",)),
+            Call("close"),
+        ]
+        multisession_factory = scripted_session.factory(script)
+        with test_base.ftp_host_factory(session_factory=multisession_factory) as host:
+            with pytest.raises(ftputil.error.PermanentError) as exc_info:
+                host.makedirs("/part1/part2")
+            assert isinstance(exc_info.value, ftputil.error.PermanentError)
+            assert exc_info.value.errno == 17
+        # `exist_ok` explicitly set to `False`
+        script = [
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/part1",)),
+            Call("cwd", args=("/part1/part2",)),
+            Call("cwd", args=("/",)),
+            Call("close"),
+        ]
+        multisession_factory = scripted_session.factory(script)
+        with test_base.ftp_host_factory(session_factory=multisession_factory) as host:
+            with pytest.raises(ftputil.error.PermanentError) as exc_info:
+                host.makedirs("/part1/part2", exist_ok=False)
+            assert isinstance(exc_info.value, ftputil.error.PermanentError)
+            assert exc_info.value.errno == 17
+
+    def test_exist_ok_true(self):
+        """
+        If `exist_ok` is `True`, an existing leaf directory should _not_ lead
+        to an exception.
+        """
+        script = [
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/part1",)),
+            Call("cwd", args=("/part1/part2",)),
+            Call("cwd", args=("/",)),
+            Call("close"),
+        ]
+        multisession_factory = scripted_session.factory(script)
+        with test_base.ftp_host_factory(session_factory=multisession_factory) as host:
+            host.makedirs("/part1/part2", exist_ok=True)
+
+
 class TestAcceptEitherUnicodeOrBytes:
     """
     Test whether certain `FTPHost` methods accept either unicode
@@ -880,7 +935,15 @@ class TestAcceptEitherUnicodeOrBytes:
             # don't see an `mkd` calls here despite originally having a
             # `makedirs` call.
             Call("cwd", args=("/ä",)),
-            Call("cwd", args=("/ä/ö",)),
+            # If `exist_ok` is `False` (which is the default), the leaf
+            # directory to make must not exist. In other words, the `chdir`
+            # call is `makedirs` must fail with a permanent error.
+            Call("cwd", args=("/ä/ö",), result=ftplib.error_perm),
+            Call("cwd", args=("/ä",)),
+            Call("cwd", args=("/ä",)),
+            Call("mkd", args=("ö",)),
+            # From `isdir` call
+            Call("cwd", args=("/ä",)),
             Call("cwd", args=("/",)),
             Call("close"),
         ]
