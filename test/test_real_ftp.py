@@ -206,7 +206,7 @@ class TestMkdir(RealFTPTest):
     def test_makedirs_of_existing_directory(self):
         host = self.host
         # The (chrooted) login directory
-        host.makedirs("/")
+        host.makedirs("/", exist_ok=True)
 
     def test_makedirs_with_file_in_the_way(self):
         host = self.host
@@ -239,7 +239,7 @@ class TestMkdir(RealFTPTest):
         self.cleaner.add_dir("rootdir2/dir2")
         # Preparation: `rootdir2` exists but is only writable by root. `dir2`
         # is writable by regular ftp users. Both directories below should work.
-        host.makedirs("rootdir2/dir2")
+        host.makedirs("rootdir2/dir2", exist_ok=True)
         host.makedirs("rootdir2/dir2/dir3")
 
 

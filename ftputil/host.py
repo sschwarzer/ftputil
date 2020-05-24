@@ -664,8 +664,13 @@ class FTPHost:
     def makedirs(self, path, mode=None, exist_ok=False):
         """
         Make the directory `path`, but also make not yet existing intermediate
-        directories, like `os.makedirs`. The value of `mode` is only accepted
-        for compatibility with `os.makedirs` but otherwise ignored.
+        directories, like `os.makedirs`.
+
+        The value of `mode` is only accepted for compatibility with
+        `os.makedirs` but otherwise ignored.
+
+        If `exist_ok` is `False` (the default) and the leaf directory exists,
+        raise a `PermanentError` with `errno` 17.
         """
         path = ftputil.tool.as_str_path(path)
         path = self.path.abspath(path)
@@ -683,6 +688,7 @@ class FTPHost:
                 try:
                     self.chdir(next_directory)
                 except ftputil.error.PermanentError:
+                    # Directory presumably doesn't exist.
                     try:
                         self.mkdir(next_directory)
                     except ftputil.error.PermanentError:
@@ -692,6 +698,19 @@ class FTPHost:
                         # regular file with the name of the directory.
                         if not self.path.isdir(next_directory):
                             raise
+                else:
+                    # Directory exists. If we are at the last directory
+                    # component and `exist_ok` is `False`, this is an error.
+                    if (index == len(directories) - 1) and (not exist_ok):
+                        # Before PEP 3151, if `exist_ok` is `False`, trying to
+                        # create an existing directory in the local file system
+                        # results in an `OSError` with `errno` 17, so emulate
+                        # this also for FTP.
+                        ftp_os_error = ftputil.error.PermanentError(
+                            "path {!r} exists".format(path)
+                        )
+                        ftp_os_error.errno = 17
+                        raise ftp_os_error
         finally:
             self.chdir(old_dir)
 
