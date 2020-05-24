@@ -58,7 +58,9 @@ class TestStatCache:
         assert len(self.cache) == 100
 
     def test_max_age1(self):
-        """Set expiration after setting a cache item."""
+        """
+        Set expiration after setting a cache item.
+        """
         self.cache["/path1"] = "test1"
         # Expire after one second
         self.cache.max_age = 1
@@ -71,7 +73,9 @@ class TestStatCache:
             self.cache.__getitem__("/path1")
 
     def test_max_age2(self):
-        """Set expiration before setting a cache item."""
+        """
+        Set expiration before setting a cache item.
+        """
         # Expire after one second
         self.cache.max_age = 1
         self.cache["/path1"] = "test1"

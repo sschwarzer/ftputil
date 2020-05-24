@@ -26,7 +26,9 @@ class TestFileOperations:
     """Test operations with file-like objects."""
 
     def test_inaccessible_dir(self):
-        """Test whether opening a file at an invalid location fails."""
+        """
+        Test whether opening a file at an invalid location fails.
+        """
         host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
             Call("__init__"),
@@ -46,7 +48,9 @@ class TestFileOperations:
                 host.open("/inaccessible", "w")
 
     def test_caching_of_children(self):
-        """Test whether `FTPFile` cache of `FTPHost` object works."""
+        """
+        Test whether `FTPFile` cache of `FTPHost` object works.
+        """
         host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file1_script = [
             Call("__init__"),
@@ -107,7 +111,9 @@ class TestFileOperations:
             assert child2._file.closed
 
     def test_write_to_directory(self):
-        """Test whether attempting to write to a directory fails."""
+        """
+        Test whether attempting to write to a directory fails.
+        """
         host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
             Call("__init__"),
@@ -171,7 +177,9 @@ class TestFileOperations:
                     pass
 
     def test_binary_read(self):
-        """Read data from a binary file."""
+        """
+        Read data from a binary file.
+        """
         host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
             Call("__init__"),
@@ -193,7 +201,9 @@ class TestFileOperations:
             assert data == BINARY_TEST_DATA
 
     def test_binary_write(self):
-        """Write binary data with `write`."""
+        """
+        Write binary data with `write`.
+        """
         host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
             Call("__init__"),
@@ -216,7 +226,9 @@ class TestFileOperations:
             write_mock.assert_called_with(BINARY_TEST_DATA)
 
     def test_text_read(self):
-        """Read text with plain `read`."""
+        """
+        Read text with plain `read`.
+        """
         host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
             Call("__init__"),
@@ -253,7 +265,9 @@ class TestFileOperations:
                 assert data == ""
 
     def test_text_write(self):
-        """Write text with `write`."""
+        """
+        Write text with `write`.
+        """
         host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
             Call("__init__"),
@@ -279,7 +293,9 @@ class TestFileOperations:
         write_mock.assert_called_with(TEXT_TEST_DATA)
 
     def test_text_writelines(self):
-        """Write text with `writelines`."""
+        """
+        Write text with `writelines`.
+        """
         host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
             Call("__init__"),
@@ -312,7 +328,9 @@ class TestFileOperations:
         assert data == backup_data
 
     def test_binary_readline(self):
-        """Read binary data with `readline`."""
+        """
+        Read binary data with `readline`.
+        """
         host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
             Call("__init__"),
@@ -345,7 +363,9 @@ class TestFileOperations:
                 assert data == b""
 
     def test_text_readline(self):
-        """Read text with `readline`."""
+        """
+        Read text with `readline`.
+        """
         host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
             Call("__init__"),
@@ -382,7 +402,9 @@ class TestFileOperations:
                 assert data == ""
 
     def test_text_readlines(self):
-        """Read text with `readlines`."""
+        """
+        Read text with `readlines`.
+        """
         host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
             Call("__init__"),
@@ -470,7 +492,9 @@ class TestFileOperations:
                     input_iterator.__next__()
 
     def test_read_unknown_file(self):
-        """Test whether reading a file which isn't there fails."""
+        """
+        Test whether reading a file which isn't there fails.
+        """
         host_script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         file_script = [
             Call("__init__"),
@@ -490,9 +514,8 @@ class TestFileOperations:
 class TestAvailableChild:
     def _failing_pwd(self, exception_class):
         """
-        Return a function that will be used instead of the
-        `session.pwd` and will raise the exception
-        `exception_to_raise`.
+        Return a function that will be used instead of the `session.pwd` and
+        will raise the exception `exception_to_raise`.
         """
 
         def new_pwd():
@@ -536,36 +559,32 @@ class TestAvailableChild:
                 pass
             assert len(host._children) == 1
             # Try to create a new file. Since `pwd` in
-            # `FTPHost._available_child` raises an exception, a new
-            # child session should be created.
+            # `FTPHost._available_child` raises an exception, a new child
+            # session should be created.
             with host.open("/dummy2") as _:
                 pass
             assert len(host._children) == 2
 
     def test_pwd_with_error_temp(self):
         """
-        Test if an `error_temp` in `_session.pwd` skips the child
-        session.
+        Test if an `error_temp` in `_session.pwd` skips the child session.
         """
         self._test_with_pwd_error(ftplib.error_temp)
 
     def test_pwd_with_error_reply(self):
         """
-        Test if an `error_reply` in `_session.pwd` skips the child
-        session.
+        Test if an `error_reply` in `_session.pwd` skips the child session.
         """
         self._test_with_pwd_error(ftplib.error_reply)
 
     def test_pwd_with_OSError(self):
         """
-        Test if an `OSError` in `_session.pwd` skips the child
-        session.
+        Test if an `OSError` in `_session.pwd` skips the child session.
         """
         self._test_with_pwd_error(OSError)
 
     def test_pwd_with_EOFError(self):
         """
-        Test if an `EOFError` in `_session.pwd` skips the child
-        session.
+        Test if an `EOFError` in `_session.pwd` skips the child session.
         """
         self._test_with_pwd_error(EOFError)

@@ -19,7 +19,9 @@ Call = scripted_session.Call
 
 
 class MockFile:
-    """Class compatible with `LocalFile` and `RemoteFile`."""
+    """
+    Class compatible with `LocalFile` and `RemoteFile`.
+    """
 
     def __init__(self, mtime, mtime_precision):
         self._mtime = mtime
@@ -78,9 +80,9 @@ class TestTimestampComparison:
         hour = 60 * minute
         day = 24 * hour
         unknown = ftputil.stat.UNKNOWN_PRECISION
-        # Define input arguments; modification datetimes are in seconds.
-        # Fields are source datetime/precision, target datetime/precision,
-        # expected comparison result.
+        # Define input arguments; modification datetimes are in seconds. Fields
+        # are source datetime/precision, target datetime/precision, expected
+        # comparison result.
         file_data = [
             # Non-overlapping modification datetimes/precisions
             (1000.0, second, 900.0, second, True),
@@ -116,7 +118,9 @@ class TestTimestampComparison:
 
 
 class FailingStringIO(io.BytesIO):
-    """Mock class to test whether exceptions are passed on."""
+    """
+    Mock class to test whether exceptions are passed on.
+    """
 
     # Kind of nonsense; we just want to see this exception raised.
     expected_exception = IndexError
@@ -127,12 +131,16 @@ class FailingStringIO(io.BytesIO):
 
 class TestChunkwiseTransfer:
     def _random_string(self, count):
-        """Return a `BytesIO` object containing `count` "random" bytes."""
+        """
+        Return a `BytesIO` object containing `count` "random" bytes.
+        """
         ints = (random.randint(0, 255) for i in range(count))
         return bytes(ints)
 
     def test_chunkwise_transfer_without_remainder(self):
-        """Check if we get four chunks with 256 Bytes each."""
+        """
+        Check if we get four chunks with 256 Bytes each.
+        """
         data = self._random_string(1024)
         fobj = io.BytesIO(data)
         chunks = list(ftputil.file_transfer.chunks(fobj, 256))
@@ -143,7 +151,9 @@ class TestChunkwiseTransfer:
         assert chunks[3] == data[768:1024]
 
     def test_chunkwise_transfer_with_remainder(self):
-        """Check if we get three chunks with 256 Bytes and one with 253."""
+        """
+        Check if we get three chunks with 256 Bytes and one with 253.
+        """
         data = self._random_string(1021)
         fobj = io.BytesIO(data)
         chunks = list(ftputil.file_transfer.chunks(fobj, 256))
@@ -154,7 +164,9 @@ class TestChunkwiseTransfer:
         assert chunks[3] == data[768:1021]
 
     def test_chunkwise_transfer_with_exception(self):
-        """Check if we see the exception raised during reading."""
+        """
+        Check if we see the exception raised during reading.
+        """
         data = self._random_string(1024)
         fobj = FailingStringIO(data)
         iterator = ftputil.file_transfer.chunks(fobj, 256)

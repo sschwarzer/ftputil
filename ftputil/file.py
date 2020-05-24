@@ -17,9 +17,8 @@ __all__ = []
 
 class FTPFile:
     """
-    Represents a file-like object associated with an FTP host. File
-    and socket are closed appropriately if the `close` method is
-    called.
+    Represents a file-like object associated with an FTP host. File and socket
+    are closed appropriately if the `close` method is called.
     """
 
     # Set timeout in seconds when closing file connections (see ticket #51).
@@ -49,8 +48,8 @@ class FTPFile:
         """
         Open the remote file with given path name and mode.
 
-        Contrary to the `open` builtin, this method returns `None`,
-        instead this file object is modified in-place.
+        Contrary to the `open` builtin, this method returns `None`, instead
+        this file object is modified in-place.
         """
         # We use the same arguments as in `open`.
         # pylint: disable=unused-argument
@@ -90,19 +89,19 @@ class FTPFile:
         self._fobj = self._conn.makefile(
             mode, buffering=buffering, encoding=encoding, errors=errors, newline=newline
         )
-        # This comes last so that `close` won't try to close `FTPFile`
-        # objects without `_conn` and `_fobj` attributes in case of an
-        # error.
+        # This comes last so that `close` won't try to close `FTPFile` objects
+        # without `_conn` and `_fobj` attributes in case of an error.
         self.closed = False
 
     def __iter__(self):
-        """Return a file iterator."""
+        """
+        Return a file iterator.
+        """
         return self
 
     def __next__(self):
         """
-        Return the next line or raise `StopIteration`, if there are
-        no more.
+        Return the next line or raise `StopIteration`, if there are no more.
         """
         # Apply implicit line ending conversion for text files.
         line = self.readline()
@@ -115,8 +114,8 @@ class FTPFile:
     # Context manager methods
     #
     def __enter__(self):
-        # Return `self`, so it can be accessed as the variable
-        # component of the `with` statement.
+        # Return `self`, so it can be accessed as the variable component of the
+        # `with` statement.
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -131,13 +130,12 @@ class FTPFile:
     #
     def __getattr__(self, attr_name):
         """
-        Handle requests for attributes unknown to `FTPFile` objects:
-        delegate the requests to the contained file object.
+        Handle requests for attributes unknown to `FTPFile` objects: delegate
+        the requests to the contained file object.
         """
         if attr_name in (
-            "encoding flush isatty fileno read readline "
-            "readlines seek tell truncate name softspace "
-            "write writelines".split()
+            "encoding flush isatty fileno read readline readlines seek tell "
+            "truncate name softspace write writelines".split()
         ):
             return getattr(self._fobj, attr_name)
         raise AttributeError("'FTPFile' object has no attribute '{}'".format(attr_name))
@@ -146,20 +144,22 @@ class FTPFile:
     # http://docs.python.org/whatsnew/2.6.html#other-language-changes )
 
     def close(self):
-        """Close the `FTPFile`."""
+        """
+        Close the `FTPFile`.
+        """
         if self.closed:
             return
         # Timeout value to restore, see below.
-        # Statement works only before the try/finally statement,
-        # otherwise Python raises an `UnboundLocalError`.
+        # Statement works only before the try/finally statement, otherwise
+        # Python raises an `UnboundLocalError`.
         old_timeout = self._session.sock.gettimeout()
         try:
             self._fobj.close()
             self._fobj = None
             with ftputil.error.ftplib_error_to_ftp_io_error:
                 self._conn.close()
-            # Set a timeout to prevent waiting until server timeout
-            # if we have a server blocking here like in ticket #51.
+            # Set a timeout to prevent waiting until server timeout if we have
+            # a server blocking here like in ticket #51.
             self._session.sock.settimeout(self._close_timeout)
             try:
                 with ftputil.error.ftplib_error_to_ftp_io_error:
@@ -167,8 +167,7 @@ class FTPFile:
             except ftputil.error.FTPIOError as exc:
                 # Ignore some errors, see tickets #51 and #17 at
                 # http://ftputil.sschwarzer.net/trac/ticket/51 and
-                # http://ftputil.sschwarzer.net/trac/ticket/17,
-                # respectively.
+                # http://ftputil.sschwarzer.net/trac/ticket/17, respectively.
                 exc = str(exc)
                 error_code = exc[:3]
                 if exc.splitlines()[0] != "timed out" and error_code not in (
@@ -179,13 +178,12 @@ class FTPFile:
                 ):
                     raise
         finally:
-            # Restore timeout for socket of `FTPFile`'s `ftplib.FTP`
-            # object in case the connection is reused later.
+            # Restore timeout for socket of `FTPFile`'s `ftplib.FTP` object in
+            # case the connection is reused later.
             self._session.sock.settimeout(old_timeout)
-            # If something went wrong before, the file is probably
-            # defunct and subsequent calls to `close` won't help
-            # either, so we consider the file closed for practical
-            # purposes.
+            # If something went wrong before, the file is probably defunct and
+            # subsequent calls to `close` won't help either, so we consider the
+            # file closed for practical purposes.
             self.closed = True
 
     def __getstate__(self):

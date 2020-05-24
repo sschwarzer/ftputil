@@ -539,7 +539,9 @@ class TestParsers:
             )
 
     def test_time_shifts(self):
-        """Test correct year depending on time shift value."""
+        """
+        Test correct year depending on time shift value.
+        """
         # 1. test: Client and server share the same time (UTC). This is true if
         # the directory listing from the server is in UTC.
         self._test_time_shift(0.0)
@@ -571,7 +573,9 @@ class TestLstatAndStat:
     """
 
     def test_repr(self):
-        """Test if the `repr` result looks like a named tuple."""
+        """
+        Test if the `repr` result looks like a named tuple.
+        """
         script = [
             Call("__init__"),
             Call("pwd", result="/"),
@@ -596,7 +600,9 @@ class TestLstatAndStat:
             assert repr(stat_result) == expected_result
 
     def test_failing_lstat(self):
-        """Test whether `lstat` fails for a nonexistent path."""
+        """
+        Test whether `lstat` fails for a nonexistent path.
+        """
         # Directory with presumed file item doesn't exist.
         script = [
             Call("__init__"),
@@ -660,7 +666,9 @@ class TestLstatAndStat:
         del exc_info
 
     def test_lstat_one_unix_file(self):
-        """Test `lstat` for a file described in Unix-style format."""
+        """
+        Test `lstat` for a file described in Unix-style format.
+        """
         script = [
             Call("__init__"),
             Call("pwd", result="/"),
@@ -682,7 +690,9 @@ class TestLstatAndStat:
         assert stat_result._st_mtime_precision == 60
 
     def test_lstat_one_ms_file(self):
-        """Test `lstat` for a file described in DOS-style format."""
+        """
+        Test `lstat` for a file described in DOS-style format.
+        """
         script = [
             Call("__init__"),
             Call("pwd", result="/"),
@@ -714,7 +724,9 @@ class TestLstatAndStat:
         assert stat_result._st_mtime_precision == 60
 
     def test_lstat_one_unix_dir(self):
-        """Test `lstat` for a directory described in Unix-style format."""
+        """
+        Test `lstat` for a directory described in Unix-style format.
+        """
         script = [
             Call("__init__"),
             Call("pwd", result="/"),
@@ -756,7 +768,9 @@ class TestLstatAndStat:
         )
 
     def test_lstat_one_ms_dir(self):
-        """Test `lstat` for a directory described in DOS-style format."""
+        """
+        Test `lstat` for a directory described in DOS-style format.
+        """
         script = [
             Call("__init__"),
             Call("pwd", result="/"),
@@ -787,7 +801,9 @@ class TestLstatAndStat:
         assert stat_result._st_mtime_precision == 60
 
     def test_lstat_via_stat_module(self):
-        """Test `lstat` indirectly via `stat` module."""
+        """
+        Test `lstat` indirectly via `stat` module.
+        """
         script = [
             Call("__init__"),
             Call("pwd", result="/"),
@@ -807,7 +823,9 @@ class TestLstatAndStat:
         assert stat.S_ISDIR(stat_result.st_mode)
 
     def test_stat_following_link(self):
-        """Test `stat` when invoked on a link."""
+        """
+        Test `stat` when invoked on a link.
+        """
         # Simple link
         script = [
             Call("__init__"),
@@ -903,7 +921,9 @@ class TestLstatAndStat:
     # Test automatic switching of Unix/MS parsers
     #
     def test_parser_switching_with_permanent_error(self):
-        """Test non-switching of parser format with `PermanentError`."""
+        """
+        Test non-switching of parser format with `PermanentError`.
+        """
         script = [
             Call("__init__"),
             Call("pwd", result="/"),
@@ -932,7 +952,9 @@ class TestLstatAndStat:
             assert host._stat._allow_parser_switching is False
 
     def test_parser_switching_default_to_unix(self):
-        """Test non-switching of parser format; stay with Unix."""
+        """
+        Test non-switching of parser format; stay with Unix.
+        """
         script = [
             Call("__init__"),
             Call("pwd", result="/"),
@@ -957,7 +979,9 @@ class TestLstatAndStat:
             assert host._stat._allow_parser_switching is False
 
     def test_parser_switching_to_ms(self):
-        """Test switching of parser from Unix to MS format."""
+        """
+        Test switching of parser from Unix to MS format.
+        """
         script = [
             Call("__init__"),
             Call("pwd", result="/"),
@@ -1015,10 +1039,14 @@ class TestLstatAndStat:
 
 
 class TestListdir:
-    """Test `FTPHost.listdir`."""
+    """
+    Test `FTPHost.listdir`.
+    """
 
     def test_failing_listdir(self):
-        """Test failing `FTPHost.listdir`."""
+        """
+        Test failing `FTPHost.listdir`.
+        """
         script = [
             Call("__init__"),
             Call("pwd", result="/"),
@@ -1034,7 +1062,9 @@ class TestListdir:
                 host.listdir("notthere")
 
     def test_succeeding_listdir(self):
-        """Test succeeding `FTPHost.listdir`."""
+        """
+        Test succeeding `FTPHost.listdir`.
+        """
         script = [
             Call("__init__"),
             Call("pwd", result="/"),

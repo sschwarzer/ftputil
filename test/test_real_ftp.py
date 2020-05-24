@@ -4,10 +4,10 @@
 
 # Execute tests on a real FTP server (other tests use mock code).
 #
-# This test writes some files and directories on the local client and
-# the remote server. You'll need write access in the login directory.
-# This test can take a few minutes because it has to wait to test the
-# timezone calculation.
+# These tests write some files and directories on the local client and the
+# remote server. You'll need write access in the login directory. These tests
+# can take a few minutes because they have to wait to test the timezone
+# calculation.
 
 import datetime
 import ftplib
@@ -56,8 +56,8 @@ EXPECTED_TIME_SHIFT = expected_time_shift()
 
 class Cleaner:
     """
-    This class helps remove directories and files which might
-    otherwise be left behind if a test fails in unexpected ways.
+    This class helps remove directories and files which might otherwise be left
+    behind if a test fails in unexpected ways.
     """
 
     def __init__(self, host):
@@ -67,18 +67,21 @@ class Cleaner:
         self._ftp_items = []
 
     def add_dir(self, path):
-        """Schedule a directory with path `path` for removal."""
+        """
+        Schedule a directory with path `path` for removal.
+        """
         self._ftp_items.append(("d", self._host.path.abspath(path)))
 
     def add_file(self, path):
-        """Schedule a file with path `path` for removal."""
+        """
+        Schedule a file with path `path` for removal.
+        """
         self._ftp_items.append(("f", self._host.path.abspath(path)))
 
     def clean(self):
         """
-        Remove the directories and files previously remembered.
-        The removal works in reverse order of the scheduling with
-        `add_dir` and `add_file`.
+        Remove the directories and files previously remembered. The removal
+        works in reverse order of the scheduling with `add_dir` and `add_file`.
 
         Errors due to a removal are ignored.
         """
@@ -86,8 +89,8 @@ class Cleaner:
         for type_, path in reversed(self._ftp_items):
             try:
                 if type_ == "d":
-                    # If something goes wrong in `rmtree` we might
-                    # leave a mess behind.
+                    # If something goes wrong in `rmtree` we might leave a mess
+                    # behind.
                     self._host.rmtree(path)
                 elif type_ == "f":
                     # Minor mess if `remove` fails
@@ -114,12 +117,14 @@ class RealFTPTest:
         """Create a file on the FTP host."""
         self.cleaner.add_file(path)
         with self.host.open(path, "wb") as file_:
-            # Write something. Otherwise the FTP server might not update
-            # the time of last modification if the file existed before.
+            # Write something. Otherwise the FTP server might not update the
+            # time of last modification if the file existed before.
             file_.write(b"\n")
 
     def make_local_file(self):
-        """Create a file on the local host (= on the client side)."""
+        """
+        Create a file on the local host (= on the client side).
+        """
         with open("_local_file_", "wb") as fobj:
             fobj.write(b"abc\x12\x34def\t")
 
@@ -232,9 +237,8 @@ class TestMkdir(RealFTPTest):
     def test_makedirs_with_writable_directory_at_end(self):
         host = self.host
         self.cleaner.add_dir("rootdir2/dir2")
-        # Preparation: `rootdir2` exists but is only writable by root.
-        # `dir2` is writable by regular ftp users. Both directories
-        # below should work.
+        # Preparation: `rootdir2` exists but is only writable by root. `dir2`
+        # is writable by regular ftp users. Both directories below should work.
         host.makedirs("rootdir2/dir2")
         host.makedirs("rootdir2/dir2/dir3")
 
@@ -329,7 +333,9 @@ class TestWalk(RealFTPTest):
     """
 
     def _walk_test(self, expected_result, **walk_kwargs):
-        """Walk the directory and test results."""
+        """
+        Walk the directory and test results.
+        """
         # Collect data using `walk`.
         actual_result = []
         for items in self.host.walk(**walk_kwargs):
@@ -465,8 +471,8 @@ class TestStat(RealFTPTest):
 
     def test_issomething_for_nonexistent_directory(self):
         host = self.host
-        # Check if we get the right results if even the containing
-        # directory doesn't exist (see ticket #66).
+        # Check if we get the right results if even the containing directory
+        # doesn't exist (see ticket #66).
         nonexistent_path = "/nonexistent/nonexistent"
         assert not host.path.isdir(nonexistent_path)
         assert not host.path.isfile(nonexistent_path)
@@ -502,7 +508,9 @@ class TestStat(RealFTPTest):
                     host1.stat("_testfile_")
 
     def test_cache_auto_resizing(self):
-        """Test if the cache is resized appropriately."""
+        """
+        Test if the cache is resized appropriately.
+        """
         host = self.host
         cache = host.stat_cache._cache
         # Make sure the cache size isn't adjusted towards smaller values.
@@ -511,15 +519,17 @@ class TestStat(RealFTPTest):
         # Make the cache very small initially and see if it gets resized.
         cache.size = 2
         entries = host.listdir("walk_test")
-        # The adjusted cache size should be larger or equal to the
-        # number of items in `walk_test` and its parent directory. The
-        # latter is read implicitly upon `listdir`'s `isdir` call.
+        # The adjusted cache size should be larger or equal to the number of
+        # items in `walk_test` and its parent directory. The latter is read
+        # implicitly upon `listdir`'s `isdir` call.
         expected_min_cache_size = max(len(host.listdir(host.curdir)), len(entries))
         assert cache.size >= expected_min_cache_size
 
 
 class TestUploadAndDownload(RealFTPTest):
-    """Test upload and download (including time shift test)."""
+    """
+    Test upload and download (including time shift test).
+    """
 
     def test_time_shift(self):
         self.host.synchronize_times()
@@ -533,8 +543,8 @@ class TestUploadAndDownload(RealFTPTest):
         remote_file = "_remote_file_"
         # Make local file to upload.
         self.make_local_file()
-        # Wait, else small time differences between client and server
-        # actually could trigger the update.
+        # Wait, else small time differences between client and server actually
+        # could trigger the update.
         time.sleep(65)
         try:
             self.cleaner.add_file(remote_file)
@@ -563,10 +573,10 @@ class TestUploadAndDownload(RealFTPTest):
         downloaded = host.download_if_newer(remote_file, local_file)
         assert downloaded is True
         try:
-            # If the remote file, taking the datetime precision into
-            # account, _might_ be newer, the file will be downloaded
-            # again. To prevent this, wait a bit over a minute (the
-            # remote precision), then "touch" the local file.
+            # If the remote file, taking the datetime precision into account,
+            # _might_ be newer, the file will be downloaded again. To prevent
+            # this, wait a bit over a minute (the remote precision), then
+            # "touch" the local file.
             time.sleep(65)
             # Create empty file.
             with open(local_file, "w") as fobj:
@@ -576,9 +586,9 @@ class TestUploadAndDownload(RealFTPTest):
             assert downloaded is False
             # Re-make the remote file.
             self.make_remote_file(remote_file)
-            # Local file is present but possibly older (taking the
-            # possible deviation because of the precision into account),
-            # so should download.
+            # Local file is present but possibly older (taking the possible
+            # deviation because of the precision into account), so should
+            # download.
             downloaded = host.download_if_newer(remote_file, local_file)
             assert downloaded is True
         finally:
@@ -673,15 +683,14 @@ class TestFTPFiles(RealFTPTest):
 class TestChmod(RealFTPTest):
     def assert_mode(self, path, expected_mode):
         """
-        Return an integer containing the allowed bits in the mode
-        change command.
+        Return an integer containing the allowed bits in the mode change
+        command.
 
         The `FTPHost` object to test against is `self.host`.
         """
         full_mode = self.host.stat(path).st_mode
-        # Remove flags we can't set via `chmod`.
-        # Allowed flags according to Python documentation
-        # https://docs.python.org/library/stat.html
+        # Remove flags we can't set via `chmod`. Allowed flags according to
+        # Python documentation: https://docs.python.org/library/stat.html
         allowed_flags = [
             stat.S_ISUID,
             stat.S_ISGID,
@@ -766,8 +775,8 @@ class TestRestArgument(RealFTPTest):
 
     def test_for_reading(self):
         """
-        If a `rest` argument is passed to `open`, the following read
-        operation should start at the byte given by `rest`.
+        If a `rest` argument is passed to `open`, the following read operation
+        should start at the byte given by `rest`.
         """
         with self.host.open(self.TEST_FILE_NAME, "rb", rest=3) as fobj:
             data = fobj.read()
@@ -775,8 +784,8 @@ class TestRestArgument(RealFTPTest):
 
     def test_for_writing(self):
         """
-        If a `rest` argument is passed to `open`, the following write
-        operation should start writing at the byte given by `rest`.
+        If a `rest` argument is passed to `open`, the following write operation
+        should start writing at the byte given by `rest`.
         """
         with self.host.open(self.TEST_FILE_NAME, "wb", rest=3) as fobj:
             fobj.write(b"123")
@@ -786,37 +795,35 @@ class TestRestArgument(RealFTPTest):
 
     def test_invalid_read_from_text_file(self):
         """
-        If the `rest` argument is used for reading from a text file,
-        a `CommandNotImplementedError` should be raised.
+        If the `rest` argument is used for reading from a text file, a
+        `CommandNotImplementedError` should be raised.
         """
         with pytest.raises(ftputil.error.CommandNotImplementedError):
             self.host.open(self.TEST_FILE_NAME, "r", rest=3)
 
     def test_invalid_write_to_text_file(self):
         """
-        If the `rest` argument is used for reading from a text file,
-        a `CommandNotImplementedError` should be raised.
+        If the `rest` argument is used for reading from a text file, a
+        `CommandNotImplementedError` should be raised.
         """
         with pytest.raises(ftputil.error.CommandNotImplementedError):
             self.host.open(self.TEST_FILE_NAME, "w", rest=3)
 
-    # There are no tests for reading and writing beyond the end of a
-    # file. For example, if the remote file is 10 bytes long and
-    # `open(remote_file, "rb", rest=100)` is used, the server may
-    # return an error status code or not.
+    # There are no tests for reading and writing beyond the end of a file. For
+    # example, if the remote file is 10 bytes long and
+    # `open(remote_file, "rb", rest=100)` is used, the server may return an
+    # error status code or not.
     #
-    # The server I use for testing returns a 554 status when
-    # attempting to _read_ beyond the end of the file. On the other
-    # hand, if attempting to _write_ beyond the end of the file, the
-    # server accepts the request, but starts writing after the end of
-    # the file, i. e. appends to the file.
+    # The server I use for testing returns a 554 status when attempting to
+    # _read_ beyond the end of the file. On the other hand, if attempting to
+    # _write_ beyond the end of the file, the server accepts the request, but
+    # starts writing after the end of the file, i. e. appends to the file.
     #
-    # Instead of expecting certain responses that may differ between
-    # server implementations, I leave the bahavior for too large
-    # `rest` arguments undefined. In practice, this shouldn't be a
-    # problem because the `rest` argument should only be used for
-    # error recovery, and in this case a valid byte count for the
-    # `rest` argument should be known.
+    # Instead of expecting certain responses that may differ between server
+    # implementations, I leave the bahavior for too large `rest` arguments
+    # undefined. In practice, this shouldn't be a problem because the `rest`
+    # argument should only be used for error recovery, and in this case a valid
+    # byte count for the `rest` argument should be known.
 
 
 class TestOther(RealFTPTest):
@@ -827,8 +834,8 @@ class TestOther(RealFTPTest):
         file1 = self.host.open("debian-keyring.tar.gz", "rb")
         time.sleep(1)
         # Depending on the FTP server, this might return a status code
-        # unexpected by `ftplib` or block the socket connection until
-        # a server-side timeout.
+        # unexpected by `ftplib` or block the socket connection until a
+        # server-side timeout.
         file1.close()
 
     def test_subsequent_reading(self):
@@ -841,8 +848,7 @@ class TestOther(RealFTPTest):
         assert file1._session is file2._session
 
     def test_names_with_spaces(self):
-        # Test if directories and files with spaces in their names
-        # can be used.
+        # Test if directories and files with spaces in their names can be used.
         host = self.host
         assert host.path.isdir("dir with spaces")
         assert host.listdir("dir with spaces") == [
@@ -855,7 +861,9 @@ class TestOther(RealFTPTest):
         assert host.path.isfile("dir with spaces/some file")
 
     def test_synchronize_times_without_write_access(self):
-        """Test failing synchronization because of non-writable directory."""
+        """
+        Test failing synchronization because of non-writable directory.
+        """
         host = self.host
         # This isn't writable by the ftp account the tests are run under.
         host.chdir("rootdir1")
@@ -864,9 +872,8 @@ class TestOther(RealFTPTest):
 
     def test_listdir_with_non_ascii_byte_string(self):
         """
-        `listdir` should accept byte strings with non-ASCII
-        characters and return non-ASCII characters in directory or
-        file names.
+        `listdir` should accept byte strings with non-ASCII characters and
+        return non-ASCII characters in directory or file names.
         """
         host = self.host
         path = "äbc".encode("UTF-8")
@@ -876,13 +883,12 @@ class TestOther(RealFTPTest):
 
     def test_listdir_with_non_ascii_unicode_string(self):
         """
-        `listdir` should accept unicode strings with non-ASCII
-        characters and return non-ASCII characters in directory or
-        file names.
+        `listdir` should accept unicode strings with non-ASCII characters and
+        return non-ASCII characters in directory or file names.
         """
         host = self.host
-        # `ftplib` under Python 3 only works correctly if the unicode
-        # strings are decoded from latin1.
+        # `ftplib` under Python 3 only works correctly if the unicode strings
+        # are decoded from latin1.
         path = "äbc".encode("UTF-8").decode("latin1")
         names = host.listdir(path)
         assert names[0] == "file1"
@@ -895,15 +901,14 @@ class TestOther(RealFTPTest):
         """
         # Use some musical symbols. These are certainly not latin1.
         path = "𝄞𝄢"
-        # `UnicodeEncodeError` is also the exception that `ftplib`
-        # raises if it gets a non-latin1 path.
+        # `UnicodeEncodeError` is also the exception that `ftplib` raises if it
+        # gets a non-latin1 path.
         with pytest.raises(UnicodeEncodeError):
             self.host.mkdir(path)
 
     def test_list_a_option(self):
-        # For this test to pass, the server must _not_ list "hidden"
-        # files by default but instead only when the `LIST` `-a`
-        # option is used.
+        # For this test to pass, the server must _not_ list "hidden" files by
+        # default but instead only when the `LIST` `-a` option is used.
         host = self.host
         assert not host.use_list_a_option
         directory_entries = host.listdir(host.curdir)

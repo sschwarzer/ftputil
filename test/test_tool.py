@@ -28,8 +28,8 @@ class TestSameStringTypeAs:
     @staticmethod
     def _test_string(type_source, string, expected_result):
         """
-        Check if the result from `tool.same_string_type_as(type_source, string)`
-        is the same as `expected_result`.
+        Check if the result from `tool.same_string_type_as(type_source,
+        string)` is the same as `expected_result`.
 
         `type_source` must be a `bytes` or `str` object.
         """

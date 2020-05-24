@@ -27,8 +27,7 @@ UNKNOWN_PRECISION = None
 
 class StatResult(tuple):
     """
-    Support class resembling a tuple like that returned from
-    `os.(l)stat`.
+    Support class resembling a tuple like that returned from `os.(l)stat`.
     """
 
     _index_mapping = {
@@ -68,8 +67,8 @@ class StatResult(tuple):
             )
 
     def __repr__(self):
-        # "Invert" `_index_mapping` so that we can look up the names
-        # for the tuple indices.
+        # "Invert" `_index_mapping` so that we can look up the names for the
+        # tuple indices.
         index_to_name = dict((v, k) for k, v in self._index_mapping.items())
         argument_strings = []
         for index, item in enumerate(self):
@@ -235,10 +234,10 @@ class Parser:
         the precision of the time in seconds. The default is `False` for
         backward compatibility with custom parsers.
 
-        The precision value takes into account that, for example, a
-        time string like "May 26  2005" has only a precision of one
-        day. This information is important for the `upload_if_newer`
-        and `download_if_newer` methods in the `FTPHost` class.
+        The precision value takes into account that, for example, a time string
+        like "May 26  2005" has only a precision of one day. This information
+        is important for the `upload_if_newer` and `download_if_newer` methods
+        in the `FTPHost` class.
 
         Times in Unix-style directory listings typically have one of these
         formats:
@@ -398,7 +397,9 @@ class Parser:
 
 
 class UnixParser(Parser):
-    """`Parser` class for Unix-specific directory format."""
+    """
+    `Parser` class for Unix-specific directory format.
+    """
 
     @staticmethod
     def _split_line(line):
@@ -587,7 +588,9 @@ class MSParser(Parser):
 # Stat'ing operations for files on an FTP server
 #
 class _Stat:
-    """Methods for stat'ing directories, links and regular files."""
+    """
+    Methods for stat'ing directories, links and regular files.
+    """
 
     # pylint: disable=protected-access
 

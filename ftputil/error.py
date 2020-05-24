@@ -14,8 +14,8 @@ import ftputil.tool
 import ftputil.version
 
 
-# You _can_ import these with `from ftputil.error import *`, - but
-# it's _not_ recommended.
+# You _can_ import these with `from ftputil.error import *`, - but it's _not_
+# recommended.
 __all__ = [
     "InternalError",
     "RootDirError",
@@ -33,18 +33,19 @@ __all__ = [
 
 
 class FTPError(Exception):
-    """General ftputil error class."""
+    """
+    General ftputil error class.
+    """
 
-    # In Python 2, we can't use a keyword argument after `*args`, so
-    # `pop` from `**kwargs`.
+    # In Python 2, we can't use a keyword argument after `*args`, so `pop` from
+    # `**kwargs`.
     def __init__(self, *args, **kwargs):
         super().__init__(*args)
         if "original_exception" in kwargs:
             self.strerror = str(kwargs.pop("original_exception"))
         elif args:
-            # If there was no `original_exception` argument, assume
-            # the first argument is a string. It may be a byte string
-            # though.
+            # If there was no `original_exception` argument, assume the first
+            # argument is a string. It may be a byte string though.
             self.strerror = ftputil.tool.as_str(args[0])
         else:
             self.strerror = ""
@@ -61,8 +62,8 @@ class FTPError(Exception):
         )
 
 
-# Internal errors are those that have more to do with the inner
-# workings of ftputil than with errors on the server side.
+# Internal errors are those that have more to do with the inner workings of
+# ftputil than with errors on the server side.
 class InternalError(FTPError):
     """Internal error."""
 
@@ -145,8 +146,8 @@ class SyncError(PermanentError):
 
 class FtplibErrorToFTPOSError:
     """
-    Context manager to convert `ftplib` exceptions to exceptions
-    derived from `FTPOSError`.
+    Context manager to convert `ftplib` exceptions to exceptions derived from
+    `FTPOSError`.
     """
 
     def __enter__(self):
@@ -159,8 +160,8 @@ class FtplibErrorToFTPOSError:
         if isinstance(exc_value, ftplib.error_temp):
             raise TemporaryError(*exc_value.args, original_exception=exc_value)
         elif isinstance(exc_value, ftplib.error_perm):
-            # If `exc_value.args[0]` is present, assume it's a byte or
-            # unicode string.
+            # If `exc_value.args[0]` is present, assume it's a byte or unicode
+            # string.
             if exc_value.args and ftputil.tool.as_str(exc_value.args[0]).startswith(
                 "502"
             ):
@@ -184,8 +185,7 @@ class FTPIOError(FTPError, IOError):
 
 class FtplibErrorToFTPIOError:
     """
-    Context manager to convert `ftplib` exceptions to `FTPIOError`
-    exceptions.
+    Context manager to convert `ftplib` exceptions to `FTPIOError` exceptions.
     """
 
     def __enter__(self):

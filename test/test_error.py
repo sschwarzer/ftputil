@@ -11,8 +11,8 @@ import ftputil.error
 
 class TestFTPErrorArguments:
     """
-    The `*Error` constructors should accept either a byte string or a
-    unicode string.
+    The `*Error` constructors should accept either a byte string or a unicode
+    string.
     """
 
     def test_bytestring_argument(self):
@@ -32,8 +32,7 @@ class TestErrorConversion:
 
     def test_ftplib_error_to_ftp_os_error(self):
         """
-        Ensure the `ftplib` exception isn't used as `FTPOSError`
-        argument.
+        Ensure the `ftplib` exception isn't used as `FTPOSError` argument.
         """
         with pytest.raises(ftputil.error.FTPOSError) as exc_info:
             with ftputil.error.ftplib_error_to_ftp_os_error:
@@ -44,8 +43,7 @@ class TestErrorConversion:
 
     def test_ftplib_error_to_ftp_io_error(self):
         """
-        Ensure the `ftplib` exception isn't used as `FTPIOError`
-        argument.
+        Ensure the `ftplib` exception isn't used as `FTPIOError` argument.
         """
         with pytest.raises(ftputil.error.FTPIOError) as exc_info:
             with ftputil.error.ftplib_error_to_ftp_io_error:
@@ -56,16 +54,15 @@ class TestErrorConversion:
 
     def test_error_message_reuse(self):
         """
-        Test if the error message string is retained if the caught
-        exception has more than one element in `args`.
+        Test if the error message string is retained if the caught exception
+        has more than one element in `args`.
         """
         # See ticket #76.
         with pytest.raises(ftputil.error.FTPOSError) as exc_info:
             # Format "host:port" doesn't work. The use here is intentional.
             host = ftputil.FTPHost("localhost:21", "", "")
         exc = exc_info.value
-        # The error message may be different for different Python
-        # versions.
+        # The error message may be different for different Python versions.
         assert "No address associated with hostname" in str(
             exc
         ) or "Name or service not known" in str(exc)

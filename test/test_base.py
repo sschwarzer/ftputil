@@ -7,10 +7,10 @@ import io
 import ftputil
 
 
-# Since `io.BytesIO` and `io.StringIO` are built-in, they can't be
-# patched with `unittest.mock.patch`. However, derived classes can be
-# mocked. Mocking is useful to test the arguments of `write` calls,
-# i. e. whether the expected data was written.
+# Since `io.BytesIO` and `io.StringIO` are built-in, they can't be patched with
+# `unittest.mock.patch`. However, derived classes can be mocked. Mocking is
+# useful to test the arguments of `write` calls, i. e. whether the expected
+# data was written.
 class MockableBytesIO(io.BytesIO):
     pass
 
@@ -19,8 +19,8 @@ class MockableStringIO(io.StringIO):
     pass
 
 
-# Factory to produce `FTPHost`-like classes from a given `FTPHost`
-# class and (usually) a given `MockSession` class.
+# Factory to produce `FTPHost`-like classes from a given `FTPHost` class and
+# (usually) a given `MockSession` class.
 def ftp_host_factory(session_factory, ftp_host_class=ftputil.FTPHost):
     return ftp_host_class(
         "dummy_host", "dummy_user", "dummy_password", session_factory=session_factory
