@@ -257,6 +257,198 @@ class TestRecursiveListingForDotAsPath:
             assert files == ["bin", "dev", "etc", "pub", "usr"]
 
 
+class TestTimeShift:
+
+    # Helper mock class that frees us from setting up complicated session
+    # scripts for the remote calls.
+    class _Path:
+        def split(self, path):
+            return posixpath.split(path)
+
+        def set_mtime(self, mtime):
+            self._mtime = mtime
+
+        def getmtime(self, file_name):
+            return self._mtime
+
+        def join(self, *args):
+            return posixpath.join(*args)
+
+        def normpath(self, path):
+            return posixpath.normpath(path)
+
+        def isabs(self, path):
+            return posixpath.isabs(path)
+
+        def abspath(self, path):
+            return "/_ftputil_sync_"
+
+        # Needed for `isdir` in `FTPHost.remove`
+        def isfile(self, path):
+            return True
+
+    def test_rounded_time_shift(self):
+        """
+        Test if time shift is rounded correctly.
+        """
+        script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
+        multisession_factory = scripted_session.factory(script)
+        with test_base.ftp_host_factory(multisession_factory) as host:
+            # Use private bound method.
+            rounded_time_shift = host._FTPHost__rounded_time_shift
+            # Pairs consisting of original value and expected result
+            test_data = [
+                (0, 0),
+                (0.1, 0),
+                (-0.1, 0),
+                (1500, 1800),
+                (-1500, -1800),
+                (1800, 1800),
+                (-1800, -1800),
+                (2000, 1800),
+                (-2000, -1800),
+                (5 * 3600 - 100, 5 * 3600),
+                (-5 * 3600 + 100, -5 * 3600),
+            ]
+            for time_shift, expected_time_shift in test_data:
+                calculated_time_shift = rounded_time_shift(time_shift)
+                assert calculated_time_shift == expected_time_shift
+
+    def test_assert_valid_time_shift(self):
+        """
+        Test time shift sanity checks.
+        """
+        script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
+        multisession_factory = scripted_session.factory(script)
+        with test_base.ftp_host_factory(multisession_factory) as host:
+            # Use private bound method.
+            assert_time_shift = host._FTPHost__assert_valid_time_shift
+            # Valid time shifts
+            test_data = [23 * 3600, -23 * 3600, 3600 + 30, -3600 + 30]
+            for time_shift in test_data:
+                assert assert_time_shift(time_shift) is None
+            # Invalid time shift (exceeds one day)
+            with pytest.raises(ftputil.error.TimeShiftError):
+                assert_time_shift(25 * 3600)
+            with pytest.raises(ftputil.error.TimeShiftError):
+                assert_time_shift(-25 * 3600)
+            # Invalid time shift (too large deviation from 15-minute units is
+            # unacceptable)
+            with pytest.raises(ftputil.error.TimeShiftError):
+                assert_time_shift(8 * 60)
+            with pytest.raises(ftputil.error.TimeShiftError):
+                assert_time_shift(-3600 - 8 * 60)
+
+    def test_synchronize_times(self):
+        """
+        Test time synchronization with server.
+        """
+        host_script = [
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("delete", args=("_ftputil_sync_",)),
+            Call("cwd", args=("/",)),
+            Call("close"),
+        ]
+        file_script = [
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call(
+                "transfercmd", args=("STOR _ftputil_sync_", None), result=io.BytesIO()
+            ),
+            Call("voidresp"),
+            Call("close"),
+        ]
+        # Valid time shifts
+        test_data = [
+            (60 * 60 + 30, 60 * 60),
+            (60 * 60 - 100, 60 * 60),
+            (30 * 60 + 100, 30 * 60),
+            (45 * 60 - 100, 45 * 60),
+        ]
+        for measured_time_shift, expected_time_shift in test_data:
+            # Use a new `BytesIO` object to avoid exception
+            # `ValueError: I/O operation on closed file`.
+            file_script[4] = Call(
+                "transfercmd", result=io.BytesIO(), args=("STOR _ftputil_sync_", None)
+            )
+            multisession_factory = scripted_session.factory(host_script, file_script)
+            with test_base.ftp_host_factory(multisession_factory) as host:
+                host.path = self._Path()
+                host.path.set_mtime(time.time() + measured_time_shift)
+                host.synchronize_times()
+                assert host.time_shift() == expected_time_shift
+        # Invalid time shifts
+        measured_time_shifts = [60 * 60 + 8 * 60, 45 * 60 - 6 * 60]
+        for measured_time_shift in measured_time_shifts:
+            # Use a new `BytesIO` object to avoid exception
+            # `ValueError: I/O operation on closed file`.
+            file_script[4] = Call(
+                "transfercmd", result=io.BytesIO(), args=("STOR _ftputil_sync_", None)
+            )
+            multisession_factory = scripted_session.factory(host_script, file_script)
+            with test_base.ftp_host_factory(multisession_factory) as host:
+                host.path = self._Path()
+                host.path.set_mtime(time.time() + measured_time_shift)
+                with pytest.raises(ftputil.error.TimeShiftError):
+                    host.synchronize_times()
+
+    def test_synchronize_times_for_server_in_east(self):
+        """
+        Test for timestamp correction (see ticket #55).
+        """
+        host_script = [
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("cwd", args=("/",)),
+            Call("delete", args=("_ftputil_sync_",)),
+            Call("cwd", args=("/",)),
+            Call("close"),
+        ]
+        file_script = [
+            Call("__init__"),
+            Call("pwd", result="/"),
+            Call("cwd", args=("/",)),
+            Call("voidcmd", args=("TYPE I",)),
+            Call(
+                "transfercmd", args=("STOR _ftputil_sync_", None), result=io.BytesIO()
+            ),
+            Call("voidresp", args=()),
+            Call("close"),
+        ]
+        multisession_factory = scripted_session.factory(host_script, file_script)
+        with test_base.ftp_host_factory(session_factory=multisession_factory) as host:
+            host.path = self._Path()
+            # Set this explicitly to emphasize the problem.
+            host.set_time_shift(0.0)
+            hour = 60 * 60
+            # This could be any negative time shift.
+            presumed_time_shift = -6 * hour
+            # Set `mtime` to simulate a server east of us.
+            # In case the `time_shift` value for this host instance is 0.0
+            # (as is to be expected before the time shift is determined), the
+            # directory parser (more specifically
+            # `ftputil.stat.Parser.parse_unix_time`) will return a time which
+            # is a year too far in the past. The `synchronize_times` method
+            # needs to deal with this and add the year "back". I don't think
+            # this is a bug in `parse_unix_time` because the method should work
+            # once the time shift is set correctly.
+            client_time = datetime.datetime.utcnow().replace(
+                tzinfo=datetime.timezone.utc
+            )
+            presumed_server_time = client_time.replace(
+                year=client_time.year - 1
+            ) + datetime.timedelta(seconds=presumed_time_shift)
+            host.path.set_mtime(presumed_server_time.timestamp())
+            host.synchronize_times()
+            assert host.time_shift() == presumed_time_shift
+
+
 class TestUploadAndDownload:
     """
     Test upload and download.
@@ -494,198 +686,6 @@ class TestUploadAndDownload:
         with test_base.ftp_host_factory(multisession_factory) as host:
             flag = host.download_if_newer("/newer", str(local_target))
         assert flag is False
-
-
-class TestTimeShift:
-
-    # Helper mock class that frees us from setting up complicated session
-    # scripts for the remote calls.
-    class _Path:
-        def split(self, path):
-            return posixpath.split(path)
-
-        def set_mtime(self, mtime):
-            self._mtime = mtime
-
-        def getmtime(self, file_name):
-            return self._mtime
-
-        def join(self, *args):
-            return posixpath.join(*args)
-
-        def normpath(self, path):
-            return posixpath.normpath(path)
-
-        def isabs(self, path):
-            return posixpath.isabs(path)
-
-        def abspath(self, path):
-            return "/_ftputil_sync_"
-
-        # Needed for `isdir` in `FTPHost.remove`
-        def isfile(self, path):
-            return True
-
-    def test_rounded_time_shift(self):
-        """
-        Test if time shift is rounded correctly.
-        """
-        script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
-        multisession_factory = scripted_session.factory(script)
-        with test_base.ftp_host_factory(multisession_factory) as host:
-            # Use private bound method.
-            rounded_time_shift = host._FTPHost__rounded_time_shift
-            # Pairs consisting of original value and expected result
-            test_data = [
-                (0, 0),
-                (0.1, 0),
-                (-0.1, 0),
-                (1500, 1800),
-                (-1500, -1800),
-                (1800, 1800),
-                (-1800, -1800),
-                (2000, 1800),
-                (-2000, -1800),
-                (5 * 3600 - 100, 5 * 3600),
-                (-5 * 3600 + 100, -5 * 3600),
-            ]
-            for time_shift, expected_time_shift in test_data:
-                calculated_time_shift = rounded_time_shift(time_shift)
-                assert calculated_time_shift == expected_time_shift
-
-    def test_assert_valid_time_shift(self):
-        """
-        Test time shift sanity checks.
-        """
-        script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
-        multisession_factory = scripted_session.factory(script)
-        with test_base.ftp_host_factory(multisession_factory) as host:
-            # Use private bound method.
-            assert_time_shift = host._FTPHost__assert_valid_time_shift
-            # Valid time shifts
-            test_data = [23 * 3600, -23 * 3600, 3600 + 30, -3600 + 30]
-            for time_shift in test_data:
-                assert assert_time_shift(time_shift) is None
-            # Invalid time shift (exceeds one day)
-            with pytest.raises(ftputil.error.TimeShiftError):
-                assert_time_shift(25 * 3600)
-            with pytest.raises(ftputil.error.TimeShiftError):
-                assert_time_shift(-25 * 3600)
-            # Invalid time shift (too large deviation from 15-minute units is
-            # unacceptable)
-            with pytest.raises(ftputil.error.TimeShiftError):
-                assert_time_shift(8 * 60)
-            with pytest.raises(ftputil.error.TimeShiftError):
-                assert_time_shift(-3600 - 8 * 60)
-
-    def test_synchronize_times(self):
-        """
-        Test time synchronization with server.
-        """
-        host_script = [
-            Call("__init__"),
-            Call("pwd", result="/"),
-            Call("cwd", args=("/",)),
-            Call("cwd", args=("/",)),
-            Call("delete", args=("_ftputil_sync_",)),
-            Call("cwd", args=("/",)),
-            Call("close"),
-        ]
-        file_script = [
-            Call("__init__"),
-            Call("pwd", result="/"),
-            Call("cwd", args=("/",)),
-            Call("voidcmd", args=("TYPE I",)),
-            Call(
-                "transfercmd", args=("STOR _ftputil_sync_", None), result=io.BytesIO()
-            ),
-            Call("voidresp"),
-            Call("close"),
-        ]
-        # Valid time shifts
-        test_data = [
-            (60 * 60 + 30, 60 * 60),
-            (60 * 60 - 100, 60 * 60),
-            (30 * 60 + 100, 30 * 60),
-            (45 * 60 - 100, 45 * 60),
-        ]
-        for measured_time_shift, expected_time_shift in test_data:
-            # Use a new `BytesIO` object to avoid exception
-            # `ValueError: I/O operation on closed file`.
-            file_script[4] = Call(
-                "transfercmd", result=io.BytesIO(), args=("STOR _ftputil_sync_", None)
-            )
-            multisession_factory = scripted_session.factory(host_script, file_script)
-            with test_base.ftp_host_factory(multisession_factory) as host:
-                host.path = self._Path()
-                host.path.set_mtime(time.time() + measured_time_shift)
-                host.synchronize_times()
-                assert host.time_shift() == expected_time_shift
-        # Invalid time shifts
-        measured_time_shifts = [60 * 60 + 8 * 60, 45 * 60 - 6 * 60]
-        for measured_time_shift in measured_time_shifts:
-            # Use a new `BytesIO` object to avoid exception
-            # `ValueError: I/O operation on closed file`.
-            file_script[4] = Call(
-                "transfercmd", result=io.BytesIO(), args=("STOR _ftputil_sync_", None)
-            )
-            multisession_factory = scripted_session.factory(host_script, file_script)
-            with test_base.ftp_host_factory(multisession_factory) as host:
-                host.path = self._Path()
-                host.path.set_mtime(time.time() + measured_time_shift)
-                with pytest.raises(ftputil.error.TimeShiftError):
-                    host.synchronize_times()
-
-    def test_synchronize_times_for_server_in_east(self):
-        """
-        Test for timestamp correction (see ticket #55).
-        """
-        host_script = [
-            Call("__init__"),
-            Call("pwd", result="/"),
-            Call("cwd", args=("/",)),
-            Call("cwd", args=("/",)),
-            Call("delete", args=("_ftputil_sync_",)),
-            Call("cwd", args=("/",)),
-            Call("close"),
-        ]
-        file_script = [
-            Call("__init__"),
-            Call("pwd", result="/"),
-            Call("cwd", args=("/",)),
-            Call("voidcmd", args=("TYPE I",)),
-            Call(
-                "transfercmd", args=("STOR _ftputil_sync_", None), result=io.BytesIO()
-            ),
-            Call("voidresp", args=()),
-            Call("close"),
-        ]
-        multisession_factory = scripted_session.factory(host_script, file_script)
-        with test_base.ftp_host_factory(session_factory=multisession_factory) as host:
-            host.path = self._Path()
-            # Set this explicitly to emphasize the problem.
-            host.set_time_shift(0.0)
-            hour = 60 * 60
-            # This could be any negative time shift.
-            presumed_time_shift = -6 * hour
-            # Set `mtime` to simulate a server east of us.
-            # In case the `time_shift` value for this host instance is 0.0
-            # (as is to be expected before the time shift is determined), the
-            # directory parser (more specifically
-            # `ftputil.stat.Parser.parse_unix_time`) will return a time which
-            # is a year too far in the past. The `synchronize_times` method
-            # needs to deal with this and add the year "back". I don't think
-            # this is a bug in `parse_unix_time` because the method should work
-            # once the time shift is set correctly.
-            client_time = datetime.datetime.utcnow().replace(
-                tzinfo=datetime.timezone.utc
-            )
-            presumed_server_time = client_time.replace(
-                year=client_time.year - 1
-            ) + datetime.timedelta(seconds=presumed_time_shift)
-            host.path.set_mtime(presumed_server_time.timestamp())
-            host.synchronize_times()
-            assert host.time_shift() == presumed_time_shift
 
 
 class TestAcceptEitherUnicodeOrBytes:
