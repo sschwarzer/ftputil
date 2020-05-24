@@ -12,8 +12,8 @@ import ftputil.stat
 
 
 # TODO: Think a bit more about the API before making it public.
-# # Only `chunks` should be used by clients of the ftputil library. Any
-# #  other functionality is supposed to be used via `FTPHost` objects.
+# Only `chunks` should be used by clients of the ftputil library. Any other
+# functionality is supposed to be used via `FTPHost` objects.
 # __all__ = ["chunks"]
 __all__ = []
 
@@ -23,8 +23,8 @@ MAX_COPY_CHUNK_SIZE = 64 * 1024
 
 class LocalFile:
     """
-    Represent a file on the local side which is to be transferred or
-    is already transferred.
+    Represent a file on the local side which is to be transferred or is already
+    transferred.
     """
 
     def __init__(self, name, mode):
@@ -33,33 +33,39 @@ class LocalFile:
 
     def exists(self):
         """
-        Return `True` if the path representing this file exists.
-        Otherwise return `False`.
+        Return `True` if the path representing this file exists. Otherwise
+        return `False`.
         """
         return os.path.exists(self.name)
 
     def mtime(self):
-        """Return the timestamp for the last modification in seconds."""
+        """
+        Return the timestamp for the last modification in seconds.
+        """
         return os.path.getmtime(self.name)
 
     def mtime_precision(self):
-        """Return the precision of the last modification time in seconds."""
+        """
+        Return the precision of the last modification time in seconds.
+        """
         # Derived classes might want to use `self`.
         # pylint: disable=no-self-use
         #
-        # Assume modification timestamps for local file systems are
-        # at least precise up to a second.
+        # Assume modification timestamps for local file systems are at least
+        # precise up to a second.
         return 1.0
 
     def fobj(self):
-        """Return a file object for the name/path in the constructor."""
+        """
+        Return a file object for the name/path in the constructor.
+        """
         return open(self.name, self.mode)
 
 
 class RemoteFile:
     """
-    Represent a file on the remote side which is to be transferred or
-    is already transferred.
+    Represent a file on the remote side which is to be transferred or is
+    already transferred.
     """
 
     def __init__(self, ftp_host, name, mode):
@@ -70,24 +76,30 @@ class RemoteFile:
 
     def exists(self):
         """
-        Return `True` if the path representing this file exists.
-        Otherwise return `False`.
+        Return `True` if the path representing this file exists. Otherwise
+        return `False`.
         """
         return self._path.exists(self.name)
 
     def mtime(self):
-        """Return the timestamp for the last modification in seconds."""
-        # Convert to client time zone (see definition of time
-        # shift in docstring of `FTPHost.set_time_shift`).
+        """
+        Return the timestamp for the last modification in seconds.
+        """
+        # Convert to client time zone (see definition of time shift in
+        # docstring of `FTPHost.set_time_shift`).
         return self._path.getmtime(self.name)
 
     def mtime_precision(self):
-        """Return the precision of the last modification time in seconds."""
+        """
+        Return the precision of the last modification time in seconds.
+        """
         # I think using `stat` instead of `lstat` makes more sense here.
         return self._host.stat(self.name)._st_mtime_precision
 
     def fobj(self):
-        """Return a file object for the name/path in the constructor."""
+        """
+        Return a file object for the name/path in the constructor.
+        """
         return self._host.open(self.name, self.mode)
 
 
@@ -104,19 +116,19 @@ def source_is_newer_than_target(source_file, target_file):
     i. e. that the reported mtime is the actual mtime or rounded down
     (truncated).
 
-    For the purpose of this test the source is newer than the target
-    if any of the possible actual source modification times is greater
-    than the reported target modification time. In other words: If in
-    doubt, the file should be transferred.
+    For the purpose of this test the source is newer than the target if any of
+    the possible actual source modification times is greater than the reported
+    target modification time. In other words: If in doubt, the file should be
+    transferred.
 
-    This is the only situation where the source is _not_ considered
-    newer than the target:
+    This is the only situation where the source is _not_ considered newer than
+    the target:
 
     |/////////////////////|              possible source mtime
                             |////////|   possible target mtime
 
-    That is, the latest possible actual source modification time is
-    before the first possible actual target modification time.
+    That is, the latest possible actual source modification time is before the
+    first possible actual target modification time.
     """
     if source_file.mtime_precision() is ftputil.stat.UNKNOWN_PRECISION:
         return True
@@ -130,13 +142,13 @@ def chunks(fobj, max_chunk_size=MAX_COPY_CHUNK_SIZE):
     """
     Return an iterator which yields the contents of the file object.
 
-    For each iteration, at most `max_chunk_size` bytes are read from
-    `fobj` and yielded as a byte string. If the file object is
-    exhausted, then don't yield any more data but stop the iteration,
-    so the client does _not_ get an empty byte string.
+    For each iteration, at most `max_chunk_size` bytes are read from `fobj` and
+    yielded as a byte string. If the file object is exhausted, then don't yield
+    any more data but stop the iteration, so the client does _not_ get an empty
+    byte string.
 
-    Any exceptions resulting from reading the file object are passed
-    through to the client.
+    Any exceptions resulting from reading the file object are passed through to
+    the client.
     """
     while True:
         chunk = fobj.read(max_chunk_size)
@@ -148,9 +160,11 @@ def chunks(fobj, max_chunk_size=MAX_COPY_CHUNK_SIZE):
 def copyfileobj(
     source_fobj, target_fobj, max_chunk_size=MAX_COPY_CHUNK_SIZE, callback=None
 ):
-    """Copy data from file-like object source to file-like object target."""
-    # Inspired by `shutil.copyfileobj` (I don't use the `shutil`
-    # code directly because it might change)
+    """
+    Copy data from file-like object source to file-like object target.
+    """
+    # Inspired by `shutil.copyfileobj` (I don't use the `shutil` code directly
+    # because it might change)
     for chunk in chunks(source_fobj, max_chunk_size):
         target_fobj.write(chunk)
         if callback is not None:
@@ -161,18 +175,16 @@ def copy_file(source_file, target_file, conditional, callback):
     """
     Copy a file from `source_file` to `target_file`.
 
-    These are `LocalFile` or `RemoteFile` objects. Which of them
-    is a local or a remote file, respectively, is determined by
-    the arguments. If `conditional` is true, the file is only
-    copied if the target doesn't exist or is older than the
-    source. If `conditional` is false, the file is copied
-    unconditionally. Return `True` if the file was copied, else
-    `False`.
+    These are `LocalFile` or `RemoteFile` objects. Which of them is a local or
+    a remote file, respectively, is determined by the arguments. If
+    `conditional` is true, the file is only copied if the target doesn't exist
+    or is older than the source. If `conditional` is false, the file is copied
+    unconditionally. Return `True` if the file was copied, else `False`.
     """
     if conditional:
-        # Evaluate condition: The target file either doesn't exist or is
-        # older than the source file. If in doubt (due to imprecise
-        # timestamps), perform the transfer.
+        # Evaluate condition: The target file either doesn't exist or is older
+        # than the source file. If in doubt (due to imprecise timestamps),
+        # perform the transfer.
         transfer_condition = not target_file.exists() or source_is_newer_than_target(
             source_file, target_file
         )

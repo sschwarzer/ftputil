@@ -26,10 +26,12 @@ def as_bytes(string):
 class TestPath:
     """Test operations in `FTPHost.path`."""
 
-    # TODO: Add unit tests for changes for ticket #113
-    # (commits [b4c9b089b6b8] and [4027740cdd2d]).
+    # TODO: Add unit tests for changes for ticket #113 (commits [b4c9b089b6b8]
+    # and [4027740cdd2d]).
     def test_regular_isdir_isfile_islink(self):
-        """Test regular `FTPHost._Path.isdir/isfile/islink`."""
+        """
+        Test regular `FTPHost._Path.isdir/isfile/islink`.
+        """
         # Test a path which isn't there.
         script = [
             Call("__init__"),
@@ -194,7 +196,9 @@ class TestPath:
             assert host.path.islink(test_link)
 
     def test_workaround_for_spaces(self):
-        """Test whether the workaround for space-containing paths is used."""
+        """
+        Test whether the workaround for space-containing paths is used.
+        """
         # Test a file name containing spaces.
         test_file = "/home/dir with spaces/file with spaces"
         dir_line1 = test_base.dir_line(
@@ -261,7 +265,9 @@ class TestPath:
             assert not host.path.islink(test_file)
 
     def test_inaccessible_home_directory_and_whitespace_workaround(self):
-        "Test combination of inaccessible home directory + whitespace in path."
+        """
+        Test combination of inaccessible home directory + whitespace in path.
+        """
         script = [
             Call("__init__"),
             Call("pwd", result="/"),
@@ -274,8 +280,8 @@ class TestPath:
 
     def test_isdir_isfile_islink_with_dir_failure(self):
         """
-        Test failing `FTPHost._Path.isdir/isfile/islink` because of
-        failing `_dir` call.
+        Test failing `FTPHost._Path.isdir/isfile/islink` because of failing
+        `_dir` call.
         """
         script = [
             Call("__init__"),
@@ -300,11 +306,11 @@ class TestPath:
 
     def test_isdir_isfile_with_infinite_link_chain(self):
         """
-        Test if `isdir` and `isfile` return `False` if they encounter
-        an infinite link chain.
+        Test if `isdir` and `isfile` return `False` if they encounter an
+        infinite link chain.
         """
-        # `/home/bad_link` links to `/home/subdir/bad_link`, which
-        # links back to `/home/bad_link` etc.
+        # `/home/bad_link` links to `/home/subdir/bad_link`, which links back
+        # to `/home/bad_link` etc.
         dir_line1 = test_base.dir_line(
             mode_string="dr-xr-xr-x", datetime_=datetime.datetime.now(), name="home"
         )
@@ -346,7 +352,9 @@ class TestPath:
             assert host.path.isfile("/home/bad_link") is False
 
     def test_exists(self):
-        """Test `FTPHost.path.exists`."""
+        """
+        Test `FTPHost.path.exists`.
+        """
         # Regular use of `exists`
         dir_line1 = test_base.dir_line(
             datetime_=datetime.datetime.now(), name="some_file"
@@ -412,7 +420,9 @@ class TestAcceptEitherBytesOrStr:
                 self._test_method_string_types(method, b".")
 
     def test_methods_that_take_a_string_and_return_a_bool(self):
-        """Test whether the methods accept byte and unicode strings."""
+        """
+        Test whether the methods accept byte and unicode strings.
+        """
         path_converter = self.path_converter
         script = [
             Call("__init__"),
@@ -527,8 +537,7 @@ class TestAcceptEitherBytesOrStr:
 
     def test_getmtime(self):
         """
-        Test whether `FTPHost.path.getmtime` accepts byte and unicode
-        paths.
+        Test whether `FTPHost.path.getmtime` accepts byte and unicode paths.
         """
         path_converter = self.path_converter
         now = datetime.datetime.utcnow()
@@ -548,8 +557,8 @@ class TestAcceptEitherBytesOrStr:
             Call("close"),
         ]
         expected_mtime = now.timestamp()
-        # We don't care about the _exact_ time, so don't bother with
-        # timezone differences. Instead, do a simple sanity check.
+        # We don't care about the _exact_ time, so don't bother with timezone
+        # differences. Instead, do a simple sanity check.
         day = 24 * 60 * 60  # seconds
         mtime_makes_sense = (
             lambda mtime: expected_mtime - day <= mtime <= expected_mtime + day
@@ -594,7 +603,9 @@ class TestAcceptEitherBytesOrStr:
             assert host.path.getsize(path_converter(as_bytes("ä"))) == 512
 
     def test_walk(self):
-        """Test whether `FTPHost.path.walk` accepts bytes and unicode paths."""
+        """
+        Test whether `FTPHost.path.walk` accepts bytes and unicode paths.
+        """
         path_converter = self.path_converter
         now = datetime.datetime.now()
         script = [

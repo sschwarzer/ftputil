@@ -28,8 +28,8 @@ class Call:
         # TODO: Mention printing in the docstring.
         # TODO: Describe how the comparison is made.
         """
-        Check the method name, args and kwargs from this `Call` object
-        against the method name, args and kwargs from the system under test.
+        Check the method name, args and kwargs from this `Call` object against
+        the method name, args and kwargs from the system under test.
 
         Raise an `AssertionError` if there's a mismatch.
         """
@@ -85,24 +85,22 @@ class ScriptedSession:
     """
     "Scripted" `ftplib.FTP`-like class for testing.
 
-    To avoid actual input/output over sockets or files, specify the
-    values that should be returned by the class's methods.
+    To avoid actual input/output over sockets or files, specify the values that
+    should be returned by the class's methods.
 
-    The class is instantiated with a `script` argument. This is a list
-    of `Call` objects where each object specifies the name of the
-    `ftplib.FTP` method that is expected to be called and what the
-    method should return. If the value is an exception, it will be
-    raised, not returned.
+    The class is instantiated with a `script` argument. This is a list of
+    `Call` objects where each object specifies the name of the `ftplib.FTP`
+    method that is expected to be called and what the method should return. If
+    the value is an exception, it will be raised, not returned.
 
-    In case the method returns a socket (like `transfercmd`), the
-    return value to be specified in the `Call` instance is the content
-    of the underlying socket file.
+    In case the method returns a socket (like `transfercmd`), the return value
+    to be specified in the `Call` instance is the content of the underlying
+    socket file.
 
     The advantage of the approach of this class over the use of
-    `unittest.mock.Mock` objects is that the sequence of calls is
-    clearly visible. With `Mock` objects, the developer must keep in
-    mind all the calls when specifying return values or side effects
-    for the mock methods.
+    `unittest.mock.Mock` objects is that the sequence of calls is clearly
+    visible. With `Mock` objects, the developer must keep in mind all the calls
+    when specifying return values or side effects for the mock methods.
     """
 
     # Class-level counter to enumerate `ScriptedSession`s. This makes it
@@ -126,9 +124,9 @@ class ScriptedSession:
         self._session_count = self.__class__._session_count
         # Always expect an entry for the constructor.
         init_call = self._next_script_call("__init__")
-        # The constructor isn't supposed to return anything. The only
-        # reason to call it here is to raise an exception if that was
-        # specified in the `script`.
+        # The constructor isn't supposed to return anything. The only reason to
+        # call it here is to raise an exception if that was specified in the
+        # `script`.
         init_call()
 
     def __str__(self):
@@ -218,8 +216,8 @@ class ScriptedSession:
 
 class MultisessionFactory:
     """
-    Return a session factory using the scripted data from the given
-    "scripts" for each consecutive call ("creation") of a factory.
+    Return a session factory using the scripted data from the given "scripts"
+    for each consecutive call ("creation") of a factory.
 
     Example:
 
@@ -227,10 +225,10 @@ class MultisessionFactory:
                              session_factory=scripted_session.factory(script1, script2))
 
     When the `session_factory` is "instantiated" for the first time by
-    `FTPHost._make_session`, the factory object will use the behavior
-    described by the script `script1`. When the `session_factory` is
-    "instantiated" a second time, the factory object will use the
-    behavior described by the script `script2`.
+    `FTPHost._make_session`, the factory object will use the behavior described
+    by the script `script1`. When the `session_factory` is "instantiated" a
+    second time, the factory object will use the behavior described by the
+    script `script2`.
     """
 
     def __init__(self, *scripts):

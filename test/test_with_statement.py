@@ -15,8 +15,8 @@ from test import test_base
 Call = scripted_session.Call
 
 
-# Exception raised by client code, i. e. code using ftputil. Used to
-# test the behavior in case of client exceptions.
+# Exception raised by client code, i. e. code using ftputil. Used to test the
+# behavior in case of client exceptions.
 class ClientCodeException(Exception):
     pass
 
@@ -45,17 +45,17 @@ class TestHostContextManager:
         the host context manager and the host object should be closed.
         """
         script = [
-            # Since `__init__` raises an exception, `pwd` isn't called. However,
-            # `close` is called via the context manager.
+            # Since `__init__` raises an exception, `pwd` isn't called.
+            # However, `close` is called via the context manager.
             Call(method_name="__init__", result=ftplib.error_perm),
             Call(method_name="close"),
         ]
         with pytest.raises(ftputil.error.FTPOSError):
             with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
                 pass
-        # We arrived here, that's fine. Because the `FTPHost` object
-        # wasn't successfully constructed, the assignment to `host`
-        # shouldn't have happened.
+        # We arrived here, that's fine. Because the `FTPHost` object wasn't
+        # successfully constructed, the assignment to `host` shouldn't have
+        # happened.
         assert "host" not in locals()
 
     def test_client_code_exception(self):
@@ -126,8 +126,8 @@ class TestFileContextManager:
             Call(method_name="pwd", result="/"),
             Call(method_name="cwd", result=None, args=("/",)),
             Call(method_name="voidcmd", result=None, args=("TYPE I",)),
-            # Raise exception. `voidresp` therefore won't be called, but `close`
-            # will be called by the context manager.
+            # Raise exception. `voidresp` therefore won't be called, but
+            # `close` will be called by the context manager.
             Call(
                 method_name="transfercmd",
                 result=ftplib.error_perm,
@@ -142,8 +142,8 @@ class TestFileContextManager:
                 # This should fail.
                 with host.open("/inaccessible", "w") as fobj:
                     pass
-            # The file construction shouldn't have succeeded, so `fobj`
-            # should be absent from the local namespace.
+            # The file construction shouldn't have succeeded, so `fobj` should
+            # be absent from the local namespace.
             assert "fobj" not in locals()
 
     def test_client_code_exception(self):

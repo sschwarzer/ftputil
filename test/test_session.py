@@ -11,8 +11,7 @@ import ftputil.session
 
 class MockSession:
     """
-    Mock session base class to determine if all expected calls
-    have happened.
+    Mock session base class to determine if all expected calls have happened.
     """
 
     def __init__(self):
@@ -44,18 +43,22 @@ class EncryptedMockSession(MockSession):
 
 class TestSessionFactory:
     """
-    Test if session factories created by
-    `ftputil.session.session_factory` trigger the expected calls.
+    Test if session factories created by `ftputil.session.session_factory`
+    trigger the expected calls.
     """
 
     def test_defaults(self):
-        """Test defaults (apart from base class)."""
+        """
+        Test defaults (apart from base class).
+        """
         factory = ftputil.session.session_factory(base_class=MockSession)
         session = factory("host", "user", "password")
         assert session.calls == [("connect", "host", 21), ("login", "user", "password")]
 
     def test_different_port(self):
-        """Test setting the command channel port with `port`."""
+        """
+        Test setting the command channel port with `port`.
+        """
         factory = ftputil.session.session_factory(base_class=MockSession, port=2121)
         session = factory("host", "user", "password")
         assert session.calls == [
@@ -65,8 +68,7 @@ class TestSessionFactory:
 
     def test_use_passive_mode(self):
         """
-        Test explicitly setting passive/active mode with
-        `use_passive_mode`.
+        Test explicitly setting passive/active mode with `use_passive_mode`.
         """
         # Passive mode
         factory = ftputil.session.session_factory(
@@ -90,7 +92,9 @@ class TestSessionFactory:
         ]
 
     def test_encrypt_data_channel(self):
-        """Test request to call `prot_p` with `encrypt_data_channel`."""
+        """
+        Test request to call `prot_p` with `encrypt_data_channel`.
+        """
         # With encrypted data channel (default for encrypted session).
         factory = ftputil.session.session_factory(base_class=EncryptedMockSession)
         session = factory("host", "user", "password")
@@ -117,7 +121,9 @@ class TestSessionFactory:
         assert session.calls == [("connect", "host", 21), ("login", "user", "password")]
 
     def test_debug_level(self):
-        """Test setting the debug level on the session."""
+        """
+        Test setting the debug level on the session.
+        """
         factory = ftputil.session.session_factory(base_class=MockSession, debug_level=1)
         session = factory("host", "user", "password")
         assert session.calls == [

@@ -14,15 +14,15 @@ import ftputil.error
 import ftputil.tool
 
 
-# The `_Path` class shouldn't be used directly by clients of the
-# ftputil library.
+# The `_Path` class shouldn't be used directly by clients of the ftputil
+# library.
 __all__ = []
 
 
 class _Path:
     """
-    Support class resembling `os.path`, accessible from the `FTPHost`
-    object, e. g. as `FTPHost().path.abspath(path)`.
+    Support class resembling `os.path`, accessible from the `FTPHost` object,
+    e. g. as `FTPHost().path.abspath(path)`.
 
     Hint: substitute `os` with the `FTPHost` object.
     """
@@ -49,7 +49,9 @@ class _Path:
         self.splitext = pp.splitext
 
     def abspath(self, path):
-        """Return an absolute path."""
+        """
+        Return an absolute path.
+        """
         original_path = path
         path = ftputil.tool.as_str_path(path)
         if not self.isabs(path):
@@ -59,7 +61,9 @@ class _Path:
         )
 
     def exists(self, path):
-        """Return true if the path exists."""
+        """
+        Return true if the path exists.
+        """
         try:
             lstat_result = self._host.lstat(path, _exception_for_missing_path=False)
             return lstat_result is not None
@@ -68,12 +72,10 @@ class _Path:
 
     def getmtime(self, path):
         """
-        Return the timestamp for the last modification for `path`
-        as a float.
+        Return the timestamp for the last modification for `path` as a float.
 
-        This will raise `PermanentError` if the path doesn't exist,
-        but maybe other exceptions depending on the state of the
-        server (e. g. timeout).
+        This will raise `PermanentError` if the path doesn't exist, but maybe
+        other exceptions depending on the state of the server (e. g. timeout).
         """
         return self._host.stat(path).st_mtime
 
@@ -81,29 +83,29 @@ class _Path:
         """
         Return the size of the `path` item as an integer.
 
-        This will raise `PermanentError` if the path doesn't exist,
-        but maybe raise other exceptions depending on the state of the
-        server (e. g. timeout).
+        This will raise `PermanentError` if the path doesn't exist, but maybe
+        raise other exceptions depending on the state of the server (e. g.
+        timeout).
         """
         return self._host.stat(path).st_size
 
-    # Check whether a path is a regular file/dir/link. For the first
-    # two cases follow links (like in `os.path`).
+    # Check whether a path is a regular file/dir/link. For the first two cases
+    # follow links (like in `os.path`).
     #
-    # Implementation note: The previous implementations simply called
-    # `stat` or `lstat` and returned `False` if they ended with
-    # raising a `PermanentError`. That exception usually used to
-    # signal a missing path. This approach has the problem, however,
-    # that exceptions caused by code earlier in `lstat` are obscured
-    # by the exception handling in `isfile`, `isdir` and `islink`.
+    # Implementation note: The previous implementations simply called `stat` or
+    # `lstat` and returned `False` if they ended with raising a
+    # `PermanentError`. That exception usually used to signal a missing path.
+    # This approach has the problem, however, that exceptions caused by code
+    # earlier in `lstat` are obscured by the exception handling in `isfile`,
+    # `isdir` and `islink`.
 
     def _is_file_system_entity(self, path, dir_or_file):
         """
-        Return `True` if `path` represents the file system entity
-        described by `dir_or_file` ("dir" or "file").
+        Return `True` if `path` represents the file system entity described by
+        `dir_or_file` ("dir" or "file").
 
-        Return `False` if `path` isn't a directory or file,
-        respectively or if `path` leads to an infinite chain of links.
+        Return `False` if `path` isn't a directory or file, respectively or if
+        `path` leads to an infinite chain of links.
         """
         assert dir_or_file in ["dir", "file"]
         # Consider differences between directories and files.
@@ -115,8 +117,8 @@ class _Path:
             stat_function = stat.S_ISREG
         #
         path = ftputil.tool.as_str_path(path)
-        #  Workaround if we can't go up from the current directory.
-        #  The result from `getcwd` should already be normalized.
+        #  Workaround if we can't go up from the current directory. The result
+        #  from `getcwd` should already be normalized.
         if self.normpath(path) == self._host.getcwd():
             return should_look_for_dir
         try:
@@ -134,21 +136,21 @@ class _Path:
 
     def isdir(self, path):
         """
-        Return true if the `path` exists and corresponds to a
-        directory (no link).
+        Return true if the `path` exists and corresponds to a directory (no
+        link).
 
-        A non-existing path does _not_ cause a `PermanentError`,
-        instead return `False`.
+        A non-existing path does _not_ cause a `PermanentError`, instead return
+        `False`.
         """
         return self._is_file_system_entity(path, "dir")
 
     def isfile(self, path):
         """
-        Return true if the `path` exists and corresponds to a regular
-        file (no link).
+        Return true if the `path` exists and corresponds to a regular file (no
+        link).
 
-        A non-existing path does _not_ cause a `PermanentError`,
-        instead return `False`.
+        A non-existing path does _not_ cause a `PermanentError`, instead return
+        `False`.
         """
         return self._is_file_system_entity(path, "file")
 
@@ -156,8 +158,8 @@ class _Path:
         """
         Return true if the `path` exists and is a link.
 
-        A non-existing path does _not_ cause a `PermanentError`,
-        instead return `False`.
+        A non-existing path does _not_ cause a `PermanentError`, instead return
+        `False`.
         """
         path = ftputil.tool.as_str_path(path)
         try:
@@ -190,8 +192,8 @@ class _Path:
         to accumulate statistics.  Passing None for arg is common.
         """
         top = ftputil.tool.as_str_path(top)
-        # This code (and the above documentation) is taken from
-        # `posixpath.py`, with slight modifications.
+        # This code (and the above documentation) is taken from `posixpath.py`,
+        # with slight modifications.
         try:
             names = self._host.listdir(top)
         except OSError:
