@@ -9,6 +9,7 @@ See `__init__.py` for an example.
 """
 
 import datetime
+import errno
 import ftplib
 import stat
 import sys
@@ -704,12 +705,12 @@ class FTPHost:
                     if (index == len(directories) - 1) and (not exist_ok):
                         # Before PEP 3151, if `exist_ok` is `False`, trying to
                         # create an existing directory in the local file system
-                        # results in an `OSError` with `errno` 17, so emulate
-                        # this also for FTP.
+                        # results in an `OSError` with `errno.EEXIST, so
+                        # emulate this also for FTP.
                         ftp_os_error = ftputil.error.PermanentError(
                             "path {!r} exists".format(path)
                         )
-                        ftp_os_error.errno = 17
+                        ftp_os_error.errno = errno.EEXIST
                         raise ftp_os_error
         finally:
             self.chdir(old_dir)

@@ -3,6 +3,7 @@
 # See the file LICENSE for licensing terms.
 
 import datetime
+import errno
 import ftplib
 import io
 import itertools
@@ -708,7 +709,7 @@ class TestMakedirs:
             with pytest.raises(ftputil.error.PermanentError) as exc_info:
                 host.makedirs("/part1/part2")
             assert isinstance(exc_info.value, ftputil.error.PermanentError)
-            assert exc_info.value.errno == 17
+            assert exc_info.value.errno == errno.EEXIST
         # `exist_ok` explicitly set to `False`
         script = [
             Call("__init__"),
@@ -723,7 +724,7 @@ class TestMakedirs:
             with pytest.raises(ftputil.error.PermanentError) as exc_info:
                 host.makedirs("/part1/part2", exist_ok=False)
             assert isinstance(exc_info.value, ftputil.error.PermanentError)
-            assert exc_info.value.errno == 17
+            assert exc_info.value.errno == errno.EEXIST
 
     def test_exist_ok_true(self):
         """
