@@ -609,37 +609,61 @@ Uploading and downloading files
 Time zone correction
 ````````````````````
 
-If the client where ``ftputil`` runs and the server have different
-understandings of their local times, this has to be taken into account
-for ``upload_if_newer`` and ``download_if_newer`` to work correctly.
+For ``upload_if_newer`` and ``download_if_newer`` to work correctly,
+the time zone of the server must be taken into account. By default,
+ftputil assumes that the timestamps in server listings are in UTC_.
 
-Note that even if the client and the server are in the same time zone
-(or even on the same computer), the time shift value (see below) may
-be different from zero. For example, my computer is set to use local
-time whereas the server running on the very same host uses UTC time.
+.. _UTC: https://en.wikipedia.org/wiki/Utc
 
 .. _`set_time_shift`:
 
 - ``set_time_shift(time_shift)``
 
   sets the so-called time shift value, measured in seconds. The time
-  shift is the difference between the local time of the server and the
-  local time of the client at a given moment, i. e. by definition
+  shift here is defined as the difference between the time used in
+  server listings and UTC.
 
   ::
 
-    time_shift = server_time - client_time
+    time_shift = server_time - utc_time
 
-  Setting this value is important for `upload_if_newer`_ and
-  `download_if_newer`_ to work correctly even if the time zone of the
-  FTP server differs from that of the client. Note that the time shift
-  value *can be negative*.
+  For example, a server in Berlin/Germany set to the local time
+  (currently UTC+03:00), would require a time shift value of 3 *
+  3600.0 = 10800.0 seconds to be handled correctly by ftputil's
+  ``upload_if_newer`` and ``download_if_newer``, as well as the
+  ``stat`` and ``lstat`` calls.
+
+  Note that servers don't necessarily send their file system listings
+  in their local time zone. Some use UTC, which actually makes sense
+  because UTC doesn't lead to an ambiguity when there's a switch back
+  from the daylight saving time to the "normal" time of the server
+  location.
 
   If the time shift value is invalid, for example its absolute value
   is larger than 24 hours, a ``TimeShiftError`` is raised.
 
+  .. note::
+
+     Versions of ftputil before 4.0.0 used a different definition of
+     "time shift", server_time - local_client_time.
+
+     This had the advantage that the default of 0.0 would be correct
+     *if* the server was set to the same time zone as the client
+     where ftputil runs. On the other hand, this approach meant that
+     the time shift depended on *two* time zones, not only the one
+     used on the server side. This could be confusing if server
+     and client *didn't* use the same time zone.
+
   See also `synchronize_times`_ for a way to set the time shift with a
-  simple method call.
+  simple method call. If you can't use ``synchronize_times`` *and* the
+  server uses the same time zone as the client, you can set the time
+  shift value with
+
+  ::
+
+    set_time_shift(
+      round( (datetime.datetime.now() - datetime.datetime.utcnow()).seconds, -2 )
+    )
 
 - ``time_shift()``
 
@@ -1577,10 +1601,9 @@ Conditional upload/download to/from a server in a different time zone
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You may find that ``ftputil`` uploads or downloads files
-unnecessarily, or not when it should. This can happen when the FTP
-server is in a different time zone than the client on which
-``ftputil`` runs. Please see the section on `time zone correction`_.
-It may even be sufficient to call `synchronize_times`_.
+unnecessarily, or not when it should. Please see the section on `time
+zone correction`_. It may even be sufficient to call
+`synchronize_times`_.
 
 When I use ``ftputil``, all I get is a ``ParserError`` exception
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
