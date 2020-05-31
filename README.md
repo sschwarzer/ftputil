@@ -10,5 +10,5 @@ in different timezones.
 
 -----
 
-This Bitbucket repository is just a code mirror of the main website at
-http://ftputil.sschwarzer.net , but feel free to submit pull requests here.
+This Sourcehut repository is just a code mirror of the main website at
+https://ftputil.sschwarzer.net .
