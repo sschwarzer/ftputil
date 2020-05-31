@@ -15,27 +15,52 @@ in different timezones.
 What's new?
 -----------
 
-Since version 3.3.1 the following changed:
+Backward-incompatible changes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Several bugs were fixed [1-5].
+This ftputil version isn't fully backward-compatible with the previous
+version. The backward-incompatible changes are:
 
-- Added deprecation warnings for backward incompatibilities in the
-  upcoming ftputil 4.0.0.
+- Python 2 is no longer supported.
 
-Important note
---------------
+- The minimal supported Python 3 version is 3.5.
 
-The next version of ftputil will be 4.0.0 (apart from small fixes in
-possible 3.4.x versions).
+- The flag `use_list_a_option` of `FTPHost` instances is now set to
+  `False` by default. This option was intended to make life easier for
+  users, but turned out to be problematic [1].
 
-ftputil 4.0.0 will make some backward-incompatible changes:
+- By default, time stamps in directory listings coming from the server
+  are now assumed to be in UTC. Previously, listings were assumed to
+  use the local time of the client. [2]
 
-- Support for Python 2 will be removed. There are several reasons for
-  this, which are explained in [6].
+  Correspondingly, the definition of "time shift" has changed. The
+  time shift is now defined as the time zone used in server listings
+  (say, UTC+02:00) and UTC, in other words, the time shift now is the
+  time zone offset applied in the server listings. In earlier ftputil
+  versions, the time shift was defined as "time used in server
+  listings" minus "local client time."
 
-- The flag `use_list_a_option` will be set to `False` by default. This
-  option was intended to make life easier for users of the library,
-  but turned out to be problematic (see [7]).
+If you need to use Python versions before 3.5, please use the previous
+stable ftputil version 3.4.
+
+Other changes
+~~~~~~~~~~~~~
+
+- Functions and methods which used to accept only `str` or `bytes`
+  paths now _also_ accept `PathLike` objects [3, 4].
+
+- `FTPHost.makedirs` correctly handles `exist_ok`. [5]
+
+- Clear the stat cache when setting a new time shift value. [6]
+
+- ftputil now officially follows semantic versioning (SemVer) [7].
+  Actually ftputil has been following semantic versioning since a long
+  time (probably since version 2.0 in 2004), but it was never
+  explicitly guaranteed and new major versions were named x.0 instead
+  of x.0.0 and new minor versions x.y instead of x.y.0.
+
+- Internal changes: The tests were moved to pytest. The old mocking
+  approach was replaced by a "scripted session" approach.
 
 Documentation
 -------------
@@ -47,8 +72,7 @@ ftputil.txt).
 Prerequisites
 -------------
 
-To use ftputil, you need Python, at least version 2.6. Python 3.x
-versions work as well.
+To use ftputil, you need Python, at least version 3.5.
 
 Installation
 ------------
@@ -121,11 +145,10 @@ Evan Prodromou <evan@bad.dynu.ca> (lrucache module)
 Please provide feedback! It's certainly appreciated. :-)
 
 
-[1] http://ftputil.sschwarzer.net/trac/ticket/107
-[2] http://ftputil.sschwarzer.net/trac/ticket/109
-[3] http://ftputil.sschwarzer.net/trac/ticket/112
-[4] http://ftputil.sschwarzer.net/trac/ticket/113
-[5] http://ftputil.sschwarzer.net/trac/ticket/114
-[6] http://lists.sschwarzer.net/pipermail/ftputil/2017q3/000465.html
-[7] http://ftputil.sschwarzer.net/trac/ticket/110
-
+[1] https://ftputil.sschwarzer.net/trac/ticket/110
+[2] https://ftputil.sschwarzer.net/trac/ticket/134
+[3] https://docs.python.org/3/library/os.html#os.PathLike
+[4] https://ftputil.sschwarzer.net/trac/ticket/119
+[5] https://ftputil.sschwarzer.net/trac/ticket/117
+[6] https://ftputil.sschwarzer.net/trac/ticket/136
+[7] https://semver.org/
