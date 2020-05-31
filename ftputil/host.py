@@ -356,15 +356,14 @@ class FTPHost:
 
     def set_time_shift(self, time_shift):
         """
-        Set the time shift value (i. e. the time difference between client and
-        server, where the client time is in UTC) for this `FTPHost` object. By
-        (my) definition, the time shift value is positive if the local time of
-        the server is greater than the local time of the client (for the same
-        physical time), i. e.
+        Set the time shift value.
 
-            time_shift =def= t_server - t_client_utc
-        <=> t_server = t_client_utc + time_shift
-        <=> t_client_utc = t_server - time_shift
+        By (my) definition, the time shift value is the difference of
+        the time zone used in server listings and UTC, i. e.
+
+            time_shift =def= t_server - utc
+        <=> t_server = utc + time_shift
+        <=> utc = t_server - time_shift
 
         The time shift is measured in seconds.
         """
