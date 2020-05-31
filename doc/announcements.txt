@@ -13,7 +13,7 @@ version. The backward-incompatible changes are:
 
 - Python 2 is no longer supported.
 
-- The minimal supported Python 3 version is 3.5.
+- The minimum supported Python 3 version is 3.6.
 
 - The flag `use_list_a_option` of `FTPHost` instances is now set to
   `False` by default. This option was intended to make life easier for
@@ -30,7 +30,7 @@ version. The backward-incompatible changes are:
   versions, the time shift was defined as "time used in server
   listings" minus "local client time."
 
-If you need to use Python versions before 3.5, please use the previous
+If you need to use Python versions before 3.6, please use the previous
 stable ftputil version 3.4.
 
 
