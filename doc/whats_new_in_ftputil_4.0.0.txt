@@ -1,0 +1,156 @@
+What's new in ftputil 4.0?
+==========================
+
+:Version:   4.0
+:Date:      2020-06-01
+:Author:    Stefan Schwarzer <sschwarzer@sschwarzer.net>
+
+.. contents::
+
+
+Supported Python versions
+-------------------------
+
+Support for Python 2 is dropped. The minimum required Python 3 version
+is 3.6.
+
+Find more details in `Questions and answers`_.
+
+
+Time shift handling
+-------------------
+
+ftputil uses the notion of "time shift" to deal with time zone
+differences between client and server. This is important for
+the methods ``upload_if_newer`` and ``download_if_newer``.
+
+The defintion of "time shift" changed from earlier ftputil versions to
+ftputil 4.0.0.
+
+Previously, the time shift was defined as
+
+  time_used_by_server - local_time_used_by_client
+
+The new definition is
+
+  time_used_by_server - `UTC`_
+
+.. _`UTC`: https://en.wikipedia.org/wiki/Coordinated_Universal_Time
+
+Both definitions have their pros and cons (detailed in the `Questions
+and answers`_).
+
+Find more details in `Porting to ftputil 4.0.0`_.
+
+
+ftputil no longer uses the ``-a`` option by default
+---------------------------------------------------
+
+Earlier ftputil versions by default sent an ``-a`` option with the
+FTP ``DIR`` command to include "hidden" directories and files (names
+starting with a dot) in the listing.
+
+That led to problems when the server `didn't understand the option`_
+and treated it as a directory or file name.
+
+.. _`didn't understand the option`: https://ftputil.sschwarzer.net/trac/ticket/110
+
+Therefore, ftputil no longer uses the ``-a`` option by default, but
+you can enable this by setting ``use_list_a_option`` on the
+``FTPHost`` instance to ``True``::
+
+    with ftputil.FTPHost(host, user, password) as ftp_host:
+        ftp_host.use_list_a_option = True
+        ...
+
+However, do this only if you're *sure* the server interprets the
+option correctly!
+
+
+Porting to ftputil 4.0.0
+------------------------
+
+Using the correct time shift value
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As said above, the time shift value is now defined as
+
+  time_used_by_server - `UTC`_
+
+If you don't use any methods that deal with time stamps from the FTP
+server, you don't need to change anything. Such methods include
+``upload_if_newer``, ``download_if_newer`` and using the timestamp
+values from the ``stat`` and ``lstat`` methods.
+
+Ideally, you have write access on the server in the current directory.
+In this case you can call ``synchronize_times``::
+
+    with ftputil.FTPHost(host, user, password) as ftp_host:
+        ftp_host.synchronize_times()
+        ...
+
+If using ``synchronize_times`` isn't an option, you have to set the
+time shift explicitly with ``set_time_shift``::
+
+    with ftputil.FTPHost(host, user, password) as ftp_host:
+        ftp_host.set_time_shift(new_time_shift)
+        ...
+
+*If* you're sure the server uses the same timezone as the client,
+you can use
+
+::
+
+    with ftputil.FTPHost(host, user, password) as ftp_host:
+        ftp_host.set_time_shift(
+          round((datetime.datetime.now() - datetime.datetime.utcnow()).seconds,
+                -2)
+        )
+        ...
+
+This is roughly equivalent to the old ftputil behavior. The only
+difference is that the new behavior requires that you adapt the time
+shift value if there's a switch to or from daylight saving time.
+
+
+Using the ``-a`` option for ``DIR`` commands
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you need to list hidden directories and files (names starting
+with a dot) *and* are sure the server understands the ``-a`` option
+for ``DIR`` commands, you now need to tell the ``FTPHost`` instance
+explicitly to use the option::
+
+    with ftputil.FTPHost(host, user, password) as ftp_host:
+        ftp_host.use_list_a_option = True
+        ...
+
+
+Questions and answers
+---------------------
+
+Why is Python 2 no longer supported?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Python 2 is officially no longer maintained and supporting it in
+combination with Python 3 led to lots of extra work. Therefore, I
+decided to drop support for Python 2.
+
+
+Why is the minimum version Python 3.6 and not 3.5?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+My plan *was* to support Python 3.5 since it's not yet end-of-life'd
+and it's used in some LTS Linux/Unix distributions. However, dropping
+Python 3.5 support made it much easier to implement `ticket #119`_,
+support for `path-like objects`_. Python 3.6 introduced some
+infrastructure so that code that used to use only ``str`` and
+``bytes`` paths can now use path-like objects as well. I considered it
+more important to support path-like objects than Python 3.5. I guess
+it might have been possible to add support for path-like objects on
+top of Python 3.5, but it would have been a hassle and Python 3.5
+support officially ends in `just a few months`_.
+
+.. _`ticket #119`: https://ftputil.sschwarzer.net/trac/ticket/119
+.. _`path-like objects`: https://docs.python.org/3/library/os.html#os.PathLike
+.. _`just a few months`: https://devguide.python.org/#status-of-python-branches
