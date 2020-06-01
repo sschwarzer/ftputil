@@ -17,6 +17,15 @@ is 3.6.
 Find more details in `Questions and answers`_.
 
 
+Path-like objects
+-----------------
+
+Methods that take directory and file names as ``str`` or ``bytes``
+objects now also accept `path-like objects`_.
+
+.. _`path-like objects`: https://docs.python.org/3/library/os.html#os.PathLike
+
+
 Time shift handling
 -------------------
 
