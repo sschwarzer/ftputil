@@ -2,6 +2,9 @@ ftputil 4.0.0-beta is now available from
 https://ftputil.sschwarzer.net/download .
 
 
+Please test it and give feedback! :-)
+
+
 Changes since the last stable release 3.4
 -----------------------------------------
 
