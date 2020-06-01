@@ -6,8 +6,6 @@
 ftputil.file - support for file-like objects on FTP servers
 """
 
-import io
-
 import ftputil.error
 
 
