@@ -2,7 +2,7 @@
 ==============================================
 
 :Version:   4.0.0-beta
-:Date:      2020-05-31
+:Date:      2020-06-01
 :Summary:   high-level FTP client library for Python
 :Keywords:  FTP, ``ftplib`` substitute, virtual filesystem, pure Python
 :Author:    Stefan Schwarzer <sschwarzer@sschwarzer.net>
