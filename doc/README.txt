@@ -25,13 +25,9 @@ version. The backward-incompatible changes are:
 
 - The minimum supported Python 3 version is 3.6.
 
-- The flag `use_list_a_option` of `FTPHost` instances is now set to
-  `False` by default. This option was intended to make life easier for
-  users, but turned out to be problematic [1].
-
 - By default, time stamps in directory listings coming from the server
   are now assumed to be in UTC. Previously, listings were assumed to
-  use the local time of the client. [2]
+  use the local time of the client. [1]
 
   Correspondingly, the definition of "time shift" has changed. The
   time shift is now defined as the time zone used in server listings
@@ -39,6 +35,10 @@ version. The backward-incompatible changes are:
   time zone offset applied in the server listings. In earlier ftputil
   versions, the time shift was defined as "time used in server
   listings" minus "local client time."
+
+- The flag `use_list_a_option` of `FTPHost` instances is now set to
+  `False` by default. This option was intended to make life easier for
+  users, but turned out to be problematic [2].
 
 If you need to use Python versions before 3.6, please use the previous
 stable ftputil version 3.4.
@@ -145,8 +145,8 @@ Evan Prodromou <evan@bad.dynu.ca> (lrucache module)
 Please provide feedback! It's certainly appreciated. :-)
 
 
-[1] https://ftputil.sschwarzer.net/trac/ticket/110
-[2] https://ftputil.sschwarzer.net/trac/ticket/134
+[1] https://ftputil.sschwarzer.net/trac/ticket/134
+[2] https://ftputil.sschwarzer.net/trac/ticket/110
 [3] https://docs.python.org/3/library/os.html#os.PathLike
 [4] https://ftputil.sschwarzer.net/trac/ticket/119
 [5] https://ftputil.sschwarzer.net/trac/ticket/117
