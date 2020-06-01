@@ -21,7 +21,6 @@ Classifier: Intended Audience :: System Administrators
 Classifier: License :: OSI Approved :: BSD License
 Classifier: Operating System :: OS Independent
 Classifier: Programming Language :: Python
-Classifier: Programming Language :: Python :: 2
 Classifier: Programming Language :: Python :: 3
 Classifier: Topic :: Internet :: File Transfer Protocol (FTP)
 Classifier: Topic :: Software Development :: Libraries :: Python Modules
