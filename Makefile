@@ -100,9 +100,10 @@ dist: clean patch pylint docs
 extdist: all_tests dist upload
 
 # Upload package to PyPI.
+# See also https://packaging.python.org/tutorials/packaging-projects/
 upload:
 	@echo "Uploading new version to PyPI"
-	${PYTHON_BINARY} setup.py sdist upload
+	${PYTHON_BINARY} -m twine upload Dist/ftputil-${VERSION}.tar.gz
 
 # Remove files with `orig` suffix (caused by `hg revert`).
 cleanorig:
