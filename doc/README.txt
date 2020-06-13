@@ -72,7 +72,7 @@ ftputil.txt).
 Prerequisites
 -------------
 
-To use ftputil, you need Python, at least version 3.5.
+To use ftputil, you need Python, at least version 3.6.
 
 Installation
 ------------
