@@ -2,7 +2,7 @@ What's new in ftputil 4.0.0?
 ============================
 
 :Version:   4.0.0
-:Date:      2020-06-01
+:Date:      2020-06-13
 :Author:    Stefan Schwarzer <sschwarzer@sschwarzer.net>
 
 .. contents::
@@ -121,6 +121,29 @@ the ``FTPHost`` instance to ``True``::
 
 However, do this only if you're *sure* the server interprets the
 option correctly!
+
+
+``makedirs`` behaves as in Python 3
+-----------------------------------
+
+In Python 2, ``os.makedirs`` didn't complain if any directory in the
+path to create already existed. Since ftputil was originally based on
+Python 2 behavior, this *was* also the behavior in ``FTPHost.makedirs``.
+
+Python 3 added an optional argument ``exist_ok`` with the default
+``False``. With this default, ``os.makedirs`` raises an exception
+if any directory but the last in the ``path`` argument exists.
+
+Since Python 2 is used less and less, ftputil 4.0.0 follows the Python
+3 semantics.
+
+Porting
+~~~~~~~
+
+If you want the old behavior of ``FTPHost.makedirs``, pass
+``exist_ok=True``. Note that there's also an unused ``mode`` argument
+for consistency with the ``os.makedirs`` API, so make sure you pass
+``exist_ok`` as a keyword argument.
 
 
 Questions and answers
