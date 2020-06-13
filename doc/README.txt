@@ -81,52 +81,18 @@ Installation
 
 *If you have an older version of ftputil installed, delete it or
 move it somewhere else, so that it doesn't conflict with the new
-version!*
+version.*
 
-If you have pip or easy_install available, you can install the current
-version of ftputil directly from the Python Package Index (PyPI)
-without downloading the package explicitly. You'll still need an
-internet connection, of course.
+You can install ftputil with pip:
 
-- Just type
+  pip install ftputil
 
-    pip install ftputil
+Unless you're installing ftputil in a virtual environment, you'll
+probably need root/administrator privileges.
 
-  or
-
-    easy_install ftputil
-
-  on the command line, respectively. Unless you're installing ftputil
-  in a virtual environment, you'll probably need root/administrator
-  privileges to do that.
-
-  Done. :-)
-
-If you don't have pip or easy_install, you need to download a tarball
-from the Python Package Index or from the ftputil website and install
-it:
-
-- Unpack the archive file containing the distribution files. If you
-  had an ftputil version 2.8, you would type at the shell prompt:
-
-    tar xzf ftputil-2.8.tar.gz
-
-- Make the directory to where the files were unpacked your current
-  directory. Assume that after unpacking, you have a directory
-  `ftputil-2.8`. Make it the current directory with
-
-    cd ftputil-2.8
-
-- Type
-
-    python setup.py install
-
-  at the shell prompt. On Unix/Linux, you have to be root to perform
-  the installation. Likewise, you have to be logged in as
-  administrator if you install on Windows.
-
-  If you want to customize the installation paths, please read
-  http://docs.python.org/inst/inst.html .
+Note that ftputil versions with a different major version number won't
+be fully backward-compatible with the previous version. Examples are
+the changes from 2.8 to 3.0 and from 3.4 to 4.0.0.
 
 License
 -------
