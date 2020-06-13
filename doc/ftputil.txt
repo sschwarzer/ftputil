@@ -701,11 +701,16 @@ Creating and removing directories
   instead of the ``os`` module. See the explanation in the subsection
   `Exception hierarchy`_.
 
-- ``makedirs(path, [mode])``
+- ``makedirs(path, [mode], exist_ok=False)``
 
   works similar to ``mkdir`` (see above), but also makes intermediate
   directories like ``os.makedirs``. The ``mode`` parameter is only
   there for compatibility with ``os.makedirs`` and is ignored.
+
+  ``exist_ok`` controls whether the existence of any directory but the
+  last in the ``path`` should be considered an error. If the default
+  ``False`` is used or passed to ``makedirs``, ftputil will raise a
+  ``PermanentError`` if any directory but the last already exists.
 
 - ``rmdir(path)``
 
