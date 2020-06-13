@@ -7,15 +7,14 @@
 
 """\
 This script scans a directory tree for files which contain code which
-is deprecated or invalid in ftputil %s and above (and even much
-longer). The script uses simple heuristics, so it may miss occurrences
-of deprecated/invalid usage or print some inappropriate lines of your
-files.
+may cause problems in ftputil %s and above. The script uses simple
+heuristics, so it may miss occurrences of problematic usage or print
+some harmless lines of your files.
 
 Usage: %s start_dir
 
 where 'start_dir' is the starting directory which will be scanned
-recursively for offending code.
+recursively for potentially problematic code.
 """
 
 import os
