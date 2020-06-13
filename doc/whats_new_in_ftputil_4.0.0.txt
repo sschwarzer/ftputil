@@ -94,6 +94,14 @@ offset. That said, I think this approach is a hack because it means
 that calls to ``set_time_shift`` will effectively be ignored. So don't
 take this approach as a recommendation.
 
+You can use `this script`_ to scan your code for uses of
+``time_shift()`` or ``set_time_shift``. However, if you implicitly
+relied on the old default behavior (time shift is 0.0 if client and
+server use the same time zone), you'll need additional calls for
+``set_time_shift``.
+
+.. _`this script`: https://ftputil.sschwarzer.net/trac/browser/find_problematic_code.py?format=txt
+
 
 ftputil no longer uses the ``-a`` option by default
 ---------------------------------------------------
@@ -144,6 +152,9 @@ If you want the old behavior of ``FTPHost.makedirs``, pass
 ``exist_ok=True``. Note that there's also an unused ``mode`` argument
 for consistency with the ``os.makedirs`` API, so make sure you pass
 ``exist_ok`` as a keyword argument.
+
+You can use `this script`_ to scan your code for uses of
+``makedirs()``.
 
 
 Questions and answers
