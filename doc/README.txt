@@ -91,15 +91,15 @@ internet connection, of course.
 - Just type
 
     pip install ftputil
-  
+
   or
-  
+
     easy_install ftputil
-  
+
   on the command line, respectively. Unless you're installing ftputil
   in a virtual environment, you'll probably need root/administrator
   privileges to do that.
-  
+
   Done. :-)
 
 If you don't have pip or easy_install, you need to download a tarball
