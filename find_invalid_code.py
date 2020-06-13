@@ -1,5 +1,5 @@
-#! /usr/bin/env python
-# Copyright (C) 2008-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+#! /usr/bin/env python3
+# Copyright (C) 2008-2020, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -48,14 +48,10 @@ class InvalidFeature:
 HOST_REGEX = r"\b(h|host|ftp|ftphost|ftp_host)\b"
 
 invalid_features = [
-  InvalidFeature("Possible use(s) of FTP exceptions via ftputil module",
-                 r"\bftputil\s*?\.\s*?[A-Za-z]+Error\b"),
-  InvalidFeature("Possible use(s) of ftp_error module",
-                 r"\bftp_error\b"),
-  InvalidFeature("Possible use(s) of ftp_stat module",
-                 r"\bftp_stat\b"),
-  InvalidFeature("Possible use(s) of FTPHost.file",
-                 r"{}\.file\(".format(HOST_REGEX))
+  InvalidFeature("Definition of time shift has changed in ftputil 4.0.0",
+                 r"\.(time_shift\(\)|set_time_shift\()"),
+  InvalidFeature("Behavior of `FTPHost.makedirs` has changed in ftputil 4.0.0",
+                 r"\.makedirs\(")
 ]
 
 
@@ -89,7 +85,7 @@ def print_results():
             last_message = feature.message
         locations = feature.locations
         if not locations:
-            print("   no invalid code found")
+            print("   no problematic code found")
             continue
         for file_name in sorted(locations.keys()):
             print(file_name)
