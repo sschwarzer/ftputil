@@ -40,6 +40,10 @@ version. The backward-incompatible changes are:
   `False` by default. This option was intended to make life easier for
   users, but turned out to be problematic [2].
 
+- As in `os.makedirs`, `FTPHost.makedirs` now supports the `exist_ok`
+  flag and uses the default of `False`. You can get the behavior of
+  ftputil 3.x by passing `exist_ok=True`. [3]
+
 If you need to use Python versions before 3.6, please use the previous
 stable ftputil version 3.4.
 
@@ -47,9 +51,7 @@ Other changes
 ~~~~~~~~~~~~~
 
 - Functions and methods which used to accept only `str` or `bytes`
-  paths now _also_ accept `PathLike` objects [3, 4].
-
-- `FTPHost.makedirs` correctly handles `exist_ok`. [5]
+  paths now _also_ accept `PathLike` objects [4, 5].
 
 - Clear the stat cache when setting a new time shift value. [6]
 
@@ -147,8 +149,8 @@ Please provide feedback! It's certainly appreciated. :-)
 
 [1] https://ftputil.sschwarzer.net/trac/ticket/134
 [2] https://ftputil.sschwarzer.net/trac/ticket/110
-[3] https://docs.python.org/3/library/os.html#os.PathLike
-[4] https://ftputil.sschwarzer.net/trac/ticket/119
-[5] https://ftputil.sschwarzer.net/trac/ticket/117
+[3] https://ftputil.sschwarzer.net/trac/ticket/117
+[4] https://docs.python.org/3/library/os.html#os.PathLike
+[5] https://ftputil.sschwarzer.net/trac/ticket/119
 [6] https://ftputil.sschwarzer.net/trac/ticket/136
 [7] https://semver.org/
