@@ -63,8 +63,8 @@ and downloads, and handles FTP clients and servers in different timezones.""",
     "{}-{}.tar.gz?format=raw".format(_name, _version),
     classifiers=[
         # Commented-out for beta release
-        # "Development Status :: 5 - Production/Stable",
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
+        #"Development Status :: 4 - Beta",
         "Environment :: Other Environment",
         "Intended Audience :: Developers",
         "Intended Audience :: System Administrators",
