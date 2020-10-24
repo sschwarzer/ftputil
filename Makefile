@@ -121,4 +121,4 @@ clean:
 # doesn't work if the package wasn't installed with pip.
 remove_from_env:
 	rm -rf ${VIRTUAL_ENV}/doc/ftputil
-	rm -rf ${VIRTUAL_ENV}/lib/python3.7/site-packages/ftputil
+	rm -rf ${VIRTUAL_ENV}/lib/python3.*/site-packages/ftputil
