@@ -3,6 +3,7 @@
 # See the file LICENSE for licensing terms.
 
 import ftplib
+import socket
 
 import pytest
 
@@ -62,8 +63,6 @@ class TestErrorConversion:
             # Format "host:port" doesn't work. The use here is intentional.
             host = ftputil.FTPHost("localhost:21", "", "")
         exc = exc_info.value
-        # The error message may be different for different Python versions.
-        assert "No address associated with hostname" in str(
-            exc
-        ) or "Name or service not known" in str(exc)
+        assert isinstance(exc.__cause__, socket.gaierror)
+        assert exc.__cause__.errno == socket.EAI_NONAME
         del exc_info
