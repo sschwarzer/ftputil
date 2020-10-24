@@ -37,23 +37,34 @@ class FTPError(Exception):
     General ftputil error class.
     """
 
-    # In Python 2, we can't use a keyword argument after `*args`, so `pop` from
-    # `**kwargs`.
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, original_error=None):
         super().__init__(*args)
-        if "original_exception" in kwargs:
-            self.strerror = str(kwargs.pop("original_exception"))
+        # `strerror`
+        self.strerror = ""
+        if original_error is not None:
+            try:
+                self.strerror = str(original_error)
+            except Exception:
+                # Consume all errors. If the `str` call fails, it's more
+                # appropriate to ignore `original_error` than to raise an
+                # exception while instantiating `FTPError`.
+                pass
         elif args:
-            # If there was no `original_exception` argument, assume the first
-            # argument is a string. It may be a byte string though.
-            self.strerror = ftputil.tool.as_str(args[0])
-        else:
-            self.strerror = ""
+            # Assume the first argument is a string. It may be a byte string
+            # though.
+            try:
+                self.strerror = ftputil.tool.as_str(args[0])
+            except TypeError:
+                # `args[0]` isn't `str` or `bytes`.
+                pass
+        # `errno`
+        self.errno = None
         try:
             self.errno = int(self.strerror[:3])
         except ValueError:
             # `int()` argument couldn't be converted to an integer.
-            self.errno = None
+            pass
+        # `file_name`
         self.file_name = None
 
     def __str__(self):
