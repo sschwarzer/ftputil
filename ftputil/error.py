@@ -169,18 +169,24 @@ class FtplibErrorToFTPOSError:
             # No exception
             return
         if isinstance(exc_value, ftplib.error_temp):
-            raise TemporaryError(*exc_value.args, original_exception=exc_value)
+            raise TemporaryError(
+                *exc_value.args, original_error=exc_value
+            ) from exc_value
         elif isinstance(exc_value, ftplib.error_perm):
             # If `exc_value.args[0]` is present, assume it's a byte or unicode
             # string.
             if exc_value.args and ftputil.tool.as_str(exc_value.args[0]).startswith(
                 "502"
             ):
-                raise CommandNotImplementedError(*exc_value.args)
+                raise CommandNotImplementedError(
+                    *exc_value.args, original_error=exc_value
+                ) from exc_value
             else:
-                raise PermanentError(*exc_value.args, original_exception=exc_value)
+                raise PermanentError(
+                    *exc_value.args, original_error=exc_value
+                ) from exc_value
         elif isinstance(exc_value, ftplib.all_errors):
-            raise FTPOSError(*exc_value.args, original_exception=exc_value)
+            raise FTPOSError(*exc_value.args, original_error=exc_value) from exc_value
         else:
             raise
 
@@ -207,7 +213,7 @@ class FtplibErrorToFTPIOError:
             # No exception
             return
         if isinstance(exc_value, ftplib.all_errors):
-            raise FTPIOError(*exc_value.args, original_exception=exc_value)
+            raise FTPIOError(*exc_value.args, original_error=exc_value) from exc_value
         else:
             raise
 
