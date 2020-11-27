@@ -29,4 +29,4 @@ RUN \
   # Use only configuration from overwritten `pure-ftpd.conf`
   rm /etc/pure-ftpd/conf/*
 
-CMD pure-ftpd -l unix -E -j -P localhost -p 30000:30009 -c 5 -C 5
+CMD pure-ftpd -l unix -E -j -A -P localhost -p 30000:30009 -c 5 -C 5
