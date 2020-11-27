@@ -51,7 +51,16 @@ def expected_time_shift():
     return round(raw_time_shift / 900.0) * 900
 
 
-EXPECTED_TIME_SHIFT = expected_time_shift()
+# The containerized PureFTPd seems to use UTC.
+EXPECTED_TIME_SHIFT = 0.0
+
+
+# Set when starting container
+PORT = 2121
+
+DEFAULT_SESSION_FACTORY = ftputil.session.session_factory(
+    port=PORT, encrypt_data_channel=False
+)
 
 
 class Cleaner:
@@ -102,8 +111,10 @@ class Cleaner:
 class RealFTPTest:
     def setup_method(self, method):
         # Server, username, password.
-        self.login_data = ("localhost", "ftptest", "d605581757de5eb56d568a4419f4126e")
-        self.host = ftputil.FTPHost(*self.login_data)
+        self.login_data = ("localhost", "ftptest", "dummy")
+        self.host = ftputil.FTPHost(
+            *self.login_data, session_factory=DEFAULT_SESSION_FACTORY
+        )
         self.cleaner = Cleaner(self.host)
 
     def teardown_method(self, method):
@@ -489,8 +500,12 @@ class TestStat(RealFTPTest):
 
     def test_concurrent_access(self):
         self.make_remote_file("_testfile_")
-        with ftputil.FTPHost(*self.login_data) as host1:
-            with ftputil.FTPHost(*self.login_data) as host2:
+        with ftputil.FTPHost(
+            *self.login_data, session_factory=DEFAULT_SESSION_FACTORY
+        ) as host1:
+            with ftputil.FTPHost(
+                *self.login_data, session_factory=DEFAULT_SESSION_FACTORY
+            ) as host2:
                 stat_result1 = host1.stat("_testfile_")
                 stat_result2 = host2.stat("_testfile_")
                 assert stat_result1 == stat_result2
@@ -920,7 +935,9 @@ class TestOther(RealFTPTest):
 
     def _make_objects_to_be_garbage_collected(self):
         for _ in range(10):
-            with ftputil.FTPHost(*self.login_data) as host:
+            with ftputil.FTPHost(
+                *self.login_data, session_factory=DEFAULT_SESSION_FACTORY
+            ) as host:
                 for _ in range(10):
                     unused_stat_result = host.stat("CONTENTS")
                     with host.open("CONTENTS") as fobj:
