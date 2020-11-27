@@ -22,7 +22,7 @@ RUN \
   # directories or files there they won't be visible when the container is
   # started.
   #
-  # The user needs a shell for Unix authentication.
+  # The user needs a shell for PureFTPd unix authentication to work.
   useradd --gid=ftpgroup --uid=${UID} --home-dir=/home/${USERNAME} \
           --create-home --shell=/bin/bash ${USERNAME} && \
   echo "${USERNAME}:${PASSWORD}" | chpasswd && \
