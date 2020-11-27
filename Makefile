@@ -151,5 +151,5 @@ run_test_server: build_test_server_image
 	if [ ! -z "$(shell ${DOCKER} container ls -q --filter name=${CONTAINER})" ]; then \
 		${DOCKER} container rm -f ${CONTAINER}; \
 	fi
-	${DOCKER} container run --rm -it --name ${CONTAINER} \
+	${DOCKER} container run --rm -dit --name ${CONTAINER} \
 		-p 2121:21 -p 30000-30009:30000-30009 ${IMAGE}
