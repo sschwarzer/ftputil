@@ -37,15 +37,14 @@ TEST_FILES=$(shell ls -1 ${TEST_DIR}/test_*.py | \
 		   ${TEST_DIR}/test_real_ftp.py \
 		   ${TEST_DIR}/test_public_servers.py
 
-.PHONY: dummy dist extdist test tox_test coverage pylint \
-	find_missing_unicode_literals \
-	docs clean cleanorig upload patch remove_from_env
 
 # Put this first to avoid accidental patching if running `make`
 # without target.
+.PHONY: dummy
 dummy:
 
 # Patch various files to refer to a new version.
+.PHONY: patch
 patch:
 	@echo "Patching files"
 	${SED} "s/^__version__ = \".*\"/__version__ = \"${VERSION}\"/" \
@@ -61,55 +60,67 @@ patch:
 # Documentation
 vpath %.txt ${DOC_DIR}
 
+.PHONY: docs
 docs: ${DOC_SOURCES} ${DOC_TARGETS}
 
 %.html: %.txt
 	${RST2HTML} --stylesheet-path=${STYLESHEET_PATH} --embed-stylesheet $< $@
 
 # Quality assurance
+.PHONY: test
 test:
 	@echo -e "=== Running fast tests for ftputil ${VERSION} ===\n"
 	${PYTEST} -m "not slow_test" test
 
 # Alternative for symmetry with target `all_tests`
+.PHONY: tests
 tests: test
 
 all_tests:
 	@echo -e "=== Running all tests for ftputil ${VERSION} ===\n"
 	${PYTEST} test
 
+.PHONY: tox_test
 tox_test:
 	# Gets settings from `tox.ini`
 	tox
 
+.PHONY: coverage
 coverage:
 	py.test --cov ftputil --cov-report html test
 
+.PHONY: pylint
 pylint:
 	pylint --rcfile=pylintrc ${PYLINT_OPTS} ${SOURCE_DIR}/*.py | \
 		less --quit-if-one-screen
 
+.PHONY: find_missing_unicode_literals
 find_missing_unicode_literals:
 	find ftputil test -name "*.py" \
 	  -exec grep -L "from __future__ import unicode_literals" {} \;
 
 # Make a distribution tarball.
+.PHONY: dist
 dist: clean patch pylint docs
 	${PYTHON_BINARY} setup.py sdist
 
+.PHONY: extdist
 extdist: all_tests dist upload
 
 # Upload package to PyPI.
 # See also https://packaging.python.org/tutorials/packaging-projects/
+.PHONY: upload
 upload:
 	@echo "Uploading new version to PyPI"
 	${PYTHON_BINARY} -m twine upload Dist/ftputil-${VERSION}.tar.gz
 
 # Remove files with `orig` suffix (caused by `hg revert`).
+.PHONY: cleanorig
 cleanorig:
 	find ${PROJECT_DIR} -name '*.orig' -exec rm {} \;
 
 # Remove generated files (but no distribution packages).
+.PHONY: clean
 clean:
 	rm -f ${DOC_TARGETS}
 	# Use absolute path to ensure we delete the right directory.
@@ -119,6 +130,7 @@ clean:
 
 # Help testing test installations. Note that `pip uninstall`
 # doesn't work if the package wasn't installed with pip.
+.PHONY: remove_from_env
 remove_from_env:
 	rm -rf ${VIRTUAL_ENV}/doc/ftputil
 	rm -rf ${VIRTUAL_ENV}/lib/python3.*/site-packages/ftputil
