@@ -136,9 +136,9 @@ remove_from_env:
 	rm -rf ${VIRTUAL_ENV}/lib/python3.*/site-packages/ftputil
 
 # For integration tests in `test_real_ftp.py`
-DOCKER=docker
-IMAGE=sschwarzer/ftputil-test-server:0.1
-CONTAINER=test_server_container
+DOCKER?=docker
+IMAGE?=sschwarzer/ftputil-test-server:0.1
+CONTAINER?=test_server_container
 
 .PHONY: build_test_server_image
 build_test_server_image:
