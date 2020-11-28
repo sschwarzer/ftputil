@@ -152,4 +152,4 @@ run_test_server: build_test_server_image
 		${DOCKER} container rm -f ${CONTAINER}; \
 	fi
 	${DOCKER} container run --rm --detach --name ${CONTAINER} \
-		-p 2121:21 -p 30000-30009:30000-30009 ${IMAGE}
+		-p 127.0.0.1:2121:21 -p 127.0.0.1:30000-30009:30000-30009 ${IMAGE}
