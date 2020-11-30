@@ -24,8 +24,7 @@ import sys
 import ftputil.version
 
 
-__doc__ = __doc__ % (ftputil.version.__version__,
-                     os.path.basename(sys.argv[0]))
+__doc__ = __doc__ % (ftputil.version.__version__, os.path.basename(sys.argv[0]))
 
 
 class InvalidFeature:
@@ -47,10 +46,13 @@ class InvalidFeature:
 HOST_REGEX = r"\b(h|host|ftp|ftphost|ftp_host)\b"
 
 invalid_features = [
-  InvalidFeature("Definition of time shift has changed in ftputil 4.0.0",
-                 r"\.(time_shift\(\)|set_time_shift\()"),
-  InvalidFeature("Behavior of `FTPHost.makedirs` has changed in ftputil 4.0.0",
-                 r"\.makedirs\(")
+    InvalidFeature(
+        "Definition of time shift has changed in ftputil 4.0.0",
+        r"\.(time_shift\(\)|set_time_shift\()",
+    ),
+    InvalidFeature(
+        "Behavior of `FTPHost.makedirs` has changed in ftputil 4.0.0", r"\.makedirs\("
+    ),
 ]
 
 
@@ -111,7 +113,7 @@ def main(start_dir):
     print_results()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if len(sys.argv) == 2:
         if sys.argv[1] in ("-h", "--help"):
             print(__doc__)
