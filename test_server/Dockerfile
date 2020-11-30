@@ -32,7 +32,8 @@ RUN \
   # Fix owner/group settings.
   cd /home/${USERNAME} && \
   chown -R root:root . && \
-  chown ${USERNAME}:ftpgroup . rootdir2/dir2
-
+  chown ${USERNAME}:ftpgroup . rootdir2/dir2 && \
+  # Remove `.emtpy` markers.
+  find . -name ".empty" -exec rm {} \;
 
 CMD pure-ftpd -l unix -E -j -A -P localhost -p 30000:30009 -c 5 -C 5
