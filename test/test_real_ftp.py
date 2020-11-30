@@ -612,7 +612,7 @@ class TestUploadAndDownload(RealFTPTest):
 
     def test_callback_with_transfer(self):
         host = self.host
-        FILE_NAME = "debian-keyring.tar.gz"
+        FILE_NAME = "large_file"
         # Default chunk size as in `FTPHost.copyfileobj`
         MAX_COPY_CHUNK_SIZE = ftputil.file_transfer.MAX_COPY_CHUNK_SIZE
         file_size = host.path.getsize(FILE_NAME)
@@ -846,7 +846,7 @@ class TestOther(RealFTPTest):
         # Test for issues #17 and #51,
         # http://ftputil.sschwarzer.net/trac/ticket/17 and
         # http://ftputil.sschwarzer.net/trac/ticket/51 .
-        file1 = self.host.open("debian-keyring.tar.gz", "rb")
+        file1 = self.host.open("large_file", "rb")
         time.sleep(1)
         # Depending on the FTP server, this might return a status code
         # unexpected by `ftplib` or block the socket connection until a
