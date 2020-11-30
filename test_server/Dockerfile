@@ -15,7 +15,7 @@ ARG PASSWORD=dummy
 LABEL net.sschwarzer.ftputil.authors="Stefan Schwarzer"
 
 COPY ./pure-ftpd.conf /etc/pure-ftpd/
-ADD ./ftptest.tar.gz /home/
+COPY ./${USERNAME} /home/ftptest/
 
 RUN \
   # Regarding the home directory: I wanted to use `/home/ftpusers/ftptest`, but
@@ -27,7 +27,12 @@ RUN \
   useradd --gid=ftpgroup --uid=${UID} --home-dir=/home/${USERNAME} \
           --no-create-home --shell=/bin/bash ${USERNAME} && \
   echo "${USERNAME}:${PASSWORD}" | chpasswd && \
-  # Use only configuration from overwritten `pure-ftpd.conf`
-  rm /etc/pure-ftpd/conf/*
+  # Use only configuration from overwritten `pure-ftpd.conf`.
+  rm /etc/pure-ftpd/conf/* && \
+  # Fix owner/group settings.
+  cd /home/${USERNAME} && \
+  chown -R root:root . && \
+  chown ${USERNAME}:ftpgroup . rootdir2/dir2
+
 
 CMD pure-ftpd -l unix -E -j -A -P localhost -p 30000:30009 -c 5 -C 5
