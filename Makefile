@@ -148,7 +148,7 @@ build_test_server_image:
 .PHONY: run_test_server
 run_test_server: build_test_server_image
 	# If container exists, remove it.
-	if [ ! -z "$(shell ${DOCKER} container ls -q --filter name=${CONTAINER})" ]; then \
+	if [ ! -z "$(shell ${DOCKER} container ls -q -a --filter name=${CONTAINER})" ]; then \
 		${DOCKER} container rm -f ${CONTAINER}; \
 	fi
 	${DOCKER} container run --rm --detach --name ${CONTAINER} \
