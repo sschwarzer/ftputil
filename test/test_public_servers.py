@@ -97,7 +97,7 @@ class TestPublicServers:
     # under the login directory which is assumed to be the root directory.
     servers = [  # Posix format
         ("ftp.de.debian.org", "debian"),
-        ("ftp.gnome.org", "pub"),
+        # ("ftp.gnome.org", "pub"),
         ("ftp.heanet.ie", "pub"),
         ("ftp.heise.de", "pub"),
         # DOS/Microsoft format
@@ -183,6 +183,7 @@ class TestPublicServers:
         the command line client.
         """
         for server, actual_initial_directory in self.servers:
+            print("=== server:", server)
             for initial_directory, paths in self.paths_table:
                 initial_directory = initial_directory.replace(
                     "DIR", actual_initial_directory
