@@ -7,19 +7,19 @@ server and the data to test against.
 
 When in the `test_server` directory, build the image with
 ```
-docker image build -t ftputil-test-server:0.1 .
+docker image build -t ftputil-test-server:0.2 .
 ```
 
 The pre-built image is also available from the Docker Hub via
 ```
-docker pull sschwarzer/ftputil-test-server:0.1
+docker pull sschwarzer/ftputil-test-server:0.2
 ```
 
 Run the container with
 ```
 docker container run --rm --detach --name test-server-container \
   -p 127.0.0.1:2121:21 -p 127.0.0.1:30000-30009:30000-30009 \
-  sschwarzer/ftputil-test-server:0.1
+  sschwarzer/ftputil-test-server:0.2
 ```
 
 The port 2121 is expected by the tests in `test_real_ftp.py`. If the port 2121
