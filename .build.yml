@@ -4,7 +4,11 @@ image: fedora/32
 packages:
 - ftp
 - podman
+- python3-docutils
+- python36
+- python37
 - python38
+- python39
 
 sources:
 - hg+https://hg.sr.ht/~sschwarzer/ftputil
@@ -18,11 +22,12 @@ tasks:
     python3.8 -m venv ~/ftputil_env
     source ~/ftputil_env/bin/activate
     pip install --no-color --progress-bar=off --upgrade pip
-    pip install --no-color --progress-bar=off pytest freezegun
+    pip install --no-color --progress-bar=off freezegun pytest tox
 - test: |
     cd ftputil
+    make docs
     source ~/ftputil_env/bin/activate
-    pytest test
+    tox
 
 triggers:
 - action: email
