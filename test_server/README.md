@@ -7,19 +7,19 @@ server and the data to test against.
 
 When in the `test_server` directory, build the image with
 ```
-docker image build -t ftputil-test-server:0.2 .
+docker image build -t ftputil-test-server:0.3 .
 ```
 
 The pre-built image is also available from the Docker Hub via
 ```
-docker pull sschwarzer/ftputil-test-server:0.2
+docker pull sschwarzer/ftputil-test-server:0.3
 ```
 
 Run the container with
 ```
 docker container run --rm --detach --name test-server-container \
   -p 127.0.0.1:2121:2121 -p 127.0.0.1:30000-30009:30000-30009 \
-  sschwarzer/ftputil-test-server:0.2
+  sschwarzer/ftputil-test-server:0.3
 ```
 
 If you run the container with Podman, you may also need the `--privileged`
