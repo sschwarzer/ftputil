@@ -137,7 +137,7 @@ remove_from_env:
 
 # For integration tests in `test_real_ftp.py`
 DOCKER?=docker
-IMAGE?=localhost/sschwarzer/ftputil-test-server:0.2
+IMAGE?=localhost/sschwarzer/ftputil-test-server:0.3
 CONTAINER?=test_server_container
 
 .PHONY: build_test_server_image
