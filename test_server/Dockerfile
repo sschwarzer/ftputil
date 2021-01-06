@@ -36,4 +36,8 @@ RUN \
   # Remove `.emtpy` markers.
   find . -name ".empty" -exec rm {} \;
 
-CMD pure-ftpd -l unix -E -j -A -P localhost -p 30000:30009 -c 5 -C 5
+EXPOSE 2121
+
+# Without the `sleep` command, the FTP server goes into the background
+# and the container exits immediately.
+CMD pure-ftpd /etc/pure-ftpd/pure-ftpd.conf && sleep infinity
