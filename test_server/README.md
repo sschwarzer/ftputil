@@ -18,9 +18,12 @@ docker pull sschwarzer/ftputil-test-server:0.2
 Run the container with
 ```
 docker container run --rm --detach --name test-server-container \
-  -p 127.0.0.1:2121:21 -p 127.0.0.1:30000-30009:30000-30009 \
+  -p 127.0.0.1:2121:2121 -p 127.0.0.1:30000-30009:30000-30009 \
   sschwarzer/ftputil-test-server:0.2
 ```
+
+If you run the container with Podman, you may also need the `--privileged`
+option.
 
 The port 2121 is expected by the tests in `test_real_ftp.py`. If the port 2121
 is already used on your computer, you can change the port in the above
