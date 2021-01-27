@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2019, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2018-2021, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -136,7 +136,7 @@ class ScriptedSession:
         """
         Return next `Call` object.
         """
-        print(self, "(in `_next_script_call`)")
+        print(self, "in `_next_script_call`")
         try:
             call = self.script[self._call_index]
         except IndexError:
@@ -150,7 +150,7 @@ class ScriptedSession:
         script_call = self._next_script_call(attribute_name)
 
         def dummy_method(*args, **kwargs):
-            print(self, "(in `__getattr__`)")
+            print(self, "in `__getattr__`")
             script_call.check_call(attribute_name, args, kwargs)
             return script_call()
 
