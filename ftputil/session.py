@@ -24,7 +24,7 @@ def session_factory(
     use_passive_mode=None,
     *,
     encrypt_data_channel=True,
-    encoding=ftputil.tool.DEFAULT_ENCODING,
+    encoding=None,
     debug_level=None,
 ):
     """
@@ -47,9 +47,12 @@ def session_factory(
 
     encoding: Encoding (str) to use for directory and file paths. Unicode paths
     will be encoded with this encoding. Bytes paths are assumed to be in this
-    encoding. The default is "latin-1". If you use Python 3.9 and want the
-    default encoding for `ftplib.FTP` sessions, you need to pass "UTF-8"
-    explicitly.
+    encoding. The default (equivalent to passing `None`) is to use the default
+    encoding of the `base_class` argument. Note that this has changed from
+    Python 3.8 to 3.9. In Python 3.8 and lower, the default encoding is
+    "latin-1"; in Python 3.9, the default encoding is "utf-8". Therefore, if
+    you want an encoding that's independent of the Python version, pass an
+    explicit `encoding`.
 
     debug_level: Debug level (integer) to be set on a session instance. The
     default is `None`, meaning no debugging output.
@@ -84,10 +87,13 @@ def session_factory(
         # Python 3.9 is the first Python version to have a documented way to
         # set a custom encoding (per instance).
         def __init__(self, host, user, password):
-            if (sys.version_info.major, sys.version_info.minor) <= (3, 8):
-                super().__init__()
-            else:
+            if (encoding is not None) and (
+                sys.version_info.major,
+                sys.version_info.minor,
+            ) >= (3, 9):
                 super().__init__(encoding=encoding)
+            else:
+                super().__init__()
             self.connect(host, port)
             if debug_level is not None:
                 self.set_debuglevel(debug_level)
@@ -99,6 +105,11 @@ def session_factory(
             if encrypt_data_channel and hasattr(base_class, "prot_p"):
                 self.prot_p()
 
-    if (sys.version_info.major, sys.version_info.minor) <= (3, 8):
+    # fmt: off
+    if (encoding is not None) and (
+        sys.version_info.major,
+        sys.version_info.minor
+    ) <= (3, 8):
         Session.encoding = encoding
+    # fmt: on
     return Session
