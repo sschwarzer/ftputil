@@ -1,4 +1,4 @@
-# Copyright (C) 2014-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2014-2021, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -7,6 +7,7 @@ Unit tests for session factory helpers.
 """
 
 import ftputil.session
+from ftputil.tool import DEFAULT_ENCODING
 
 
 class MockSession:
@@ -119,6 +120,34 @@ class TestSessionFactory:
         )
         session = factory("host", "user", "password")
         assert session.calls == [("connect", "host", 21), ("login", "user", "password")]
+
+    def test_encoding(self):
+        """
+        Test setting the default encoding and a custom encoding.
+
+        (The default encoding, as in earlier ftputil versions, is "latin-1".)
+        """
+        # Default encoding
+        factory = ftputil.session.session_factory(
+            base_class=MockSession,
+        )
+        session = factory("host", "user", "password")
+        assert session.calls == [
+            ("connect", "host", 21),
+            ("login", "user", "password"),
+        ]
+        assert session.encoding == DEFAULT_ENCODING
+        # Custom encoding
+        factory = ftputil.session.session_factory(
+            base_class=MockSession,
+            encoding="UTF-8",
+        )
+        session = factory("host", "user", "password")
+        assert session.calls == [
+            ("connect", "host", 21),
+            ("login", "user", "password"),
+        ]
+        assert session.encoding == "UTF-8"
 
     def test_debug_level(self):
         """
