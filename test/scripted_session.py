@@ -144,6 +144,7 @@ class ScriptedSession:
             print("  Requested attribute was {!r}".format(requested_attribute))
             raise
         self._call_index += 1
+        print(self, f"next call: {call!r}")
         return call
 
     def __getattr__(self, attribute_name):
