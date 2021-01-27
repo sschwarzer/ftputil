@@ -72,7 +72,7 @@ def dir_line(
                       size=182,
                       datetime=datetime.datetime.now(),
                       name="file_name")
- 
+
       # Result:
       # "drwxr-xr-x  1  dummy_user dummy_group  512  Apr 22 2019  dir_name -> dir_target"
       line = dir_line(mode_string="drwxr-xr-x",

@@ -23,42 +23,45 @@ __all__ = ["same_string_type_as", "as_str", "as_str_path"]
 DEFAULT_ENCODING = "latin-1"
 
 
-def same_string_type_as(type_source, string):
+def same_string_type_as(type_source, string, encoding):
     """
     Return a string of the same type as `type_source` with the content from
     `string`.
 
-    If the `type_source` and `string` don't have the same type, use
-    `LOSSLESS_ENCODING` above to encode or decode, whatever operation is
-    needed.
+    If the `type_source` and `string` don't have the same type, use `encoding`
+    to encode or decode, whatever operation is needed.
     """
     if isinstance(type_source, bytes) and isinstance(string, str):
-        return string.encode(LOSSLESS_ENCODING)
+        return string.encode(encoding)
     elif isinstance(type_source, str) and isinstance(string, bytes):
-        return string.decode(LOSSLESS_ENCODING)
+        return string.decode(encoding)
     else:
         return string
 
 
-def as_str(string):
+def as_str(string, encoding):
     """
     Return the argument `string` converted to a unicode string if it's a
     `bytes` object. Otherwise just return the string.
 
+    If a conversion is necessary, use `encoding`.
+
     If `string` is neither `str` nor `bytes`, raise a `TypeError`.
     """
     if isinstance(string, bytes):
-        return string.decode(LOSSLESS_ENCODING)
+        return string.decode(encoding)
     elif isinstance(string, str):
         return string
     else:
         raise TypeError("`as_str` argument must be `bytes` or `str`")
 
 
-def as_str_path(path):
+def as_str_path(path, encoding):
     """
     Return the argument `path` converted to a unicode string if it's a `bytes`
     object. Otherwise just return the string.
+
+    If a conversion is necessary, use `encoding`.
 
     Instead of passing a `bytes` or `str` object for `path`, you can pass a
     `PathLike` object that can be converted to a `bytes` or `str` object.
@@ -67,4 +70,4 @@ def as_str_path(path):
     raised.
     """
     path = os.fspath(path)
-    return as_str(path)
+    return as_str(path, encoding)

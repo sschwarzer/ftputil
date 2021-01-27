@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2020, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2021, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -53,7 +53,9 @@ class FTPError(Exception):
             # Assume the first argument is a string. It may be a byte string
             # though.
             try:
-                self.strerror = ftputil.tool.as_str(args[0])
+                self.strerror = ftputil.tool.as_str(
+                    args[0], ftputil.tool.DEFAULT_ENCODING
+                )
             except TypeError:
                 # `args[0]` isn't `str` or `bytes`.
                 pass
@@ -175,9 +177,9 @@ class FtplibErrorToFTPOSError:
         elif isinstance(exc_value, ftplib.error_perm):
             # If `exc_value.args[0]` is present, assume it's a byte or unicode
             # string.
-            if exc_value.args and ftputil.tool.as_str(exc_value.args[0]).startswith(
-                "502"
-            ):
+            if exc_value.args and ftputil.tool.as_str(
+                exc_value.args[0], ftputil.tool.DEFAULT_ENCODING
+            ).startswith("502"):
                 raise CommandNotImplementedError(
                     *exc_value.args, original_error=exc_value
                 ) from exc_value

@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2020, Stefan Schwarzer
+# Copyright (C) 2013-2021, Stefan Schwarzer
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -7,6 +7,9 @@ import os
 import pytest
 
 import ftputil.tool
+
+
+DEFAULT_ENCODING = ftputil.tool.DEFAULT_ENCODING
 
 
 class Path(os.PathLike):
@@ -37,16 +40,16 @@ class TestSameStringTypeAs:
         assert result == expected_result
 
     def test_to_bytes(self):
-        assert same_string_type_as(b"abc", "def") == b"def"
+        assert same_string_type_as(b"abc", "def", encoding=DEFAULT_ENCODING) == b"def"
 
     def test_to_str(self):
-        assert same_string_type_as("abc", b"def") == "def"
+        assert same_string_type_as("abc", b"def", encoding=DEFAULT_ENCODING) == "def"
 
     def test_both_bytes_type(self):
-        assert same_string_type_as(b"abc", b"def") == b"def"
+        assert same_string_type_as(b"abc", b"def", encoding=DEFAULT_ENCODING) == b"def"
 
     def test_both_str_type(self):
-        assert same_string_type_as("abc", "def") == "def"
+        assert same_string_type_as("abc", "def", encoding=DEFAULT_ENCODING) == "def"
 
 
 as_str = ftputil.tool.as_str
@@ -55,19 +58,19 @@ as_str_path = ftputil.tool.as_str_path
 
 class TestAsStr:
     def test_from_bytes(self):
-        assert as_str(b"abc") == "abc"
-        assert as_str_path(b"abc") == "abc"
+        assert as_str(b"abc", encoding=DEFAULT_ENCODING) == "abc"
+        assert as_str_path(b"abc", encoding=DEFAULT_ENCODING) == "abc"
 
     def test_from_str(self):
-        assert as_str("abc") == "abc"
-        assert as_str_path("abc") == "abc"
+        assert as_str("abc", encoding=DEFAULT_ENCODING) == "abc"
+        assert as_str_path("abc", encoding=DEFAULT_ENCODING) == "abc"
 
     def test_from_bytes_path(self):
-        assert as_str_path(Path(b"abc")) == "abc"
+        assert as_str_path(Path(b"abc"), encoding=DEFAULT_ENCODING) == "abc"
 
     def test_from_str_path(self):
-        assert as_str_path(Path("abc")) == "abc"
+        assert as_str_path(Path("abc"), encoding=DEFAULT_ENCODING) == "abc"
 
     def test_type_error(self):
         with pytest.raises(TypeError):
-            as_str(1)
+            as_str(1, encoding=DEFAULT_ENCODING)
