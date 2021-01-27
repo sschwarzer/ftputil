@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2020, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2021, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -20,7 +20,7 @@ Call = scripted_session.Call
 
 
 def as_bytes(string):
-    return string.encode(ftputil.tool.LOSSLESS_ENCODING)
+    return string.encode(ftputil.tool.DEFAULT_ENCODING)
 
 
 class TestPath:

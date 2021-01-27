@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2020, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2021, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -32,6 +32,7 @@ class _Path:
 
     def __init__(self, host):
         self._host = host
+        self._encoding = host._encoding
         # Delegate these methods to the `posixpath` module because they don't
         # need file system access but work on the path strings (possibly
         # extracted from `PathLike` objects).
@@ -53,11 +54,11 @@ class _Path:
         Return an absolute path.
         """
         original_path = path
-        path = ftputil.tool.as_str_path(path)
+        path = ftputil.tool.as_str_path(path, encoding=self._encoding)
         if not self.isabs(path):
             path = self.join(self._host.getcwd(), path)
         return ftputil.tool.same_string_type_as(
-            os.fspath(original_path), self.normpath(path)
+            os.fspath(original_path), self.normpath(path), self._encoding
         )
 
     def exists(self, path):
@@ -116,7 +117,7 @@ class _Path:
             should_look_for_dir = False
             stat_function = stat.S_ISREG
         #
-        path = ftputil.tool.as_str_path(path)
+        path = ftputil.tool.as_str_path(path, encoding=self._encoding)
         #  Workaround if we can't go up from the current directory. The result
         #  from `getcwd` should already be normalized.
         if self.normpath(path) == self._host.getcwd():
@@ -161,7 +162,7 @@ class _Path:
         A non-existing path does _not_ cause a `PermanentError`, instead return
         `False`.
         """
-        path = ftputil.tool.as_str_path(path)
+        path = ftputil.tool.as_str_path(path, encoding=self._encoding)
         try:
             lstat_result = self._host.lstat(path, _exception_for_missing_path=False)
         except ftputil.error.RootDirError:
@@ -191,7 +192,7 @@ class _Path:
         e.g., to pass a filename pattern, or a mutable object designed
         to accumulate statistics.  Passing None for arg is common.
         """
-        top = ftputil.tool.as_str_path(top)
+        top = ftputil.tool.as_str_path(top, encoding=self._encoding)
         # This code (and the above documentation) is taken from `posixpath.py`,
         # with slight modifications.
         try:

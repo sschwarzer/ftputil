@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2021, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -45,7 +45,7 @@ def binary_data():
 
 
 def as_bytes(string):
-    return string.encode(ftputil.tool.LOSSLESS_ENCODING)
+    return string.encode(ftputil.tool.DEFAULT_ENCODING)
 
 
 #

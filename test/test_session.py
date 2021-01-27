@@ -17,10 +17,16 @@ class MockSession:
     Mock session base class to determine if all expected calls have happened.
     """
 
-    encoding = ftputil.tool.DEFAULT_ENCODING
+    encoding = (
+        "latin-1"
+        if (sys.version_info.major, sys.version_info.minor) <= (3, 8)
+        else "utf-8"
+    )
 
-    def __init__(self):
+    def __init__(self, encoding=None):
         self.calls = []
+        if encoding is not None:
+            self.encoding = encoding
 
     def add_call(self, *args):
         self.calls.append(args)

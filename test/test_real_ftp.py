@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2020, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2021, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -884,6 +884,15 @@ class TestOther(RealFTPTest):
         host.chdir("rootdir1")
         with pytest.raises(ftputil.error.TimeShiftError):
             host.synchronize_times()
+
+    def test_encoding(self):
+        """
+        Test setting the path encoding.
+        """
+        for encoding in ["latin-1", "UTF-8"]:
+            factory = ftputil.session.session_factory(port=PORT, encoding=encoding)
+            session = factory(*self.login_data)
+            assert session.encoding == encoding
 
     def test_listdir_with_non_ascii_byte_string(self):
         """
