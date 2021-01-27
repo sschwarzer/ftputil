@@ -1,4 +1,4 @@
-# Copyright (C) 2014-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2014-2021, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -6,7 +6,10 @@
 Session factory factory (the two "factory" are intentional :-) ) for ftputil.
 """
 
+import sys
 import ftplib
+
+import ftputil.tool
 
 
 __all__ = ["session_factory"]
@@ -21,13 +24,14 @@ def session_factory(
     use_passive_mode=None,
     *,
     encrypt_data_channel=True,
+    encoding=ftputil.tool.DEFAULT_ENCODING,
     debug_level=None,
 ):
     """
     Create and return a session factory according to the keyword arguments.
 
     base_class: Base class to use for the session class (e. g. `ftplib.FTP_TLS`
-    or `M2Crypto.ftpslib.FTP_TLS`, default is `ftplib.FTP`).
+    or `M2Crypto.ftpslib.FTP_TLS`, the default is `ftplib.FTP`).
 
     port: Port number (integer) for the command channel (default 21). If you
     don't know what "command channel" means, use the default or use what the
@@ -40,6 +44,12 @@ def session_factory(
     encrypt_data_channel: If `True` (the default), call the `prot_p` method of
     the base class if it has the method. If `False` or `None` (`None` is the
     default), don't call the method.
+
+    encoding: Encoding (str) to use for directory and file paths. Unicode paths
+    will be encoded with this encoding. Bytes paths are assumed to be in this
+    encoding. The default is "latin-1". If you use Python 3.9 and want the
+    default encoding for `ftplib.FTP` sessions, you need to pass "UTF-8"
+    explicitly.
 
     debug_level: Debug level (integer) to be set on a session instance. The
     default is `None`, meaning no debugging output.
@@ -64,8 +74,20 @@ def session_factory(
         Session factory class created by `session_factory`.
         """
 
+        # In Python 3.8 and below, the `encoding` class attribute was never
+        # documented, but setting it is the only way to set a custom encoding
+        # for remote file system paths. Since we set the encoding on the class
+        # level, all instances created from this class will share this
+        # encoding. That's ok because the user asked for a specific encoding of
+        # the _factory_ when calling `session_factory`.
+        #
+        # Python 3.9 is the first Python version to have a documented way to
+        # set a custom encoding (per instance).
         def __init__(self, host, user, password):
-            super().__init__()
+            if (sys.version_info.major, sys.version_info.minor) <= (3, 8):
+                super().__init__()
+            else:
+                super().__init__(encoding=encoding)
             self.connect(host, port)
             if debug_level is not None:
                 self.set_debuglevel(debug_level)
@@ -77,4 +99,6 @@ def session_factory(
             if encrypt_data_channel and hasattr(base_class, "prot_p"):
                 self.prot_p()
 
+    if (sys.version_info.major, sys.version_info.minor) <= (3, 8):
+        Session.encoding = encoding
     return Session

@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2020, Stefan Schwarzer
+# Copyright (C) 2013-2021, Stefan Schwarzer
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -12,13 +12,15 @@ import os
 __all__ = ["same_string_type_as", "as_str", "as_str_path"]
 
 
-# Encoding to convert between byte string and unicode string. This is a
-# "lossless" encoding: Strings can be encoded/decoded back and forth without
-# information loss or causing encoding-related errors. The `ftplib` module
-# under Python 3 also uses the "latin1" encoding internally. It's important to
-# use the same encoding here, so that users who used `ftplib` to create FTP
-# items with non-ASCII characters can access them in the same way with ftputil.
-LOSSLESS_ENCODING = "latin1"
+# Default encoding to convert between byte string and unicode string. This is a
+# "lossless" encoding in the sense that any byte string can be decoded to a
+# unicode string, and this unicode string can be encoded to the original byte
+# string.
+#
+# The `ftplib` module under Python 3.8 and earlier also uses the "latin-1"
+# encoding internally. In this case, paths created with Python's `ftplib` use
+# the same encoding as our `DEFAULT_ENCODING`.
+DEFAULT_ENCODING = "latin-1"
 
 
 def same_string_type_as(type_source, string):
