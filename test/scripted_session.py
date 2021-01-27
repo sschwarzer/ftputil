@@ -2,6 +2,8 @@
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
+import sys
+
 import unittest.mock
 
 
@@ -107,6 +109,12 @@ class ScriptedSession:
     # possible to make the output even more compact. Additionally, it's easier
     # to distinguish numbers like 1, 2, etc. than hexadecimal ids.
     _session_count = 0
+
+    encoding = (
+        "latin-1"
+        if (sys.version_info.major, sys.version_info.minor) <= (3, 8)
+        else "utf-8"
+    )
 
     @classmethod
     def reset_session_count(cls):
