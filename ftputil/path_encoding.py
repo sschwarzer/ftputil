@@ -12,6 +12,9 @@ UTF-8 which causes a few headaches for ftputil.
 import sys
 
 
+__all__ = ["DEFAULT_ENCODING", "RUNNING_UNDER_PY39_AND_UP", "FTPLIB_DEFAULT_ENCODING"]
+
+
 RUNNING_UNDER_PY39_AND_UP = (sys.version_info.major, sys.version_info.minor) >= (3, 9)
 
 # FTP path default encoding for Python 3.8 and below
