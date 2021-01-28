@@ -8,8 +8,7 @@ packages:
 - python36
 - python37
 - python38
-# Currently failing (see ticket #143)
-# - python39
+- python39
 
 sources:
 - hg+https://hg.sr.ht/~sschwarzer/ftputil
