@@ -45,14 +45,19 @@ def session_factory(
     the base class if it has the method. If `False` or `None` (`None` is the
     default), don't call the method.
 
-    encoding: Encoding (str) to use for directory and file paths. Unicode paths
-    will be encoded with this encoding. Bytes paths are assumed to be in this
-    encoding. The default (equivalent to passing `None`) is to use the default
-    encoding of the `base_class` argument. Note that this has changed from
-    Python 3.8 to 3.9. In Python 3.8 and lower, the default encoding is
-    "latin-1"; in Python 3.9, the default encoding is "utf-8". Therefore, if
-    you want an encoding that's independent of the Python version, pass an
-    explicit `encoding`.
+    encoding: Encoding (str) to use for directory and file paths, or `None`.
+    Unicode (`str`) paths will be encoded with this encoding. Bytes paths are
+    assumed to be in this encoding. The default (equivalent to passing `None`)
+    is to use the default encoding of the `base_class` argument. Note that this
+    encoding has changed from Python 3.8 to 3.9.
+
+    In Python 3.8 and lower, the default path encoding is "latin-1"; in Python
+    3.9, the default path encoding is "utf-8". Therefore, if you want an
+    encoding that's independent of the Python version, pass an explicit
+    `encoding`.
+
+    Using a non-`None` `encoding` is only supported if `base_class` is
+    `ftplib.FTP` or a subclass of it.
 
     debug_level: Debug level (integer) to be set on a session instance. The
     default is `None`, meaning no debugging output.
@@ -71,6 +76,13 @@ def session_factory(
                            session_factory=my_session_factory) as host:
         ...
     """
+    if not isinstance(base_class, type):
+        raise ValueError(f"`base_class` must be a class, but is {base_class!r}")
+    if (encoding is not None) and (not issubclass(base_class, ftplib.FTP)):
+        raise ValueError(
+            f"`encoding` is only supported for `ftplib.FTP` and subclasses, "
+            f"but base class is {base_class!r}"
+        )
 
     class Session(base_class):
         """
@@ -86,6 +98,12 @@ def session_factory(
         #
         # Python 3.9 is the first Python version to have a documented way to
         # set a custom encoding (per instance).
+        #
+        # XXX: The following heuristic doesn't cover the case that we run under
+        # Python 3.8 or earlier _and_ have a base class with an `encoding`
+        # argument. Also, the heuristic will fail if we run under Python 3.9,
+        # but have a base class that overrides the constructor so that it
+        # doesn't support the `encoding` argument anymore.
         def __init__(self, host, user, password):
             if (
                 encoding is not None
@@ -104,8 +122,6 @@ def session_factory(
             if encrypt_data_channel and hasattr(base_class, "prot_p"):
                 self.prot_p()
 
-    # fmt: off
     if (encoding is not None) and not ftputil.path_encoding.RUNNING_UNDER_PY39_AND_UP:
         Session.encoding = encoding
-    # fmt: on
     return Session
