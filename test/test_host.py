@@ -20,6 +20,7 @@ import pytest
 import ftputil
 import ftputil.error
 import ftputil.file
+import ftputil.path_encoding
 import ftputil.tool
 import ftputil.stat
 
@@ -45,7 +46,7 @@ def binary_data():
 
 
 def as_bytes(string):
-    return string.encode(ftputil.tool.DEFAULT_ENCODING)
+    return string.encode(ftputil.path_encoding.DEFAULT_ENCODING)
 
 
 #

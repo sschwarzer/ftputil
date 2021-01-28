@@ -10,6 +10,7 @@ ftputil.error - exception classes and wrappers
 
 import ftplib
 
+import ftputil.path_encoding
 import ftputil.tool
 import ftputil.version
 
@@ -54,7 +55,7 @@ class FTPError(Exception):
             # though.
             try:
                 self.strerror = ftputil.tool.as_str(
-                    args[0], ftputil.tool.DEFAULT_ENCODING
+                    args[0], ftputil.path_encoding.DEFAULT_ENCODING
                 )
             except TypeError:
                 # `args[0]` isn't `str` or `bytes`.
@@ -178,7 +179,7 @@ class FtplibErrorToFTPOSError:
             # If `exc_value.args[0]` is present, assume it's a byte or unicode
             # string.
             if exc_value.args and ftputil.tool.as_str(
-                exc_value.args[0], ftputil.tool.DEFAULT_ENCODING
+                exc_value.args[0], ftputil.path_encoding.DEFAULT_ENCODING
             ).startswith("502"):
                 raise CommandNotImplementedError(
                     *exc_value.args, original_error=exc_value

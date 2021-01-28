@@ -8,8 +8,8 @@ import os
 import shutil
 
 import ftputil
+import ftputil.path_encoding
 import ftputil.sync
-import ftputil.tool
 
 
 # Assume the test subdirectories are or will be in the current directory.
@@ -96,7 +96,7 @@ class ArgumentCheckingFTPHost(ftputil.FTPHost):
         self.path = DummyFTPPath()
 
     def _make_session(self, *args, **kwargs):
-        self._encoding = ftputil.tool.DEFAULT_ENCODING
+        self._encoding = ftputil.path_encoding.DEFAULT_ENCODING
         return DummyFTPSession()
 
     def mkdir(self, path):

@@ -10,6 +10,7 @@ import pytest
 
 import ftputil
 import ftputil.error
+import ftputil.path_encoding
 import ftputil.tool
 
 from test import test_base
@@ -20,7 +21,7 @@ Call = scripted_session.Call
 
 
 def as_bytes(string):
-    return string.encode(ftputil.tool.DEFAULT_ENCODING)
+    return string.encode(ftputil.path_encoding.DEFAULT_ENCODING)
 
 
 class TestPath:

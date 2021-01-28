@@ -6,10 +6,11 @@ import os
 
 import pytest
 
+import ftputil.path_encoding
 import ftputil.tool
 
 
-DEFAULT_ENCODING = ftputil.tool.DEFAULT_ENCODING
+DEFAULT_ENCODING = ftputil.path_encoding.DEFAULT_ENCODING
 
 
 class Path(os.PathLike):

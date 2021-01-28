@@ -8,6 +8,7 @@ Unit tests for session factory helpers.
 
 import sys
 
+import ftputil.path_encoding
 import ftputil.session
 import ftputil.tool
 
@@ -17,11 +18,7 @@ class MockSession:
     Mock session base class to determine if all expected calls have happened.
     """
 
-    encoding = (
-        "latin-1"
-        if (sys.version_info.major, sys.version_info.minor) <= (3, 8)
-        else "utf-8"
-    )
+    encoding = ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING
 
     def __init__(self, encoding=None):
         self.calls = []
@@ -144,10 +141,7 @@ class TestSessionFactory:
             ("connect", "host", 21),
             ("login", "user", "password"),
         ]
-        if (sys.version_info.major, sys.version_info.minor) <= (3, 8):
-            assert session.encoding == "latin-1"
-        else:
-            assert session.encoding == "utf-8"
+        assert session.encoding == ftputil.path_encoding.DEFAULT_ENCODING
         # Custom encoding
         factory = ftputil.session.session_factory(
             base_class=MockSession,

@@ -87,10 +87,9 @@ def session_factory(
         # Python 3.9 is the first Python version to have a documented way to
         # set a custom encoding (per instance).
         def __init__(self, host, user, password):
-            if (encoding is not None) and (
-                sys.version_info.major,
-                sys.version_info.minor,
-            ) >= (3, 9):
+            if (
+                encoding is not None
+            ) and ftputil.path_encoding.RUNNING_UNDER_PY39_AND_UP:
                 super().__init__(encoding=encoding)
             else:
                 super().__init__()
@@ -106,10 +105,7 @@ def session_factory(
                 self.prot_p()
 
     # fmt: off
-    if (encoding is not None) and (
-        sys.version_info.major,
-        sys.version_info.minor
-    ) <= (3, 8):
+    if (encoding is not None) and not ftputil.path_encoding.RUNNING_UNDER_PY39_AND_UP:
         Session.encoding = encoding
     # fmt: on
     return Session
