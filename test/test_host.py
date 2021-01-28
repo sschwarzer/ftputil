@@ -45,8 +45,8 @@ def binary_data():
     return bytes(integer_list)
 
 
-def as_bytes(string):
-    return string.encode(ftputil.path_encoding.DEFAULT_ENCODING)
+def as_bytes(string, encoding=ftputil.path_encoding.DEFAULT_ENCODING):
+    return string.encode(encoding)
 
 
 #
@@ -817,9 +817,12 @@ class TestAcceptEitherUnicodeOrBytes:
         ]
         # It's possible to mix argument types, as for `os.rename`.
         path_as_str = "/ä"
-        path_as_bytes = as_bytes(path_as_str)
+        path_as_bytes = as_bytes(
+            path_as_str, ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING
+        )
         paths = [path_as_str, path_as_bytes]
         for source_path, target_path in itertools.product(paths, paths):
+            # Uses ftplib default encoding
             session_factory = scripted_session.factory(script)
             with test_base.ftp_host_factory(session_factory) as host:
                 host.rename(source_path, target_path)
@@ -859,8 +862,13 @@ class TestAcceptEitherUnicodeOrBytes:
         # Bytes
         session_factory = scripted_session.factory(script)
         with test_base.ftp_host_factory(session_factory) as host:
-            items = host.listdir(as_bytes("ä"))
-            assert items == [as_bytes("ö"), as_bytes("o")]
+            items = host.listdir(
+                as_bytes("ä", ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING)
+            )
+            assert items == [
+                as_bytes("ö", ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING),
+                as_bytes("o"),
+            ]
 
     def test_chmod(self):
         """
@@ -883,7 +891,9 @@ class TestAcceptEitherUnicodeOrBytes:
         # Bytes
         session_factory = scripted_session.factory(script)
         with test_base.ftp_host_factory(session_factory) as host:
-            host.chmod(as_bytes(path), 0o755)
+            host.chmod(
+                as_bytes(path, ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING), 0o755
+            )
 
     def _test_method_with_single_path_argument(self, method_name, path, script):
         # Unicode
@@ -895,7 +905,7 @@ class TestAcceptEitherUnicodeOrBytes:
         session_factory = scripted_session.factory(script)
         with test_base.ftp_host_factory(session_factory) as host:
             method = getattr(host, method_name)
-            method(as_bytes(path))
+            method(as_bytes(path, ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING))
 
     def test_chdir(self):
         """
@@ -1125,7 +1135,9 @@ class TestAcceptEitherUnicodeOrBytes:
         # Bytes
         session_factory = scripted_session.factory(script)
         with test_base.ftp_host_factory(session_factory) as host:
-            result = list(host.walk(as_bytes("/ä")))
+            result = list(
+                host.walk(as_bytes("/ä", ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING))
+            )
 
 
 class TestFailingPickling:
