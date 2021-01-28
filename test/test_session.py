@@ -6,6 +6,7 @@
 Unit tests for session factory helpers.
 """
 
+import ftplib
 import sys
 
 import ftputil.path_encoding
@@ -13,7 +14,9 @@ import ftputil.session
 import ftputil.tool
 
 
-class MockSession:
+# Inherit from `ftplib.FTP` to get past the subclass check in
+# `ftputil.session.session_factory`.
+class MockSession(ftplib.FTP):
     """
     Mock session base class to determine if all expected calls have happened.
     """
