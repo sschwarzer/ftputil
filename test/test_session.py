@@ -141,7 +141,7 @@ class TestSessionFactory:
             ("connect", "host", 21),
             ("login", "user", "password"),
         ]
-        assert session.encoding == ftputil.path_encoding.DEFAULT_ENCODING
+        assert session.encoding == ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING
         # Custom encoding
         factory = ftputil.session.session_factory(
             base_class=MockSession,
