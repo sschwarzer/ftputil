@@ -23,6 +23,7 @@ import pytest
 
 import ftputil.error
 import ftputil.file_transfer
+import ftputil.path_encoding
 import ftputil.session
 import ftputil.stat_cache
 
@@ -912,18 +913,27 @@ class TestOther(RealFTPTest):
         """
         host = self.host
         # `ftplib` under Python 3 only works correctly if the unicode strings
-        # are decoded from latin1.
-        path = "äbc".encode("UTF-8").decode("latin1")
+        # are decoded from the `ftplib` default encoding. For Python 3.9 and up
+        # the `encode`/`decode` combination is a no-op.
+        path = "äbc".encode("UTF-8").decode(
+            ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING
+        )
         names = host.listdir(path)
         assert names[0] == "file1"
-        assert names[1] == "file1_ö".encode("UTF-8").decode("latin1")
+        assert names[1] == "file1_ö".encode("UTF-8").decode(
+            ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING
+        )
 
-    def test_path_with_non_latin1_unicode_string(self):
+    @pytest.mark.skipif(
+        ftputil.path_encoding.RUNNING_UNDER_PY39_AND_UP,
+        reason="test applies only to `FTPHost` objects using 'latin-1' path encoding",
+    )
+    def test_path_with_non_latin1_unicode_string_under_python_3_9(self):
         """
         ftputil operations shouldn't accept file paths with non-latin1
         characters.
         """
-        # Use some musical symbols. These are certainly not latin1.
+        # Use some musical symbols. These are certainly not latin1. ;-)
         path = "𝄞𝄢"
         # `UnicodeEncodeError` is also the exception that `ftplib` raises if it
         # gets a non-latin1 path.
