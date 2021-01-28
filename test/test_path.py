@@ -4,6 +4,7 @@
 
 import datetime
 import ftplib
+import functools
 import time
 
 import pytest
@@ -20,8 +21,8 @@ from test import scripted_session
 Call = scripted_session.Call
 
 
-def as_bytes(string):
-    return string.encode(ftputil.path_encoding.DEFAULT_ENCODING)
+def as_bytes(string, encoding=ftputil.path_encoding.DEFAULT_ENCODING):
+    return string.encode(encoding)
 
 
 class TestPath:
@@ -520,21 +521,24 @@ class TestAcceptEitherBytesOrStr:
             Call("cwd", args=("/",)),
             Call("close"),
         ]
+        custom_as_bytes = functools.partial(
+            as_bytes, encoding=ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING
+        )
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             host.stat_cache.disable()
             # `isabs`
             assert not host.path.isabs("ä")
-            assert not host.path.isabs(path_converter(as_bytes("ä")))
+            assert not host.path.isabs(path_converter(custom_as_bytes("ä")))
             # `exists`
             assert host.path.exists(path_converter("ä"))
-            assert host.path.exists(path_converter(as_bytes("ä")))
+            assert host.path.exists(path_converter(custom_as_bytes("ä")))
             # `isdir`, `isfile`, `islink`
             assert host.path.isdir(path_converter("ä"))
-            assert host.path.isdir(path_converter(as_bytes("ä")))
+            assert host.path.isdir(path_converter(custom_as_bytes("ä")))
             assert host.path.isfile(path_converter("ö"))
-            assert host.path.isfile(path_converter(as_bytes("ö")))
+            assert host.path.isfile(path_converter(custom_as_bytes("ö")))
             assert host.path.islink(path_converter("ü"))
-            assert host.path.islink(path_converter(as_bytes("ü")))
+            assert host.path.islink(path_converter(custom_as_bytes("ü")))
 
     def test_getmtime(self):
         """
@@ -567,7 +571,13 @@ class TestAcceptEitherBytesOrStr:
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             host.stat_cache.disable()
             assert mtime_makes_sense(host.path.getmtime(path_converter(("ä"))))
-            assert mtime_makes_sense(host.path.getmtime(path_converter(as_bytes("ä"))))
+            assert mtime_makes_sense(
+                host.path.getmtime(
+                    path_converter(
+                        as_bytes("ä", ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING)
+                    )
+                )
+            )
 
     def test_getsize(self):
         """
@@ -601,7 +611,14 @@ class TestAcceptEitherBytesOrStr:
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             host.stat_cache.disable()
             assert host.path.getsize(path_converter("ä")) == 512
-            assert host.path.getsize(path_converter(as_bytes("ä"))) == 512
+            assert (
+                host.path.getsize(
+                    path_converter(
+                        as_bytes("ä", ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING)
+                    )
+                )
+                == 512
+            )
 
     def test_walk(self):
         """
@@ -653,7 +670,13 @@ class TestAcceptEitherBytesOrStr:
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             host.stat_cache.disable()
             host.path.walk(path_converter("ä"), func=noop, arg=None)
-            host.path.walk(path_converter(as_bytes("ä")), func=noop, arg=None)
+            host.path.walk(
+                path_converter(
+                    as_bytes("ä", ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING)
+                ),
+                func=noop,
+                arg=None,
+            )
 
 
 class Path:
