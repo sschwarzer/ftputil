@@ -19,6 +19,7 @@ import ftputil.error
 import ftputil.file
 import ftputil.file_transfer
 import ftputil.path
+import ftputil.path_encoding
 import ftputil.session
 import ftputil.stat
 import ftputil.tool
@@ -37,7 +38,9 @@ __all__ = ["FTPHost"]
 # latin-1 encoding. Prefer that behavior for Python 3.9 and up as well instead
 # of using the encoding that is the default for `ftplib.FTP` in the Python
 # version.
-default_session_factory = ftputil.session.session_factory(encoding="latin-1")
+default_session_factory = ftputil.session.session_factory(
+    encoding=ftputil.path_encoding.DEFAULT_ENCODING
+)
 
 
 #####################################################################
@@ -141,7 +144,9 @@ class FTPHost:
         factory = kwargs.pop("session_factory", default_session_factory)
         with ftputil.error.ftplib_error_to_ftp_os_error:
             session = factory(*args, **kwargs)
-            self._encoding = getattr(session, "encoding", ftputil.tool.DEFAULT_ENCODING)
+            self._encoding = getattr(
+                session, "encoding", ftputil.path_encoding.DEFAULT_ENCODING
+            )
         return session
 
     def _copy(self):

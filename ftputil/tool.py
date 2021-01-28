@@ -12,17 +12,6 @@ import os
 __all__ = ["same_string_type_as", "as_str", "as_str_path"]
 
 
-# Default encoding to convert between byte string and unicode string. This is a
-# "lossless" encoding in the sense that any byte string can be decoded to a
-# unicode string, and this unicode string can be encoded to the original byte
-# string.
-#
-# The `ftplib` module under Python 3.8 and earlier also uses the "latin-1"
-# encoding internally. In this case, paths created with Python's `ftplib` use
-# the same encoding as our `DEFAULT_ENCODING`.
-DEFAULT_ENCODING = "latin-1"
-
-
 def same_string_type_as(type_source, string, encoding):
     """
     Return a string of the same type as `type_source` with the content from
