@@ -90,6 +90,18 @@ class TestConstructor:
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             assert host.getcwd() == "/home"
 
+    def test_missing_encoding_attribute(self):
+        """
+        Test if a missing `encoding` attribute on the session instance leads to
+        a `NoEncodingError`.
+        """
+
+        class InvalidSessionError:
+            pass
+
+        with pytest.raises(ftputil.error.NoEncodingError):
+            _ = ftputil.host.FTPHost(session_factory=InvalidSessionError)
+
 
 class TestKeepAlive:
     def test_succeeding_keep_alive(self):

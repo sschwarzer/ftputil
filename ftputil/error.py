@@ -24,6 +24,7 @@ __all__ = [
     "InaccessibleLoginDirError",
     "InternalError",
     "KeepAliveError",
+    "NoEncodingError",
     "ParserError",
     "PermanentError",
     "RootDirError",
@@ -110,6 +111,12 @@ class ParserError(InternalError):
 
 class CacheMissError(InternalError):
     """Raised if a path isn't found in the cache."""
+
+    pass
+
+
+class NoEncodingError(InternalError):
+    """Raised if session instances don't specify an encoding."""
 
     pass
 
