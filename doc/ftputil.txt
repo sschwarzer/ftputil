@@ -95,6 +95,7 @@ The exception classes are organized as follows::
         FTPIOError(FTPError)
         InternalError(FTPError)
             InaccessibleLoginDirError(InternalError)
+            NoEncodingError(InternalError)
             ParserError(InternalError)
             RootDirError(InternalError)
             TimeShiftError(InternalError)
@@ -217,6 +218,11 @@ and are described here:
   This exception is raised if the directory in which "you" are placed
   upon login is not accessible, i. e. a ``chdir`` call with the
   directory as argument would fail.
+
+- ``NoEncodingError``
+
+  is raised if an FTP session instance doesn't have an ``encoding``
+  attribute (see also `session factories`_).
 
 - ``ParserError``
 
@@ -499,8 +505,8 @@ As you can see at the top of the diagram, if you use ``str`` objects
 fewer source of problems. If you use ``bytes`` objects for paths,
 ftputil tries to get the encoding for the FTP server from the
 ``encoding`` attribute of the session instance (say, an instance of
-``ftplib.FTP``). If no ``encoding`` attribute is present, the behavior
-is undefined.
+``ftplib.FTP``). If no ``encoding`` attribute is present, a
+``NoEncodingError`` is raised.
 
 All encoding/decoding steps must use the same encoding, the encoding
 the server uses (at the bottom of the diagram). If the server uses the
@@ -522,10 +528,11 @@ Summary:
 
 - If possible, use only ASCII characters in paths.
 - If possible, pass paths to ftputil as ``str``, not ``bytes``.
-- If you use a custom session factory and ``bytes`` paths, the session
-  instances created by the factory must have an ``encoding`` attribute
-  with the name of the path encoding to use. If your session instances
-  don't have an ``encoding`` attribute, ftputil behavior is undefined.
+- If you use a custom session factory, the session instances created
+  by the factory must have an ``encoding`` attribute with the name of
+  the path encoding to use. If your session instances don't have an
+  ``encoding`` attribute, ftputil raises a ``NoEncodingError`` when
+  the session is created.
 
 
 Hidden files and directories
