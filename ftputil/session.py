@@ -6,7 +6,6 @@
 Session factory factory (the two "factory" are intentional :-) ) for ftputil.
 """
 
-import sys
 import ftplib
 
 import ftputil.tool
