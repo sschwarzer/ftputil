@@ -248,63 +248,115 @@ Directory and file names
    contents is handled by the ``encoding`` argument for
    `FTPHost.open`_.
 
-First off: If your directory and file names (both as arguments and on
-the server) contain only ISO 8859-1 (latin-1) characters, you can use
-such names in the form of ``bytes`` or ``str`` objects. However, you
-can't mix different string types (``bytes`` and ``str``) in one call
-(for example in ``FTPHost.path.join``).
-
-If you have directory or file names with characters that aren't in
-latin-1, it's recommended to use ``bytes`` objects. In that case,
-returned paths will be ``bytes`` objects, too.
-
-Read on for details.
-
-.. note::
-
-   The approach described below may look awkward and in a way it is.
-   The intention of ``ftputil`` is to behave like the local file
-   system APIs of Python 3 as far as it makes sense. Moreover, the
-   taken approach makes sure that directory and file names that were
-   used with Python 3's native ``ftplib`` module will be compatible
-   with ``ftputil`` and vice versa. Otherwise you may be able to use a
-   file name with ``ftputil``, but get an exception when trying to
-   read the same file with Python 3's ``ftplib`` module.
-
-Methods that take paths of directories and/or files can take either
-``bytes`` or ``str`` objects, or `PathLike`_ objects that can be
-converted to ``bytes`` or ``str``.
+Generally, paths can be ``str`` or ``bytes`` objects (or `PathLike`_
+objects wrapping ``str`` or ``bytes``). However, you can't mix
+different string types (``bytes`` and ``str``) in one call (for
+example in ``FTPHost.path.join``). If a method gets a string argument
+(or a string argument wrapped in a PathLike_ object) and returns one
+or more strings, these strings will have the same string type
+(``bytes`` or ``str``) as the argument(s). Mixing different string
+types in one call (for example in ``FTPHost.path.join``) isn't allowed
+and will cause a ``TypeError``. These rules are the same as for local
+file system operations.
 
 .. _PathLike: https://docs.python.org/3/library/os.html#os.PathLike
 
-If a method gets a string argument (or a string argument wrapped in a
-PathLike_ object) and returns one or more strings, these strings will
-have the same string type (``bytes`` or ``str``) as the argument(s).
-Mixing different string types in one call (for example in
-``FTPHost.path.join``) isn't allowed and will cause a ``TypeError``.
-These rules are the same as for local file system operations in Python 3.
+Although you can pass paths as ``str`` or ``bytes``, the former is
+recommended. See below for the reason.
 
-``bytes`` objects for directory and file names will be sent to the
-server as-is. On the other hand, ``str`` objects will be encoded to
-``bytes`` objects, assuming latin-1 encoding. This implies that such
-``str`` objects must only contain code points 0-255 for the latin-1
-character set. Using any other characters will result in a
-``UnicodeEncodeError`` exception.
+*If* you have directory or file names with non-ASCII characters, you
+need to be aware of the encoding the `session factory`_ (e. g.
+``ftplib.FTP``) uses. This needs to be the same encoding that the FTP
+server uses for the paths.
 
-If you have directory or file names as ``str`` objects with
-non-latin-1 characters, encode the strings to ``bytes`` yourself,
-using the encoding you know the server uses for its file system.
-Decode received paths with the same encoding. Encapsulate these
-conversions as far as you can. Otherwise, you'd have to adapt
-potentially a lot of code if the server encoding changes.
+The following diagram shows string conversions on the way from your
+code to the remote FTP server. The opposite way works analogously, so
+encoding steps in the diagram become decoding steps and decoding steps
+in the diagram become encoding steps.
 
-If you *don't* know the encoding on the server side, it's probably the
-best to only use ``bytes`` for directory and file names. That said, as
-soon as you *show* the names to a user, you -- or the library you use
-for displaying the names -- has to guess an encoding.
+Both "branching points" in the upper and lower part of diagrams are
+independent, so depending on how you pass paths to ftputil and which
+file system API the FTP server uses, there are four possible
+combinations.
 
-If you can decide about paths yourself, it's generally safest to use
-only ASCII characters in FTP paths.
+::
+
+     +-----------+       +-----------+
+     | Your code |       | Your code |
+     +-----------+       +-----------+
+          |                    |
+          |  str               |  bytes
+          v                    v
+    +-------------+     +-------------+  decode with encoding of session,
+    | ftputil API |     | ftputil API |  e. g. `ftplib.FTP` instance
+    +-------------+     +-------------+
+            \               /
+             \     str     /
+              v           v
+            +---------------+  encode with encoding
+            |  ftplib API   |  specified in `FTP` instance
+            +---------------+
+                    |
+                    |  bytes
+                    v
+             +-------------+
+             | socket API  |
+             +-------------+
+                /       \
+               /         \                 local / client
+    - - - - - / - - - - - \ - - - - - - - - - - - - - - - - - - - - - -
+             /             \              remote / server
+            /     bytes     \
+           v                 v
+    +------------+      +------------+  decode with encoding from
+    | FTP server |      | FTP server |  FTP server configuration
+    +------------+      +------------+
+          |                   |
+          |  bytes            |  str
+          v                   v
+   +-------------+      +-------------+
+   | remote file |      | remote file |
+   | system API  |      | system API  |
+   +-------------+      +-------------+
+           \                 /
+            \      bytes    /
+             v             v
+          +-------------------+
+          |    file system    |
+          +-------------------+
+
+As you can see at the top of the diagram, if you use ``str`` objects
+(regular unicode strings), there's one fewer decoding step, and so one
+fewer source of problems. If you use ``bytes`` objects for paths,
+ftputil tries to get the encoding for the FTP server from the
+``encoding`` attribute of the session instance (say, an instance of
+``ftplib.FTP``). If no ``encoding`` attribute is present, the behavior
+is undefined.
+
+All encoding/decoding steps must use the same encoding, the encoding
+the server uses (at the bottom of the diagram). If the server uses the
+bytes from the socket directly, i. e. without an encoding step, you
+have to use the file system encoding.
+
+Until and including Python 3.8, the encoding implicitly assumed by
+the ``ftplib`` module was latin-1, so using ``bytes`` was the safest
+strategy. However, Python 3.9 made the ``encoding``
+configurable via an ``ftplib.FTP`` constructor argument ``encoding``,
+*but defaults to UTF-8*.
+
+If you don't pass a `session factory`_ to the ``ftputil.FTPHost``
+constructor, ftputil will use latin-1 encoding for the paths. This is
+the same value as in earlier ftputil versions in combination with
+Python 3.8 and earlier.
+
+Summary:
+
+- If possible, use only ASCII characters in paths.
+- If possible, pass paths to ftputil as ``str``, not ``bytes``.
+- If you use a custom session factory and ``bytes`` paths, the session
+  instances created by the factory must have an ``encoding`` attribute
+  with the name of the path encoding to use. If your session instances
+  don't have an ``encoding`` attribute, ftputil behavior is undefined.
 
 
 ``FTPHost`` objects
@@ -340,6 +392,8 @@ associated FTP sessions will be closed automatically.
 If something goes wrong during the ``FTPHost`` construction or in the
 body of the ``with`` statement, the instance is closed as well.
 Exceptions will be propagated (as with ``try ... finally``).
+
+.. _`session factory`:
 
 Session factories
 `````````````````
@@ -399,6 +453,7 @@ of parameters::
                     port=21,
                     use_passive_mode=None,
                     encrypt_data_channel=True,
+                    encoding=None,
                     debug_level=None)
 
 with
@@ -419,6 +474,24 @@ with
   ``ftplib.FTP_TLS`` and ``M2Crypto.ftpslib.FTP_TLS``, otherwise the
   parameter is ignored.
 
+- ``encoding`` can be a string to set the encoding of directory and
+  file paths on the remote server. (This has nothing to do with the
+  encoding of file contents!) If you pass a string and your base class
+  is neither ``ftplib.FTP`` nor ``ftplib.FTP_TLS``, the used heuristic
+  in ``session_factory`` may not work reliably. Therefore, if in
+  doubt, let ``encoding`` be ``None`` and define your ``base_class``
+  so that it sets the encoding you want.
+
+  Note: In Python 3.9, the default path encoding for ``ftplib.FTP``
+  and ``ftplib.FTP_TLS`` changed from previously "latin-1" to "utf-8".
+  Hence, if you don't pass an ``encoding`` to ``session_factory``,
+  you'll get different path encodings for Python 3.8 and earlier vs.
+  Python 3.9 and later.
+
+  If you're sure that you always use only ASCII characters in your
+  remote paths, you don't need to worry about the path encoding and
+  don't need to use the ``encoding`` argument.
+
 - ``debug_level`` sets the debug level for FTP session instances. The
   semantics is defined by the base class. For example, a debug level
   of 2 causes the most verbose output for Python's ``ftplib.FTP``
@@ -438,6 +511,7 @@ All of these parameters can be combined. For example, you could use
                            base_class=ftpslib.FTP_TLS,
                            port=31,
                            encrypt_data_channel=True,
+                           encoding="UTF-8",
                            debug_level=2)
 
     with ftputil.FTPHost(server, user, password,
@@ -445,18 +519,13 @@ All of these parameters can be combined. For example, you could use
         ...
 
 to create and use a session factory derived from ``ftplib.FTP_TLS``
-that connects on command channel 31, will encrypt the data channel and
-print output for debug level 2.
+that connects on command channel 31, will encrypt the data channel,
+use the UTF-8 encoding for remote paths and print output for debug
+level 2.
 
 Note: Generally, you can achieve everything you can do with
 ``ftputil.session.session_factory`` with an explicit session factory
-as described at the start of this section. However, the class
-``M2Crypto.ftpslib.FTP_TLS`` has a limitation so that you can't use
-it with ftputil out of the box. The function ``session_factory``
-contains a workaround for this limitation. For details refer to `this
-ticket`_.
-
-.. _`this ticket`: https://ftputil.sschwarzer.net/trac/ticket/78
+as described at the start of this section.
 
 Hidden files and directories
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
