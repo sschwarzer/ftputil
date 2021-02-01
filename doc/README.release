@@ -18,7 +18,7 @@ Things to do for a new release:
 
 - `make dist`
 
-- Tag release (tags are formed like "release2_0_3b2")
+- Tag release (tags are formed like "release5_1_0_alpha2")
 
 - Push to main and Sourcehut repositories
 
