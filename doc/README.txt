@@ -19,50 +19,48 @@ Backward-incompatible changes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This ftputil version isn't fully backward-compatible with the previous
-version. The backward-incompatible changes are:
+version due to changes in the `ftplib` module in the standard
+library of Python 3.9 [1].
 
-- Python 2 is no longer supported.
+That said, if you only deal with directory and file paths which solely
+consist of ASCII characters, this change doesn't affect you.
 
-- The minimum supported Python 3 version is 3.6.
+Here are some details, you can find more in the ftputil documentation
+[2] and in ticket #143 [3].
 
-- By default, time stamps in directory listings coming from the server
-  are now assumed to be in UTC. Previously, listings were assumed to
-  use the local time of the client. [1]
+Internally, ftputil uses `ftplib.FTP` or compatible classes to perform
+most low-level FTP operations. In Python 3.8 and before, the default
+encoding for FTP paths was latin-1, but there was no official
+documentation on using a different encoding. In Python 3.9, the
+default encoding changed to UTF-8 and the encoding is configurable
+with an `ftplib.FTP` constructor argument.
 
-  Correspondingly, the definition of "time shift" has changed. The
-  time shift is now defined as the time zone used in server listings
-  (say, UTC+02:00) and UTC, in other words, the time shift now is the
-  time zone offset applied in the server listings. In earlier ftputil
-  versions, the time shift was defined as "time used in server
-  listings" minus "local client time."
+The documentation of ftputil 4.0.0 and earlier stated:
+- ftputil uses latin-1 encoding for paths
+- ftputil uses `ftplib.FTP` as the default session factory
 
-- The flag `use_list_a_option` of `FTPHost` instances is now set to
-  `False` by default. This option was intended to make life easier for
-  users, but turned out to be problematic [2].
-
-- As in `os.makedirs`, `FTPHost.makedirs` now supports the `exist_ok`
-  flag and uses the default of `False`. You can get the behavior of
-  ftputil 3.x by passing `exist_ok=True`. [3]
-
-If you need to use Python versions before 3.6, please use the previous
-stable ftputil version 3.4.
+With the change of the default encoding in Python 3.9 these two
+statements are contradictory. To resolve the conflict, the new
+behavior of ftputil is:
+- ftputil uses `ftplib.FTP` as default session factory, but explicitly
+  sets the path encoding to latin-1 (regardless of the Python
+  version). This is the same behavior as in ftputil 4.0.0 or earlier
+  if running under Python 3.8 or earlier.
+- If client code uses a custom session factory (i. e. the
+  `session_factory` argument of the `FTPHost` constructor), ftputil
+  will take the path encoding to use for `bytes` paths from the
+  `encoding` attribute of an FTP session from this factory. If there's
+  no such attribute, an exception is raised.
 
 Other changes
 ~~~~~~~~~~~~~
 
-- Functions and methods which used to accept only `str` or `bytes`
-  paths now _also_ accept `PathLike` objects [4, 5].
-
-- Clear the stat cache when setting a new time shift value. [6]
-
-- ftputil now officially follows semantic versioning (SemVer) [7].
-  Actually ftputil has been following semantic versioning since a long
-  time (probably since version 2.0 in 2004), but it was never
-  explicitly guaranteed and new major versions were named x.0 instead
-  of x.0.0 and new minor versions x.y instead of x.y.0.
-
-- Internal changes: The tests were moved to pytest. The old mocking
-  approach was replaced by a "scripted session" approach.
+`ftputil.session.session_factory` got a new keyword argument
+`encoding` to set the path encoding of the sessions created by the
+factory. If the argument isn't specified, the path encoding will be
+taken from the `base_class` argument. (This means that the encoding
+will be different for `ftplib.FTP` in Python 3.8 or earlier vs.
+Python 3.9 or later.)
 
 Documentation
 -------------
@@ -113,10 +111,10 @@ Evan Prodromou <evan@bad.dynu.ca> (lrucache module)
 Please provide feedback! It's certainly appreciated. :-)
 
 
-[1] https://ftputil.sschwarzer.net/trac/ticket/134
-[2] https://ftputil.sschwarzer.net/trac/ticket/110
-[3] https://ftputil.sschwarzer.net/trac/ticket/117
-[4] https://docs.python.org/3/library/os.html#os.PathLike
-[5] https://ftputil.sschwarzer.net/trac/ticket/119
-[6] https://ftputil.sschwarzer.net/trac/ticket/136
-[7] https://semver.org/
+[1] https://docs.python.org/3/whatsnew/3.9.html#changes-in-the-python-api
+    "The encoding parameter has been added to the classes ftplib.FTP
+    and ftplib.FTP_TLS as a keyword-only parameter, and the default
+    encoding is changed from Latin-1 to UTF-8 to follow RFC 2640."
+[2] https://ftputil.sschwarzer.net/trac/wiki/Documentation
+[3] https://ftputil.sschwarzer.net/trac/ticket/143
+
