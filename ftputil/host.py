@@ -144,9 +144,11 @@ class FTPHost:
         factory = kwargs.pop("session_factory", default_session_factory)
         with ftputil.error.ftplib_error_to_ftp_os_error:
             session = factory(*args, **kwargs)
-            self._encoding = getattr(
-                session, "encoding", ftputil.path_encoding.DEFAULT_ENCODING
-            )
+            if not hasattr(session, "encoding"):
+                raise ftputil.error.NoEncodingError(
+                    f"session instance {session!r} must have an `encoding` attribute"
+                )
+            self._encoding = session.encoding
         return session
 
     def _copy(self):
