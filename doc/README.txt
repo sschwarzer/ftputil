@@ -25,7 +25,7 @@ library of Python 3.9 [1].
 That said, if you only deal with directory and file paths which solely
 consist of ASCII characters, this change doesn't affect you.
 
-Here are some details, you can find more in the ftputil documentation
+Here are some details. You can find more in the ftputil documentation
 [2] and in ticket #143 [3].
 
 Internally, ftputil uses `ftplib.FTP` or compatible classes to perform
@@ -117,4 +117,3 @@ Please provide feedback! It's certainly appreciated. :-)
     encoding is changed from Latin-1 to UTF-8 to follow RFC 2640."
 [2] https://ftputil.sschwarzer.net/trac/wiki/Documentation
 [3] https://ftputil.sschwarzer.net/trac/ticket/143
-
