@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2017, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2021, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
