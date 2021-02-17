@@ -1,4 +1,4 @@
-ftputil 5.0.0-alpha is now available from
+ftputil 5.0.0 is now available from
 https://ftputil.sschwarzer.net/download .
 
 
