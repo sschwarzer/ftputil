@@ -44,4 +44,4 @@ Only for non-alpha/beta releases:
   - Upload new version to PyPI
 
 - Send announcement to `python-announce-list@python.org`
-
+  XXX: No longer do this. Last time I did, I got a lot more spam.
