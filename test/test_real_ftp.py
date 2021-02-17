@@ -928,7 +928,7 @@ class TestOther(RealFTPTest):
         ftputil.path_encoding.RUNNING_UNDER_PY39_AND_UP,
         reason="test applies only to `FTPHost` objects using 'latin-1' path encoding",
     )
-    def test_path_with_non_latin1_unicode_string_under_python_3_9(self):
+    def test_path_with_non_latin1_unicode_string_below_python_3_9(self):
         """
         ftputil operations shouldn't accept file paths with non-latin1
         characters.
