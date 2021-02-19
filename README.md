@@ -10,5 +10,5 @@ in different timezones.
 
 -----
 
-This Sourcehut repository is just a code mirror of the main website at
+This repository is just a code mirror of the main website at
 https://ftputil.sschwarzer.net .
