@@ -91,7 +91,7 @@ class TestDefaultSessionFactory:
             assert (
                 # Don't compare the `self` argument. It changes for every test
                 # run.
-                ftp_mock.call_args.args[1:]
+                ftp_mock.call_args.args
                 == ("localhost", "ftptest", "dummy") + args
             )
             assert ftp_mock.call_args.kwargs == expected_kwargs

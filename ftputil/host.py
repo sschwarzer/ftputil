@@ -49,9 +49,7 @@ if ftputil.path_encoding.RUNNING_UNDER_PY39_AND_UP:
             # an encoding.
             if "encoding" not in kwargs:
                 kwargs["encoding"] = ftputil.path_encoding.DEFAULT_ENCODING
-            # Use a "classic" base class call. If using a `super` call, this is
-            # much more tricky to test with the current mocking approach.
-            ftplib.FTP.__init__(self, *args, **kwargs)
+            super().__init__(*args, **kwargs)
 
 
 else:
