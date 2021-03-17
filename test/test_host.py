@@ -13,6 +13,7 @@ import posixpath
 import random
 import time
 import unittest
+import unittest.mock
 import warnings
 
 import pytest
@@ -52,6 +53,79 @@ def as_bytes(string, encoding=ftputil.path_encoding.DEFAULT_ENCODING):
 #
 # Test cases
 #
+
+# For Python < 3.9, the `default_session_factory` is just `ftplib.FTP`. It's
+# not worth it to test the factory then.
+@pytest.mark.skipif(
+    not ftputil.path_encoding.RUNNING_UNDER_PY39_AND_UP,
+    reason="tests apply only to Python 3.9 and up",
+)
+class TestDefaultSessionFactory:
+    def test_ftplib_FTP_subclass(self):
+        """
+        Test if the default factory is a subclass of `ftplib.FTP`.
+        """
+        assert issubclass(ftputil.host.default_session_factory, ftplib.FTP)
+
+    def _test_extra_arguments(self, args=None, kwargs=None, expected_kwargs=None):
+        """
+        Test if `ftputil.FTPHost` accepts additional positional and keyword
+        arguments, which are then passed to the session factory.
+        """
+        if args is None:
+            args = ()
+        if kwargs is None:
+            kwargs = {}
+        if expected_kwargs is None:
+            expected_kwargs = kwargs
+        # Since our test server listens on a non-default port, we can't use the
+        # session factory directly. We have to mock `ftplib.FTP` which is used
+        # by ftputil's `default_session_factory`.
+        with unittest.mock.patch("ftplib.FTP.__init__") as ftp_mock:
+            # Prevent `TypeError` when Python checks the `__init__` result.
+            ftp_mock.return_value = None
+            session = ftputil.host.default_session_factory(
+                "localhost", "ftptest", "dummy", *args, **kwargs
+            )
+            assert len(ftp_mock.call_args_list) == 1
+            assert (
+                # Don't compare the `self` argument. It changes for every test
+                # run.
+                ftp_mock.call_args.args[1:]
+                == ("localhost", "ftptest", "dummy") + args
+            )
+            assert ftp_mock.call_args.kwargs == expected_kwargs
+
+    def test_extra_positional_arguments(self):
+        """
+        Test if extra positional arguments are passed to the `ftplib.FTP`
+        constructor.
+        """
+        expected_kwargs = {"encoding": ftputil.path_encoding.DEFAULT_ENCODING}
+        # `acct`, `timeout`
+        self._test_extra_arguments(
+            args=("", 1.0), kwargs={}, expected_kwargs=expected_kwargs
+        )
+
+    def test_extra_keyword_arguments(self):
+        """
+        Test if extra keyword arguments are passed to the `ftplib.FTP`
+        constructor.
+        """
+        kwargs = {"timeout": 1.0, "source_address": None}
+        expected_kwargs = kwargs.copy()
+        expected_kwargs["encoding"] = ftputil.path_encoding.DEFAULT_ENCODING
+        self._test_extra_arguments(kwargs=kwargs, expected_kwargs=expected_kwargs)
+
+    def test_custom_encoding(self):
+        """
+        Test if a custom encoding is passed to the base class constructor when
+        running under Python 3.9 and up.
+        """
+        kwargs = {"timeout": 1.0, "source_address": None, "encoding": "latin-2"}
+        self._test_extra_arguments(kwargs=kwargs)
+
+
 class TestConstructor:
     """
     Test initialization of `FTPHost` objects.

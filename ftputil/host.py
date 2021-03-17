@@ -38,9 +38,24 @@ __all__ = ["FTPHost"]
 # latin-1 encoding. Prefer that behavior for Python 3.9 and up as well instead
 # of using the encoding that is the default for `ftplib.FTP` in the Python
 # version.
-default_session_factory = ftputil.session.session_factory(
-    encoding=ftputil.path_encoding.DEFAULT_ENCODING
-)
+if ftputil.path_encoding.RUNNING_UNDER_PY39_AND_UP:
+
+    class default_session_factory(ftplib.FTP):
+        def __init__(self, *args, **kwargs):
+            # Python 3.9 defines `encoding` as a keyword-only argument, so test
+            # only for the `encoding` argument in `kwargs`.
+            #
+            # Only use the ftputil default encoding if the caller didn't pass
+            # an encoding.
+            if "encoding" not in kwargs:
+                kwargs["encoding"] = ftputil.path_encoding.DEFAULT_ENCODING
+            # Use a "classic" base class call. If using a `super` call, this is
+            # much more tricky to test with the current mocking approach.
+            ftplib.FTP.__init__(self, *args, **kwargs)
+
+
+else:
+    default_session_factory = ftplib.FTP
 
 
 #####################################################################
