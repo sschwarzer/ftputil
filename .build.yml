@@ -5,10 +5,10 @@ packages:
 - ftp
 - podman
 - python3-docutils
-- python36
-- python37
-- python38
-- python39
+- python3.6
+- python3.7
+- python3.8
+- python3.9
 
 sources:
 - hg+https://hg.sr.ht/~sschwarzer/ftputil
