@@ -15,7 +15,7 @@ TEST_DIR=${PROJECT_DIR}/test
 SOURCE_DIR=${PROJECT_DIR}/ftputil
 
 DOC_DIR=${PROJECT_DIR}/doc
-STYLESHEET_PATH=${DOC_DIR}/default.css
+STYLESHEET_PATH=plain.css
 DOC_SOURCES=$(subst d/,${DOC_DIR}/, d/ftputil.txt \
 			  d/whats_new_in_ftputil_3.0.txt \
 			  d/whats_new_in_ftputil_4.0.0.txt)
@@ -27,7 +27,6 @@ SED=sed -i'' -r -e
 
 PYTHONPATH=${PROJECT_DIR}:${TEST_DIR}
 
-# TODO: Some platforms call that script rst2html.py - allow both.
 RST2HTML=rst2html
 
 # Name test files. Make sure the long-running tests come last.
@@ -64,7 +63,7 @@ vpath %.txt ${DOC_DIR}
 docs: ${DOC_SOURCES} ${DOC_TARGETS}
 
 %.html: %.txt
-	${RST2HTML} --stylesheet-path=${STYLESHEET_PATH} --embed-stylesheet $< $@
+	${RST2HTML} --stylesheet=${STYLESHEET_PATH} --embed-stylesheet $< $@
 
 # Quality assurance
 .PHONY: test
