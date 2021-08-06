@@ -145,7 +145,7 @@ class ScriptedSession:
         try:
             call = self.script[self._call_index]
         except IndexError:
-            print("  *** Ran out of `Call` objects for this session".format(self))
+            print("  *** Ran out of `Call` objects for this session {!r}".format(self))
             print("  Requested attribute was {!r}".format(requested_attribute))
             raise
         self._call_index += 1
