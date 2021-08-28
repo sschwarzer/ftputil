@@ -63,13 +63,24 @@ class _Path:
 
     def exists(self, path):
         """
-        Return true if the path exists.
+        Return True if the path refers to an existing file. Returns False for a broken symlinks.
+        """
+        try:
+            stat_result = self._host.stat(path, _exception_for_missing_path=False)
+            return stat_result is not None
+        except ftputil.error.RootDirError:
+            return True
+
+    def lexists(self, path):
+        """
+        Return True if the path exists.
         """
         try:
             lstat_result = self._host.lstat(path, _exception_for_missing_path=False)
             return lstat_result is not None
         except ftputil.error.RootDirError:
             return True
+
 
     def getmtime(self, path):
         """
