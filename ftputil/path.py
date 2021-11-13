@@ -65,6 +65,8 @@ class _Path:
         """
         Return true if the path exists.
         """
+        if path in ["", b""]:
+            return False
         try:
             lstat_result = self._host.lstat(path, _exception_for_missing_path=False)
             return lstat_result is not None
@@ -143,6 +145,8 @@ class _Path:
         A non-existing path does _not_ cause a `PermanentError`, instead return
         `False`.
         """
+        if path in ["", b""]:
+            return False
         return self._is_file_system_entity(path, "dir")
 
     def isfile(self, path):
@@ -153,6 +157,8 @@ class _Path:
         A non-existing path does _not_ cause a `PermanentError`, instead return
         `False`.
         """
+        if path in ["", b""]:
+            return False
         return self._is_file_system_entity(path, "file")
 
     def islink(self, path):
@@ -163,6 +169,8 @@ class _Path:
         `False`.
         """
         path = ftputil.tool.as_str_path(path, encoding=self._encoding)
+        if path == "":
+            return False
         try:
             lstat_result = self._host.lstat(path, _exception_for_missing_path=False)
         except ftputil.error.RootDirError:
