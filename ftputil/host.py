@@ -651,13 +651,13 @@ class FTPHost:
     #
     def getcwd(self):
         """
-        Return the current path name.
+        Return the current directory path.
         """
         return self._cached_current_dir
 
     def chdir(self, path):
         """
-        Change the directory on the host.
+        Change the directory on the host to `path`.
         """
         path = ftputil.tool.as_str_path(path, encoding=self._encoding)
         with ftputil.error.ftplib_error_to_ftp_os_error:
