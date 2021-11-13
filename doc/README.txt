@@ -15,7 +15,12 @@ in different timezones.
 What's new?
 -----------
 
-This release fixes a regression in ftputil 5.0.0. [1]
+Fixed handling of empty strings as paths [1].
+
+`FTPHost.path.isdir` (and `isfile` and `islink`) now return `False` for
+an empty path. Most public methods, with the exception of
+`FTPHost.chdir`, raise an `FTPIOError` if passed remote paths are
+empty.
 
 Documentation
 -------------
@@ -66,4 +71,4 @@ Evan Prodromou <evan@bad.dynu.ca> (lrucache module)
 Please provide feedback! It's certainly appreciated. :-)
 
 
-[1] https://ftputil.sschwarzer.net/trac/ticket/145
+[1] https://ftputil.sschwarzer.net/trac/ticket/148
