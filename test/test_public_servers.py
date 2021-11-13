@@ -114,7 +114,6 @@ class TestPublicServers:
         (
             ".",
             [
-                "",
                 ".",
                 "/",
                 "/.",
@@ -128,7 +127,7 @@ class TestPublicServers:
                 "/DIR/../..",
             ],
         ),
-        ("DIR", ["", ".", "/DIR", "/DIR/", "../DIR", "../../DIR"]),
+        ("DIR", [".", "/DIR", "/DIR/", "../DIR", "../../DIR"]),
     ]
 
     def inner_test_server(self, server, initial_directory, paths):

@@ -53,6 +53,8 @@ class _Path:
         """
         Return an absolute path.
         """
+        # Don't use `raise_for_empty_path` here since Python itself doesn't
+        # raise an exception and just returns the current directory.
         original_path = path
         path = ftputil.tool.as_str_path(path, encoding=self._encoding)
         if not self.isabs(path):
@@ -80,6 +82,7 @@ class _Path:
         This will raise `PermanentError` if the path doesn't exist, but maybe
         other exceptions depending on the state of the server (e. g. timeout).
         """
+        ftputil.tool.raise_for_empty_path(path)
         return self._host.stat(path).st_mtime
 
     def getsize(self, path):
@@ -90,6 +93,7 @@ class _Path:
         raise other exceptions depending on the state of the server (e. g.
         timeout).
         """
+        ftputil.tool.raise_for_empty_path(path)
         return self._host.stat(path).st_size
 
     # Check whether a path is a regular file/dir/link. For the first two cases
@@ -200,6 +204,7 @@ class _Path:
         e.g., to pass a filename pattern, or a mutable object designed
         to accumulate statistics.  Passing None for arg is common.
         """
+        ftputil.tool.raise_for_empty_path(top, path_argument_name="top")
         top = ftputil.tool.as_str_path(top, encoding=self._encoding)
         # This code (and the above documentation) is taken from `posixpath.py`,
         # with slight modifications.

@@ -519,6 +519,9 @@ class FTPHost:
         `file_transfer`. The callback will be called with a single argument,
         the data chunk that was transferred before the callback was called.
         """
+        if source in ["", b""]:
+            raise IOError("path argument `source` is empty")
+        ftputil.tool.raise_for_empty_path(target, path_argument_name="target")
         target = ftputil.tool.as_str_path(target, encoding=self._encoding)
         source_file, target_file = self._upload_files(source, target)
         ftputil.file_transfer.copy_file(
@@ -538,6 +541,9 @@ class FTPHost:
         `file_transfer`. The callback will be called with a single argument,
         the data chunk that was transferred before the callback was called.
         """
+        ftputil.tool.raise_for_empty_path(source, path_argument_name="source")
+        if target in ["", b""]:
+            raise IOError("path argument `target` is empty")
         target = ftputil.tool.as_str_path(target, encoding=self._encoding)
         source_file, target_file = self._upload_files(source, target)
         return ftputil.file_transfer.copy_file(
@@ -566,6 +572,9 @@ class FTPHost:
         `file_transfer`. The callback will be called with a single argument,
         the data chunk that was transferred before the callback was called.
         """
+        ftputil.tool.raise_for_empty_path(source, path_argument_name="source")
+        if target in ["", b""]:
+            raise IOError("path argument `target` is empty")
         source = ftputil.tool.as_str_path(source, encoding=self._encoding)
         source_file, target_file = self._download_files(source, target)
         ftputil.file_transfer.copy_file(
@@ -585,6 +594,9 @@ class FTPHost:
         `file_transfer`. The callback will be called with a single argument,
         the data chunk that was transferred before the callback was called.
         """
+        if source in ["", b""]:
+            raise IOError("path argument `source` is empty")
+        ftputil.tool.raise_for_empty_path(target, path_argument_name="target")
         source = ftputil.tool.as_str_path(source, encoding=self._encoding)
         source_file, target_file = self._download_files(source, target)
         return ftputil.file_transfer.copy_file(
@@ -675,6 +687,7 @@ class FTPHost:
         Make the directory path on the remote host. The argument `mode` is
         ignored and only "supported" for similarity with `os.mkdir`.
         """
+        ftputil.tool.raise_for_empty_path(path)
         path = ftputil.tool.as_str_path(path, encoding=self._encoding)
 
         def command(self, path):
@@ -702,6 +715,7 @@ class FTPHost:
         If `exist_ok` is `False` (the default) and the leaf directory exists,
         raise a `PermanentError` with `errno` 17.
         """
+        ftputil.tool.raise_for_empty_path(path)
         path = ftputil.tool.as_str_path(path, encoding=self._encoding)
         path = self.path.abspath(path)
         directories = path.split(self.sep)
@@ -754,6 +768,7 @@ class FTPHost:
         directories as well, - if the server allowed it. This is no longer
         supported.
         """
+        ftputil.tool.raise_for_empty_path(path)
         path = ftputil.tool.as_str_path(path, encoding=self._encoding)
         path = self.path.abspath(path)
         if self.listdir(path):
@@ -774,6 +789,7 @@ class FTPHost:
         Raise a `PermanentError` if the path doesn't exist, but maybe raise
         other exceptions depending on the state of the server (e. g. timeout).
         """
+        ftputil.tool.raise_for_empty_path(path)
         path = ftputil.tool.as_str_path(path, encoding=self._encoding)
         path = self.path.abspath(path)
         # Though `isfile` includes also links to files, `islink` is needed to
@@ -820,6 +836,7 @@ class FTPHost:
         Implementation note: The code is copied from `shutil.rmtree` in
         Python 2.4 and adapted to ftputil.
         """
+        ftputil.tool.raise_for_empty_path(path)
         path = ftputil.tool.as_str_path(path, encoding=self._encoding)
         # The following code is an adapted version of Python 2.4's
         # `shutil.rmtree` function.
@@ -866,6 +883,8 @@ class FTPHost:
         """
         Rename the source on the FTP host to target.
         """
+        ftputil.tool.raise_for_empty_path(source, path_argument_name="source")
+        ftputil.tool.raise_for_empty_path(target, path_argument_name="target")
         source = ftputil.tool.as_str_path(source, encoding=self._encoding)
         target = ftputil.tool.as_str_path(target, encoding=self._encoding)
         # The following code is in spirit similar to the code in the method
@@ -931,6 +950,7 @@ class FTPHost:
         If the directory listing from the server can't be parsed with any of
         the available parsers raise a `ParserError`.
         """
+        ftputil.tool.raise_for_empty_path(path)
         original_path = path
         path = ftputil.tool.as_str_path(path, encoding=self._encoding)
         items = self._stat._listdir(path)
@@ -950,6 +970,7 @@ class FTPHost:
         (`_exception_for_missing_path` is an implementation aid and _not_
         intended for use by ftputil clients.)
         """
+        ftputil.tool.raise_for_empty_path(path)
         path = ftputil.tool.as_str_path(path, encoding=self._encoding)
         return self._stat._lstat(path, _exception_for_missing_path)
 
@@ -966,6 +987,7 @@ class FTPHost:
         (`_exception_for_missing_path` is an implementation aid and _not_
         intended for use by ftputil clients.)
         """
+        ftputil.tool.raise_for_empty_path(path)
         path = ftputil.tool.as_str_path(path, encoding=self._encoding)
         return self._stat._stat(path, _exception_for_missing_path)
 
@@ -975,6 +997,7 @@ class FTPHost:
         filenames) on each iteration, like the `os.walk` function (see
         https://docs.python.org/library/os.html#os.walk ).
         """
+        ftputil.tool.raise_for_empty_path(top, path_argument_name="top")
         top = ftputil.tool.as_str_path(top, encoding=self._encoding)
         # The following code is copied from `os.walk` in Python 2.4 and adapted
         # to ftputil.
@@ -1009,6 +1032,7 @@ class FTPHost:
         `PermanentError`, according to the status code returned by the server.
         In particular, a non-existent path usually causes a `PermanentError`.
         """
+        ftputil.tool.raise_for_empty_path(path)
         path = ftputil.tool.as_str_path(path, encoding=self._encoding)
         path = self.path.abspath(path)
 

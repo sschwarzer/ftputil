@@ -9,7 +9,7 @@ tool.py - helper code
 import os
 
 
-__all__ = ["same_string_type_as", "as_str", "as_str_path"]
+__all__ = ["same_string_type_as", "as_str", "as_str_path", "raise_for_empty_path"]
 
 
 def same_string_type_as(type_source, string, encoding):
@@ -60,3 +60,22 @@ def as_str_path(path, encoding):
     """
     path = os.fspath(path)
     return as_str(path, encoding)
+
+
+def raise_for_empty_path(path, path_argument_name="path"):
+    """
+    Raise an exception of class `exception_class` if `path` is an empty string
+    (text or bytes).
+    """
+    # Avoid cyclic import.
+    import ftputil.error
+
+    # Don't handle `pathlib.Path("")`. This immediately results in `Path(".")`,
+    # so we can't detect it anyway. Regarding bytes, `Path(b"")` results in a
+    # `TypeError`.
+    if path in ["", b""]:
+        if path_argument_name is None:
+            message = "path argument is empty"
+        else:
+            message = f"path argument `{path_argument_name}` is empty"
+        raise ftputil.error.FTPIOError(message)
