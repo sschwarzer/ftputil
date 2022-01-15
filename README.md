@@ -12,9 +12,10 @@ in different timezones.
 
 ## Documentation
 
-The documentation for ftputil can be found in the file ftputil.txt
-(reStructuredText format) or ftputil.html (recommended, generated from
-ftputil.txt).
+The documentation for ftputil can be found in the file
+[doc/ftputil.txt](https://git.sr.ht/~sschwarzer/ftputil/tree/main/item/doc/ftputil.txt)
+(reStructuredText format). Here's a
+[rendered version](https://ftputil.sschwarzer.net/documentation).
 
 ## Prerequisites
 
@@ -40,8 +41,7 @@ the changes from 2.8 to 3.0 and from 3.4 to 4.0.0.
 ## License
 
 ftputil is open source software. It is distributed under the
-new/modified/revised BSD license (see
-http://opensource.org/licenses/BSD-3-Clause ).
+[new/modified/revised BSD license](https://opensource.org/licenses/BSD-3-Clause).
 
 ## Authors
 
