@@ -7,8 +7,3 @@ The library supports many functions similar to those in the os,
 os.path and shutil modules. ftputil has convenience functions for
 conditional uploads and downloads, and handles FTP clients and servers
 in different timezones.
-
------
-
-This Sourcehut repository is just a code mirror of the main website at
-https://ftputil.sschwarzer.net .
