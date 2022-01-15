@@ -10,15 +10,6 @@ os.path and shutil modules. ftputil has convenience functions for
 conditional uploads and downloads, and handles FTP clients and servers
 in different timezones.
 
-## What's new?
-
-Fixed handling of empty strings as paths [1].
-
-`FTPHost.path.isdir` (and `isfile` and `islink`) now return `False` for
-an empty path. Most public methods, with the exception of
-`FTPHost.chdir`, raise an `FTPIOError` if passed remote paths are
-empty.
-
 ## Documentation
 
 The documentation for ftputil can be found in the file ftputil.txt
@@ -61,6 +52,3 @@ Evan Prodromou <evan@bad.dynu.ca> (lrucache module)
 (See also the file `doc/contributors.txt`.)
 
 Please provide feedback! It's certainly appreciated. :-)
-
-
-[1] https://ftputil.sschwarzer.net/trac/ticket/148
