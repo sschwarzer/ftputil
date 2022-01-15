@@ -1,5 +1,5 @@
 # Build manifest for `builds.sr.ht`
-image: fedora/34
+image: fedora/35
 
 packages:
 - ftp
