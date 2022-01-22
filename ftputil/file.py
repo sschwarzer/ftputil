@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2020, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2022, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -11,6 +11,14 @@ import ftputil.error
 
 # This module shouldn't be used by clients of the ftputil library.
 __all__ = []
+
+
+try:
+    import ssl
+except ImportError:
+    SSLSocket = None
+else:
+    SSLSocket = ssl.SSLSocket
 
 
 class FTPFile:
@@ -155,6 +163,8 @@ class FTPFile:
             self._fobj.close()
             self._fobj = None
             with ftputil.error.ftplib_error_to_ftp_io_error:
+                if (SSLSocket is not None) and isinstance(self._conn, SSLSocket):
+                    self._conn.unwrap()
                 self._conn.close()
             # Set a timeout to prevent waiting until server timeout if we have
             # a server blocking here like in ticket #51.
