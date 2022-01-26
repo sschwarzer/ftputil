@@ -20,7 +20,7 @@ Things to do for a new release:
 
 - Tag release (tags are formed like "v5.0.3-alpha2")
 
-- Push to main and Sourcehut repositories
+- Push to repository
 
 - Add new version to Trac issue tracker
 
