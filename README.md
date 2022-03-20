@@ -29,7 +29,7 @@ version.*
 
 You can install ftputil with pip:
 
-  pip install ftputil
+    pip install ftputil
 
 Unless you're installing ftputil in a virtual environment, you'll
 probably need root/administrator privileges.
