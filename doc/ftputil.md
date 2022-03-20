@@ -1,23 +1,16 @@
 # `ftputil` -- a high-level FTP client library
 
-Version  
+Version \
 5.0.3
 
-Date  
+Date \
 2022-01-26
 
-Summary  
-high-level FTP client library for Python
-
-Keywords  
+Keywords \
 FTP, `ftplib` substitute, virtual filesystem, pure Python
 
-Author  
+Author \
 Stefan Schwarzer \<<sschwarzer@sschwarzer.net>\>
-
-<div class="contents">
-
-</div>
 
 ## Introduction
 
@@ -30,20 +23,21 @@ operations similar to those of
 [shutil](https://docs.python.org/library/shutil.html).
 
 Example:
+```python
+import ftputil
 
-    import ftputil
-
-    # Download some files from the login directory.
-    with ftputil.FTPHost("ftp.domain.com", "user", "password") as ftp_host:
-        names = ftp_host.listdir(ftp_host.curdir)
-        for name in names:
-            if ftp_host.path.isfile(name):
-                ftp_host.download(name, name)  # remote, local
-        # Make a new directory and copy a remote file into it.
-        ftp_host.mkdir("newdir")
-        with ftp_host.open("index.html", "rb") as source:
-            with ftp_host.open("newdir/index.html", "wb") as target:
-                ftp_host.copyfileobj(source, target)  # similar to shutil.copyfileobj
+# Download some files from the login directory.
+with ftputil.FTPHost("ftp.domain.com", "user", "password") as ftp_host:
+names = ftp_host.listdir(ftp_host.curdir)
+for name in names:
+    if ftp_host.path.isfile(name):
+        ftp_host.download(name, name)  # remote, local
+# Make a new directory and copy a remote file into it.
+ftp_host.mkdir("newdir")
+with ftp_host.open("index.html", "rb") as source:
+    with ftp_host.open("newdir/index.html", "wb") as target:
+        ftp_host.copyfileobj(source, target)  # similar to shutil.copyfileobj
+```
 
 Also, there are [FTPHost.lstat](#FTPHost.lstat) and
 [FTPHost.stat](#FTPHost.stat) to request size and modification time of a
@@ -84,60 +78,63 @@ The exceptions are in the namespace of the `ftputil.error` module, e. g.
 
 The exception classes are organized as follows:
 
-    FTPError
-        FTPOSError(FTPError, OSError)
-            PermanentError(FTPOSError)
-                CommandNotImplementedError(PermanentError)
-            TemporaryError(FTPOSError)
-        FTPIOError(FTPError)
-        InternalError(FTPError)
-            InaccessibleLoginDirError(InternalError)
-            NoEncodingError(InternalError)
-            ParserError(InternalError)
-            RootDirError(InternalError)
-            TimeShiftError(InternalError)
+```plaintext
+FTPError
+FTPOSError(FTPError, OSError)
+    PermanentError(FTPOSError)
+        CommandNotImplementedError(PermanentError)
+    TemporaryError(FTPOSError)
+FTPIOError(FTPError)
+InternalError(FTPError)
+    InaccessibleLoginDirError(InternalError)
+    NoEncodingError(InternalError)
+    ParserError(InternalError)
+    RootDirError(InternalError)
+    TimeShiftError(InternalError)
+```
 
 and are described here:
 
 -   `FTPError`
 
     is the root of the exception hierarchy of the module.
-
+jj
 -   `FTPOSError`
 
     is derived from `OSError`. This is for similarity between the os
     module and `FTPHost` objects. Compare
-
-        try:
-            os.chdir("nonexisting_directory")
-        except OSError:
-            ...
-
+    ```python
+    try:
+        os.chdir("nonexisting_directory")
+    except OSError:
+        ...
+    ```
     with
-
-        host = ftputil.FTPHost("host", "user", "password")
-        try:
-            host.chdir("nonexisting_directory")
-        except OSError:
-            ...
+    ```python
+    host = ftputil.FTPHost("host", "user", "password")
+    try:
+        host.chdir("nonexisting_directory")
+    except OSError:
+        ...
+    ```
 
     Imagine a function
-
-        def func(path, file):
-            ...
-
+    ```python
+    def func(path, file):
+        ...
+    ```
     which works on the local file system and catches `OSErrors`. If you
     change the parameter list to
-
-        def func(path, file, os=os):
-            ...
-
+    ```python
+    def func(path, file, os=os):
+        ...
+    ```
     where `os` denotes the `os` module, you can call the function also
     as
-
-        host = ftputil.FTPHost("host", "user", "password")
-        func(path, file, os=host)
-
+    ```python
+    host = ftputil.FTPHost("host", "user", "password")
+    func(path, file, os=host)
+    ```
     to use the same code for both a local and remote file system.
     Another similarity between `OSError` and `FTPOSError` is that the
     latter holds the FTP server return code in the `errno` attribute of
@@ -166,27 +163,28 @@ and are described here:
     denotes an I/O error on the remote host. This appears mainly with
     file-like objects that are retrieved by calling `FTPHost.open`.
     Compare
-
-        >>> try:
-        ...     f = open("not_there")
-        ... except IOError as obj:
-        ...     print(obj.errno)
-        ...     print(obj.strerror)
-        ...
-        2
-        No such file or directory
-
+    ```python
+    >>> try:
+    ...     f = open("not_there")
+    ... except IOError as obj:
+    ...     print(obj.errno)
+    ...     print(obj.strerror)
+    ...
+    2
+    No such file or directory
+    ```
     with
-
-        >>> ftp_host = ftputil.FTPHost("host", "user", "password")
-        >>> try:
-        ...     f = ftp_host.open("not_there")
-        ... except IOError as obj:
-        ...     print(obj.errno)
-        ...     print(obj.strerror)
-        ...
-        550
-        550 not_there: No such file or directory.
+    ```python
+    >>> ftp_host = ftputil.FTPHost("host", "user", "password")
+    >>> try:
+    ...     f = ftp_host.open("not_there")
+    ... except IOError as obj:
+    ...     print(obj.errno)
+    ...     print(obj.strerror)
+    ...
+    550
+    550 not_there: No such file or directory.
+    ```
 
     As you can see, both code snippets are similar. However, the error
     codes aren't the same.
@@ -234,20 +232,22 @@ and are described here:
 #### Introduction
 
 `FTPHost` instances can be created with the following call:
-
-    ftp_host = ftputil.FTPHost(server, user, password, account,
-                               session_factory=ftplib.FTP)
+```python
+ftp_host = ftputil.FTPHost(server, user, password, account,
+                           session_factory=ftplib.FTP)
+```
 
 The first four parameters are strings with the same meaning as for the
 FTP class in the `ftplib` module. Usually the `account` and
 `session_factory` arguments aren't needed though.
 
 `FTPHost` objects can also be used in a `with` statement:
+```python
+import ftputil
 
-    import ftputil
-
-    with ftputil.FTPHost(server, user, password) as ftp_host:
-        print(ftp_host.listdir(ftp_host.curdir))
+with ftputil.FTPHost(server, user, password) as ftp_host:
+    print(ftp_host.listdir(ftp_host.curdir))
+```
 
 After the `with` block, the `FTPHost` instance and the associated FTP
 sessions will be closed automatically.
@@ -277,26 +277,27 @@ As an example, assume you want to connect to another than the default
 port, but `ftplib.FTP` only offers this by means of its `connect`
 method, not via its constructor. One solution is to use a custom class
 as a session factory:
+```python
+import ftplib
+import ftputil
 
-    import ftplib
-    import ftputil
+EXAMPLE_PORT = 50001
 
-    EXAMPLE_PORT = 50001
+class MySession(ftplib.FTP):
 
-    class MySession(ftplib.FTP):
+    def __init__(self, host, userid, password, port):
+        """Act like ftplib.FTP's constructor but connect to another port."""
+        ftplib.FTP.__init__(self)
+        self.connect(host, port)
+        self.login(userid, password)
 
-        def __init__(self, host, userid, password, port):
-            """Act like ftplib.FTP's constructor but connect to another port."""
-            ftplib.FTP.__init__(self)
-            self.connect(host, port)
-            self.login(userid, password)
-
-    # Try _not_ to use an _instance_ `MySession()` as factory, -
-    # use the class itself.
-    with ftputil.FTPHost(host, userid, password, port=EXAMPLE_PORT,
-                         session_factory=MySession) as ftp_host:
-        # Use `ftp_host` as usual.
-        ...
+# Try _not_ to use an _instance_ `MySession()` as factory, -
+# use the class itself.
+with ftputil.FTPHost(host, userid, password, port=EXAMPLE_PORT,
+                     session_factory=MySession) as ftp_host:
+    # Use `ftp_host` as usual.
+    ...
+```
 
 On login, the format of the directory listings (needed for stat'ing
 files and directories) should be determined automatically. If not,
@@ -307,14 +308,14 @@ For the most common uses you don't need to create your own session
 factory class though. The `ftputil.session` module has a function
 `session_factory` that can create session factories for a variety of
 parameters:
-
-    session_factory(base_class=ftplib.FTP,
-                    port=21,
-                    use_passive_mode=None,
-                    encrypt_data_channel=True,
-                    encoding=None,
-                    debug_level=None)
-
+```python
+session_factory(base_class=ftplib.FTP,
+                port=21,
+                use_passive_mode=None,
+                encrypt_data_channel=True,
+                encoding=None,
+                debug_level=None)
+```
 with
 
 -   `base_class` is a base class to inherit a new session factory class
@@ -356,24 +357,24 @@ with
     of 2 causes the most verbose output for Python's `ftplib.FTP` class.
 
 All of these parameters can be combined. For example, you could use
+```python
+import ftplib
 
-    import ftplib
-
-    import ftputil
-    import ftputil.session
+import ftputil
+import ftputil.session
 
 
-    my_session_factory = ftputil.session.session_factory(
-                           base_class=ftpslib.FTP_TLS,
-                           port=31,
-                           encrypt_data_channel=True,
-                           encoding="UTF-8",
-                           debug_level=2)
+my_session_factory = ftputil.session.session_factory(
+                       base_class=ftpslib.FTP_TLS,
+                       port=31,
+                       encrypt_data_channel=True,
+                       encoding="UTF-8",
+                       debug_level=2)
 
-    with ftputil.FTPHost(server, user, password,
-                         session_factory=my_session_factory) as ftp_host:
-        ...
-
+with ftputil.FTPHost(server, user, password,
+                     session_factory=my_session_factory) as ftp_host:
+    ...
+```
 to create and use a session factory derived from `ftplib.FTP_TLS` that
 connects on command channel 31, will encrypt the data channel, use the
 UTF-8 encoding for remote paths and print output for debug level 2.
@@ -384,19 +385,11 @@ described at the start of this section.
 
 ### Directory and file names
 
-<div class="note">
-
-<div class="title">
-
-Note
-
-</div>
-
-Keep in mind that this section only applies to directory and file
+> **Note**
+>
+> Keep in mind that this section only applies to directory and file
 *names*, not file *contents*. Encoding and decoding for file contents is
 handled by the `encoding` argument for [FTPHost.open](#FTPHost.open).
-
-</div>
 
 Generally, paths can be `str` or `bytes` objects (or
 [PathLike](https://docs.python.org/3/library/os.html#os.PathLike)
@@ -429,6 +422,7 @@ independent, so depending on how you pass paths to ftputil and which
 file system API the FTP server uses, there are four possible
 combinations.
 
+```plaintext
     +-----------+       +-----------+
     | Your code |       | Your code |
     +-----------+       +-----------+
@@ -472,6 +466,7 @@ combinations.
          +-------------------+
          |    file system    |
          +-------------------+
+```
 
 As you can see at the top of the diagram, if you use `str` objects
 (regular unicode strings), there's one fewer decoding step, and so one
@@ -514,10 +509,11 @@ FTP `LIST` command to find hidden files.
 
 To tell the server to list hidden directories and files, set
 `FTPHost.use_list_a_option` to `True`:
-
-    ftp_host = ftputil.FTPHost(server, user, password, account,
-                               session_factory=ftplib.FTP)
-    ftp_host.use_list_a_option = True
+```python
+ftp_host = ftputil.FTPHost(server, user, password, account,
+                           session_factory=ftplib.FTP)
+ftp_host.use_list_a_option = True
+```
 
 Caveats:
 
@@ -576,9 +572,9 @@ Caveats:
 
     The callback, if given, will be invoked for each transferred chunk
     of data:
-
-        callback(chunk)
-
+    ```python
+    callback(chunk)
+    ```
     where `chunk` is a bytestring. An example usage of a callback method
     is to display a progress indicator.
 
@@ -588,7 +584,7 @@ Caveats:
     file. Both `source` and `target` are strings. See the description of
     `upload` for more details.
 
-<div id="upload_if_newer">
+<a id="upload_if_newer"></a>
 
 -   `upload_if_newer(source, target, callback=None)`
 
@@ -598,11 +594,11 @@ Caveats:
     target doesn't exist at all. The check for the last modification
     time considers the precision of the timestamps and transfers a file
     "if in doubt". Consequently the code
-
-        ftp_host.upload_if_newer("source_file", "target_file")
-        time.sleep(10)
-        ftp_host.upload_if_newer("source_file", "target_file")
-
+    ```python
+    ftp_host.upload_if_newer("source_file", "target_file")
+    time.sleep(10)
+    ftp_host.upload_if_newer("source_file", "target_file")
+    ```
     might upload the file again if the timestamp of the target file is
     precise up to a minute, which is typically the case because the
     remote datetime is determined by parsing a directory listing from
@@ -627,9 +623,7 @@ Caveats:
     -   remove the incomplete target file with `FTPHost.remove`, then
         use `upload` or `upload_if_newer` to transfer it again.
 
-</div>
-
-<div id="download_if_newer">
+<a id="download_if_newer"></a>
 
 -   `download_if_newer(source, target, callback=None)`
 
@@ -638,8 +632,6 @@ Caveats:
     `upload_if_newer` for more information. If a download actually
     happened, the return value is `True`, else `False`.
 
-</div>
-
 #### Time zone correction<span id="time shift"></span>
 
 For `upload_if_newer` and `download_if_newer` to work correctly, the
@@ -647,15 +639,16 @@ time zone of the server must be taken into account. By default, ftputil
 assumes that the timestamps in server listings are in
 [UTC](https://en.wikipedia.org/wiki/Utc).
 
-<div id="set_time_shift">
+<a id="set_time_shift"></a>
 
 -   `set_time_shift(time_shift)`
 
     sets the so-called time shift value, measured in seconds. The time
     shift here is defined as the difference between the time used in
     server listings and UTC.
-
-        time_shift = server_time - utc_time
+    ```python
+    time_shift = server_time - utc_time
+    ```
 
     For example, a server in Berlin/Germany set to the local time
     (currently UTC+03:00), would require a time shift value of 3 \*
@@ -672,43 +665,34 @@ assumes that the timestamps in server listings are in
     If the time shift value is invalid, for example its absolute value
     is larger than 24 hours, a `TimeShiftError` is raised.
 
-    <div class="note">
-
-    <div class="title">
-
-    Note
-
-    </div>
-
-    Versions of ftputil before 4.0.0 used a different definition of
+    > **Note**
+    >
+    > Versions of ftputil before 4.0.0 used a different definition of
     "time shift", server_time - local_client_time.
-
-    This had the advantage that the default of 0.0 would be correct *if*
+    >
+    > This had the advantage that the default of 0.0 would be correct *if*
     the server was set to the same time zone as the client where ftputil
     runs. On the other hand, this approach meant that the time shift
     depended on *two* time zones, not only the one used on the server
     side. This could be confusing if server and client *didn't* use the
     same time zone.
 
-    </div>
-
     See also [synchronize_times](#synchronize_times) for a way to set
     the time shift with a simple method call. If you can't use
     `synchronize_times` *and* the server uses the same time zone as the
     client, you can set the time shift value with
-
-        set_time_shift(
-          round( (datetime.datetime.now() - datetime.datetime.utcnow()).seconds, -2 )
-        )
+    ```python
+    set_time_shift(
+      round( (datetime.datetime.now() - datetime.datetime.utcnow()).seconds, -2 )
+    )
+    ```
 
 -   `time_shift()`
 
     returns the currently-set time shift value. See `set_time_shift`
     above for its definition.
 
-</div>
-
-<div id="synchronize_times">
+<a id="synchronize_times"></a>
 
 -   `synchronize_times()`
 
@@ -726,8 +710,6 @@ assumes that the timestamps in server listings are in
     time shift value explicitly with [set_time_shift](#set_time_shift).
     Trying to call `synchronize_times` if the above conditions aren't
     met results in a `TimeShiftError` exception.
-
-</div>
 
 #### Creating and removing directories
 
@@ -808,7 +790,7 @@ If `lstat` or `stat` give wrong modification dates or times, look at the
 methods that deal with time zone differences ([time zone
 correction](#time-zone-correction)).
 
-<div id="FTPHost.lstat">
+<a id="FTPHost.lstat"></a>
 
 -   `lstat(path)`
 
@@ -855,9 +837,7 @@ correction](#time-zone-correction)).
     list](https://ftputil.sschwarzer.net/mailinglist). You may consider
     [writing your own parser](#writing-directory-parsers).
 
-</div>
-
-<div id="FTPHost.stat">
+<a id="FTPHost.stat"></a>
 
 -   `stat(path)`
 
@@ -869,35 +849,32 @@ correction](#time-zone-correction)).
 
     The limitations of the `lstat` method also apply to `stat`.
 
-</div>
-
-<div id="FTPHost.path">
+<a id="FTPHost.path"></a>
 
 `FTPHost` objects contain an attribute named `path`, similar to
 [os.path](https://docs.python.org/library/os.path.html). The following
 methods can be applied to the remote host with the same semantics as for
 `os.path`:
-
-</div>
-
-    abspath(path)
-    basename(path)
-    commonprefix(path_list)
-    dirname(path)
-    exists(path)
-    getmtime(path)
-    getsize(path)
-    isabs(path)
-    isdir(path)
-    isfile(path)
-    islink(path)
-    join(path1, path2, ...)
-    normcase(path)
-    normpath(path)
-    split(path)
-    splitdrive(path)
-    splitext(path)
-    walk(path, func, arg)
+```python
+abspath(path)
+basename(path)
+commonprefix(path_list)
+dirname(path)
+exists(path)
+getmtime(path)
+getsize(path)
+isabs(path)
+isdir(path)
+isfile(path)
+islink(path)
+join(path1, path2, ...)
+normcase(path)
+normpath(path)
+split(path)
+splitdrive(path)
+splitext(path)
+walk(path, func, arg)
+```
 
 Like Python's counterparts under
 [os.path](https://docs.python.org/library/os.path.html), `ftputil`'s
@@ -921,9 +898,9 @@ will be discussed below.
 
 Caching can be controlled -- if necessary at all -- via the `stat_cache`
 object in an `FTPHost`'s namespace. For example, after calling
-
-    ftp_host = ftputil.FTPHost(host, user, password)
-
+```python
+ftp_host = ftputil.FTPHost(host, user, password)
+```
 the cache can be accessed as `ftp_host.stat_cache`.
 
 While `ftputil` usually manages the cache quite well, there are two
@@ -941,9 +918,9 @@ be scanned. Most of the time, this works fine.
 However, if you need access to stat data for several directories at the
 same time, you may need to increase the cache explicitly. This is done
 by the `resize` method:
-
-    ftp_host.stat_cache.resize(20000)
-
+```python
+ftp_host.stat_cache.resize(20000)
+```
 where the argument is the maximum number of `lstat` results to store
 (the default is 5000, in versions before 2.6 it was 1000). Note that
 each path on the server, e. g. "/home/schwa/some_dir", corresponds to a
@@ -972,19 +949,20 @@ inspects its cache. Obviously, for example, these are changes by
 programs running on the remote host. On the other hand, cache
 inconsistencies can also occur if two `FTPHost` objects change a file
 system simultaneously:
-
-    with (
-      ftputil.FTPHost(server, user1, password1) as ftp_host1,
-      ftputil.FTPHost(server, user1, password1) as ftp_host2
-    ):
-        stat_result1 = ftp_host1.stat("some_file")
-        stat_result2 = ftp_host2.stat("some_file")
-        ftp_host2.remove("some_file")
-        # `ftp_host1` will still see the obsolete cache entry!
-        print(ftp_host1.stat("some_file"))
-        # Will raise an exception since an `FTPHost` object
-        # knows of its own changes.
-        print(ftp_host2.stat("some_file"))
+```python
+with (
+  ftputil.FTPHost(server, user1, password1) as ftp_host1,
+  ftputil.FTPHost(server, user1, password1) as ftp_host2
+):
+    stat_result1 = ftp_host1.stat("some_file")
+    stat_result2 = ftp_host2.stat("some_file")
+    ftp_host2.remove("some_file")
+    # `ftp_host1` will still see the obsolete cache entry!
+    print(ftp_host1.stat("some_file"))
+    # Will raise an exception since an `FTPHost` object
+    # knows of its own changes.
+    print(ftp_host2.stat("some_file"))
+```
 
 At first sight, it may appear to be a good idea to have a shared cache
 among several `FTPHost` objects. After some thinking, this turns out to
@@ -994,23 +972,24 @@ accesses to a server, you have to handle them explicitly.
 
 The most useful tool for this is the `invalidate` method. In the example
 above, it could be used like this:
-
-    with (
-      ftputil.FTPHost(server, user1, password1) as ftp_host1,
-      ftputil.FTPHost(server, user1, password1) as ftp_host2
-    ):
-        stat_result1 = ftp_host1.stat("some_file")
-        stat_result2 = ftp_host2.stat("some_file")
-        ftp_host2.remove("some_file")
-        # Invalidate using an absolute path.
-        absolute_path = ftp_host1.path.abspath(
-                          ftp_host1.path.join(ftp_host1.getcwd(), "some_file"))
-        ftp_host1.stat_cache.invalidate(absolute_path)
-        # Will now raise an exception as it should.
-        print(ftp_host1.stat("some_file"))
-        # Would raise an exception since an `FTPHost` object
-        # knows of its own changes, even without `invalidate`.
-        print(ftp_host2.stat("some_file"))
+```python
+with (
+  ftputil.FTPHost(server, user1, password1) as ftp_host1,
+  ftputil.FTPHost(server, user1, password1) as ftp_host2
+):
+    stat_result1 = ftp_host1.stat("some_file")
+    stat_result2 = ftp_host2.stat("some_file")
+    ftp_host2.remove("some_file")
+    # Invalidate using an absolute path.
+    absolute_path = ftp_host1.path.abspath(
+                      ftp_host1.path.join(ftp_host1.getcwd(), "some_file"))
+    ftp_host1.stat_cache.invalidate(absolute_path)
+    # Will now raise an exception as it should.
+    print(ftp_host1.stat("some_file"))
+    # Would raise an exception since an `FTPHost` object
+    # knows of its own changes, even without `invalidate`.
+    print(ftp_host2.stat("some_file"))
+```
 
 The method `invalidate` can be used on any *absolute* path, be it a
 directory, a file or a link.
@@ -1019,9 +998,10 @@ By default, the cache entries (if not replaced by newer ones) are stored
 for an infinite time. That is, if you start your Python process using
 `ftputil` and let it run for three days a stat call may still access
 cache data that old. To avoid this, you can set the `max_age` attribute:
-
+```python
     with ftputil.FTPHost(server, user, password) as ftp_host:
         ftp_host.stat_cache.max_age = 60 * 60  # = 3600 seconds
+```
 
 This sets the maximum age of entries in the cache to an hour. This means
 any entry older won't be retrieved from the cache but its data instead
@@ -1031,29 +1011,30 @@ unlimited age, i. e. cache entries never expire, use `None` as value.
 
 If you are certain that the cache will be in the way, you can disable
 and later re-enable it completely with `disable` and `enable`:
-
-    with ftputil.FTPHost(server, user, password) as ftp_host:
-        ftp_host.stat_cache.disable()
-        ...
-        ftp_host.stat_cache.enable()
+```python
+with ftputil.FTPHost(server, user, password) as ftp_host:
+    ftp_host.stat_cache.disable()
+    ...
+    ftp_host.stat_cache.enable()
+```
 
 During that time, the cache won't be used; all data will be fetched from
 the network. After enabling the cache again, its entries will be the
 same as when the cache was disabled, that is, entries won't get updated
 with newer data during this period. Note that even when the cache is
 disabled, the file system data in the code can become inconsistent:
-
-    with ftputil.FTPHost(server, user, password) as ftp_host:
-        ftp_host.stat_cache.disable()
-        if ftp_host.path.exists("some_file"):
-            mtime = ftp_host.path.getmtime("some_file")
-
+```python
+with ftputil.FTPHost(server, user, password) as ftp_host:
+    ftp_host.stat_cache.disable()
+    if ftp_host.path.exists("some_file"):
+        mtime = ftp_host.path.getmtime("some_file")
+```
 In that case, the file `some_file` may have been removed by another
 process between the calls to `exists` and `getmtime`!
 
 #### Iteration over directories
 
-<div id="FTPHost.walk">
+<a id="FTPHost.walk"></a>
 
 -   `walk(top, topdown=True, onerror=None, followlinks=False)`
 
@@ -1062,17 +1043,13 @@ process between the calls to `exists` and `getmtime`!
     Actually, `FTPHost.walk` uses the code from Python with just the
     necessary modifications, so see the linked documentation.
 
-</div>
-
-<div id="FTPHost.path.walk">
+<a id="FTPHost.path.walk"></a>
 
 -   `path.walk(path, func, arg)`
 
     Similar to `os.path.walk`, the `walk` method in
     [FTPHost.path](#FTPHost.path) can be used, though `FTPHost.walk` is
     probably easier to use.
-
-</div>
 
 #### Other methods
 
@@ -1087,7 +1064,7 @@ process between the calls to `exists` and `getmtime`!
 
     renames the source file (or directory) on the FTP server.
 
-<div id="FTPHost.chmod">
+<a id="FTPHost.chmod"></a>
 
 -   `chmod(path, mode)`
 
@@ -1097,8 +1074,9 @@ process between the calls to `exists` and `getmtime`!
     numbers, for example 0755 to make a directory readable and writable
     for the owner, but not writable for the group and others. If you
     want to use such octal values, rely on Python's support for them:
-
-        ftp_host.chmod("some_directory", 0o755)
+    ```python
+    ftp_host.chmod("some_directory", 0o755)
+    ```
 
     Not all FTP servers support the `chmod` command. In case of an
     exception, how do you know if the path doesn't exist or if the
@@ -1109,16 +1087,17 @@ process between the calls to `exists` and `getmtime`!
     is derived from `PermanentError`.
 
     So you need to code like this:
-
-        with ftputil.FTPHost(server, user, password) as ftp_host:
-            try:
-                ftp_host.chmod("some_file", 0o644)
-            except ftputil.error.CommandNotImplementedError:
-                # `chmod` not supported
-                ...
-            except ftputil.error.PermanentError:
-                # Possibly a non-existent file
-                ...
+    ```python
+    with ftputil.FTPHost(server, user, password) as ftp_host:
+        try:
+            ftp_host.chmod("some_file", 0o644)
+        except ftputil.error.CommandNotImplementedError:
+            # `chmod` not supported
+            ...
+        except ftputil.error.PermanentError:
+            # Possibly a non-existent file
+            ...
+    ```
 
     Because the `CommandNotImplementedError` is more specific, you have
     to test for it first.
@@ -1142,9 +1121,7 @@ process between the calls to `exists` and `getmtime`!
     See [File-like objects](#file-like-objects) for the construction and
     use of remote file-like objects.
 
-</div>
-
-<div id="set_parser">
+<a id="set_parser"></a>
 
 -   `set_parser(parser)`
 
@@ -1154,9 +1131,7 @@ process between the calls to `exists` and `getmtime`!
     An [extra section](#writing-directory-parsers) shows how to write
     own parsers if the default parsers in `ftputil` don't work for you.
 
-</div>
-
-<div id="keep_alive">
+<a id="keep_alive"></a>
 
 -   `keep_alive()`
 
@@ -1181,18 +1156,17 @@ process between the calls to `exists` and `getmtime`!
     connections](#ftphost-instances-vs.-ftp-connections) for details).
     You *can't* use `keep_alive` to avoid a timeout in a stalling
     transfer like this:
-
-        with ftputil.FTPHost(server, userid, password) as ftp_host:
-            with ftp_host.open("some_remote_file", "rb") as fobj:
-                data = fobj.read(100)
-                # _Futile_ attempt to avoid file connection timeout.
-                for i in range(15):
-                    time.sleep(60)
-                    ftp_host.keep_alive()
-                # Will raise an `ftputil.error.TemporaryError`.
-                data += fobj.read()
-
-</div>
+    ```python
+    with ftputil.FTPHost(server, userid, password) as ftp_host:
+        with ftp_host.open("some_remote_file", "rb") as fobj:
+            data = fobj.read(100)
+            # _Futile_ attempt to avoid file connection timeout.
+            for i in range(15):
+                time.sleep(60)
+                ftp_host.keep_alive()
+            # Will raise an `ftputil.error.TemporaryError`.
+            data += fobj.read()
+    ```
 
 ## File-like objects
 
@@ -1239,31 +1213,25 @@ built-in `open` function and its return value.
     For example, if a remote file contains the letters "abcdef" in ASCII
     encoding, `rest=3` will start reading at "d".
 
-    <div class="warning">
 
-    <div class="title">
-
-    Warning
-
-    </div>
-
-    If you pass `rest` values which point *after* the file, the behavior
+    > **Warning**
+    >
+    > If you pass `rest` values which point *after* the file, the behavior
     is undefined and may even differ from one FTP server to another.
     Therefore, use the `rest` argument only for error recovery in case
     of interrupted transfers. You need to keep track of the transferred
     data so that you can provide a valid `rest` argument for a resumed
     transfer.
 
-    </div>
-
 `FTPHost.open` can also be used in a `with` statement:
+```python
+import ftputil
 
-    import ftputil
-
-    with ftputil.FTPHost(...) as ftp_host:
-        ...
-        with ftp_host.open("new_file", "w", encoding="utf8") as fobj:
-            fobj.write("This is some text.")
+with ftputil.FTPHost(...) as ftp_host:
+    ...
+    with ftp_host.open("new_file", "w", encoding="utf8") as fobj:
+        fobj.write("This is some text.")
+```
 
 At the end of the `with` block, the remote file will be closed
 automatically.
@@ -1275,23 +1243,24 @@ Exceptions will be propagated as with `try ... finally`.
 ### Attributes and methods
 
 The methods
-
-    close()
-    read([count])
-    readline([count])
-    readlines()
-    write(data)
-    writelines(string_sequence)
-
+```python
+close()
+read([count])
+readline([count])
+readlines()
+write(data)
+writelines(string_sequence)
+```
 and the attribute `closed` have the same semantics as for file objects
 of a local disk file system. The iterator protocol is supported as well,
 i. e. you can use a loop to read a file line by line:
-
-    with ftputil.FTPHost(server, user, password) as ftp_host:
-        with ftp_host.open("some_file") as input_file:
-            for line in input_file:
-                # Do something with the line, e. g.
-                print(line.strip().replace("ftplib", "ftputil"))
+```python
+with ftputil.FTPHost(server, user, password) as ftp_host:
+    with ftp_host.open("some_file") as input_file:
+        for line in input_file:
+            # Do something with the line, e. g.
+            print(line.strip().replace("ftplib", "ftputil"))
+```
 
 For more on file objects, see the section [File
 objects](https://docs.python.org/3/glossary.html#term-file-object) in
@@ -1313,43 +1282,45 @@ the same time, say, to transfer data on the FTP data channel and to
 create a directory on the remote host.
 
 For example, consider this:
-
-    >>> import ftplib
-    >>> ftp = ftplib.FTP(server, user, password)
-    >>> ftp.pwd()
-    '/'
-    >>> # Start transfer. `CONTENTS` is a text file on the server.
-    >>> socket = ftp.transfercmd("RETR CONTENTS")
-    >>> socket
-    <socket._socketobject object at 0x7f801a6386e0>
-    >>> ftp.pwd()
-    Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-      File "/usr/lib64/python2.7/ftplib.py", line 578, in pwd
-        return parse257(resp)
-      File "/usr/lib64/python2.7/ftplib.py", line 842, in parse257
-        raise error_reply, resp
-    ftplib.error_reply: 226-File successfully transferred
-    226 0.000 seconds (measured here), 5.60 Mbytes per second
-    >>>
+```python
+>>> import ftplib
+>>> ftp = ftplib.FTP(server, user, password)
+>>> ftp.pwd()
+'/'
+>>> # Start transfer. `CONTENTS` is a text file on the server.
+>>> socket = ftp.transfercmd("RETR CONTENTS")
+>>> socket
+<socket._socketobject object at 0x7f801a6386e0>
+>>> ftp.pwd()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/usr/lib64/python2.7/ftplib.py", line 578, in pwd
+    return parse257(resp)
+  File "/usr/lib64/python2.7/ftplib.py", line 842, in parse257
+    raise error_reply, resp
+ftplib.error_reply: 226-File successfully transferred
+226 0.000 seconds (measured here), 5.60 Mbytes per second
+>>>
+```
 
 Note that `ftp` is a single FTP connection, represented by an
 `ftplib.FTP` instance, not an `ftputil.FTPHost` instance.
 
 On the other hand, consider this:
-
-    >>> import ftputil
-    >>> ftp_host = ftputil.FTPHost(server, user, password)
-    >>> ftp_host.getcwd()
-    >>> fobj = ftp_host.open("CONTENTS")
-    >>> fobj
-    <ftputil.file.FTPFile object at 0x7f8019d3aa50>
-    >>> ftp_host.getcwd()
-    u'/'
-    >>> fobj.readline()
-    u'Contents of FTP test directory\n'
-    >>> fobj.close()
-    >>>
+```python
+>>> import ftputil
+>>> ftp_host = ftputil.FTPHost(server, user, password)
+>>> ftp_host.getcwd()
+>>> fobj = ftp_host.open("CONTENTS")
+>>> fobj
+<ftputil.file.FTPFile object at 0x7f8019d3aa50>
+>>> ftp_host.getcwd()
+u'/'
+>>> fobj.readline()
+u'Contents of FTP test directory\n'
+>>> fobj.close()
+>>>
+```
 
 To be able to start a file transfer (i. e. open a remote file for
 reading or writing) and still be able to use other FTP commands, ftputil
@@ -1403,119 +1374,80 @@ method call and have `ftputil` use this parser.
 
 For this, you need to write a parser class by inheriting from the class
 `Parser` in the `ftputil.stat` module. Here's an example:
+```python
+import ftputil.error
+import ftputil.stat
 
-    import ftputil.error
-    import ftputil.stat
+class XyzParser(ftputil.stat.Parser):
+    """
+    Parse the default format of the FTP server of the XYZ
+    corporation.
+    """
 
-    class XyzParser(ftputil.stat.Parser):
+    def parse_line(self, line, time_shift=0.0):
         """
-        Parse the default format of the FTP server of the XYZ
-        corporation.
+        Parse a `line` from the directory listing and return a
+        corresponding `StatResult` object. If the line can't
+        be parsed, raise `ftputil.error.ParserError`.
+
+        The `time_shift` argument can be used to fine-tune the
+        parsing of dates and times. See the class
+        `ftputil.stat.UnixParser` for an example.
         """
+        # Split the `line` argument and examine it further; if
+        # something goes wrong, raise an `ftputil.error.ParserError`.
+        ...
+        # Make a `StatResult` object from the parts above.
+        stat_result = ftputil.stat.StatResult(...)
+        # `_st_name`, `_st_target` and `_st_mtime_precision` are optional.
+        stat_result._st_name = ...
+        stat_result._st_target = ...
+        stat_result._st_mtime_precision = ...
+        return stat_result
 
-        def parse_line(self, line, time_shift=0.0):
-            """
-            Parse a `line` from the directory listing and return a
-            corresponding `StatResult` object. If the line can't
-            be parsed, raise `ftputil.error.ParserError`.
-
-            The `time_shift` argument can be used to fine-tune the
-            parsing of dates and times. See the class
-            `ftputil.stat.UnixParser` for an example.
-            """
-            # Split the `line` argument and examine it further; if
-            # something goes wrong, raise an `ftputil.error.ParserError`.
-            ...
-            # Make a `StatResult` object from the parts above.
-            stat_result = ftputil.stat.StatResult(...)
-            # `_st_name`, `_st_target` and `_st_mtime_precision` are optional.
-            stat_result._st_name = ...
-            stat_result._st_target = ...
-            stat_result._st_mtime_precision = ...
-            return stat_result
-
-        # Define `ignores_line` only if the default in the base class
-        # doesn't do enough!
-        def ignores_line(self, line):
-            """
-            Return a true value if the line should be ignored. For
-            example, the implementation in the base class handles
-            lines like "total 17". On the other hand, if the line
-            should be used for stat'ing, return a false value.
-            """
-            is_total_line = super().ignores_line(line)
-            my_test = ...
-            return is_total_line or my_test
+    # Define `ignores_line` only if the default in the base class
+    # doesn't do enough!
+    def ignores_line(self, line):
+        """
+        Return a true value if the line should be ignored. For
+        example, the implementation in the base class handles
+        lines like "total 17". On the other hand, if the line
+        should be used for stat'ing, return a false value.
+        """
+        is_total_line = super().ignores_line(line)
+        my_test = ...
+        return is_total_line or my_test
+```
 
 A `StatResult` object is similar to the value returned by
 [os.stat](https://docs.python.org/library/os.html#os.stat) and is
 usually built with statements like
-
-    stat_result = StatResult(
-                    (st_mode, st_ino, st_dev, st_nlink, st_uid,
-                     st_gid, st_size, st_atime, st_mtime, st_ctime))
-    stat_result._st_name = ...
-    stat_result._st_target = ...
-    stat_result._st_mtime_precision = ...
-
+```python
+stat_result = StatResult(
+                (st_mode, st_ino, st_dev, st_nlink, st_uid,
+                 st_gid, st_size, st_atime, st_mtime, st_ctime))
+stat_result._st_name = ...
+stat_result._st_target = ...
+stat_result._st_mtime_precision = ...
+```
 with the arguments of the `StatResult` constructor described in the
 following table.
 
-<table>
-<thead>
-<tr class="header">
-<th>Index</th>
-<th>Attribute</th>
-<th>os.stat type</th>
-<th><code>StatResult</code> type</th>
-<th>Notes</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><p>0 1 2 3</p></td>
-<td><p>st_mode st_ino st_dev st_nlink</p></td>
-<td><p>int long long int</p></td>
-<td><p>int long long int</p></td>
-<td></td>
-</tr>
-<tr class="even">
-<td>4</td>
-<td>st_uid</td>
-<td>int</td>
-<td>str</td>
-<td>usually only available as string</td>
-</tr>
-<tr class="odd">
-<td><p>5 6 7 8 9</p></td>
-<td><p>st_gid st_size st_atime st_mtime st_ctime</p></td>
-<td><p>int long int/float int/float int/float</p></td>
-<td><p>str long float float float</p></td>
-<td><p>usually only available as string</p></td>
-</tr>
-<tr class="even">
-<td>-</td>
-<td>_st_name</td>
-<td>-</td>
-<td>str</td>
-<td>file name without directory part</td>
-</tr>
-<tr class="odd">
-<td>-</td>
-<td>_st_target</td>
-<td>-</td>
-<td>str</td>
-<td>link target (may be absolute or relative)</td>
-</tr>
-<tr class="even">
-<td>-</td>
-<td>_st_mtime_precision</td>
-<td>-</td>
-<td>int</td>
-<td><code>st_mtime</code> precision in seconds</td>
-</tr>
-</tbody>
-</table>
+| Index | Attribute | `os.stat` type | `StatResult` type | Notes |
+|-------|-----------|----------------|-------------------|-------|
+| 0     | st\_mode  | int            | int               |       |
+| 1     | st\_ino   | int            | int               |       |
+| 2     | st\_dev   | int            | int               |       |
+| 3     | st\_nlink | int            | int               |       |
+| 4     | st\_uid   | int            | str               | usually only available as string |
+| 5     | st\_gid   | int            | str               | usually only available as string |
+| 6     | st\_size  | int            | int               |       |
+| 7     | st\_atime | int/float      | float             |       |
+| 8     | st\_mtime | int/float      | float             |       |
+| 9     | st\_ctime | int/float      | float             |       |
+| -     | \_st\_name | -             | str               | file name without directory part |
+| -     | \_st\_target | -           | str               | link target (may be absolute or relative) |
+| -     | \_st\_mtime_precision | -  | int               | st_mtime precision in seconds |
 
 If you can't extract all the desirable data from a line (for example,
 the MS format doesn't contain any information about the owner of a
@@ -1599,28 +1531,29 @@ On the other hand, there are two ways to get TLS support with ftputil:
 -   If you have other requirements that `session_factory` can't fulfill,
     you may create your own session factory by inheriting from
     `ftplib.FTP_TLS`:
+    ```python
+    import ftplib
 
-        import ftplib
-
-        import ftputil
+    import ftputil
 
 
-        class FTPTLSSession(ftplib.FTP_TLS):
+    class FTPTLSSession(ftplib.FTP_TLS):
 
-            def __init__(self, host, user, password):
-                ftplib.FTP_TLS.__init__(self)
-                self.connect(host, port)
-                self.login(user, password)
-                # Set up encrypted data connection.
-                self.prot_p()
-                ...
-
-        # Note the `session_factory` parameter. Pass the class, not
-        # an instance.
-        with ftputil.FTPHost(server, user, password,
-                             session_factory=FTPTLSSession) as ftp_host:
-            # Use `ftp_host` as usual.
+        def __init__(self, host, user, password):
+            ftplib.FTP_TLS.__init__(self)
+            self.connect(host, port)
+            self.login(user, password)
+            # Set up encrypted data connection.
+            self.prot_p()
             ...
+
+    # Note the `session_factory` parameter. Pass the class, not
+    # an instance.
+    with ftputil.FTPHost(server, user, password,
+                         session_factory=FTPTLSSession) as ftp_host:
+        # Use `ftp_host` as usual.
+        ...
+    ```
 
 ### How do I connect to a non-default port?
 
