@@ -73,7 +73,7 @@ file. The latter can also follow links, similar to
 
 ## Exception hierarchy
 
-The exceptions are in the namespace of the `ftputil.error` module, e. g.
+The exceptions are in the namespace of the `ftputil.error` module, e.g.
 `ftputil.error.TemporaryError`.
 
 The exception classes are organized as follows:
@@ -197,7 +197,7 @@ jj
 -   `InaccessibleLoginDirError`
 
     This exception is raised if the directory in which "you" are placed
-    upon login is not accessible, i. e. a `chdir` call with the
+    upon login is not accessible, i.e. a `chdir` call with the
     directory as argument would fail.
 
 -   `NoEncodingError`
@@ -409,7 +409,7 @@ recommended. See below for the reason.
 
 *If* you have directory or file names with non-ASCII characters, you
 need to be aware of the encoding the [session factory](#session factory)
-(e. g. `ftplib.FTP`) uses. This needs to be the same encoding that the
+(e.g. `ftplib.FTP`) uses. This needs to be the same encoding that the
 FTP server uses for the paths.
 
 The following diagram shows string conversions on the way from your code
@@ -430,7 +430,7 @@ combinations.
          |  str               |  bytes
          v                    v
     +-------------+     +-------------+  decode with encoding of session,
-    | ftputil API |     | ftputil API |  e. g. `ftplib.FTP` instance
+    | ftputil API |     | ftputil API |  e.g. `ftplib.FTP` instance
     +-------------+     +-------------+
            \               /
             \     str     /
@@ -477,7 +477,7 @@ no `encoding` attribute is present, a `NoEncodingError` is raised.
 
 All encoding/decoding steps must use the same encoding, the encoding the
 server uses (at the bottom of the diagram). If the server uses the bytes
-from the socket directly, i. e. without an encoding step, you have to
+from the socket directly, i.e. without an encoding step, you have to
 use the file system encoding.
 
 Until and including Python 3.8, the encoding implicitly assumed by the
@@ -563,7 +563,7 @@ Caveats:
 
 -   `upload(source, target, callback=None)`
 
-    copies a local source file (given by a filename, i. e. a string) to
+    copies a local source file (given by a filename, i.e. a string) to
     the remote host under the name target. Both `source` and `target`
     may be absolute paths or relative to their corresponding current
     directory (on the local or the remote host, respectively).
@@ -923,7 +923,7 @@ ftp_host.stat_cache.resize(20000)
 ```
 where the argument is the maximum number of `lstat` results to store
 (the default is 5000, in versions before 2.6 it was 1000). Note that
-each path on the server, e. g. "/home/schwa/some_dir", corresponds to a
+each path on the server, e.g. "/home/schwa/some_dir", corresponds to a
 single cache entry. Methods like `exists` or `getmtime` all derive their
 results from a previously fetched `lstat` result.
 
@@ -942,7 +942,7 @@ information.
 
 There are two potential ways to get such out-of-date stat data. The
 first happens when an `FTPHost` instance modifies a file path for which
-it has a cache entry, e. g. by calling `remove` or `rmdir`. Such changes
+it has a cache entry, e.g. by calling `remove` or `rmdir`. Such changes
 are handled transparently; the path will be deleted from the cache. A
 different matter are changes unknown to the `FTPHost` object which
 inspects its cache. Obviously, for example, these are changes by
@@ -1007,7 +1007,7 @@ This sets the maximum age of entries in the cache to an hour. This means
 any entry older won't be retrieved from the cache but its data instead
 fetched again from the remote host and then again stored for up to an
 hour. To reset <span class="title-ref">max_age</span> to the default of
-unlimited age, i. e. cache entries never expire, use `None` as value.
+unlimited age, i.e. cache entries never expire, use `None` as value.
 
 If you are certain that the cache will be in the way, you can disable
 and later re-enable it completely with `disable` and `enable`:
@@ -1107,7 +1107,7 @@ process between the calls to `exists` and `getmtime`!
     copies the contents from the file-like object `source` to the
     file-like object `target`. The only difference to
     `shutil.copyfileobj` is the default buffer size. Note that arbitrary
-    file-like objects can be used as arguments (e. g. local files,
+    file-like objects can be used as arguments (e.g. local files,
     remote FTP files).
 
     However, the interfaces of `source` and `target` have to match; the
@@ -1186,7 +1186,7 @@ built-in `open` function and its return value.
     host. This path may be absolute or relative to the current directory
     on the remote host (this directory can be determined with the
     `getcwd` method). As with local file objects, the default mode is
-    "r", i. e. reading text files. Valid modes are "r", "rb", "w", and
+    "r", i.e. reading text files. Valid modes are "r", "rb", "w", and
     "wb".
 
     If a file is opened in binary mode, you *must not* specify an
@@ -1253,12 +1253,12 @@ writelines(string_sequence)
 ```
 and the attribute `closed` have the same semantics as for file objects
 of a local disk file system. The iterator protocol is supported as well,
-i. e. you can use a loop to read a file line by line:
+i.e. you can use a loop to read a file line by line:
 ```python
 with ftputil.FTPHost(server, user, password) as ftp_host:
     with ftp_host.open("some_file") as input_file:
         for line in input_file:
-            # Do something with the line, e. g.
+            # Do something with the line, e.g.
             print(line.strip().replace("ftplib", "ftputil"))
 ```
 
@@ -1322,7 +1322,7 @@ u'Contents of FTP test directory\n'
 >>>
 ```
 
-To be able to start a file transfer (i. e. open a remote file for
+To be able to start a file transfer (i.e. open a remote file for
 reading or writing) and still be able to use other FTP commands, ftputil
 uses a trick. For every remote file, ftputil creates a new FTP
 connection, called a child connection in the ftputil source code.
@@ -1350,7 +1350,7 @@ Some more details:
     because ftputil caches the current directory and returns it without
     actually contacting the server. That's the main reason why there's a
     `keep_alive` method since it calls `pwd` on the FTP connection
-    (i. e. the session object), which isn't a public attribute.
+    (i.e. the session object), which isn't a public attribute.
 -   Some servers define not only an idle timeout but also a transfer
     timeout. This means the connection times out unless there's some
     transfer on the data channel for this connection. So ftputil's
@@ -1611,7 +1611,7 @@ we'll see what we can do for you. :-)
 ## Bugs and limitations
 
 -   `ftputil` needs at least Python 3.6 to work.
--   Whether `ftputil` "sees" "hidden" directory and file names (i. e.
+-   Whether `ftputil` "sees" "hidden" directory and file names (i.e.
     names starting with a dot) depends on the configuration of the FTP
     server. See [Hidden files and
     directories](#hidden-files-and-directories) for details.
@@ -1626,7 +1626,7 @@ we'll see what we can do for you. :-)
 -   Currently, it is not possible to continue an interrupted upload or
     download. Contact me if this causes problems for you.
 -   There's exactly one cache for `lstat` results for each `FTPHost`
-    object, i. e. there's no sharing of cache results determined by
+    object, i.e. there's no sharing of cache results determined by
     several `FTPHost` objects. See [Local caching of file system
     information](#local-caching-of-file-system-information) for the
     reasons.
@@ -1640,7 +1640,7 @@ HTML format. The locations of these files after installation is
 system-dependent.
 
 The files `test_*.py` and `scripted_session.py` are for unit-testing. If
-you only *use* `ftputil`, i. e. *don't* modify it, you can delete these
+you only *use* `ftputil`, i.e. *don't* modify it, you can delete these
 files.
 
 ## References
