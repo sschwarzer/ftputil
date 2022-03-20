@@ -1483,9 +1483,7 @@ it.
 
 See the [download page](https://ftputil.sschwarzer.net/download).
 Announcements will be sent to the [mailing
-list](https://ftputil.sschwarzer.net/mailinglist). Announcements on
-major updates will also be posted to the [Python announcements
-list](https://mail.python.org/mailman3/lists/python-announce-list.python.org/).
+list](https://ftputil.sschwarzer.net/mailinglist).
 
 ### Is there a mailing list on `ftputil`?
 
