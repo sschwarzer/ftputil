@@ -94,7 +94,7 @@ and are described here:
 -   `FTPError`
 
     is the root of the exception hierarchy of the module.
-jj
+
 -   `FTPOSError`
 
     is derived from `OSError`. This is for similarity between the os
