@@ -1490,11 +1490,6 @@ list](https://ftputil.sschwarzer.net/mailinglist).
 Yes, please visit <https://ftputil.sschwarzer.net/mailinglist> to
 subscribe or read the archives.
 
-Though you can *technically* post without subscribing first I can't
-recommend it: The mails from non-subscribers have to be approved by me
-and because the arriving mails contain *lots* of spam, I rarely go
-through these mails.
-
 ### I found a bug! What now?
 
 Before reporting a bug, make sure that you already read this manual and
