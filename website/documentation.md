@@ -36,7 +36,8 @@ operations similar to those of
 [os.path](https://docs.python.org/library/os.path.html) and
 [shutil](https://docs.python.org/library/shutil.html).
 
-Example:
+### Code example
+
 ```python
 import ftputil
 
@@ -60,7 +61,7 @@ file. The latter can also follow links, similar to
 [FTPHost.walk](#FTPHost.walk) and
 [FTPHost.path.walk](#FTPHost.path.walk) work, too.
 
-## `ftputil` features
+### Features
 
 -   Method names are familiar from Python's `os`, `os.path` and `shutil`
     modules. For example, use `os.path.join` to join paths for a local
@@ -84,6 +85,13 @@ file. The latter can also follow links, similar to
     familiar methods like `read`, `readline`, `readlines`, `write`,
     `writelines` and `close`. You can also iterate over these files line
     by line in a `for` loop.
+
+## Installation
+
+The recommended way to install ftputil is with pip:
+```bash
+python3 -m pip install ftputil
+```
 
 ## Exception hierarchy
 

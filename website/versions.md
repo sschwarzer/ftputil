@@ -6,14 +6,6 @@ title: Version history
 
 # Version history
 
-*If you came here via an external link and don't know about ftputil,
-go to the [homepage](/).*
-
-**The recommended way to install ftputil is with pip:**
-```bash
-python3 -m pip install ftputil
-```
-
 | Version | Status | Release date | Main changes to previous version |
 |---------|--------|--------------|----------------------------------|
 | 5.0.3 | **current stable release** | 2022-01-26 | Fix potential data loss for FTPS ([#149](https://todo.sr.ht/~ssschwarzer/ftputil/149)) |
