@@ -1,5 +1,10 @@
-# `ftputil` -- a high-level FTP client library
+---
+layout: default
+permalink: /documentation
+title: Documentation
+---
 
+# ftputil -- a high-level FTP client library
 Version: 5.0.3
 
 Date: 2022-01-26
