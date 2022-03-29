@@ -5,13 +5,14 @@ title: Documentation
 ---
 
 # ftputil -- a high-level FTP client library
-Version: 5.0.3
 
-Date: 2022-01-26
+**Version:** 5.0.3
 
-Keywords: FTP, `ftplib` substitute, virtual filesystem, pure Python
+**Date:** 2022-01-26
 
-Author: Stefan Schwarzer \<<sschwarzer@sschwarzer.net>\>
+**Keywords:** FTP, `ftplib` substitute, virtual filesystem, pure Python
+
+**Author:** Stefan Schwarzer
 
 ## Introduction
 
