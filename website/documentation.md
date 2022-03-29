@@ -14,6 +14,18 @@ title: Documentation
 
 **Author:** Stefan Schwarzer
 
+-----
+
+## Contents
+{:.no_toc}
+
+{::options toc_levels="2..6" /}
+
+* Table of contents
+{:toc}
+
+-----
+
 ## Introduction
 
 The `ftputil` module is a high-level interface to the
