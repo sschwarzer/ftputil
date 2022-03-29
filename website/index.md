@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: home
 permalink: /
 title: ftputil — a high-level FTP client library for Python
 ---
