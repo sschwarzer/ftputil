@@ -1,3 +1,7 @@
+DirectoryIndex index
+
+ErrorDocument 404 "/404"
+
 RedirectMatch permanent "^/trac$" "/"
 
 RedirectMatch permanent "^/trac/browser/(.*)$" "https://git.sr.ht/~sschwarzer/ftputil/tree/main/item/$1"
