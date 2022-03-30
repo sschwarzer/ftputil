@@ -1,7 +1,7 @@
 ---
-layout: default
 permalink: /documentation
 title: Documentation
+toc: true
 ---
 
 **Version:** 5.0.3\
@@ -9,17 +9,6 @@ title: Documentation
 **Keywords:** FTP, `ftplib` substitute, virtual filesystem, pure Python\
 **Author:** Stefan Schwarzer
 
------
-
-## Contents
-{:.no_toc}
-
-{::options toc_levels="2..6" /}
-
-* Table of contents
-{:toc}
-
------
 
 ## Introduction
 
