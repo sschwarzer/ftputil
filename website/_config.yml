@@ -30,17 +30,35 @@ url: "https://ftputil-test.sschwarzer.net" # the base hostname & protocol for yo
 # twitter_username: jekyllrb
 # github_username:  jekyll
 
+locale: "en-US"
+
 # Build settings
-theme: minima
-plugins:
-  - jekyll-feed
+# theme: minima
+theme: "minimal-mistakes-jekyll"
+minimal_mistakes_skin: "default"
+
+# plugins:
+# - jekyll-feed
+atom_feed:
+  hide: true
 
 # See https://github.com/jekyll/minima
 minima:
 
 header_pages:
-  - documentation.md
-  - versions.md
+  - "documentation.md"
+  - "versions.md"
+
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "single"
+
+# Logo is too small. Customize with CSS class `site-logo`. See
+# `_includes/masthead.html`.
+logo: "/assets/images/ftputil_logo3.gif"
 
 # Exclude from processing.
 # The following items will not be processed, by default.
