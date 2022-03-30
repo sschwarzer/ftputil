@@ -28,3 +28,7 @@ end
 # Performance-booster for watching directories on Windows
 gem "wdm", "~> 0.1.1", :platforms => [:mingw, :x64_mingw, :mswin]
 
+# For "minimal mistakes" theme (https://mmistakes.github.io/)
+gem "minimal-mistakes-jekyll"
+# Dependency for Jekyll or minimal mistakes
+gem "webrick"
