@@ -4,14 +4,9 @@ permalink: /documentation
 title: Documentation
 ---
 
-# ftputil -- a high-level FTP client library
-
-**Version:** 5.0.3
-
-**Date:** 2022-01-26
-
-**Keywords:** FTP, `ftplib` substitute, virtual filesystem, pure Python
-
+**Version:** 5.0.3\
+**Date:** 2022-01-26\
+**Keywords:** FTP, `ftplib` substitute, virtual filesystem, pure Python\
 **Author:** Stefan Schwarzer
 
 -----
