@@ -1,0 +1,10 @@
+RedirectMatch permanent "^/trac$" "/"
+
+RedirectMatch permanent "^/trac/browser/(.*)$" "https://git.sr.ht/~sschwarzer/ftputil/tree/main/item/$1"
+
+RedirectMatch permanent "^/trac/ticket/(\d+)$" "https://todo.sr.ht/~sschwarzer/ftputil-test/$1#"
+
+RedirectMatch permanent "^/trac/wiki/Documentation$ "/documentation"
+RedirectMatch permanent "^/trac/wiki/Download$ "/versions"
+RedirectMatch permanent "^/trac/wiki/IssueTracker$" "https://todo.sr.ht/~sschwarzer/ftputil-test"
+RedirectMatch permanent "^/trac/wiki/MailingList$" "https://lists.sr.ht/~sschwarzer/ftputil"
