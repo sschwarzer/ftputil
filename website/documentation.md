@@ -31,6 +31,7 @@ names = ftp_host.listdir(ftp_host.curdir)
 for name in names:
     if ftp_host.path.isfile(name):
         ftp_host.download(name, name)  # remote, local
+
 # Make a new directory and copy a remote file into it.
 ftp_host.mkdir("newdir")
 with ftp_host.open("index.html", "rb") as source:
