@@ -1,10 +1,7 @@
 ---
-layout: default
 permalink: /versions
 title: Version history
 ---
-
-# Version history
 
 | Version | Status | Release date | Main changes to previous version |
 |---------|--------|--------------|----------------------------------|
