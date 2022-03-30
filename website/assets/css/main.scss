@@ -1,0 +1,24 @@
+---
+# Only the main Sass file needs front matter (the dashes are enough)
+---
+
+@charset "utf-8";
+
+@import "minimal-mistakes/skins/{{ site.minimal_mistakes_skin | default: 'default' }}"; // skin
+@import "minimal-mistakes"; // main partials
+
+.page__content {
+  font-family: $global-font-family;
+  // $type-size-5 is too big, $type-size-6 is too small. However, for
+  // 0.9em, the font in tables becomes a bit small.
+  font-size: 0.9em;
+}
+
+/*
+nav a.site-logo img {
+  width: 117px;
+  // Currently not used. -> Investigate.
+  height: 67px;
+}
+*/
+
