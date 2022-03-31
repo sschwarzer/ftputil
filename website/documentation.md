@@ -300,8 +300,7 @@ with ftputil.FTPHost(host, userid, password, port=EXAMPLE_PORT,
 
 On login, the format of the directory listings (needed for stat'ing
 files and directories) should be determined automatically. If not,
-please [enter a
-ticket](https://ftputil.sschwarzer.net/issuetrackernotes).
+please [enter a ticket]({{ site.data.urls.tracker }}).
 
 For the most common uses you don't need to create your own session
 factory class though. The `ftputil.session` module has a function
@@ -783,7 +782,7 @@ listing format used by the FTP server. When connecting to a host,
 `FTPHost`'s constructor tries to guess the right format, which succeeds
 in most cases. However, if you get strange results or `ParserError`
 exceptions by a mere `lstat` call, please [enter a
-ticket](https://ftputil.sschwarzer.net/issuetrackernotes).
+ticket]({{ site.data.urls.tracker }}).
 
 If `lstat` or `stat` give wrong modification dates or times, look at the
 methods that deal with time zone differences ([time zone
@@ -1499,10 +1498,10 @@ Before reporting a bug, make sure that you already read this manual and
 tried the [latest version](https://ftputil.sschwarzer.net/download) of
 `ftputil`. There the bug might have already been fixed.
 
-Please see <https://ftputil.sschwarzer.net/issuetrackernotes> for
+Please see <{{ site.data.urls.tracker }}> for
 guidelines on entering a bug in `ftputil`'s ticket system. If you are
 unsure if the behaviour you found is a bug or not, you should write to
-the [ftputil mailing list](https://ftputil.sschwarzer.net/mailinglist).
+the [ftputil mailing list]({{ site.data.urls.mailing_list }}).
 *Never* include confidential information (user id, password, file names,
 etc.) in the problem report! Be careful!
 
