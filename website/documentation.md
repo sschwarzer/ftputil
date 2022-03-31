@@ -20,7 +20,7 @@ operations similar to those of
 [os.path](https://docs.python.org/library/os.path.html) and
 [shutil](https://docs.python.org/library/shutil.html).
 
-### Code example
+### Code examples
 
 ```python
 import ftputil
