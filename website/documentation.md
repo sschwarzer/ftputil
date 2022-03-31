@@ -675,7 +675,7 @@ assumes that the timestamps in server listings are in
     > **Note**
     >
     > Versions of ftputil before 4.0.0 used a different definition of
-    "time shift", server_time - local_client_time.
+    "time shift", server_time – local_client_time.
     >
     > This had the advantage that the default of 0.0 would be correct *if*
     the server was set to the same time zone as the client where ftputil
