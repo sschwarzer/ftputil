@@ -1,8 +1,6 @@
 ---
 permalink: /documentation
 title: Documentation
-toc: true
-toc_sticky: true
 ---
 
 **Version:** 5.0.3\

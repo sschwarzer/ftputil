@@ -1,8 +1,6 @@
 ---
 permalink: /installation
 title: Installation and versioning
-toc: true
-toc_sticky: true
 ---
 
 ## Python package index (PyPI)
