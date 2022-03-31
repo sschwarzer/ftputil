@@ -7,11 +7,23 @@
 @import "minimal-mistakes/skins/{{ site.minimal_mistakes_skin | default: 'default' }}"; // skin
 @import "minimal-mistakes"; // main partials
 
-.page__content {
-  font-family: $global-font-family;
-  // $type-size-5 is too big, $type-size-6 is too small. However, for
-  // 0.9em, the font in tables becomes a bit small.
-  font-size: 0.9em;
+// Use the method at
+// https://github.com/mmistakes/minimal-mistakes/discussions/1352
+// to limit the font size. Sizes over 18px just look _huge_.
+html {
+  font-size: 16px;
+
+  @include breakpoint($medium) {
+    font-size: 16px;
+  }
+
+  @include breakpoint($large) {
+    font-size: 16px;
+  }
+
+  @include breakpoint($x-large) {
+    font-size: 16px;
+  }
 }
 
 /*
@@ -21,4 +33,3 @@ nav a.site-logo img {
   height: 67px;
 }
 */
-
