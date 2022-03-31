@@ -26,6 +26,26 @@ html {
   }
 }
 
+// Don't display TOC items of levels 3 and more.
+// See also Minimal Mistakes's `_navigation.scss`.
+.toc__menu {
+  li ul li ul > li a {
+    display: none;
+  }
+
+  li ul li ul li ul > li a {
+    display: none;
+  }
+
+  li ul li ul li ul li ul > li a {
+    display: none;
+  }
+
+  li ul li ul li ul li ul li ul > li a {
+    display: none;
+  }
+}
+
 /*
 nav a.site-logo img {
   width: 117px;
