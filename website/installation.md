@@ -20,3 +20,7 @@ channel:
 ```bash
 conda install -c conda-forge ftputil
 ```
+
+## Linux / BSD distributions
+
+Some Linux or BSD distributions may offer ftputil as a package.
