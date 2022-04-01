@@ -1,7 +1,7 @@
 ---
-layout: single
 permalink: /
 title: ftputil — a high-level FTP client library for Python
+toc: false
 ---
 
 The ftputil [Python](http://www.python.org) library is a high-level interface to
