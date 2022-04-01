@@ -1,6 +1,6 @@
 ---
 permalink: /installation
-title: Installation and versions
+title: Installation
 ---
 
 ## Python package index (PyPI)
