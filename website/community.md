@@ -3,6 +3,20 @@ permalink: /community
 title: Community
 ---
 
+> Note
+>
+> When you send information to the mailing list or enter it in the
+> ticket system, **make sure all confidential information is removed
+> or replaced with dummy data**. This will mostly apply to passwords,
+> but depending on your case, such information could also include host
+> names of file system paths.
+>
+> However, keep in mind that changing *too much* information may make
+> a problem hard or impossible to reproduce. *For example*, if your
+> problem comes from a non-ASCII character in a path, replacing it
+> with only ASCII characters in a mail may make the problem impossible
+> to reproduce.
+
 ## Mailing list
 
 ftputil has a [mailing list]({{ site.data.urls.mailing_list }}).
