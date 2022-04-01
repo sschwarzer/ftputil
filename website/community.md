@@ -3,7 +3,7 @@ permalink: /community
 title: Community
 ---
 
-> Note
+> **Note**
 >
 > When you send information to the mailing list or enter it in the
 > ticket system, **make sure all confidential information is removed
@@ -65,18 +65,18 @@ The license of ftputil is the
 
 *First off*, please do *not* send patches before discussing whether
 they're a good fit for ftputil. Send a mail to the [mailing
-list](./#mailing-list) first and describe what you'd like to add. I
-don't want you to put in the effort to make a patch and then possibly
-not having it accepted.
+list](./#mailing-list) first and describe what you'd like to change or
+add. I don't want you to put in the effort to make a patch and then
+possibly not having it accepted.
 
 When contributing to ftputil, you have to be sure that you have the
 rights to contribute your changes so that they can be distributed
 under ftputil's 
 [3-clause BSD license](https://opensource.org/licenses/BSD-3-Clause).
 
-[Sourcehut](https://sourcehut.org) doesn't use "pull requests" which
-are common with Github or Gitlab. Of course, there are still several
-ways to submit patches:
+[Sourcehut](https://sourcehut.org), where the code of ftputil is
+hosted, doesn't use "pull requests", which are common with Github or
+Gitlab. Of course, there are still several ways to submit patches:
 
 - The [Sourcehut
   documentation](https://man.sr.ht/git.sr.ht/#sending-patches-upstream)
@@ -86,10 +86,10 @@ ways to submit patches:
   here](https://man.sr.ht/git.sr.ht/#sending-patches-upstream), for
   the patch submission.
 - However, since I don't expect a big number of complex contributions,
-  I guess we can keep it simple(r) for now: Create and push a branch
+  I guess we can keep it simpler for now: Create and push a branch
   to a public cloned repository of yours and let me know where to find
   it, including the name of the branch. (This is essentially the same
   as you'd do to before actually submitting a pull request on Github.)
 
-  After I know your branch, I can pull from it, play with your code
-  and give you feedback.
+  After I know your branch, I can pull from it, try out your code and
+  give you feedback.
