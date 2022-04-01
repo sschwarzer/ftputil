@@ -1,13 +1,14 @@
 ---
 permalink: /
-title: ftputil — a high-level FTP client library for Python
+title: ftputil — high-level FTP client library for Python
 toc: false
 ---
 
-The ftputil [Python](http://www.python.org) library is a high-level interface to
-the [ftplib](https://docs.python.org/lib/module-ftplib.html) module. The FTPHost
-objects generated with ftputil allow many operations similar to those of
-[os](https://docs.python.org/lib/module-os.html),
+The ftputil [Python](http://www.python.org) library is a high-level
+interface on top of the
+[ftplib](https://docs.python.org/lib/module-ftplib.html) module. The
+FTPHost objects generated with ftputil allow many operations similar
+to those of [os](https://docs.python.org/lib/module-os.html),
 [os.path](https://docs.python.org/lib/module-os.path.html) and
 [shutil](https://docs.python.org/3/library/shutil.html).
 
