@@ -5,33 +5,32 @@ title: "FAQ"
 
 ## Where can I get the latest version?
 
-See the [download page](https://ftputil.sschwarzer.net/download).
-Announcements will be sent to the [mailing
-list](https://ftputil.sschwarzer.net/mailinglist).
+See the [installation](/installation) page.
+
+Announcements for new versions will be sent to the [mailing
+list](/community#mailing-list).
 
 ## Is there a mailing list on `ftputil`?
 
-Yes, please visit <https://ftputil.sschwarzer.net/mailinglist> to
-subscribe or read the archives.
+Yes, please see the [community](/community#mailing-list) page.
 
-## I found a bug! What now?
+## I think I found a bug. What should I do?
 
-Before reporting a bug, make sure that you already read this manual and
-tried the [latest version](https://ftputil.sschwarzer.net/download) of
-`ftputil`. There the bug might have already been fixed.
+Make sure that you already read the [documentation](/documentation)
+(the "bug" might be intended behavior)
+and tried the [latest version](/installation) of `ftputil` (where the
+bug might have already been fixed).
 
-Please see <{{ site.data.urls.tracker }}> for
-guidelines on entering a bug in `ftputil`'s ticket system. If you are
-unsure if the behaviour you found is a bug or not, you should write to
-the [ftputil mailing list]({{ site.data.urls.mailing_list }}).
-*Never* include confidential information (user id, password, file names,
-etc.) in the problem report! Be careful!
+If neither of these helps, please reach out on the [mailing
+list](/community).
+
+By the way, also send a mail if you think something in the
+documentation isn't easy to understand. Improving on such problems in
+the documentation should make it easier for other users.
 
 ## Does `ftputil` support TLS?
 
-`ftputil` has no *built-in* TLS support.
-
-However, there are two ways to get TLS support with ftputil:
+There are two ways to get TLS support with ftputil:
 
 -   The `ftplib` library has a class `FTP_TLS`, which you can use for the
     `session_factory` keyword argument in the `FTPHost` constructor. You
@@ -72,39 +71,51 @@ However, there are two ways to get TLS support with ftputil:
 
 By default, an instantiated `FTPHost` object connects on the usual FTP
 port. If you have to use a different port, refer to the section [Session
-factories](#session-factories).
+factories](/documentation#session-factories).
 
 ## How do I set active or passive mode?
 
-Please see the section [Session factories](#session-factories).
+Please see the section [Session
+factories](/documentation#session-factories).
 
 ## How can I debug an FTP connection problem?
 
 You can do this with a session factory. See [Session
-factories](#session-factories).
+factories](/documentation#session-factories).
 
 If you want to change the debug level only temporarily after the
 connection is established, you can reach the [session
-object](#session-factories) as the `_session` attribute of the `FTPHost`
-instance and call `_session.set_debuglevel`. Note that the `_session`
-attribute should *only* be accessed for debugging. Calling arbitrary
-`ftplib.FTP` methods on the session object may *cause* bugs!
+object](/documentation#session-factories) as the `_session` attribute
+of the `FTPHost` instance and call `_session.set_debuglevel`. Note
+that the `_session` attribute should *only* be accessed for debugging.
+Calling arbitrary `ftplib.FTP` methods on the session object may
+*cause* bugs!
 
-## Conditional upload/download to/from a server in a different time zone
+## What to do about unnecessary uploads/downloads to/from a server?
 
-You may find that `ftputil` uploads or downloads files unnecessarily, or
-not when it should. Please see the section on [time zone
-correction](#time-zone-correction). It may even be sufficient to call
-[synchronize_times](#synchronize_times).
+The methods `FTPHost.upload_if_newer` and `FTPHost.download_if_newer`
+should only transfer a file if the source is newer than the target.
 
-## When I use `ftputil`, all I get is a `ParserError` exception
+If that doesn't seem to work, it's most likely for one of these
+reasons:
+- The client (the program using ftputil) doesn't know the time zone
+  difference to the server. Please see the section on [time zone
+  correction](/documentation/#time-zone-correction). It may even be
+  sufficient to call
+  [synchronize_times](/documentation/#synchronize_times).
+- Timestamps on the server usually are only precise up to minutes.
+  Since ftputil, if "in doubt", errs on the side of transferring too
+  much data rather than too little, ftputil transfers a file if the
+  source *may* be newer than the target.
 
-The FTP server you connect to may use a directory format that `ftputil`
-doesn't understand. You can either write and [plug in your own
-parser](#writing-directory-parsers) or ask on the [mailing
-list](https://ftputil.sschwarzer.net/mailinglist) for help.
+## When I use `ftputil`, all I get is a `ParserError` exception. Why?
 
-## `isdir`, `isfile` or `islink` incorrectly return `False`
+The FTP server you connect to may use a directory format that
+`ftputil` doesn't understand. You can either write and [plug in your
+own parser](/documentation/#writing-directory-parsers) or ask on the
+[mailing list](/community#mailing-list) for help.
+
+## `isdir`, `isfile` or `islink` incorrectly return `False`. Why?
 
 Like Python's counterparts under
 [os.path](https://docs.python.org/library/os.path.html), `ftputil`'s
@@ -115,8 +126,8 @@ returned names. But if the argument for `listdir` wasn't the current
 directory, the paths won't be found and so all `is...()` variants will
 return `False`.
 
-## I don't find an answer to my problem in this document
+## What should I do if I don't find an answer to my problem in this document?
 
 Please send an email with your problem report or question to the
-[ftputil mailing list](https://ftputil.sschwarzer.net/mailinglist), and
-we'll see what we can do for you. :-)
+[ftputil mailing list](/community#mailing-list), and we'll see what we
+can do for you. :-)
