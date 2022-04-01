@@ -1,6 +1,12 @@
-# main links
+# Main links
 main:
+  - title: "Installation"
+    url: /installation
+  - title: "Versions"
+    url: /versions
   - title: "Documentation"
     url: /documentation
-  # - title: "Version history"
-  #   url: /versions
+  - title: "Community"
+    url: /community
+  - title: "FAQ"
+    url: /faq
