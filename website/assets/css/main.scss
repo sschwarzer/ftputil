@@ -11,18 +11,18 @@
 // https://github.com/mmistakes/minimal-mistakes/discussions/1352
 // to limit the font size. Sizes over 18px just look _huge_.
 html {
-  font-size: 16px;
+  font-size: 18px;
 
   @include breakpoint($medium) {
-    font-size: 16px;
+    font-size: 18px;
   }
 
   @include breakpoint($large) {
-    font-size: 16px;
+    font-size: 18px;
   }
 
   @include breakpoint($x-large) {
-    font-size: 16px;
+    font-size: 18px;
   }
 }
 
