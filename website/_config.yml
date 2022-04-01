@@ -21,11 +21,18 @@
 title: "ftputil"
 masthead_title: "ftputil – high-level FTP client library for Python"
 email: sschwarzer@sschwarzer.net
-description: ""
 # description: >- # this means to ignore newlines until "baseurl:"
 #   Write an awesome description for your new site here. You can edit this
 #   line in _config.yml. It will appear in your document head meta (for
 #   Google search results) and in your feed.xml site description.
+description: >-
+  ftputil is a high-level FTP client library for the Python
+  programming language. ftputil implements a virtual file system for
+  accessing FTP servers, that is, it can generate file-like objects
+  for remote files. The library supports many functions similar to
+  those in the os, os.path and shutil modules. ftputil has convenience
+  functions for conditional uploads and downloads, and handles FTP
+  clients and servers in different timezones.
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://ftputil-test.sschwarzer.net" # the base hostname & protocol for your site, e.g. http://example.com
 # twitter_username: jekyllrb
