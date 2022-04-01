@@ -27,12 +27,12 @@ ftputil has a [mailing list]({{ site.data.urls.mailing_list }}).
 - Discuss improvements
 - Get announcements for new versions
 
-If you think you found a bug, it may make sense to raise the issue on
-the mailing list first, in case the issue actually isn't a bug. :-)
+If you think you found a bug, it may make sense to discuss the issue
+on the mailing list first, in case the issue actually isn't a bug. :-)
 
 The **list address** is\
 <mailto:~sschwarzer/ftputil@lists.sr.ht>\
-A subscription isn't strictly necessary.
+You don't need to subscribe to the list to send a mail.
 
 That said, you can **subscribe** to the list by sending a mail to\
 <mailto:~sschwarzer/ftputil+subscribe@lists.sr.ht>\
