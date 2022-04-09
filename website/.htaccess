@@ -10,5 +10,5 @@ RedirectMatch permanent "^/trac/ticket/(\d+)$" "https://todo.sr.ht/~sschwarzer/f
 
 RedirectMatch permanent "^/trac/wiki/Documentation$ "/documentation"
 RedirectMatch permanent "^/trac/wiki/Download$ "/versions"
-RedirectMatch permanent "^/trac/wiki/IssueTracker$" "https://todo.sr.ht/~sschwarzer/ftputil-test"
-RedirectMatch permanent "^/trac/wiki/MailingList$" "https://lists.sr.ht/~sschwarzer/ftputil"
+RedirectMatch permanent "^/trac/wiki/IssueTracker$" "/community#ticket-system"
+RedirectMatch permanent "^/trac/wiki/MailingList$" "/community#mailing-list"
