@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-# Copyright (C) 2003-2020, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2022, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 """
@@ -17,31 +17,12 @@ _package = "ftputil"
 _version = open("VERSION").read().strip()
 
 
-doc_files = [
-    os.path.join("doc", name)
-    for name in [
-        "ftputil.txt",
-        "ftputil.html",
-        "whats_new_in_ftputil_3.0.txt",
-        "whats_new_in_ftputil_3.0.html",
-        "README.txt",
-    ]
-]
-
-doc_files_are_present = all((os.path.exists(doc_file) for doc_file in doc_files))
-
-if "install" in sys.argv[1:] and not doc_files_are_present:
-    print("One or more of the HTML documentation files are missing.")
-    print("Please generate them with `make docs`.")
-    sys.exit(1)
-
 core.setup(
     # Installation data
     name=_name,
     version=_version,
     packages=[_package],
     package_dir={_package: _package},
-    data_files=[("doc/ftputil", doc_files)],
     # Metadata
     author="Stefan Schwarzer",
     author_email="sschwarzer@sschwarzer.net",
