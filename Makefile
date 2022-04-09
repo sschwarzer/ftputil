@@ -50,6 +50,15 @@ patch:
 	${SED} "s/(\/wiki\/Download\/ftputil-).*(\.tar\.gz)/\1${VERSION}\2/" \
 		PKG-INFO
 
+# Website maintenance
+.PHONY: website
+website:
+	(cd website && bundler exec jekyll build)
+
+.PHONY: upload_website
+upload_website:
+	hetzner-sync website/_site ftputil
+
 # Quality assurance
 .PHONY: test
 test:
