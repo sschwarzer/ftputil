@@ -12,7 +12,7 @@ packages:
 - python3.10
 
 sources:
-- hg+https://hg.sr.ht/~sschwarzer/ftputil
+- git+https://git.sr.ht/~sschwarzer/ftputil
 
 tasks:
 - configure: |
