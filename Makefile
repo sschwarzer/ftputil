@@ -14,21 +14,11 @@ TEST_DIR=${PROJECT_DIR}/test
 
 SOURCE_DIR=${PROJECT_DIR}/ftputil
 
-DOC_DIR=${PROJECT_DIR}/doc
 WEBSITE_DIR=${PROJECT_DIR}/website
-STYLESHEET_PATH=plain.css
-DOC_SOURCES=$(subst d/,${DOC_DIR}/, d/ftputil.txt \
-			  d/whats_new_in_ftputil_3.0.txt \
-			  d/whats_new_in_ftputil_4.0.0.txt)
-DOC_TARGETS=$(subst d/,${DOC_DIR}/, d/ftputil.html \
-			  d/whats_new_in_ftputil_3.0.html \
-			  d/whats_new_in_ftputil_4.0.0.html)
 
 SED=sed -i'' -r -e
 
 PYTHONPATH=${PROJECT_DIR}:${TEST_DIR}
-
-RST2HTML=rst2html
 
 # Name test files. Make sure the long-running tests come last.
 TEST_FILES=$(shell ls -1 ${TEST_DIR}/test_*.py | \
@@ -59,15 +49,6 @@ patch:
 	${SED} "s/^Version: .*/Version: ${VERSION}/" PKG-INFO
 	${SED} "s/(\/wiki\/Download\/ftputil-).*(\.tar\.gz)/\1${VERSION}\2/" \
 		PKG-INFO
-
-# Documentation
-vpath %.txt ${DOC_DIR}
-
-.PHONY: docs
-docs: ${DOC_SOURCES} ${DOC_TARGETS}
-
-%.html: %.txt
-	${RST2HTML} --stylesheet=${STYLESHEET_PATH} --embed-stylesheet $< $@
 
 # Quality assurance
 .PHONY: test
