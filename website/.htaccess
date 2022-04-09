@@ -6,7 +6,7 @@ RedirectMatch permanent "^/trac$" "/"
 
 RedirectMatch permanent "^/trac/browser/(.*)$" "https://git.sr.ht/~sschwarzer/ftputil/tree/main/item/$1"
 
-RedirectMatch permanent "^/trac/ticket/(\d+)$" "https://todo.sr.ht/~sschwarzer/ftputil-test/$1#"
+RedirectMatch permanent "^/trac/ticket/(\d+)$" "https://todo.sr.ht/~sschwarzer/ftputil/$1#"
 
 RedirectMatch permanent "^/trac/wiki/Documentation$ "/documentation"
 RedirectMatch permanent "^/trac/wiki/Download$ "/versions"
