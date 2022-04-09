@@ -12,3 +12,9 @@ RedirectMatch permanent "^/trac/wiki/Documentation$ "/documentation"
 RedirectMatch permanent "^/trac/wiki/Download$ "/versions"
 RedirectMatch permanent "^/trac/wiki/IssueTracker$" "/community#ticket-system"
 RedirectMatch permanent "^/trac/wiki/MailingList$" "/community#mailing-list"
+
+# Adapted redirect shortcuts from Trac server
+RedirectMatch permanent "^/issuetrackernotes$" "/community#ticket-system"
+RedirectMatch permanent "^/newticket$" "https://todo.sr.ht/~sschwarzer/ftputil/#"
+RedirectMatch permanent "^/mailinglist$" "/community#mailing-list"
+RedirectMatch permanent "^/download$" "/versions"
