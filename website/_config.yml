@@ -68,7 +68,7 @@ defaults:
 
 # Logo is too small. Customize with CSS class `site-logo`. See
 # `_includes/masthead.html`.
-logo: "/assets/images/ftputil_logo3.gif"
+logo: "/assets/images/ftputil_logo.png"
 
 # Exclude from processing.
 # The following items will not be processed, by default.
