@@ -97,11 +97,6 @@ pylint:
 	pylint --rcfile=pylintrc ${PYLINT_OPTS} ${SOURCE_DIR}/*.py | \
 		less --quit-if-one-screen
 
-.PHONY: find_missing_unicode_literals
-find_missing_unicode_literals:
-	find ftputil test -name "*.py" \
-	  -exec grep -L "from __future__ import unicode_literals" {} \;
-
 # Make a distribution tarball.
 .PHONY: dist
 dist: clean patch pylint docs
