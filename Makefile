@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2021, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2022, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -15,6 +15,7 @@ TEST_DIR=${PROJECT_DIR}/test
 SOURCE_DIR=${PROJECT_DIR}/ftputil
 
 DOC_DIR=${PROJECT_DIR}/doc
+WEBSITE_DIR=${PROJECT_DIR}/website
 STYLESHEET_PATH=plain.css
 DOC_SOURCES=$(subst d/,${DOC_DIR}/, d/ftputil.txt \
 			  d/whats_new_in_ftputil_3.0.txt \
@@ -48,10 +49,13 @@ patch:
 	@echo "Patching files"
 	${SED} "s/^__version__ = \".*\"/__version__ = \"${VERSION}\"/" \
 		${SOURCE_DIR}/version.py
-	${SED} "s/^:Version:   .*/:Version:   ${VERSION}/" \
-		${DOC_DIR}/ftputil.txt
-	${SED} "s/^:Date:      .*/:Date:      `date +"%Y-%m-%d"`/" \
-		${DOC_DIR}/ftputil.txt
+	# Use `1,15` as range. This is a compromise in that we don't want to patch
+	# too much in the remaining document, but we still want to be a bit
+	# flexible if the patched lines move a bit.
+	${SED} "1,15s/^\*\*Version:\*\* .*\\\\/**Version:** ${VERSION}\\\\/" \
+		${WEBSITE_DIR}/documentation.md
+	${SED} "1,15s/^\*\*Date:\*\* .*\\\\/**Date:** `date +"%Y-%m-%d"`\\\\/" \
+		${WEBSITE_DIR}/documentation.md
 	${SED} "s/^Version: .*/Version: ${VERSION}/" PKG-INFO
 	${SED} "s/(\/wiki\/Download\/ftputil-).*(\.tar\.gz)/\1${VERSION}\2/" \
 		PKG-INFO
