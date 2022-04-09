@@ -12,13 +12,13 @@ compatibility.
 Even if a version of ftputil breaks backward compatibility, I try to
 limit the effects, so you may not be affected. Check the release
 announcements on the [mailing
-list]({{ site.data.urls.mailing_list }}) for details of new
+list](/community#mailing-list) for details of new
 backward-incompatible versions before making a version switch. Here
 are
 [two](https://lists.sr.ht/~sschwarzer/ftputil/%3C29e84e80-a3dc-6508-f46f-d517a4192926%40sschwarzer.net%3E)
 [examples](https://lists.sr.ht/~sschwarzer/ftputil/%3Cdf64c8ed-2a03-be3d-6bb0-236fc85c90a9%40sschwarzer.net%3E).
 If you're unsure how a new version might affect you, please ask on the
-[mailing list]({{ site.data.urls.mailing_list }}).
+[mailing list](/community#mailing-list).
 
 ## Version history
 
