@@ -26,7 +26,6 @@ tasks:
     pip install --no-color --progress-bar=off freezegun pytest tox
 - test: |
     cd ftputil
-    make docs
     source ~/ftputil_env/bin/activate
     tox
 
