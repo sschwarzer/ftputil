@@ -56,7 +56,7 @@ website:
 	(cd website && bundler exec jekyll build)
 
 .PHONY: upload_website
-upload_website:
+upload_website: website
 	hetzner-sync website/_site ftputil
 
 # Quality assurance
