@@ -264,6 +264,73 @@ class TestMkdir(RealFTPTest):
 
 
 class TestRemoval(RealFTPTest):
+
+    # Tests for `remove`
+
+    def test_remove_existing_file(self):
+        """
+        Removal of an existing file should succeed.
+        """
+        self.cleaner.add_file("_testfile_")
+        self.make_remote_file("_testfile_")
+        host = self.host
+        assert host.path.isfile("_testfile_")
+        host.remove("_testfile_")
+        assert not host.path.exists("_testfile_")
+
+    def test_remove_non_existent_item(self):
+        """
+        If trying to remove a non-existent file system item, a `PermanentError`
+        should be raised.
+        """
+        host = self.host
+        with pytest.raises(ftputil.error.PermanentError):
+            host.remove("nonexistent")
+
+    def test_remove_on_directory(self):
+        """
+        Calling `remove` on a directory should raise a `PermanentError`.
+
+        (Directories must be removed with `rmdir`.)
+        """
+        host = self.host
+        dir_name = "_testdir_"
+        self.cleaner.add_dir(dir_name)
+        host.mkdir(dir_name)
+        try:
+            try:
+                host.remove(dir_name)
+            except ftputil.error.PermanentError as exc:
+                assert str(exc).startswith("remove/unlink can only delete files")
+            else:
+                pytest.fail("we shouldn't have come here")
+        finally:
+            # Delete empty directory.
+            host.rmdir(dir_name)
+        files = host.listdir(host.curdir)
+        assert dir_name not in files
+
+    # Test for `rmdir`
+
+    def test_rmdir_on_nonempty_directory(self):
+        """
+        If a directory exists, but isn't empty, `rmdir` should raise a
+        `PermanentError`.
+        """
+        host = self.host
+        dir_name = "_testdir_"
+        self.cleaner.add_dir(dir_name)
+        host.mkdir(dir_name)
+        # Try to remove a non-empty directory.
+        file_name = host.path.join(dir_name, "_nonempty_")
+        self.cleaner.add_file(file_name)
+        non_empty = host.open(file_name, "w")
+        non_empty.close()
+        with pytest.raises(ftputil.error.PermanentError):
+            host.rmdir(dir_name)
+
+    # Tests for `rmtree`
+
     def build_tree(self, host):
         """
         Build a directory tree for tests.
@@ -274,17 +341,6 @@ class TestRemoval(RealFTPTest):
         self.make_remote_file("_dir1_/file2")
         self.make_remote_file("_dir1_/dir2/file3")
         self.make_remote_file("_dir1_/dir2/file4")
-
-    # Tests for `rmtree`
-
-    def test_remove_file_with_rmtree(self):
-        """
-        Calling `rmtree` on a file should raise a `PermanentError`.
-        """
-        host = self.host
-        self.build_tree(host)
-        with pytest.raises(ftputil.error.PermanentError):
-            host.rmtree("_dir1_/file2")
 
     def test_rmtree_without_error_handler(self):
         """
@@ -335,69 +391,14 @@ class TestRemoval(RealFTPTest):
         assert log[1][0] == host.rmdir
         assert log[1][1] == "_dir1_"
 
-    # Test for `rmdir`
-
-    def test_rmdir_on_nonempty_directory(self):
+    def test_remove_file_with_rmtree(self):
         """
-        If a directory exists, but isn't empty, `rmdir` should raise a
-        `PermanentError`.
+        Calling `rmtree` on a file should raise a `PermanentError`.
         """
         host = self.host
-        dir_name = "_testdir_"
-        self.cleaner.add_dir(dir_name)
-        host.mkdir(dir_name)
-        # Try to remove a non-empty directory.
-        file_name = host.path.join(dir_name, "_nonempty_")
-        self.cleaner.add_file(file_name)
-        non_empty = host.open(file_name, "w")
-        non_empty.close()
+        self.build_tree(host)
         with pytest.raises(ftputil.error.PermanentError):
-            host.rmdir(dir_name)
-
-    # Tests for `remove`
-
-    def test_remove_on_directory(self):
-        """
-        Calling `remove` on a directory should raise a `PermanentError`.
-
-        (Directories must be removed with `rmdir`.)
-        """
-        host = self.host
-        dir_name = "_testdir_"
-        self.cleaner.add_dir(dir_name)
-        host.mkdir(dir_name)
-        try:
-            try:
-                host.remove(dir_name)
-            except ftputil.error.PermanentError as exc:
-                assert str(exc).startswith("remove/unlink can only delete files")
-            else:
-                pytest.fail("we shouldn't have come here")
-        finally:
-            # Delete empty directory.
-            host.rmdir(dir_name)
-        files = host.listdir(host.curdir)
-        assert dir_name not in files
-
-    def test_remove_non_existent_item(self):
-        """
-        If trying to remove a non-existent file system item, a `PermanentError`
-        should be raised.
-        """
-        host = self.host
-        with pytest.raises(ftputil.error.PermanentError):
-            host.remove("nonexistent")
-
-    def test_remove_existing_file(self):
-        """
-        Removal of an existing file should succeed.
-        """
-        self.cleaner.add_file("_testfile_")
-        self.make_remote_file("_testfile_")
-        host = self.host
-        assert host.path.isfile("_testfile_")
-        host.remove("_testfile_")
-        assert not host.path.exists("_testfile_")
+            host.rmtree("_dir1_/file2")
 
 
 class TestWalk(RealFTPTest):
