@@ -312,6 +312,17 @@ class TestRemoval(RealFTPTest):
 
     # Test for `rmdir`
 
+    def test_remove_existing_directory(self):
+        """
+        If `rmdir` is called on an empty directory, the call should succeed.
+        """
+        self.cleaner.add_dir("_testdir_")
+        host = self.host
+        host.mkdir("_testdir_")
+        assert host.path.isdir("_testdir_")
+        host.rmdir("_testdir_")
+        assert not host.path.exists("_testdir_")
+
     def test_rmdir_on_nonempty_directory(self):
         """
         If a directory exists, but isn't empty, `rmdir` should raise a
