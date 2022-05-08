@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2021, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2022, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -142,7 +142,10 @@ class RealFTPTest:
 
 
 class TestMkdir(RealFTPTest):
-    def test_mkdir_rmdir(self):
+    def test_directory_exists_after_mkdir(self):
+        """
+        After a `mkdir` call, the directory should exist.
+        """
         host = self.host
         dir_name = "_testdir_"
         file_name = host.path.join(dir_name, "_nonempty_")
@@ -151,29 +154,12 @@ class TestMkdir(RealFTPTest):
         host.mkdir(dir_name)
         files = host.listdir(host.curdir)
         assert dir_name in files
-        # Try to remove a non-empty directory.
-        self.cleaner.add_file(file_name)
-        non_empty = host.open(file_name, "w")
-        non_empty.close()
-        with pytest.raises(ftputil.error.PermanentError):
-            host.rmdir(dir_name)
-        # Remove file.
-        host.unlink(file_name)
-        # `remove` on a directory should fail.
-        try:
-            try:
-                host.remove(dir_name)
-            except ftputil.error.PermanentError as exc:
-                assert str(exc).startswith("remove/unlink can only delete files")
-            else:
-                pytest.fail("we shouldn't have come here")
-        finally:
-            # Delete empty directory.
-            host.rmdir(dir_name)
-        files = host.listdir(host.curdir)
-        assert dir_name not in files
 
     def test_makedirs_without_existing_dirs(self):
+        """
+        If some directories in a `makedirs` call don't exist yet, they should
+        be implcitly created.
+        """
         host = self.host
         # No `_dir1_` yet
         assert "_dir1_" not in host.listdir(host.curdir)
@@ -216,11 +202,19 @@ class TestMkdir(RealFTPTest):
         assert not host.path.isdir("/_dir1_/_dir2_")
 
     def test_makedirs_of_existing_directory(self):
+        """
+        Calling `makedirs` on an existing directory with `exist_ok` should do
+        nothing.
+        """
         host = self.host
         # The (chrooted) login directory
         host.makedirs("/", exist_ok=True)
 
     def test_makedirs_with_file_in_the_way(self):
+        """
+        If a part of `makedirs`'s path is a file, a `PermanentError` should be
+        raised.
+        """
         host = self.host
         self.cleaner.add_dir("_dir1_")
         host.mkdir("_dir1_")
@@ -232,6 +226,10 @@ class TestMkdir(RealFTPTest):
             host.makedirs("_dir1_/file1/dir2")
 
     def test_makedirs_with_existing_directory(self):
+        """
+        An already-existent subdirectory in the path of `makedirs` should be
+        ignored.
+        """
         host = self.host
         self.cleaner.add_dir("_dir1_")
         host.mkdir("_dir1_")
@@ -241,33 +239,60 @@ class TestMkdir(RealFTPTest):
         assert host.path.isdir("_dir1_/dir2")
 
     def test_makedirs_in_non_writable_directory(self):
+        """
+        If `makedirs` is asked to create a directory in a non-writable
+        directory, a `PermanentError` should be raised.
+        """
         host = self.host
         # Preparation: `rootdir1` exists but is only writable by root.
         with pytest.raises(ftputil.error.PermanentError):
             host.makedirs("rootdir1/dir2")
 
     def test_makedirs_with_writable_directory_at_end(self):
+        """
+        If `makedirs` is asked to create a directory in a writable directory
+        under a non-writable directory, the `makedirs` call should succeed.
+        """
         host = self.host
         self.cleaner.add_dir("rootdir2/dir2")
         # Preparation: `rootdir2` exists but is only writable by root. `dir2`
         # is writable by regular ftp users. Both directories below should work.
         host.makedirs("rootdir2/dir2", exist_ok=True)
         host.makedirs("rootdir2/dir2/dir3")
+        assert host.path.isdir("rootdir2/dir2")
+        assert host.path.isdir("rootdir2/dir2/dir3")
 
 
 class TestRemoval(RealFTPTest):
-    def test_rmtree_without_error_handler(self):
-        host = self.host
-        # Build a tree.
+    def build_tree(self, host):
+        """
+        Build a directory tree for tests.
+        """
         self.cleaner.add_dir("_dir1_")
         host.makedirs("_dir1_/dir2")
         self.make_remote_file("_dir1_/file1")
         self.make_remote_file("_dir1_/file2")
         self.make_remote_file("_dir1_/dir2/file3")
         self.make_remote_file("_dir1_/dir2/file4")
-        # Try to remove a _file_ with `rmtree`.
+
+    # Tests for `rmtree`
+
+    def test_remove_file_with_rmtree(self):
+        """
+        Calling `rmtree` on a file should raise a `PermanentError`.
+        """
+        host = self.host
+        self.build_tree(host)
         with pytest.raises(ftputil.error.PermanentError):
             host.rmtree("_dir1_/file2")
+
+    def test_rmtree_without_error_handler(self):
+        """
+        Calling `rmtree` on a directory tree should remove the directory and
+        everything under it.
+        """
+        host = self.host
+        self.build_tree(host)
         # Remove `dir2`.
         host.rmtree("_dir1_/dir2")
         assert not host.path.exists("_dir1_/dir2")
@@ -280,6 +305,9 @@ class TestRemoval(RealFTPTest):
         assert not host.path.exists("_dir1_")
 
     def test_rmtree_with_error_handler(self):
+        """
+        If an `rmtree` call specifies an error handler, it should be used.
+        """
         host = self.host
         self.cleaner.add_dir("_dir1_")
         host.mkdir("_dir1_")
@@ -307,12 +335,63 @@ class TestRemoval(RealFTPTest):
         assert log[1][0] == host.rmdir
         assert log[1][1] == "_dir1_"
 
+    # Test for `rmdir`
+
+    def test_rmdir_on_nonempty_directory(self):
+        """
+        If a directory exists, but isn't empty, `rmdir` should raise a
+        `PermanentError`.
+        """
+        host = self.host
+        dir_name = "_testdir_"
+        self.cleaner.add_dir(dir_name)
+        host.mkdir(dir_name)
+        # Try to remove a non-empty directory.
+        file_name = host.path.join(dir_name, "_nonempty_")
+        self.cleaner.add_file(file_name)
+        non_empty = host.open(file_name, "w")
+        non_empty.close()
+        with pytest.raises(ftputil.error.PermanentError):
+            host.rmdir(dir_name)
+
+    # Tests for `remove`
+
+    def test_remove_on_directory(self):
+        """
+        Calling `remove` on a directory should raise a `PermanentError`.
+
+        (Directories must be removed with `rmdir`.)
+        """
+        host = self.host
+        dir_name = "_testdir_"
+        self.cleaner.add_dir(dir_name)
+        host.mkdir(dir_name)
+        try:
+            try:
+                host.remove(dir_name)
+            except ftputil.error.PermanentError as exc:
+                assert str(exc).startswith("remove/unlink can only delete files")
+            else:
+                pytest.fail("we shouldn't have come here")
+        finally:
+            # Delete empty directory.
+            host.rmdir(dir_name)
+        files = host.listdir(host.curdir)
+        assert dir_name not in files
+
     def test_remove_non_existent_item(self):
+        """
+        If trying to remove a non-existent file system item, a `PermanentError`
+        should be raised.
+        """
         host = self.host
         with pytest.raises(ftputil.error.PermanentError):
             host.remove("nonexistent")
 
     def test_remove_existing_file(self):
+        """
+        Removal of an existing file should succeed.
+        """
         self.cleaner.add_file("_testfile_")
         self.make_remote_file("_testfile_")
         host = self.host
