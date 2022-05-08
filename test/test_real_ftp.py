@@ -505,8 +505,14 @@ class TestWalk(RealFTPTest):
 
 class TestRename(RealFTPTest):
     def test_rename(self):
+        """
+        If `rename` is called on two paths, the first should disappear and the
+        second should exist afterward.
+
+        This test also tests `Path` support.
+        """
         host = self.host
-        # Make sure the target of the renaming operation is removed.
+        # Make sure the target of the renaming operation is removed later.
         self.cleaner.add_file("_testfile2_")
         self.make_remote_file("_testfile1_")
         host.rename(pathlib.Path("_testfile1_"), "_testfile2_")
@@ -514,6 +520,12 @@ class TestRename(RealFTPTest):
         assert host.path.exists(pathlib.Path("_testfile2_"))
 
     def test_rename_with_spaces_in_directory(self):
+        """
+        `rename` should work if source and target contain a directory with
+        spaces in its name.
+
+        This test also tests `Path` support.
+        """
         host = self.host
         dir_name = "_dir with spaces_"
         self.cleaner.add_dir(dir_name)
@@ -526,6 +538,9 @@ class TestRename(RealFTPTest):
 
 class TestStat(RealFTPTest):
     def test_stat(self):
+        """
+        Test some stat-related calls.
+        """
         host = self.host
         dir_name = "_testdir_"
         file_name = host.path.join(dir_name, "_nonempty_")
@@ -562,6 +577,10 @@ class TestStat(RealFTPTest):
         assert not (client_mtime - server_mtime > 120)
 
     def test_issomething_for_nonexistent_directory(self):
+        """
+        If the `is*` methods are called on a path where the base directory
+        doesn't exist, all of the methods should return `False`.
+        """
         host = self.host
         # Check if we get the right results if even the containing directory
         # doesn't exist (see ticket #66).
@@ -571,6 +590,11 @@ class TestStat(RealFTPTest):
         assert not host.path.islink(nonexistent_path)
 
     def test_special_broken_link(self):
+        """
+        If `is*` methods are called on a broken link (i.e. the link target
+        doesn't exist), `islink` should return `True` and `isdir` and `isfile`
+        should return `False`.
+        """
         # Test for ticket #39.
         host = self.host
         broken_link_name = os.path.join("dir_with_broken_link", "nonexistent")
@@ -580,6 +604,11 @@ class TestStat(RealFTPTest):
         assert host.path.islink(broken_link_name)
 
     def test_concurrent_access(self):
+        """
+        If we have two `FTPHost` instances for the same server directory,
+        operations on one `FTPHost` instance shouldn't influence the cache
+        entries of the other `FTPHost` instance.
+        """
         self.make_remote_file("_testfile_")
         with ftputil.FTPHost(
             *self.login_data, session_factory=DEFAULT_SESSION_FACTORY
