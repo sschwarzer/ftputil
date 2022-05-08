@@ -571,7 +571,8 @@ class TestRename(RealFTPTest):
         This test also tests `Path` support.
         """
         host = self.host
-        # Make sure the target of the renaming operation is removed later.
+        # Make sure both files are gone after the test.
+        self.cleaner.add_file("_testfile1_")
         self.cleaner.add_file("_testfile2_")
         self.make_remote_file("_testfile1_")
         host.rename(pathlib.Path("_testfile1_"), "_testfile2_")
