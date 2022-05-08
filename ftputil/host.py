@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2022, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -50,7 +50,6 @@ if ftputil.path_encoding.RUNNING_UNDER_PY39_AND_UP:
             if "encoding" not in kwargs:
                 kwargs["encoding"] = ftputil.path_encoding.DEFAULT_ENCODING
             super().__init__(*args, **kwargs)
-
 
 else:
     default_session_factory = ftplib.FTP
@@ -779,8 +778,13 @@ class FTPHost:
             with ftputil.error.ftplib_error_to_ftp_os_error:
                 self._session.rmd(path)
 
-        self._robust_ftp_command(command, path)
-        self.stat_cache.invalidate(path)
+        # Always invalidate the cache. If `_robust_ftp_command` raises an
+        # exception, we can't tell for sure if the removal failed on the server
+        # vs. it succeeded, but something went wrong after that.
+        try:
+            self._robust_ftp_command(command, path)
+        finally:
+            self.stat_cache.invalidate(path)
 
     def remove(self, path):
         """
@@ -806,12 +810,17 @@ class FTPHost:
                 with ftputil.error.ftplib_error_to_ftp_os_error:
                     self._session.delete(path)
 
-            self._robust_ftp_command(command, path)
+            # Always invalidate the cache. If `_robust_ftp_command` raises an
+            # exception, we can't tell for sure if the removal failed on the
+            # server vs. it succeeded, but something went wrong after that.
+            try:
+                self._robust_ftp_command(command, path)
+            finally:
+                self.stat_cache.invalidate(path)
         else:
             raise ftputil.error.PermanentError(
                 "remove/unlink can only delete files and links, " "not directories"
             )
-        self.stat_cache.invalidate(path)
 
     unlink = remove
 

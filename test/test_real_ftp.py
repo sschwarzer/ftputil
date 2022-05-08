@@ -278,6 +278,30 @@ class TestRemoval(RealFTPTest):
         host.remove("_testfile_")
         assert not host.path.exists("_testfile_")
 
+    def test_cache_invalidation_for_remove_exception(self):
+        """
+        If a file is removed, its stats information should be removed from the
+        cache. This should also work if the removal raises an exception.
+        """
+        # Test for ticket #150
+        self.cleaner.add_file("_testfile_")
+        self.make_remote_file("_testfile_")
+        host = self.host
+        assert host.path.isfile("_testfile_")
+        # Monkey-patch session `delete` call.
+        old_delete = host._session.delete
+        def failing_delete(path):
+            # Simulate the case where the file is removed on the server, but a
+            # proper reply doesn't get through to the client. It doesn't matter
+            # whether the exception is `error_temp` or `error_perm`.
+            old_delete(path)
+            raise ftplib.error_perm("simulated error")
+
+        host._session.delete = failing_delete
+        with pytest.raises(ftputil.error.PermanentError):
+            host.remove("_testfile_")
+        assert not host.path.exists("_testfile_")
+
     def test_remove_non_existent_item(self):
         """
         If trying to remove a non-existent file system item, a `PermanentError`
@@ -339,6 +363,30 @@ class TestRemoval(RealFTPTest):
         non_empty.close()
         with pytest.raises(ftputil.error.PermanentError):
             host.rmdir(dir_name)
+
+    def test_cache_invalidation_for_rmdir_exception(self):
+        """
+        If a directory is removed, its stats information should be removed from
+        the cache. This should also work if the removal raises an exception.
+        """
+        # Test for ticket #150
+        self.cleaner.add_dir("_testdir_")
+        host = self.host
+        host.mkdir("_testdir_")
+        assert host.path.isdir("_testdir_")
+        # Monkey-patch session `rmd` call.
+        old_rmd = host._session.rmd
+        def failing_rmd(path):
+            # Simulate the case where the directory is removed on the server,
+            # but a proper reply doesn't get through to the client. It doesn't
+            # matter whether the exception is `error_temp` or `error_perm`.
+            old_rmd(path)
+            raise ftplib.error_perm("simulated error")
+
+        host._session.rmd = failing_rmd
+        with pytest.raises(ftputil.error.PermanentError):
+            host.rmdir("_testdir_")
+        assert not host.path.exists("_testdir_")
 
     # Tests for `rmtree`
 
