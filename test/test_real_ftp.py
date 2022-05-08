@@ -662,6 +662,10 @@ class TestUploadAndDownload(RealFTPTest):
 
     @pytest.mark.slow_test
     def test_upload(self):
+        """
+        `upload_if_newer` should respect the time difference between client and
+        server, including consideration of the time shift.
+        """
         host = self.host
         host.synchronize_times()
         local_file = "_local_file_"
@@ -688,6 +692,10 @@ class TestUploadAndDownload(RealFTPTest):
 
     @pytest.mark.slow_test
     def test_download(self):
+        """
+        `download_if_newer` should respect the time difference between client
+        and server, including consideration of the time shift.
+        """
         host = self.host
         host.synchronize_times()
         local_file = "_local_file_"
@@ -721,6 +729,9 @@ class TestUploadAndDownload(RealFTPTest):
             os.unlink(local_file)
 
     def test_callback_with_transfer(self):
+        """
+        A `callback` argument should be called during a file transfer.
+        """
         host = self.host
         FILE_NAME = "large_file"
         # Default chunk size as in `FTPHost.copyfileobj`
@@ -754,6 +765,10 @@ class TestUploadAndDownload(RealFTPTest):
 
 class TestFTPFiles(RealFTPTest):
     def test_only_closed_children(self):
+        """
+        If `FTPHost.open` needs an `FTPFile` object, an existing closed
+        `FTPFile` should be reused.
+        """
         REMOTE_FILE_NAME = "CONTENTS"
         host = self.host
         with host.open(REMOTE_FILE_NAME, "rb") as file_obj1:
@@ -767,6 +782,9 @@ class TestFTPFiles(RealFTPTest):
                 assert file_obj._host is host._children[1]
 
     def test_no_timed_out_children(self):
+        """
+        `FTPHost.open` shouldn't use an `FTPFile` object that has timed out.
+        """
         REMOTE_FILE_NAME = "CONTENTS"
         host = self.host
         # Implicitly create child host object.
@@ -786,6 +804,10 @@ class TestFTPFiles(RealFTPTest):
         assert file_obj2 is file_obj3
 
     def test_no_delayed_226_children(self):
+        """
+        `FTPHost.open` shouldn't use an `FTPFile` object that gave an 226 error
+        reply.
+        """
         REMOTE_FILE_NAME = "CONTENTS"
         host = self.host
         # Implicitly create child host object.
@@ -842,6 +864,9 @@ class TestChmod(RealFTPTest):
         assert mode == expected_mode, "mode {0:o} != {1:o}".format(mode, expected_mode)
 
     def test_chmod_existing_directory(self):
+        """
+        A `chmod` operation on a writable existing directory should succeed.
+        """
         host = self.host
         host.mkdir("_test dir_")
         self.cleaner.add_dir("_test dir_")
@@ -855,6 +880,9 @@ class TestChmod(RealFTPTest):
         self.assert_mode("_test dir_/nested_dir", 0o757)
 
     def test_chmod_existing_file(self):
+        """
+        A `chmod` operation on a writable existing file should succeed.
+        """
         host = self.host
         host.mkdir("_test dir_")
         self.cleaner.add_dir("_test dir_")
@@ -865,11 +893,19 @@ class TestChmod(RealFTPTest):
         self.assert_mode(file_name, 0o646)
 
     def test_chmod_nonexistent_path(self):
+        """
+        If `chmod` is called on a non-existent path, a `PermanentError` should
+        be raised.
+        """
         # Set/get mode of a non-existing item.
         with pytest.raises(ftputil.error.PermanentError):
             self.host.chmod("nonexistent", 0o757)
 
     def test_cache_invalidation(self):
+        """
+        If the mode of a directory or file is changed, make sure that the cache
+        doesn't contain stat entries before the `chmod` call.
+        """
         host = self.host
         host.mkdir("_test dir_")
         self.cleaner.add_dir("_test dir_")
@@ -964,6 +1000,9 @@ class TestOther(RealFTPTest):
         file1.close()
 
     def test_subsequent_reading(self):
+        """
+        An `FTPHost.open` call should reuse a closed `FTPFile`.
+        """
         # Open a file for reading.
         with self.host.open("CONTENTS", "rb") as file1:
             pass
@@ -973,7 +1012,12 @@ class TestOther(RealFTPTest):
         assert file1._session is file2._session
 
     def test_names_with_spaces(self):
-        # Test if directories and files with spaces in their names can be used.
+        """
+        Directory and file names with spaces in them shouldn't cause problems.
+
+        (We've seen problems here with some servers before
+        `_robust_ftp_command` was introduced.)
+        """
         host = self.host
         assert host.path.isdir("dir with spaces")
         assert host.listdir("dir with spaces") == [
@@ -987,7 +1031,8 @@ class TestOther(RealFTPTest):
 
     def test_synchronize_times_without_write_access(self):
         """
-        Test failing synchronization because of non-writable directory.
+        If the current directory isn't writable, `synchronize_times` should
+        raise a `TimeShiftError`.
         """
         host = self.host
         # This isn't writable by the ftp account the tests are run under.
@@ -997,7 +1042,8 @@ class TestOther(RealFTPTest):
 
     def test_encoding(self):
         """
-        Test setting the path encoding.
+        If the session factory is requested with a specific encoding, the
+        session from the factory should use this requested encoding.
         """
         for encoding in ["latin-1", "UTF-8"]:
             factory = ftputil.session.session_factory(port=PORT, encoding=encoding)
@@ -1050,6 +1096,16 @@ class TestOther(RealFTPTest):
             self.host.mkdir(path)
 
     def test_list_a_option(self):
+        """
+        If `use_list_a_option` is set to `False`, "hidden" files shouldn't be
+        included in the `listdir` result.
+
+        If `use_list_a_option` is set to `True`, "hidden" files should be
+        included in the `listdir` result.
+
+        Whether this works as described, depends on the FTP server and its
+        configuration.
+        """
         # For this test to pass, the server must _not_ list "hidden" files by
         # default but instead only when the `LIST` `-a` option is used.
         host = self.host
@@ -1072,7 +1128,9 @@ class TestOther(RealFTPTest):
                         unused_data = fobj.read()
 
     def test_garbage_collection(self):
-        """Test whether there are cycles which prevent garbage collection."""
+        """
+        Test whether there are cycles which prevent garbage collection.
+        """
         gc.collect()
         objects_before_test = len(gc.garbage)
         self._make_objects_to_be_garbage_collected()
