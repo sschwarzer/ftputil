@@ -900,7 +900,9 @@ class FTPHost:
         # `_robust_ftp_command`, though we do _not_ do _everything_ imaginable.
         self._check_inaccessible_login_directory()
         source_head, source_tail = self.path.split(source)
+        source_absolute_path = self.path.abspath(source)
         target_head, target_tail = self.path.split(target)
+        target_absolute_path = self.path.abspath(target)
         paths_contain_whitespace = (" " in source_head) or (" " in target_head)
         if paths_contain_whitespace and source_head == target_head:
             # Both items are in the same directory.
@@ -915,6 +917,8 @@ class FTPHost:
             # Use straightforward command.
             with ftputil.error.ftplib_error_to_ftp_os_error:
                 self._session.rename(source, target)
+        self.stat_cache.invalidate(source_absolute_path)
+        self.stat_cache.invalidate(target_absolute_path)
 
     # XXX: One could argue to put this method into the `_Stat` class, but I
     # refrained from that because then `_Stat` would have to know about
