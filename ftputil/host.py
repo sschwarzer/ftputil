@@ -890,35 +890,45 @@ class FTPHost:
 
     def rename(self, source, target):
         """
-        Rename the source on the FTP host to target.
+        Rename the `source` on the FTP host to `target`.
         """
         ftputil.tool.raise_for_empty_path(source, path_argument_name="source")
         ftputil.tool.raise_for_empty_path(target, path_argument_name="target")
         source = ftputil.tool.as_str_path(source, encoding=self._encoding)
         target = ftputil.tool.as_str_path(target, encoding=self._encoding)
+        source_head, source_tail = self.path.split(source)
+        target_head, target_tail = self.path.split(target)
+        # Avoid code duplication below.
+        #
+        # Use `source_arg` and `target_arg` instead of `source` and `target` to
+        # make it clearer that we use the arguments passed to
+        # `rename_with_cleanup`, not any variables from the scope outside
+        # `rename_with_cleanup`.
+        def rename_with_cleanup(source_arg, target_arg):
+            try:
+                with ftputil.error.ftplib_error_to_ftp_os_error:
+                    self._session.rename(source_arg, target_arg)
+            finally:
+                source_absolute_path = self.path.abspath(source_arg)
+                target_absolute_path = self.path.abspath(target_arg)
+                self.stat_cache.invalidate(source_absolute_path)
+                self.stat_cache.invalidate(target_absolute_path)
+
         # The following code is in spirit similar to the code in the method
         # `_robust_ftp_command`, though we do _not_ do _everything_ imaginable.
         self._check_inaccessible_login_directory()
-        source_head, source_tail = self.path.split(source)
-        source_absolute_path = self.path.abspath(source)
-        target_head, target_tail = self.path.split(target)
-        target_absolute_path = self.path.abspath(target)
         paths_contain_whitespace = (" " in source_head) or (" " in target_head)
         if paths_contain_whitespace and source_head == target_head:
             # Both items are in the same directory.
             old_dir = self.getcwd()
             try:
                 self.chdir(source_head)
-                with ftputil.error.ftplib_error_to_ftp_os_error:
-                    self._session.rename(source_tail, target_tail)
+                rename_with_cleanup(source_tail, target_tail)
             finally:
                 self.chdir(old_dir)
         else:
             # Use straightforward command.
-            with ftputil.error.ftplib_error_to_ftp_os_error:
-                self._session.rename(source, target)
-        self.stat_cache.invalidate(source_absolute_path)
-        self.stat_cache.invalidate(target_absolute_path)
+            rename_with_cleanup(source, target)
 
     # XXX: One could argue to put this method into the `_Stat` class, but I
     # refrained from that because then `_Stat` would have to know about

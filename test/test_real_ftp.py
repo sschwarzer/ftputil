@@ -615,6 +615,44 @@ class TestRename(RealFTPTest):
         new_file2_stat = host.stat("_testfile2_")
         assert new_file2_stat.st_size > file2_stat.st_size
 
+    def test_cache_invalidation_for_rename_exception(self):
+        """
+        If a file system item is renamed/moved, its stats information should be
+        removed from the cache. This should also work if the rename operation
+        raises an exception.
+        """
+        # Test for ticket #150
+        host = self.host
+        # Make sure the target of the renaming operation is removed later.
+        # Make sure both files are gone after the test.
+        self.cleaner.add_file("_testfile1_")
+        self.cleaner.add_file("_testfile2_")
+        # Write the source file with a size different from the target file, so
+        # we can check whether we find the old or the new stat information
+        # when stat'ing the target file after the rename.
+        with host.open("_testfile1_", "w") as fobj:
+            fobj.write("abcdef\n")
+        self.make_remote_file("_testfile2_")
+        file1_stat = host.stat("_testfile1_")
+        file2_stat = host.stat("_testfile2_")
+        # Monkey-patch session `rename` call.
+        old_rename = host._session.rename
+        def failing_rename(source, target):
+            # Simulate the case where the rename completely or partially
+            # succeeds on the server, but a proper reply doesn't get through to
+            # the client. It doesn't matter whether the exception is
+            # `error_temp` or `error_perm`.
+            old_rename(source, target)
+            raise ftplib.error_perm("simulated error")
+        host._session.rename = failing_rename
+        #
+        with pytest.raises(ftputil.error.PermanentError):
+            host.rename(pathlib.Path("_testfile1_"), "_testfile2_")
+        assert not host.path.exists("_testfile1_")
+        assert host.path.exists(pathlib.Path("_testfile2_"))
+        new_file2_stat = host.stat("_testfile2_")
+        assert new_file2_stat.st_size > file2_stat.st_size
+
     def test_rename_with_spaces_in_directory(self):
         """
         `rename` should work if source and target contain a directory with
