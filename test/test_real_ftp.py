@@ -579,6 +579,42 @@ class TestRename(RealFTPTest):
         assert not host.path.exists("_testfile1_")
         assert host.path.exists(pathlib.Path("_testfile2_"))
 
+    def test_cache_invalidation_for_rename(self):
+        """
+        A `rename` call should invalidate the cache entries for both path
+        arguments. The purpose of the first invalidation is obvious, but the
+        second invalidation is also important in case the path of the target
+        existed before the rename and changes according to the new file stat
+        information.
+
+        This test also tests `Path` support.
+        """
+        # Test for ticket #150
+        host = self.host
+        # Make sure both files are gone after the test.
+        self.cleaner.add_file("_testfile1_")
+        self.cleaner.add_file("_testfile2_")
+        # Case 1: Target file doesn't exist yet.
+        self.make_remote_file("_testfile1_")
+        file1_stat = host.stat("_testfile1_")
+        host.rename(pathlib.Path("_testfile1_"), "_testfile2_")
+        assert not host.path.exists("_testfile1_")
+        assert host.path.exists(pathlib.Path("_testfile2_"))
+        # Case 2: Target file already exists.
+        #  Write the source file with a size different from the target file, so
+        #  we can check whether we find the old or the new stat information
+        #  when stat'ing the target file after the rename.
+        with host.open("_testfile1_", "w") as fobj:
+            fobj.write("abcdef\n")
+        self.make_remote_file("_testfile2_")
+        file1_stat = host.stat("_testfile1_")
+        file2_stat = host.stat("_testfile2_")
+        host.rename(pathlib.Path("_testfile1_"), "_testfile2_")
+        assert not host.path.exists("_testfile1_")
+        assert host.path.exists(pathlib.Path("_testfile2_"))
+        new_file2_stat = host.stat("_testfile2_")
+        assert new_file2_stat.st_size > file2_stat.st_size
+
     def test_rename_with_spaces_in_directory(self):
         """
         `rename` should work if source and target contain a directory with
