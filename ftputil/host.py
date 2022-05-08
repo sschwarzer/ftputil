@@ -908,6 +908,8 @@ class FTPHost:
             try:
                 with ftputil.error.ftplib_error_to_ftp_os_error:
                     self._session.rename(source_arg, target_arg)
+            # Always invalidate the cache entries in case the rename succeeds
+            # on the server, but the server doesn't manage to tell the client.
             finally:
                 source_absolute_path = self.path.abspath(source_arg)
                 target_absolute_path = self.path.abspath(target_arg)
