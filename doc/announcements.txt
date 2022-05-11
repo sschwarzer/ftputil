@@ -34,7 +34,7 @@ ftputil is open source software, released under the 3-clause BSD
 license (see https://opensource.org/licenses/BSD-3-Clause ).
 
 
-[1] https://ftputil.sschwarzer.net/trac/ticket/150
+[1] https://todo.sr.ht/~sschwarzer/ftputil/150
 
 
 Best regards,
