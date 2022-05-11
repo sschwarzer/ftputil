@@ -8,7 +8,7 @@ Things to do for a new release:
   and `ftputil.txt` are handled by the `sed` invocation through
   `make patch`)
 
-- `make patch && make docs`
+- `make patch`
 
 - Do outstanding commits due to patching
 
