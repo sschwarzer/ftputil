@@ -24,7 +24,8 @@ If you're unsure how a new version might affect you, please ask on the
 
 | Version | Status | Release date | Main changes to previous version |
 |---------|--------|--------------|----------------------------------|
-| 5.0.3 | **Current stable release** | 2022-01-26 | Fix potential data loss for FTPS ([#149](https://todo.sr.ht/~sschwarzer/ftputil/149)) |
+| 5.0.4 | **Current stable release** | 2022-05-11 | Improve stat cache invalidation ([#150](https://todo.sr.ht/~sschwarzer/ftputil/150)) |
+| 5.0.3 |  | 2022-01-26 | Fix potential data loss for FTPS ([#149](https://todo.sr.ht/~sschwarzer/ftputil/149)) |
 | 5.0.2 |  | 2021-11-13 | Fix handling of empty paths ([#148](https://todo.sr.ht/~sschwarzer/ftputil/148)) |
 | 5.0.1 |  | 2021-03-18 | Fix regression for default session factory ([#145](https://todo.sr.ht/~sschwarzer/ftputil/145)) |
 | 5.0.0 |  | 2021-02-17 | Resolve Python 3.9 ftplib compatibility problem ([#143](https://todo.sr.ht/~sschwarzer/ftputil/143)) <br> **Note: This version is not backward-compatible with ftputil 4.0.0 and earlier.** |
