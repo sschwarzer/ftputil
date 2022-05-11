@@ -117,6 +117,7 @@ clean:
 	rm -rf ${PROJECT_DIR}/build
 	find ${PROJECT_DIR} -type f -name "*.pyc" -exec rm {} \;
 	find ${PROJECT_DIR} -type d -name "__pycache__" -exec rm -r {} \;
+	find ${PROJECT_DIR}/.tox -type d -name "__pycache__" -exec rm -r {} \;
 
 # Help testing test installations. Note that `pip uninstall`
 # doesn't work if the package wasn't installed with pip.
