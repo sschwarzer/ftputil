@@ -16,13 +16,15 @@ Things to do for a new release:
 
 - `make dist`
 
+If everything looks fine ...
+
 - Tag release (tags are formed like "v5.0.3-alpha2")
 
 - Push to repository
 
-- Add new version to Download page on the website
+- Add new version to `versions.md` page for the website
 
-- Update pre-release documentation
+- Update pre-release documentation (if necessary)
 
 - Post announcement to ftputil mailing list at
   `ftputil@lists.sschwarzer.net` (after possibly
@@ -33,9 +35,9 @@ Only for non-alpha/beta releases:
 
   _Before_ sending announcement to mailing list ...
 
-  - Update documentation on the website
+  - Update website
 
-  - Upload new version to PyPI
+  - Upload new version to PyPI (`make upload`)
 
 - Send announcement to `python-announce-list@python.org`
   XXX: No longer do this. Last time I did, I got a lot more spam.
