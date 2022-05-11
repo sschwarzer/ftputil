@@ -2,8 +2,6 @@ Things to do for a new release:
 
 - Do commits
 
-- Update info on new version in `README.txt`
-
 - Write announcement in announcements.txt
 
 - Increase version number in `VERSION` (`ftputil/version.py`
