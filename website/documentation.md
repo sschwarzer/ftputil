@@ -1505,10 +1505,7 @@ it.
 ## Files
 
 If not overwritten via installation options, the `ftputil` files reside
-in the `ftputil` package. There's also documentation in
-[reStructuredText](https://docutils.sourceforge.net/rst.html) and in
-HTML format. The locations of these files after installation is
-system-dependent.
+in the `ftputil` package.
 
 The files `test_*.py` and `scripted_session.py` are for unit-testing. If
 you only *use* `ftputil`, i.e. *don't* modify it, you can delete these
