@@ -12,8 +12,8 @@ in different timezones.
 
 ## Documentation
 
-The documentation for ftputil is in
-[doc/ftputil.md](https://git.sr.ht/~sschwarzer/ftputil/tree/main/item/doc/ftputil.md).
+The ftputil documentation is
+[here](https://ftputil.sschwarzer.net/documentation).
 
 ## Prerequisites
 
