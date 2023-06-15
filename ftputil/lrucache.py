@@ -6,10 +6,12 @@
 # (some changes to the original version)
 
 # Licensed under the Academic Free License 2.1
-
-# Licensed for ftputil under the revised BSD license
-# with permission by the author, Evan Prodromou. Many
-# thanks, Evan! :-)
+#
+# Additionally licensed for ftputil under the 3-clause BSD license
+# with permission by the author, Evan Prodromou. This means you can
+# use this module under either of the two licenses.
+#
+# Many thanks for your contribution, Evan! :-)
 #
 # The original file is available at
 # http://pypi.python.org/pypi/lrucache/0.2 .
