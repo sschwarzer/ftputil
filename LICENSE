@@ -1,7 +1,7 @@
 LICENSE
 =======
 
-All the software in the ftpuil distribution is covered by the
+All the software in the ftputil distribution is covered by the
 3-clause BSD license. While ftputil has mainly been written by
 Stefan Schwarzer <sschwarzer@sschwarzer.net> , others have also
 contributed suggestions and code.
@@ -10,7 +10,7 @@ In particular, Evan Prodromou <evan@bad.dynu.ca> has contributed
 his lrucache module which is covered by the 3-clause BSD license
 and additionally the Academic Free License 2.1. This means you
 can use the module `lrucache.py` under either of the two
-licenses; it's your choice.
+licenses.
 
 3-clause BSD license:
 ----------------------------------------------------------------------
