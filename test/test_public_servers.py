@@ -5,6 +5,7 @@
 import os
 import socket
 import subprocess
+import time
 
 import pytest
 
@@ -50,6 +51,9 @@ def ftp_client_listing(server, directory):
         stdout=subprocess.PIPE,
         universal_newlines=True,
     )
+    # Wait for connection to be established before sending any
+    # commands (see ticket 155).
+    time.sleep(1.0)
     commands = ["user anonymous {}".format(EMAIL), "dir", "bye"]
     if directory:
         # Change to this directory before calling "dir".
