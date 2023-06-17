@@ -1,11 +1,10 @@
-# Copyright (C) 2009-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2009-2023, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
 import os
 import socket
 import subprocess
-import time
 
 import pytest
 
@@ -51,9 +50,6 @@ def ftp_client_listing(server, directory):
         stdout=subprocess.PIPE,
         universal_newlines=True,
     )
-    # Wait for connection to be established before sending any
-    # commands (see ticket 155).
-    time.sleep(1.0)
     commands = ["user anonymous {}".format(EMAIL), "dir", "bye"]
     if directory:
         # Change to this directory before calling "dir".
@@ -99,11 +95,12 @@ class TestPublicServers:
 
     # List of pairs with server name and a directory "guaranteed to exist"
     # under the login directory which is assumed to be the root directory.
-    servers = [  # Posix format
+    servers = [
+        # Posix format
         ("ftp.de.debian.org", "debian"),
-        # ("ftp.gnome.org", "pub"),
-        ("ftp.heanet.ie", "pub"),
         ("ftp.heise.de", "pub"),
+        ("ftp.tu-chemnitz.de", "pub"),
+        ("ftp.uni-erlangen.de", "pub"),
         # DOS/Microsoft format
         # Do you know any FTP servers that use Microsoft format?
         # `ftp.microsoft.com` doesn't seem to be reachable anymore.
