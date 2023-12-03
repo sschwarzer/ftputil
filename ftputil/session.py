@@ -1,4 +1,4 @@
-# Copyright (C) 2014-2021, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2014-2023, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -8,6 +8,7 @@ Session factory factory (the two "factory" are intentional :-) ) for ftputil.
 
 import ftplib
 
+import ftputil.error
 import ftputil.tool
 
 
@@ -24,6 +25,7 @@ def session_factory(
     *,
     encrypt_data_channel=True,
     encoding=None,
+    send_opts_utf8_on=None,
     debug_level=None,
 ):
     """
@@ -57,6 +59,29 @@ def session_factory(
 
     Using a non-`None` `encoding` is only supported if `base_class` is
     `ftplib.FTP` or a subclass of it.
+
+    send_opts_utf8_on (bool or `None`): How to handle sending of the `OPTS UTF8
+    ON` command. For some combinations of FTP server and its configuration it's
+    necessary to tell the server explicitly that the paths use UTF-8 encoding.
+    Here's how the `encoding` and `send_opts_utf8_on` arguments interact:
+
+    | encoding | send_opts_utf8_on | behavior                                                           |
+    | -------- | ----------------- | ------------------------------------------------------------------ |
+    | None     | None              | use "native" encoding of Python version; don't send `OPTS` command |
+    | None     | False             | use "native" encoding of Python version; don't send `OPTS` command |
+    | None     | True              | raise exception for invalid argument combination                   |
+    | UTF8     | None              | send `OPTS` command wrapped in `try ... except (PermanentError,    |
+    |          |                   | TemporaryError): pass`; i.e. ignore errors from `OPTS` command     |
+    | UTF8     | False             | don't send `OPTS` command                                          |
+    | UTF8     | True              | send `OPTS` command _without_ wrapping it in `try ... except`      |
+    | non-UTF8 | None              | don't send `OPTS` command                                          |
+    | non-UTF8 | False             | don't send `OPTS` command                                          |
+    | non-UTF8 | True              | raise exception for invalid argument combination                   |
+
+    Note that setting the encoding to "UTF-8" is _not_ treated the same as
+    setting the encoding to `None`, even if the Python version is 3.9 or higher
+    since we can't know how the `base_class` is supposed to handle encodings.
+    The class might set the encoding to a non-UTF-8 encoding.
 
     debug_level: Debug level (integer) to be set on a session instance. The
     default is `None`, meaning no debugging output.
@@ -120,6 +145,38 @@ def session_factory(
                 self.set_pasv(use_passive_mode)
             if encrypt_data_channel and hasattr(base_class, "prot_p"):
                 self.prot_p()
+            self._handle_encoding_and_send_opts_utf8_on(encoding, send_opts_utf8_on)
+
+        def _handle_encoding_and_send_opts_utf8_on(self, encoding, send_opts_utf8_on):
+            """
+            See the docstring of `session_factory`.
+            """
+            if encoding is None:
+                if (send_opts_utf8_on is None) or (send_opts_utf8_on is False):
+                    pass
+                elif send_opts_utf8_on is True:
+                    raise ValueError("don't use `OPTS UTF8 ON` if `encoding` is `None`")
+            elif encoding.upper() in ["UTF-8", "UTF8"]:
+                if send_opts_utf8_on is None:
+                    # We don't know whether the server supports the `OPTS UTF8
+                    # ON` command, but if it doesn't, assume the server causes
+                    # an FTP temporary or permanent error.
+                    try:
+                        self.sendcmd("OPTS UTF8 ON")
+                    except (ftputil.error.TemporaryError, ftputil.error.PermanentError):
+                        pass
+                elif send_opts_utf8_on is False:
+                    pass
+                elif send_opts_utf8_on is True:
+                    self.sendcmd("OPTS UTF8 ON")
+            else:
+                # From here, `encoding` is neither `None` nor UTF-8.
+                if (send_opts_utf8_on is None) or (send_opts_utf8_on is False):
+                    pass
+                elif send_opts_utf8_on is True:
+                    raise ValueError(
+                        "don't use `OPTS UTF8 ON` if `encoding` isn't UTF-8"
+                    )
 
     if (encoding is not None) and not ftputil.path_encoding.RUNNING_UNDER_PY39_AND_UP:
         Session.encoding = encoding

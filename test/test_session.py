@@ -148,14 +148,14 @@ class TestSessionFactory:
         # Custom encoding
         factory = ftputil.session.session_factory(
             base_class=MockSession,
-            encoding="UTF-8",
+            encoding="latin1",
         )
         session = factory("host", "user", "password")
         assert session.calls == [
             ("connect", "host", 21),
             ("login", "user", "password"),
         ]
-        assert session.encoding == "UTF-8"
+        assert session.encoding == "latin1"
 
     def test_debug_level(self):
         """
