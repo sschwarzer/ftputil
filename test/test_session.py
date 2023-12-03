@@ -1,4 +1,4 @@
-# Copyright (C) 2014-2021, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2014-2023, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -34,11 +34,11 @@ class MockSession(ftplib.FTP):
     def connect(self, host, port):
         self.add_call("connect", host, port)
 
-    def set_debuglevel(self, value):
-        self.add_call("set_debuglevel", value)
-
     def login(self, user, password):
         self.add_call("login", user, password)
+
+    def set_debuglevel(self, value):
+        self.add_call("set_debuglevel", value)
 
     def set_pasv(self, flag):
         self.add_call("set_pasv", flag)
