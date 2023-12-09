@@ -49,6 +49,17 @@ class MockSession(ftplib.FTP):
         self.add_call("set_pasv", flag)
 
 
+class MockSessionWithSendcmdFTPError(MockSession):
+    """
+    Mock session where `sendcmd("OPTS UTF8 ON")` raises a `PermanentError`.
+    """
+
+    FTPError = ftputil.error.PermanentError
+
+    def sendcmd(self, command):
+        raise self.FTPError("sendcmd raised exception")
+
+
 class EncryptedMockSession(MockSession):
     def auth_tls(self):
         self.add_call("auth_tls")
@@ -173,6 +184,32 @@ class TestSessionFactory:
             ("login", "user", "password"),
         ] + expected_session_calls_after_login
         assert session.encoding == expected_encoding
+
+    @pytest.mark.parametrize("send_opts_utf8_on", [None, True])
+    def test_ftp_errors_for_send_opts_utf8_on(self, send_opts_utf8_on):
+        """
+        - If `encoding` is "UTF-8" and `send_opts_utf8_on` is `None`, FTP
+          errors should be caught and ignored.
+
+        - If `encoding` is "UTF-8" and `send_opts_utf8_on` is `True`, FTP
+          errors should _not_ be caught.
+        """
+        factory = ftputil.session.session_factory(
+            base_class=MockSessionWithSendcmdFTPError,
+            encoding="UTF-8",
+            send_opts_utf8_on=send_opts_utf8_on,
+        )
+        if send_opts_utf8_on is None:
+            session = factory("host", "user", "password")
+            expected_session_calls = [
+                ("connect", "host", 21),
+                ("login", "user", "password"),
+                ("sendcmd", "OPTS UTF8 ON"),
+            ]
+            assert session.encoding == "UTF-8"
+        elif send_opts_utf8_on is True:
+            with pytest.raises(MockSessionWithSendcmdFTPError.FTPError):
+                session = factory("host", "user", "password")
 
     @pytest.mark.parametrize(
         "encoding, send_opts_utf8_on",
