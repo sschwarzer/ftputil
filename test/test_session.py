@@ -9,6 +9,8 @@ Unit tests for session factory helpers.
 import ftplib
 import sys
 
+import pytest
+
 import ftputil.path_encoding
 import ftputil.session
 import ftputil.tool
@@ -36,6 +38,9 @@ class MockSession(ftplib.FTP):
 
     def login(self, user, password):
         self.add_call("login", user, password)
+
+    def sendcmd(self, command):
+        self.add_call("sendcmd", command)
 
     def set_debuglevel(self, value):
         self.add_call("set_debuglevel", value)
@@ -131,31 +136,67 @@ class TestSessionFactory:
         session = factory("host", "user", "password")
         assert session.calls == [("connect", "host", 21), ("login", "user", "password")]
 
-    def test_encoding(self):
+    @pytest.mark.parametrize(
+        "encoding, send_opts_utf8_on, expected_encoding, expected_session_calls_after_login",
+        [
+            (None, None, ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING, []),
+            (None, False, ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING, []),
+            ("UTF-8", None, "UTF-8", [("sendcmd", "OPTS UTF8 ON")]),
+            ("UTF-8", False, "UTF-8", []),
+            ("UTF-8", True, "UTF-8", [("sendcmd", "OPTS UTF8 ON")]),
+            ("latin1", None, "latin1", []),
+            ("latin1", False, "latin1", []),
+        ],
+    )
+    def test_encoding_and_send_opts_utf8_on(
+        self,
+        encoding,
+        send_opts_utf8_on,
+        expected_encoding,
+        expected_session_calls_after_login,
+    ):
         """
-        Test setting the default encoding and a custom encoding.
+        If `encoding` and `send_opts_utf8_on` have the given values, the result
+        should be the same as documented.
+
+        This collection of tests doesn't cover the combinations of `encoding`
+        and `send_opts_utf8_on` that result in exceptions.
         """
-        # Default encoding
         factory = ftputil.session.session_factory(
             base_class=MockSession,
+            encoding=encoding,
+            send_opts_utf8_on=send_opts_utf8_on,
         )
         session = factory("host", "user", "password")
-        assert session.calls == [
+        expected_session_calls = [
             ("connect", "host", 21),
             ("login", "user", "password"),
-        ]
-        assert session.encoding == ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING
-        # Custom encoding
+        ] + expected_session_calls_after_login
+        assert session.encoding == expected_encoding
+
+    @pytest.mark.parametrize(
+        "encoding, send_opts_utf8_on",
+        [
+            (None, True),
+            ("latin1", True),
+        ],
+    )
+    def test_invalid_encoding_and_send_opts_utf8_on(
+        self,
+        encoding,
+        send_opts_utf8_on,
+    ):
+        """
+        If the combination of `encoding` and `send_opts_utf8_on` is invalid, a
+        `ValueError` should be raised.
+        """
         factory = ftputil.session.session_factory(
             base_class=MockSession,
-            encoding="latin1",
+            encoding=encoding,
+            send_opts_utf8_on=send_opts_utf8_on,
         )
-        session = factory("host", "user", "password")
-        assert session.calls == [
-            ("connect", "host", 21),
-            ("login", "user", "password"),
-        ]
-        assert session.encoding == "latin1"
+        with pytest.raises(ValueError):
+            _session = factory("host", "user", "password")
 
     def test_debug_level(self):
         """
