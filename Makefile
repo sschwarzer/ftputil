@@ -51,6 +51,10 @@ patch:
 		PKG-INFO
 
 # Website maintenance
+.PHONY: serve_website
+serve_website:
+	(cd website && bundler exec jekyll serve)
+
 .PHONY: website
 website:
 	(cd website && bundler exec jekyll build)
