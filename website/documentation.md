@@ -252,16 +252,15 @@ After the `with` block, the `FTPHost` instance and the associated FTP
 sessions will be closed automatically.
 
 If something goes wrong during the `FTPHost` construction or in the body
-of the `with` statement, the instance is closed as well. Exceptions will
-be propagated (as with `try ... finally`).
+of the `with` statement, the instance is closed as well. Exceptions in
+the `with` block will be propagated.
 
 #### Session factories
 
 The keyword argument `session_factory` may be used to generate FTP
 connections with other factories than the default `ftplib.FTP`. For
-example, the standard library of Python 3 contains a class
-`ftplib.FTP_TLS` which extends `ftplib.FTP` to use an encrypted
-connection.
+example, the standard library contains a class `ftplib.FTP_TLS` which extends
+`ftplib.FTP` to use an encrypted connection.
 
 In fact, all positional and keyword arguments other than
 `session_factory` are passed to the factory to generate a new background
@@ -290,7 +289,7 @@ class MySession(ftplib.FTP):
         self.connect(host, port)
         self.login(userid, password)
 
-# Try _not_ to use an _instance_ `MySession()` as factory, -
+# Do _not_ use an _instance_ of `MySession()` as factory, -
 # use the class itself.
 with ftputil.FTPHost(host, userid, password, port=EXAMPLE_PORT,
                      session_factory=MySession) as ftp_host:
@@ -332,19 +331,19 @@ with
     `ftplib.FTP_TLS` and `M2Crypto.ftpslib.FTP_TLS`, otherwise the
     parameter is ignored.
 
--   `encoding` can be a string to set the encoding of directory and file
-    paths on the remote server. (This has nothing to do with the
-    encoding of file contents!) If you pass a string and your base class
-    is neither `ftplib.FTP` nor `ftplib.FTP_TLS`, the used heuristic in
-    `session_factory` may not work reliably. Therefore, if in doubt, let
-    `encoding` be `None` and define your `base_class` so that it sets
-    the encoding you want.
+-   `encoding` can be a string to set the encoding of directory and
+    file _paths_ on the remote server. (This has nothing to do with
+    the encoding of file _contents_!) If you pass a string and your
+    base class is neither `ftplib.FTP` nor `ftplib.FTP_TLS`, the used
+    heuristic in `session_factory` may not work reliably. Therefore,
+    if in doubt, let `encoding` be `None` and define your `base_class`
+    so that it sets the encoding you want.
 
-    Note: In Python 3.9, the default path encoding for `ftplib.FTP` and
-    `ftplib.FTP_TLS` changed from previously "latin-1" to "utf-8".
-    Hence, if you don't pass an `encoding` to `session_factory`, you'll
-    get different path encodings for Python 3.8 and earlier vs. Python
-    3.9 and later.
+    **Note:** In Python 3.9, the default path encoding for
+    `ftplib.FTP` and `ftplib.FTP_TLS` changed from previously
+    "latin-1" to "utf-8". Hence, if you don't pass an `encoding` to
+    `session_factory`, you'll get different path encodings for Python
+    3.8 and earlier vs. Python 3.9 and later.
 
     If you're sure that you always use only ASCII characters in your
     remote paths, you don't need to worry about the path encoding and
@@ -377,7 +376,9 @@ to create and use a session factory derived from `ftplib.FTP_TLS` that
 connects on command channel 31, will encrypt the data channel, use the
 UTF-8 encoding for remote paths and print output for debug level 2.
 
-Note: Generally, you can achieve everything you can do with
+> **Note**
+>
+> Generally, you can achieve everything you can do with
 `ftputil.session.session_factory` with an explicit session factory as
 described at the start of this section.
 
@@ -408,7 +409,9 @@ recommended. See below for the reason.
 *If* you have directory or file names with non-ASCII characters, you
 need to be aware of the encoding the [session factory](#session factory)
 (e.g. `ftplib.FTP`) uses. This needs to be the same encoding that the
-FTP server uses for the paths.
+FTP server software uses for the paths. Note that this may differ from
+the encoding of the file system where the remote directories and files
+are stored.
 
 The following diagram shows string conversions on the way from your code
 to the remote FTP server. The opposite way works analogously, so
@@ -418,7 +421,7 @@ in the diagram become encoding steps.
 Both "branching points" in the upper and lower part of diagrams are
 independent, so depending on how you pass paths to ftputil and which
 file system API the FTP server uses, there are four possible
-combinations.
+combinations overall.
 
 ```plaintext
     +-----------+       +-----------+
@@ -466,12 +469,12 @@ combinations.
          +-------------------+
 ```
 
-As you can see at the top of the diagram, if you use `str` objects
-(regular unicode strings), there's one fewer decoding step, and so one
-fewer source of problems. If you use `bytes` objects for paths, ftputil
-tries to get the encoding for the FTP server from the `encoding`
-attribute of the session instance (say, an instance of `ftplib.FTP`). If
-no `encoding` attribute is present, a `NoEncodingError` is raised.
+As you can see at the top of the diagram, if you use `str` objects,
+there's one fewer decoding step, and so one fewer source of problems.
+If you use `bytes` objects for paths, ftputil tries to get the
+encoding for the FTP server from the `encoding` attribute of the
+session instance (say, an instance of `ftplib.FTP`). If no `encoding`
+attribute is present, a `NoEncodingError` is raised.
 
 All encoding/decoding steps must use the same encoding, the encoding the
 server uses (at the bottom of the diagram). If the server uses the bytes
@@ -542,8 +545,8 @@ Caveats:
     filesystems. Keep in mind that most, *but not all*, arguments of
     `FTPHost` methods refer to remote directories or files. For example,
     in [FTPHost.upload](#uploading-and-downloading-files), the first
-    argument is a local path and the second a remote path. Both of these
-    should use their respective path separators.
+    argument is a local path and the second argument a remote path.
+    Both of these should use their respective path separators.
 
 #### Remote file system navigation
 
@@ -561,9 +564,9 @@ Caveats:
 
 -   `upload(source, target, callback=None)`
 
-    copies a local source file (given by a filename, i.e. a string) to
-    the remote host under the name target. Both `source` and `target`
-    may be absolute paths or relative to their corresponding current
+    copies a local source file (given by a path, i.e. a string) to the
+    remote host under the name target. Both `source` and `target` may
+    be absolute paths or relative to their corresponding current
     directory (on the local or the remote host, respectively).
 
     The file content is always transferred in binary mode.
@@ -602,15 +605,17 @@ Caveats:
     remote datetime is determined by parsing a directory listing from
     the server. To avoid unnecessary transfers, wait at least a minute
     between calls of `upload_if_newer` for the same file. If it still
-    seems that a file is uploaded unnecessarily (or not when it should),
-    read the subsection on [time shift](#time shift) settings.
+    seems that a file is uploaded unnecessarily or not when it should
+    be, read the subsection on [time shift](#time shift) settings.
 
     If an upload actually happened, the return value of
-    `upload_if_newer` is a `True`, else `False`.
+    `upload_if_newer` is `True`, else `False`.
 
-    Note that the method only checks the existence and/or the
-    modification time of the source and target file; it doesn't compare
-    any other file properties, say, the file size.
+    > **Note**
+    >
+    > The method only checks the existence and/or the
+    modification time of the source and target file; it doesn't
+    compare any other file properties, say, the file size.
 
     This also means that if a transfer is interrupted, the remote file
     will have a newer modification time than the local file, and thus
@@ -626,7 +631,7 @@ Caveats:
 -   `download_if_newer(source, target, callback=None)`
 
     corresponds to `upload_if_newer` but performs a download from the
-    server to the local host. Read the descriptions of download and
+    server to the local host. Read the descriptions of `download` and
     `upload_if_newer` for more information. If a download actually
     happened, the return value is `True`, else `False`.
 
@@ -687,8 +692,8 @@ assumes that the timestamps in server listings are in
 
 -   `time_shift()`
 
-    returns the currently-set time shift value. See `set_time_shift`
-    above for its definition.
+    returns the currently set time shift value. See `set_time_shift`
+    above for the definition of "time shift" in this context.
 
 <a id="synchronize_times"></a>
 
@@ -701,8 +706,8 @@ assumes that the timestamps in server listings are in
     work, *all* of the following conditions must be true:
 
     -   The connection between server and client is established.
-    -   The client has write access to the directory that is current
-        when `synchronize_times` is called.
+    -   The client has write access to the directory that is the
+        current directory when `synchronize_times` is called.
 
     If you can't fulfill these conditions, you can nevertheless set the
     time shift value explicitly with [set_time_shift](#set_time_shift).
@@ -785,7 +790,7 @@ exceptions by a mere `lstat` call, please [enter a
 ticket]({{ site.data.urls.tracker }}).
 
 If `lstat` or `stat` give wrong modification dates or times, look at the
-methods that deal with time zone differences ([time zone
+methods that deal with time zone differences (see [time zone
 correction](#time-zone-correction)).
 
 <a id="FTPHost.lstat"></a>
@@ -884,9 +889,9 @@ their argument.
 Many of the above methods need access to the remote file system to
 obtain data on directories and files. To get the most recent data,
 *each* call to `lstat`, `stat`, `exists`, `getmtime` etc. would require
-to fetch a directory listing from the server, which can make the program
-*very* slow. This effect is more pronounced for operations which mostly
-scan the file system rather than transferring file data.
+fetching a directory listing from the server, which can make the
+program *very* slow. This effect is more pronounced for operations
+which mostly scan the file system rather than transfer file data.
 
 For this reason, `ftputil` by default saves the results from directory
 listings locally and reuses those results. This reduces network accesses
@@ -909,27 +914,27 @@ notice that when you are processing very large directories and the
 program becomes much slower than before. It's common for code to read a
 directory with `listdir` and then process the found directories and
 files. This can also happen implicitly by a call to `FTPHost.walk`.
-Since version 2.6 `ftputil` automatically increases the cache size if
-directories with more entries than the current maximum cache size are to
-be scanned. Most of the time, this works fine.
+The `ftputil` library automatically increases the cache size if
+directories with more entries than the current maximum cache size are
+to be scanned. Most of the time, this works fine.
 
 However, if you need access to stat data for several directories at the
-same time, you may need to increase the cache explicitly. This is done
-by the `resize` method:
+same time, you may need to increase the cache explicitly. You can do
+this with the `resize` method:
 ```python
 ftp_host.stat_cache.resize(20000)
 ```
 where the argument is the maximum number of `lstat` results to store
-(the default is 5000, in versions before 2.6 it was 1000). Note that
-each path on the server, e.g. "/home/schwa/some_dir", corresponds to a
-single cache entry. Methods like `exists` or `getmtime` all derive their
-results from a previously fetched `lstat` result.
+(the default is 5000). Note that each path on the server, e.g.
+"/home/me/some_dir", corresponds to a single cache entry. Methods like
+`exists` or `getmtime` all derive their results from a previously
+fetched `lstat` result.
 
 The value 5000 above means that the cache will hold *at most* 5000
 entries (unless increased automatically by an explicit or implicit
-`listdir` call, see above). If more are about to be stored, the entries
-which haven't been used for the longest time will be deleted to make
-place for newer entries.
+`listdir` call, see above). If more entries are about to be stored,
+the entries which haven't been used for the longest time will be
+deleted to make place for newer entries.
 
 The second possible reason to change the cache parameters is to avoid
 stale cache data. Caching is so effective because it reduces network
@@ -1069,7 +1074,7 @@ process between the calls to `exists` and `getmtime`!
     sets the access mode (permission flags) for the given path. The mode
     is an integer as returned for the mode by the `stat` and `lstat`
     methods. Be careful: Usually, mode values are written as octal
-    numbers, for example 0755 to make a directory readable and writable
+    numbers, for example 0o755 to make a directory readable and writable
     for the owner, but not writable for the group and others. If you
     want to use such octal values, rely on Python's support for them:
     ```python
@@ -1106,14 +1111,14 @@ process between the calls to `exists` and `getmtime`!
     file-like object `target`. The only difference to
     `shutil.copyfileobj` is the default buffer size. Note that arbitrary
     file-like objects can be used as arguments (e.g. local files,
-    remote FTP files).
+    remote FTP files or other objects).
 
     However, the interfaces of `source` and `target` have to match; the
     string type read from `source` must be an accepted string type when
-    written to `target`. For example, if you open `source` in Python 3
-    as a local text file and `target` as a remote file object in binary
-    mode, the transfer will fail since `source.read` gives unicode
-    strings (`str`) whereas `target.write` only accepts byte strings
+    written to `target`. For example, if you open `source` as a local
+    text file and `target` as a remote file object in binary mode, the
+    transfer will fail since `source.read` gives unicode strings
+    (`str`) whereas `target.write` only accepts byte strings
     (`bytes`).
 
     See [File-like objects](#file-like-objects) for the construction and
@@ -1175,7 +1180,7 @@ process between the calls to `exists` and `getmtime`!
 `FTPFile` objects are returned by a call to `FTPHost.open`; never use
 the `FTPFile` constructor directly.
 
-The APIs for remote file-like objects is modeled after the APIs of the
+The APIs for remote file-like objects are modeled after the APIs of the
 built-in `open` function and its return value.
 
 -   `FTPHost.open(path, mode="r", buffering=None, encoding=None, errors=None, newline=None, rest=None)`
@@ -1191,7 +1196,7 @@ built-in `open` function and its return value.
     encoding. On the other hand, if you open a file in text mode, an
     encoding is used. By default, this is the return value of
     `locale.getpreferredencoding`, but you can (and probably should)
-    specify a distinct encoding.
+    specify an explicit encoding.
 
     If you open a file in binary mode, the read and write operations use
     `bytes` objects. That is, read operations return `bytes` and write
@@ -1236,7 +1241,7 @@ automatically.
 
 If something goes wrong during the construction of the file or in the
 body of the `with` statement, the file will be closed as well.
-Exceptions will be propagated as with `try ... finally`.
+Exceptions from the `with` body will be propagated.
 
 ### Attributes and methods
 
@@ -1250,7 +1255,7 @@ write(data)
 writelines(string_sequence)
 ```
 and the attribute `closed` have the same semantics as for file objects
-of a local disk file system. The iterator protocol is supported as well,
+of a local file system. The iterator protocol is supported as well,
 i.e. you can use a loop to read a file line by line:
 ```python
 with ftputil.FTPHost(server, user, password) as ftp_host:
@@ -1358,7 +1363,9 @@ Some more details:
     some time if the directory has many entries.
 
 Bottom line: If you can, you should organize your FTP actions so that
-you finish everything before a timeout happens.
+you finish everything before a timeout happens. If that isn't
+possible, you need to write code that can reopen FTP connections and
+resume operations on them.
 
 ## Writing directory parsers
 
@@ -1486,7 +1493,7 @@ it.
     names starting with a dot) depends on the configuration of the FTP
     server. See [Hidden files and
     directories](#hidden-files-and-directories) for details.
--   Due to the implementation of `lstat` it can not return a sensible
+-   Due to the implementation of `lstat` it can't return a sensible
     value for the root directory `/` though stat'ing entries *in* the
     root directory isn't a problem. If you know an implementation that
     can do this, please let me know. The root directory is handled
