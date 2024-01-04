@@ -649,10 +649,10 @@ assumes that the timestamps in server listings are in
     ```
 
     For example, a server in Berlin/Germany set to the local time
-    (currently UTC+03:00), would require a time shift value of 3 \*
-    3600.0 = 10800.0 seconds to be handled correctly by ftputil's
-    `upload_if_newer` and `download_if_newer`, as well as the `stat` and
-    `lstat` calls.
+    (currently UTC+02:00), would require a time shift value of 2 \*
+    3600.0 = 7200.0 seconds to be handled correctly by ftputil's
+    `upload_if_newer` and `download_if_newer`, as well as the `stat`
+    and `lstat` calls.
 
     Note that servers don't necessarily send their file system listings
     in their local time zone. Some use UTC, which actually makes sense
