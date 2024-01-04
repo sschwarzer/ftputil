@@ -65,7 +65,7 @@ file. The latter can also follow links, similar to
 -   Local caching of results from `lstat` and `stat` calls to reduce
     network access (also applies to `exists`, `getmtime` etc.).
 -   Read files from and write files to remote hosts via file-like
-    objects (`FTPHost.open`; the generated file-like objects have the
+    objects (`FTPHost.open`); the generated file-like objects have the
     familiar methods like `read`, `readline`, `readlines`, `write`,
     `writelines` and `close`. You can also iterate over these files line
     by line in a `for` loop.
