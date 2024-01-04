@@ -27,7 +27,4 @@ platforms :mingw, :x64_mingw, :mswin, :jruby do
 end
 
 # Performance-booster for watching directories on Windows
-
-# Dependency for Jekyll or minimal mistakes
-gem "webrick"
 gem "wdm", :platforms => [:mingw, :x64_mingw, :mswin]
