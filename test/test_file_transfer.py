@@ -43,7 +43,7 @@ class TestRemoteFile:
         This subtraction happens in `stat._Stat.parse_unix_time`, so it must
         _not_ be done a second time in `file_transfer.RemoteFile`.
         """
-        utcnow = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
+        utcnow = datetime.datetime.now(datetime.timezone.utc)
         # 3 hours
         time_shift = 3 * 60 * 60
         dir_line = test_base.dir_line(

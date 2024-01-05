@@ -47,7 +47,9 @@ def expected_time_shift():
     server, later it used UTC time, and now it uses the local timezone again.
     I wasn't able to find out why or how I can control this.
     """
-    raw_time_shift = (datetime.datetime.now() - datetime.datetime.utcnow()).seconds
+    raw_time_shift = (
+        datetime.datetime.now() - datetime.datetime.now(datetime.timezone.utc)
+    ).seconds
     # To be safe, round the above value to units of 900 s (1/4 hours).
     return round(raw_time_shift / 900.0) * 900
 
@@ -709,9 +711,7 @@ class TestStat(RealFTPTest):
         #  time. Arbitrarily allow two minutes here to account for limited time
         #  precision from parsing the directory.
         server_mtime = host.path.getmtime(file_name)
-        client_mtime = (
-            datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).timestamp()
-        )
+        client_mtime = datetime.datetime.now(datetime.timezone.utc).timestamp()
         assert not (client_mtime - server_mtime > 120)
 
     def test_issomething_for_nonexistent_directory(self):

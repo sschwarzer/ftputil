@@ -526,9 +526,7 @@ class TestTimeShift:
             # needs to deal with this and add the year "back". I don't think
             # this is a bug in `parse_unix_time` because the method should work
             # once the time shift is set correctly.
-            client_time = datetime.datetime.utcnow().replace(
-                tzinfo=datetime.timezone.utc
-            )
+            client_time = datetime.datetime.now(datetime.timezone.utc)
             presumed_server_time = client_time.replace(
                 year=client_time.year - 1
             ) + datetime.timedelta(seconds=presumed_time_shift)

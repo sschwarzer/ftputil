@@ -545,7 +545,7 @@ class TestAcceptEitherBytesOrStr:
         Test whether `FTPHost.path.getmtime` accepts byte and unicode paths.
         """
         path_converter = self.path_converter
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.timezone.utc)
         script = [
             Call("__init__"),
             Call("pwd", result="/"),

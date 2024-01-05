@@ -74,9 +74,7 @@ class TestParsers:
         # If in this year it's after Dec 19, 23:11, use the current year, else
         # use the previous year. This datetime value corresponds to the
         # hard-coded value in the string lists below.
-        client_datetime = datetime.datetime.utcnow().replace(
-            tzinfo=datetime.timezone.utc
-        )
+        client_datetime = datetime.datetime.now(datetime.timezone.utc)
         server_datetime_candidate = client_datetime.replace(
             month=12, day=19, hour=23, minute=11, second=0
         )
@@ -522,8 +520,8 @@ class TestParsers:
             # Explicitly use Unix format parser here.
             host._stat._parser = ftputil.stat.UnixParser()
             host.set_time_shift(supposed_time_shift)
-            server_time = datetime.datetime.utcnow().replace(
-                tzinfo=datetime.timezone.utc
+            server_time = datetime.datetime.now(
+                datetime.timezone.utc
             ) + datetime.timedelta(seconds=supposed_time_shift + deviation)
             stat_result = host._stat._parser.parse_line(
                 self.dir_line(server_time), host.time_shift()

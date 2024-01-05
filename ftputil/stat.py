@@ -271,8 +271,8 @@ class Parser:
                 self._as_int(minute, "minute"),
             )
             # First assume the year of the directory/file is the current year.
-            server_now = datetime.datetime.utcnow().replace(
-                tzinfo=datetime.timezone.utc
+            server_now = datetime.datetime.now(
+                datetime.timezone.utc
             ) + datetime.timedelta(seconds=time_shift)
             server_year = server_now.year
             # If the server datetime derived from this year seems to be in the
