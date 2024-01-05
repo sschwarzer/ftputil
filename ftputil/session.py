@@ -15,6 +15,26 @@ import ftputil.tool
 __all__ = ["session_factory"]
 
 
+def _maybe_send_opts_utf8_on(session, encoding):
+    """
+    If the requested encoding is UTF-8 and the server supports the `UTF8`
+    feature, send "OPTS UTF8 ON".
+
+    See https://datatracker.ietf.org/doc/html/rfc2640.html .
+    """
+    if ((encoding is None) and ftputil.path_encoding.RUNNING_UNDER_PY39_AND_UP) or (
+        encoding in ["UTF-8", "UTF8", "utf-8", "utf8"]
+    ):
+        feat_output = session.sendcmd("FEAT")
+        server_supports_opts_utf8_on = False
+        for line in feat_output.splitlines():
+            # The leading space is important. See RFC 2640.
+            if line.upper().rstrip() == " UTF8":
+                server_supports_opts_utf8_on = True
+        if server_supports_opts_utf8_on:
+            session.sendcmd("OPTS UTF8 ON")
+
+
 # In a way, it would be appropriate to call this function
 # `session_factory_factory`, but that's cumbersome to use. Think of the
 # function returning a session factory and the shorter name should be fine.
@@ -121,26 +141,7 @@ def session_factory(
                 self.set_pasv(use_passive_mode)
             if encrypt_data_channel and hasattr(base_class, "prot_p"):
                 self.prot_p()
-            self._handle_encoding(encoding)
-
-        def _handle_encoding(self, encoding):
-            """
-            If the requested encoding is UTF-8 and the server supports the
-            `UTF8` feature, send "OPTS UTF8 ON".
-
-            See https://datatracker.ietf.org/doc/html/rfc2640.html .
-            """
-            if (
-                (encoding is None) and ftputil.path_encoding.RUNNING_UNDER_PY39_AND_UP
-            ) or (encoding in ["UTF-8", "UTF8", "utf-8", "utf8"]):
-                feat_output = self.sendcmd("FEAT")
-                server_supports_opts_utf8_on = False
-                for line in feat_output.splitlines():
-                    # The leading space is important. See RFC 2640.
-                    if line.upper().rstrip() == " UTF8":
-                        server_supports_opts_utf8_on = True
-                if server_supports_opts_utf8_on:
-                    self.sendcmd("OPTS UTF8 ON")
+            _maybe_send_opts_utf8_on(self, encoding)
 
     if (encoding is not None) and not ftputil.path_encoding.RUNNING_UNDER_PY39_AND_UP:
         Session.encoding = encoding
