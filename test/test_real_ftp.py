@@ -290,6 +290,7 @@ class TestRemoval(RealFTPTest):
         assert host.path.isfile("_testfile_")
         # Monkey-patch session `delete` call.
         old_delete = host._session.delete
+
         def failing_delete(path):
             # Simulate the case where the file is removed on the server, but a
             # proper reply doesn't get through to the client. It doesn't matter
@@ -376,6 +377,7 @@ class TestRemoval(RealFTPTest):
         assert host.path.isdir("_testdir_")
         # Monkey-patch session `rmd` call.
         old_rmd = host._session.rmd
+
         def failing_rmd(path):
             # Simulate the case where the directory is removed on the server,
             # but a proper reply doesn't get through to the client. It doesn't
@@ -637,6 +639,7 @@ class TestRename(RealFTPTest):
         file2_stat = host.stat("_testfile2_")
         # Monkey-patch session `rename` call.
         old_rename = host._session.rename
+
         def failing_rename(source, target):
             # Simulate the case where the rename completely or partially
             # succeeds on the server, but a proper reply doesn't get through to
@@ -644,6 +647,7 @@ class TestRename(RealFTPTest):
             # `error_temp` or `error_perm`.
             old_rename(source, target)
             raise ftplib.error_perm("simulated error")
+
         host._session.rename = failing_rename
         #
         with pytest.raises(ftputil.error.PermanentError):
