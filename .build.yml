@@ -1,5 +1,5 @@
 # Build manifest for `builds.sr.ht`
-image: fedora/37
+image: fedora/38
 
 packages:
 - ftp
@@ -20,7 +20,7 @@ tasks:
     export DOCKER=podman
     $DOCKER pull index.docker.io/stilliard/pure-ftpd
     make run_test_server
-    python3.10 -m venv ~/ftputil_env
+    python3.11 -m venv ~/ftputil_env
     source ~/ftputil_env/bin/activate
     pip install --no-color --progress-bar=off --upgrade pip
     pip install --no-color --progress-bar=off freezegun pytest tox
