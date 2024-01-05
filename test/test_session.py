@@ -1,4 +1,4 @@
-# Copyright (C) 2014-2023, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2014-2024, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -7,6 +7,7 @@ Unit tests for session factory helpers.
 """
 
 import ftplib
+import functools
 import sys
 
 import pytest
@@ -14,6 +15,9 @@ import pytest
 import ftputil.path_encoding
 import ftputil.session
 import ftputil.tool
+
+
+UTF8_FEAT_STRING = " UTF8\r\n"
 
 
 # Inherit from `ftplib.FTP` to get past the subclass check in
@@ -25,10 +29,11 @@ class MockSession(ftplib.FTP):
 
     encoding = ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING
 
-    def __init__(self, encoding=None):
+    def __init__(self, encoding=None, feat_command_output=""):
         self.calls = []
         if encoding is not None:
             self.encoding = encoding
+        self._feat_command_output = feat_command_output
 
     def add_call(self, *args):
         self.calls.append(args)
@@ -41,23 +46,17 @@ class MockSession(ftplib.FTP):
 
     def sendcmd(self, command):
         self.add_call("sendcmd", command)
+        if command == "FEAT":
+            return self._feat_command_output
+        else:
+            # Dummy
+            return ""
 
     def set_debuglevel(self, value):
         self.add_call("set_debuglevel", value)
 
     def set_pasv(self, flag):
         self.add_call("set_pasv", flag)
-
-
-class MockSessionWithSendcmdFTPError(MockSession):
-    """
-    Mock session where `sendcmd("OPTS UTF8 ON")` raises a `PermanentError`.
-    """
-
-    FTPError = ftputil.error.PermanentError
-
-    def sendcmd(self, command):
-        raise self.FTPError("sendcmd raised exception")
 
 
 class EncryptedMockSession(MockSession):
@@ -74,13 +73,31 @@ class TestSessionFactory:
     trigger the expected calls.
     """
 
+    @staticmethod
+    def _expected_session_calls_for_encoding_handling(encoding, feat_command_output):
+        """
+        Return the FTP session calls that the session factory should perform.
+        """
+        if encoding is None:
+            encoding = ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING
+        if encoding.upper() == "UTF-8":
+            if feat_command_output == UTF8_FEAT_STRING:
+                return [("sendcmd", "FEAT"), ("sendcmd", "OPTS UTF8 ON")]
+            else:
+                return [("sendcmd", "FEAT")]
+        else:
+            return []
+
     def test_defaults(self):
         """
         Test defaults (apart from base class).
         """
         factory = ftputil.session.session_factory(base_class=MockSession)
         session = factory("host", "user", "password")
-        assert session.calls == [("connect", "host", 21), ("login", "user", "password")]
+        assert session.calls == [
+            ("connect", "host", 21),
+            ("login", "user", "password"),
+        ] + self._expected_session_calls_for_encoding_handling(None, "")
 
     def test_different_port(self):
         """
@@ -91,7 +108,7 @@ class TestSessionFactory:
         assert session.calls == [
             ("connect", "host", 2121),
             ("login", "user", "password"),
-        ]
+        ] + self._expected_session_calls_for_encoding_handling(None, "")
 
     def test_use_passive_mode(self):
         """
@@ -106,7 +123,7 @@ class TestSessionFactory:
             ("connect", "host", 21),
             ("login", "user", "password"),
             ("set_pasv", True),
-        ]
+        ] + self._expected_session_calls_for_encoding_handling(None, "")
         # Active mode
         factory = ftputil.session.session_factory(
             base_class=MockSession, use_passive_mode=False
@@ -116,7 +133,7 @@ class TestSessionFactory:
             ("connect", "host", 21),
             ("login", "user", "password"),
             ("set_pasv", False),
-        ]
+        ] + self._expected_session_calls_for_encoding_handling(None, "")
 
     def test_encrypt_data_channel(self):
         """
@@ -129,7 +146,7 @@ class TestSessionFactory:
             ("connect", "host", 21),
             ("login", "user", "password"),
             ("prot_p",),
-        ]
+        ] + self._expected_session_calls_for_encoding_handling(None, "")
         #
         factory = ftputil.session.session_factory(
             base_class=EncryptedMockSession, encrypt_data_channel=True
@@ -139,101 +156,71 @@ class TestSessionFactory:
             ("connect", "host", 21),
             ("login", "user", "password"),
             ("prot_p",),
-        ]
+        ] + self._expected_session_calls_for_encoding_handling(None, "")
         # Without encrypted data channel.
         factory = ftputil.session.session_factory(
             base_class=EncryptedMockSession, encrypt_data_channel=False
         )
         session = factory("host", "user", "password")
-        assert session.calls == [("connect", "host", 21), ("login", "user", "password")]
+        assert session.calls == [
+            ("connect", "host", 21),
+            ("login", "user", "password"),
+        ] + self._expected_session_calls_for_encoding_handling(None, "")
 
     @pytest.mark.parametrize(
-        "encoding, send_opts_utf8_on, expected_encoding, expected_session_calls_after_login",
+        "encoding, feat_command_output, expected_encoding, expected_session_calls_for_encoding_handling",
         [
-            (None, None, ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING, []),
-            (None, False, ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING, []),
-            ("UTF-8", None, "UTF-8", [("sendcmd", "OPTS UTF8 ON")]),
-            ("UTF-8", False, "UTF-8", []),
-            ("UTF-8", True, "UTF-8", [("sendcmd", "OPTS UTF8 ON")]),
-            ("latin1", None, "latin1", []),
-            ("latin1", False, "latin1", []),
+            # Expected session calls for the first two tuples depend on the
+            # Python version and are determined in the code below.
+            #
+            # For the `FEAT` command output we consider only wether the " UTF8"
+            # string is present. A real `FEAT` response from a server would be
+            # more complicated.
+            (None, "", ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING, None),
+            (
+                None,
+                UTF8_FEAT_STRING,
+                ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING,
+                None,
+            ),
+            ("UTF-8", "", "UTF-8", [("sendcmd", "FEAT")]),
+            (
+                "UTF-8",
+                UTF8_FEAT_STRING,
+                "UTF-8",
+                [("sendcmd", "FEAT"), ("sendcmd", "OPTS UTF8 ON")],
+            ),
+            ("latin1", "", "latin1", []),
+            ("latin1", UTF8_FEAT_STRING, "latin1", []),
         ],
     )
-    def test_encoding_and_send_opts_utf8_on(
+    def test_encoding(
         self,
         encoding,
-        send_opts_utf8_on,
+        feat_command_output,
         expected_encoding,
-        expected_session_calls_after_login,
+        expected_session_calls_for_encoding_handling,
     ):
         """
-        If `encoding` and `send_opts_utf8_on` have the given values, the result
-        should be the same as documented.
-
-        This collection of tests doesn't cover the combinations of `encoding`
-        and `send_opts_utf8_on` that result in exceptions.
+        If `encoding` has the given values, the result should be the same as
+        documented.
         """
+        # Special handling for default encoding.
+        base_class = functools.partial(
+            MockSession, feat_command_output=feat_command_output
+        )
         factory = ftputil.session.session_factory(
             base_class=MockSession,
             encoding=encoding,
-            send_opts_utf8_on=send_opts_utf8_on,
         )
         session = factory("host", "user", "password")
         expected_session_calls = [
             ("connect", "host", 21),
             ("login", "user", "password"),
-        ] + expected_session_calls_after_login
+        ] + self._expected_session_calls_for_encoding_handling(
+            encoding, feat_command_output
+        )
         assert session.encoding == expected_encoding
-
-    @pytest.mark.parametrize("send_opts_utf8_on", [None, True])
-    def test_ftp_errors_for_send_opts_utf8_on(self, send_opts_utf8_on):
-        """
-        - If `encoding` is "UTF-8" and `send_opts_utf8_on` is `None`, FTP
-          errors should be caught and ignored.
-
-        - If `encoding` is "UTF-8" and `send_opts_utf8_on` is `True`, FTP
-          errors should _not_ be caught.
-        """
-        factory = ftputil.session.session_factory(
-            base_class=MockSessionWithSendcmdFTPError,
-            encoding="UTF-8",
-            send_opts_utf8_on=send_opts_utf8_on,
-        )
-        if send_opts_utf8_on is None:
-            session = factory("host", "user", "password")
-            expected_session_calls = [
-                ("connect", "host", 21),
-                ("login", "user", "password"),
-                ("sendcmd", "OPTS UTF8 ON"),
-            ]
-            assert session.encoding == "UTF-8"
-        elif send_opts_utf8_on is True:
-            with pytest.raises(MockSessionWithSendcmdFTPError.FTPError):
-                session = factory("host", "user", "password")
-
-    @pytest.mark.parametrize(
-        "encoding, send_opts_utf8_on",
-        [
-            (None, True),
-            ("latin1", True),
-        ],
-    )
-    def test_invalid_encoding_and_send_opts_utf8_on(
-        self,
-        encoding,
-        send_opts_utf8_on,
-    ):
-        """
-        If the combination of `encoding` and `send_opts_utf8_on` is invalid, a
-        `ValueError` should be raised.
-        """
-        factory = ftputil.session.session_factory(
-            base_class=MockSession,
-            encoding=encoding,
-            send_opts_utf8_on=send_opts_utf8_on,
-        )
-        with pytest.raises(ValueError):
-            _session = factory("host", "user", "password")
 
     def test_debug_level(self):
         """
@@ -245,4 +232,4 @@ class TestSessionFactory:
             ("connect", "host", 21),
             ("set_debuglevel", 1),
             ("login", "user", "password"),
-        ]
+        ] + self._expected_session_calls_for_encoding_handling(None, "")
