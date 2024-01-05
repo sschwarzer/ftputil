@@ -45,13 +45,20 @@ if ftputil.path_encoding.RUNNING_UNDER_PY39_AND_UP:
             # Python 3.9 defines `encoding` as a keyword-only argument, so test
             # only for the `encoding` argument in `kwargs`.
             #
-            # Only use the ftputil default encoding if the caller didn't pass
-            # an encoding.
+            # Only use the ftputil default encoding (latin-1) if the
+            # caller didn't pass an encoding.
             if "encoding" not in kwargs:
-                kwargs["encoding"] = ftputil.path_encoding.DEFAULT_ENCODING
-            super().__init__(*args, **kwargs)
+                encoding = ftputil.path_encoding.DEFAULT_ENCODING
+                kwargs["encoding"] = encoding
+                super().__init__(*args, **kwargs)
+            else:
+                super().__init__(*args, **kwargs)
+                # Handle UTF-8 encoding if it was specified.
+                ftputil.session._maybe_send_opts_utf8_on(self, kwargs["encoding"])
 
 else:
+    # No need to handle UTF-8 encoding here since `ftplib.FTP` under
+    # Python 3.8 and lower uses latin-1 encoding.
     default_session_factory = ftplib.FTP
 
 
