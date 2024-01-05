@@ -125,7 +125,8 @@ def session_factory(
 
         def _handle_encoding(self, encoding):
             """
-            If the server supports the `UTF8` feature, send "OPTS UTF8 ON".
+            If the requested encoding is UTF-8 and the server supports the
+            `UTF8` feature, send "OPTS UTF8 ON".
 
             See https://datatracker.ietf.org/doc/html/rfc2640.html .
             """
