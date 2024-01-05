@@ -265,7 +265,7 @@ class Parser:
             # `year_or_time` is a time hh:mm.
             st_mtime_precision = MINUTE_PRECISION
             hour, minute = year_or_time.split(":")
-            year, hour, minute = (
+            _year, hour, minute = (
                 None,
                 self._as_int(hour, "hour"),
                 self._as_int(minute, "minute"),
