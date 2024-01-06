@@ -3,8 +3,8 @@ permalink: /documentation
 title: Documentation
 ---
 
-**Version:** 5.0.4\
-**Date:** 2022-05-11\
+**Version:** 5.1.0\
+**Date:** 2024-01-06\
 **Keywords:** FTP, `ftplib` substitute, virtual filesystem, pure Python\
 **Author:** Stefan Schwarzer
 
