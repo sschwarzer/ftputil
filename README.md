@@ -21,16 +21,19 @@ To use ftputil, you need Python, at least version 3.6.
 
 ## Installation
 
-*If you have an older version of ftputil installed, delete it or
-move it somewhere else, so that it doesn't conflict with the new
-version.*
-
 You can install ftputil with pip:
 
     pip install ftputil
 
 Unless you're installing ftputil in a virtual environment, you'll
 probably need root/administrator privileges.
+
+To update the library, run
+
+    pip install -U ftputil
+
+That said, you can use another Python package manager if you like.
+Adapt the commands accordingly.
 
 Note that ftputil versions with a different major version number won't
 be fully backward-compatible with the previous version. Examples are
