@@ -3,6 +3,9 @@ TODO:
 Packages can no longer be downloaded from the website. PyPI is the way
 to go! :-)
 
+Also update the link for the documentation to
+https://ftputil.sschwarzer.net/documentation .
+
 
 ----------------------------------------------------------------------
 ftputil 5.1.0 is now available from
