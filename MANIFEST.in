@@ -3,3 +3,4 @@ include VERSION
 include ftputil/*.py
 
 include test/*.py
+include tox.ini
