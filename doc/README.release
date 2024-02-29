@@ -20,11 +20,11 @@ If everything looks fine ...
 
 - Tag release (tags are formed like "v5.0.3-alpha2")
 
-- Push to repository
-
 - Add new version to `versions.md` page for the website
 
 - Update pre-release documentation (if necessary)
+
+- Push to repository
 
 - Post announcement to ftputil mailing list at
   `ftputil@lists.sschwarzer.net` (after possibly
