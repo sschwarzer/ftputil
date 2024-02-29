@@ -225,9 +225,9 @@ class Parser:
         """
         Return a floating point number, like from `time.mktime`, by parsing the
         string arguments `month_abbreviation`, `day` and `year_or_time`. The
-        parameter `time_shift` is the difference "time on server" - "time on
-        client" and is available as the `time_shift` parameter in the
-        `parse_line` interface.
+        parameter `time_shift` is the difference "time on server" - "UTC time"
+        and is available as the `time_shift` parameter in the `parse_line`
+        interface.
 
         If `with_precision` is true return a two-element tuple consisting of
         the floating point number as described in the previous paragraph and
@@ -300,9 +300,9 @@ class Parser:
                 server_year, month, day, hour, minute, 0
             ) > server_now.replace(second=0) + datetime.timedelta(seconds=120):
                 server_year -= 1
-        # The time shift is the time difference the server is ahead. So to get
-        # back to client time (UTC), subtract the time shift. The calculation
-        # is supposed to be the same for negative time shifts; in this case we
+        # The time shift is the time difference the server is ahead of UTC. So
+        # to get back to UTC, subtract the time shift. The calculation is
+        # supposed to be the same for negative time shifts; in this case we
         # subtract a negative time shift, i. e. add the absolute value of the
         # time shift to the server date time.
         server_utc_datetime = self._datetime(
@@ -326,7 +326,7 @@ class Parser:
         string arguments `date` and `time_`. The parameter `time_shift` is the
         difference
 
-            "time on server" - "time on client"
+            "time on server" - "UTC time"
 
         and can be set as the `time_shift` parameter in the `parse_line`
         interface.
