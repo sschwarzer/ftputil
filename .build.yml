@@ -1,11 +1,10 @@
 # Build manifest for `builds.sr.ht`
-image: fedora/40
+image: fedora/42
 
 packages:
 - ftp
 - podman
 - python3-docutils
-- python3.8
 - python3.9
 - python3.10
 - python3.11
