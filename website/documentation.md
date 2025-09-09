@@ -233,8 +233,9 @@ and are described here:
 
 `FTPHost` instances can be created with the following call:
 ```python
-ftp_host = ftputil.FTPHost(server, user, password, account,
-                           session_factory=ftplib.FTP)
+ftp_host = ftputil.FTPHost(
+    server, user, password, account, session_factory=ftplib.FTP
+)
 ```
 
 The first four parameters are strings with the same meaning as for the
@@ -292,8 +293,9 @@ class MySession(ftplib.FTP):
 
 # Do _not_ use an _instance_ of `MySession()` as factory, -
 # use the class itself.
-with ftputil.FTPHost(host, userid, password, port=EXAMPLE_PORT,
-                     session_factory=MySession) as ftp_host:
+with ftputil.FTPHost(
+    host, userid, password, port=EXAMPLE_PORT, session_factory=MySession
+) as ftp_host:
     # Use `ftp_host` as usual.
     ...
 ```
@@ -307,12 +309,14 @@ factory class though. The `ftputil.session` module has a function
 `session_factory` that can create session factories for a variety of
 parameters:
 ```python
-session_factory(base_class=ftplib.FTP,
-                port=21,
-                use_passive_mode=None,
-                encrypt_data_channel=True,
-                encoding=None,
-                debug_level=None)
+session_factory(
+    base_class=ftplib.FTP,
+    port=21,
+    use_passive_mode=None,
+    encrypt_data_channel=True,
+    encoding=None,
+    debug_level=None,
+)
 ```
 with
 
@@ -363,14 +367,16 @@ import ftputil.session
 
 
 my_session_factory = ftputil.session.session_factory(
-                       base_class=ftpslib.FTP_TLS,
-                       port=31,
-                       encrypt_data_channel=True,
-                       encoding="UTF-8",
-                       debug_level=2)
+    base_class=ftpslib.FTP_TLS,
+    port=31,
+    encrypt_data_channel=True,
+    encoding="UTF-8",
+    debug_level=2,
+)
 
-with ftputil.FTPHost(server, user, password,
-                     session_factory=my_session_factory) as ftp_host:
+with ftputil.FTPHost(
+    server, user, password, session_factory=my_session_factory
+) as ftp_host:
     ...
 ```
 to create and use a session factory derived from `ftplib.FTP_TLS` that
@@ -512,8 +518,9 @@ FTP `LIST` command to find hidden files.
 To tell the server to list hidden directories and files, set
 `FTPHost.use_list_a_option` to `True`:
 ```python
-ftp_host = ftputil.FTPHost(server, user, password, account,
-                           session_factory=ftplib.FTP)
+ftp_host = ftputil.FTPHost(
+    server, user, password, account, session_factory=ftplib.FTP
+)
 ftp_host.use_list_a_option = True
 ```
 
@@ -687,7 +694,7 @@ assumes that the timestamps in server listings are in
     client, you can set the time shift value with
     ```python
     set_time_shift(
-      round( (datetime.datetime.now() - datetime.datetime.utcnow()).seconds, -2 )
+        round( (datetime.datetime.now() - datetime.datetime.utcnow()).seconds, -2 )
     )
     ```
 
@@ -955,8 +962,8 @@ inconsistencies can also occur if two `FTPHost` objects change a file
 system simultaneously:
 ```python
 with (
-  ftputil.FTPHost(server, user1, password1) as ftp_host1,
-  ftputil.FTPHost(server, user1, password1) as ftp_host2
+    ftputil.FTPHost(server, user1, password1) as ftp_host1,
+    ftputil.FTPHost(server, user1, password1) as ftp_host2
 ):
     stat_result1 = ftp_host1.stat("some_file")
     stat_result2 = ftp_host2.stat("some_file")
@@ -978,15 +985,16 @@ The most useful tool for this is the `invalidate` method. In the example
 above, it could be used like this:
 ```python
 with (
-  ftputil.FTPHost(server, user1, password1) as ftp_host1,
-  ftputil.FTPHost(server, user1, password1) as ftp_host2
+    ftputil.FTPHost(server, user1, password1) as ftp_host1,
+    ftputil.FTPHost(server, user1, password1) as ftp_host2
 ):
     stat_result1 = ftp_host1.stat("some_file")
     stat_result2 = ftp_host2.stat("some_file")
     ftp_host2.remove("some_file")
     # Invalidate using an absolute path.
     absolute_path = ftp_host1.path.abspath(
-                      ftp_host1.path.join(ftp_host1.getcwd(), "some_file"))
+        ftp_host1.path.join(ftp_host1.getcwd(), "some_file")
+    )
     ftp_host1.stat_cache.invalidate(absolute_path)
     # Will now raise an exception as it should.
     print(ftp_host1.stat("some_file"))
@@ -1003,8 +1011,8 @@ for an infinite time. That is, if you start your Python process using
 `ftputil` and let it run for three days a stat call may still access
 cache data that old. To avoid this, you can set the `max_age` attribute:
 ```python
-    with ftputil.FTPHost(server, user, password) as ftp_host:
-        ftp_host.stat_cache.max_age = 60 * 60  # = 3600 seconds
+with ftputil.FTPHost(server, user, password) as ftp_host:
+    ftp_host.stat_cache.max_age = 60 * 60  # = 3600 seconds
 ```
 
 This sets the maximum age of entries in the cache to an hour. This means
@@ -1430,8 +1438,19 @@ A `StatResult` object is similar to the value returned by
 usually built with statements like
 ```python
 stat_result = StatResult(
-                (st_mode, st_ino, st_dev, st_nlink, st_uid,
-                 st_gid, st_size, st_atime, st_mtime, st_ctime))
+    (
+        st_mode,
+        st_ino,
+        st_dev,
+        st_nlink,
+        st_uid,
+        st_gid,
+        st_size,
+        st_atime,
+        st_mtime,
+        st_ctime,
+    )
+)
 stat_result._st_name = ...
 stat_result._st_target = ...
 stat_result._st_mtime_precision = ...
