@@ -148,5 +148,5 @@ run_test_server: build_test_server_image
 	if [ ! -z "$(shell ${DOCKER} container ls -q -a --filter name=${CONTAINER})" ]; then \
 		${DOCKER} container rm -f ${CONTAINER}; \
 	fi
-	${DOCKER} container run --rm --detach --privileged --name ${CONTAINER} \
+	${DOCKER} container run --rm --detach --cap-add=ALL --name ${CONTAINER} \
 		-p 127.0.0.1:2121:2121 -p 127.0.0.1:30000-30009:30000-30009 ${IMAGE}
