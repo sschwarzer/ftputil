@@ -7,5 +7,6 @@ mypy-extensions
 prompt-toolkit
 pytest
 pytest-mypy
+ruff
 tox
 virtualenv
