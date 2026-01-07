@@ -54,12 +54,17 @@ also used for dependency injection for tests, where the session
 factory returns an instance of `test.scripted_session.ScriptedSession`
 or `test.scripted_session.MultisessionFactory`.
 
+#### Basic `ScriptedSession` usage
+
 The behavior of a `ScriptedSession` is determined by passing it a
 `script` object, which is a list of `Call` objects. Each such object
-defines the name of a `ftplib.FTP` method to call, the arguments of
-the call and the result that should be returned by the mock object.
+defines:
+- `method_name`: the name of the `ftplib.FTP` method to call
+- `args`: positional arguments expected (as a tuple), or `None` to skip validation
+- `kwargs`: keyword arguments expected (as a dict), or `None` to skip validation
+- `result`: the value to return, or an exception to raise
 
-For example, `test.test_host.TestConstructor.test_open_and_close` is
+For example, `test.test_host.TestConstructor.test_open_and_close` is:
 ```python
     def test_open_and_close(self):
         """
@@ -77,17 +82,146 @@ At test runtime, the mock object will ensure that the
 object, and the mock call will return (or raise) the `Call.result`
 defined in the test setup.
 
-`MultisessionFactory` is an extension of `ScriptedSession` that uses
-different `ScriptedSession`s for consecutive `FTPHost` constructions,
-similar to the use of the `side_effect` in `unittest.mock` that can be
-used to define consecutive return values for multiple calls. Defining
-multiple sessions is important for testing FTP file-like objects,
-which are `FTPFile` instances that contain `FTPHost` instances as
-their `_file` attribute.
+#### Common patterns
 
-An advantage of the "scripted session" approach is that it's extremely
-flexible, but the downside is that the "script" also has to define
-"lower" call levels that aren't really part of what the actual test
-should test. In other words, the scripted session may need to be
-adapted if the _implementation_ of the function/method under test
-changes.
+**Basic FTP host test pattern:**
+
+```python
+script = [
+    Call("__init__"),
+    Call("pwd", result="/"),
+    # ... your operation calls here ...
+    Call("close")
+]
+host = test_base.ftp_host_factory(scripted_session.factory(script))
+# ... test code ...
+host.close()
+```
+
+**Testing error conditions:**
+
+Pass an exception as the `result`:
+```python
+Call("cwd", args=("/nonexistent",), result=ftplib.error_perm)
+```
+
+**Directory listings:**
+
+Use `test_base.dir_line()` helper to generate realistic `DIR` output:
+```python
+import datetime
+listing = "\n".join([
+    test_base.dir_line(
+        mode_string="drwxr-xr-x",
+        name="somedir",
+        datetime_=datetime.datetime(2019, 4, 22, 16, 50)
+    ),
+    test_base.dir_line(
+        mode_string="-rw-r--r--",
+        name="somefile.txt",
+        size=1024,
+        datetime_=datetime.datetime(2019, 4, 22, 16, 51)
+    )
+])
+script = [
+    Call("__init__"),
+    Call("pwd", result="/"),
+    Call("dir", args=("/somepath",), result=listing),
+    Call("close")
+]
+```
+
+**File operations:**
+
+Use `io.BytesIO` or `io.StringIO` for file content:
+```python
+Call("transfercmd",
+     args=("RETR somefile.txt", None),
+     result=io.BytesIO(b"file contents"))
+```
+
+#### `MultisessionFactory`
+
+`MultisessionFactory` is used when a test needs multiple FTP sessions,
+such as when testing file operations. `FTPFile` instances create their
+own `FTPHost` internally, which requires a second session.
+
+The factory is called with multiple scripts, one for each session:
+```python
+host_script = [
+    Call("__init__"),
+    Call("pwd", result="/"),
+    Call("close")
+]
+file_script = [
+    Call("__init__"),
+    Call("pwd", result="/"),
+    Call("cwd", args=("/",)),
+    Call("voidcmd", args=("TYPE I",)),
+    Call("transfercmd", args=("STOR myfile.txt", None), result=io.BytesIO()),
+    Call("voidresp"),
+    Call("close"),
+]
+multisession_factory = scripted_session.factory(host_script, file_script)
+with test_base.ftp_host_factory(multisession_factory) as host:
+    with host.open("myfile.txt", "w") as f:
+        f.write("data")
+```
+
+The first call to create a session uses `host_script`, the second uses
+`file_script`, and so on for additional scripts.
+
+#### Helper utilities
+
+- `test_base.ftp_host_factory(session_factory)`: Creates an `FTPHost`
+  with dummy credentials and the given session factory
+- `test_base.dir_line(...)`: Generates realistic FTP `DIR` command
+  output lines with configurable attributes (mode, size, timestamps, etc.)
+- `test_base.MockableBytesIO` and `test_base.MockableStringIO`:
+  Subclasses of `io.BytesIO`/`io.StringIO` that can be mocked with
+  `unittest.mock` (needed because built-in classes can't be patched)
+
+#### Special method handling
+
+Some `ftplib.FTP` methods have special implementations in `ScriptedSession`:
+- `dir(path, callback)`: Splits the `result` string by lines and calls
+  the callback for each line
+- `transfercmd(cmd, rest)`: Returns a mock socket whose `makefile()`
+  returns the `result` value
+- `ntransfercmd(cmd, rest)`: Returns a tuple of (mock socket, size)
+
+#### Writing new tests: workflow
+
+1. Identify the ftputil operation you want to test (e.g., `host.listdir()`)
+2. Trace through the code to determine which `ftplib.FTP` methods will be called
+3. Create a script with `Call` objects for each expected method call:
+   - Always start with `Call("__init__")`
+   - Usually need `Call("pwd", result="/")`  early on
+   - Add calls for your specific operation
+   - End with `Call("close")` if you close the host
+4. For file operations, create separate scripts for host and file sessions
+5. Use `test_base.ftp_host_factory()` to create the host with your scripted session
+
+#### Trade-offs
+
+**Advantages:**
+
+- Extremely flexible and powerful
+- Makes the sequence of FTP commands explicit and testable
+- No network I/O needed
+
+**Disadvantages:**
+
+- Scripts can become verbose with "plumbing" calls not directly related
+  to the test's purpose
+- Scripts are tied to implementation details and may need updates when
+  the internal call sequence changes
+- Requires understanding both the ftputil code and the underlying
+  `ftplib.FTP` API
+
+**Tip:** When a test fails with "Ran out of `Call` objects", it means
+the code under test made more FTP calls than expected. When a test
+fails with a method name mismatch, the code called a different FTP
+method than expected. In both cases, review the test output to see
+what was expected vs. what actually happened, then update your script
+accordingly.
