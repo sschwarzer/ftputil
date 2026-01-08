@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2026, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -44,6 +44,8 @@ Note: ftputil currently is not threadsafe. More specifically, you can
       a single `FTPHost` object in different threads.
 """
 
+import warnings
+
 from ftputil.host import FTPHost
 from ftputil.version import __version__
 
@@ -51,3 +53,13 @@ from ftputil.version import __version__
 # Apart from `ftputil.error` and `ftputil.stat`, this is the whole
 # public API of `ftputil`.
 __all__ = ["FTPHost", "__version__"]
+
+
+# Deprecation warning for upcoming encoding change in ftputil 6.0.0
+warnings.warn(
+    "In ftputil 6.0.0, the default file path encoding will change from "
+    'Latin-1 to UTF-8. Explicitly specify encoding="latin-1" for the '
+    "path encoding if the remote file system uses Latin-1 encoding.",
+    DeprecationWarning,
+    stacklevel=2,
+)
