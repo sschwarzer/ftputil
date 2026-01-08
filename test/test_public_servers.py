@@ -99,7 +99,7 @@ class TestPublicServers:
         # Posix format
         ("ftp.de.debian.org", "debian"),
         ("ftp.heise.de", "pub"),
-        ("ftp.rz.tu-clausthal.de", "pub"),
+        ("ftp.tu-ilmenau.de", "pub"),
         # DOS/Microsoft format
         # Do you know any FTP servers that use Microsoft format?
         # `ftp.microsoft.com` doesn't seem to be reachable anymore.
