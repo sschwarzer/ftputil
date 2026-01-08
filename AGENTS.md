@@ -11,6 +11,8 @@
 
 ## Code Style Guidelines
 - **Max line length**: 88 characters (follows pylintrc config)
+- **Empty lines in functions/methods:** Avoid empty lines, except around
+  function/method-internal `def` or `class` statements
 - **Indentation**: 4 spaces (no tabs)
 - **Imports**: Standard library first, then ftputil modules (see host.py example)
 - **Naming**: snake_case for functions/variables, PascalCase for classes
@@ -22,5 +24,7 @@
 ## Testing
 - Uses pytest framework with custom markers (`slow_test` for long-running tests)
 - Test files follow `test_<module>.py` naming pattern in `test/` directory
+- Test docstrings should use style from behavior-driven testing, but without
+  explicit Given/When distinction. See `test_host.py` for examples.
 - Use `scripted_session` for FTP session mocking
 - Dependencies: pytest, freezegun (see tox.ini)
