@@ -9,6 +9,7 @@ ftputil.path - simulate `os.path` for FTP servers
 import os
 import posixpath
 import stat
+import warnings
 
 import ftputil.error
 import ftputil.tool
@@ -186,9 +187,13 @@ class _Path:
             else:
                 return stat.S_ISLNK(lstat_result.st_mode)
 
-    def walk(self, top, func, arg):
+    def walk(self, top, func, arg, _is_recursive_call=False):
         """
         Directory tree walk with callback function.
+
+        Note: This method is deprecated as of ftputil 5.2.0 and will be removed
+        in ftputil 6.0.0. Use `FTPHost.walk()` instead, which provides the modern
+        Python 3 generator-based API similar to `os.walk()`.
 
         For each directory in the directory tree rooted at top
         (including top itself, but excluding "." and ".."), call
@@ -204,6 +209,14 @@ class _Path:
         e.g., to pass a filename pattern, or a mutable object designed
         to accumulate statistics.  Passing None for arg is common.
         """
+        if not _is_recursive_call:
+            warnings.warn(
+                "FTPHost.path.walk() is deprecated and will be removed in ftputil "
+                "6.0.0. Use FTPHost.walk() instead, which provides the modern "
+                "Python 3 generator-based API similar to os.walk().",
+                DeprecationWarning,
+                stacklevel=2,
+            )
         ftputil.tool.raise_for_empty_path(top, path_argument_name="top")
         top = ftputil.tool.as_str_path(top, encoding=self._encoding)
         # This code (and the above documentation) is taken from `posixpath.py`,
@@ -220,4 +233,4 @@ class _Path:
             except OSError:
                 continue
             if stat.S_ISDIR(stat_result[stat.ST_MODE]):
-                self.walk(name, func, arg)
+                self.walk(name, func, arg, _is_recursive_call=True)
