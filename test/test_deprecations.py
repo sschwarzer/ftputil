@@ -14,7 +14,11 @@ from unittest import mock
 
 import pytest
 
+# Ignore warning from following `ftputil` import.
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
 import ftputil
+import ftputil.path
 
 from test import test_base
 from test import scripted_session
@@ -23,7 +27,7 @@ from test import scripted_session
 Call = scripted_session.Call
 
 
-class TestEncodingDeprecationWarning:
+class TestDeprecationForFilePathEncoding:
     """
     Test the deprecation warning for default path encoding change in
     ftputil 6.0.0.
@@ -91,23 +95,21 @@ class TestEncodingDeprecationWarning:
         )
 
 
-class TestPathWalkDeprecation:
+class TestDeprecationForPathWalk:
     """
-    Test the deprecation warning for FTPHost.path.walk() in ftputil 5.2.0
+    Test the deprecation warning for `FTPHost.path.walk` in ftputil 5.2.0.
     """
 
     def test_path_walk_emits_deprecation_warning(self):
         """
-        Verify that calling path.walk() emits a deprecation warning.
+        Verify that calling `path.walk` emits a deprecation warning.
 
         Tests that the warning is emitted when path.walk() is called.
         """
-        from ftputil.path import _Path
-
         mock_host = mock.MagicMock()
         mock_host._encoding = "utf-8"
         mock_host.listdir.return_value = []
-        path_obj = _Path(mock_host)
+        path_obj = ftputil.path._Path(mock_host)
         with pytest.warns(DeprecationWarning, match="FTPHost.path.walk()"):
             path_obj.walk("/", func=lambda arg, top, names: None, arg=None)
 
@@ -118,12 +120,10 @@ class TestPathWalkDeprecation:
         The warning should mention ftputil 6.0.0, FTPHost.walk(), and reference
         to os.walk() to help users understand the alternative.
         """
-        from ftputil.path import _Path
-
         mock_host = mock.MagicMock()
         mock_host._encoding = "utf-8"
         mock_host.listdir.return_value = []
-        path_obj = _Path(mock_host)
+        path_obj = ftputil.path._Path(mock_host)
         with pytest.warns(DeprecationWarning) as record:
             path_obj.walk("/", func=lambda arg, top, names: None, arg=None)
         assert len(record) >= 1
@@ -142,12 +142,10 @@ class TestPathWalkDeprecation:
         When path.walk() calls itself recursively via _is_recursive_call=True,
         no deprecation warning should be emitted.
         """
-        from ftputil.path import _Path
-
         mock_host = mock.MagicMock()
         mock_host._encoding = "utf-8"
         mock_host.listdir.return_value = []
-        path_obj = _Path(mock_host)
+        path_obj = ftputil.path._Path(mock_host)
         with warnings.catch_warnings(record=True) as record:
             warnings.simplefilter("always")
             path_obj.walk(
@@ -163,12 +161,10 @@ class TestPathWalkDeprecation:
         """
         Verify warning can be suppressed with warnings filters.
         """
-        from ftputil.path import _Path
-
         mock_host = mock.MagicMock()
         mock_host._encoding = "utf-8"
         mock_host.listdir.return_value = []
-        path_obj = _Path(mock_host)
+        path_obj = ftputil.path._Path(mock_host)
         with warnings.catch_warnings(record=True) as w:
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             path_obj.walk("/", func=lambda arg, top, names: None, arg=None)
@@ -187,12 +183,10 @@ class TestPathWalkDeprecation:
         same source location. This test verifies the warning is emitted with
         the default filter active, and can be seen from different locations.
         """
-        from ftputil.path import _Path
-
         mock_host = mock.MagicMock()
         mock_host._encoding = "utf-8"
         mock_host.listdir.return_value = []
-        path_obj = _Path(mock_host)
+        path_obj = ftputil.path._Path(mock_host)
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("default")
             path_obj.walk("/", func=lambda arg, top, names: None, arg=None)
@@ -211,12 +205,10 @@ class TestPathWalkDeprecation:
         When called from different lines/locations in user code, each
         location should get its own warning.
         """
-        from ftputil.path import _Path
-
         mock_host = mock.MagicMock()
         mock_host._encoding = "utf-8"
         mock_host.listdir.return_value = []
-        path_obj = _Path(mock_host)
+        path_obj = ftputil.path._Path(mock_host)
 
         def call_walk_first():
             path_obj.walk("/", func=lambda arg, top, names: None, arg=None)
@@ -240,12 +232,10 @@ class TestPathWalkDeprecation:
         """
         Verify stacklevel=2 points to caller's code, not ftputil internals.
         """
-        from ftputil.path import _Path
-
         mock_host = mock.MagicMock()
         mock_host._encoding = "utf-8"
         mock_host.listdir.return_value = []
-        path_obj = _Path(mock_host)
+        path_obj = ftputil.path._Path(mock_host)
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             path_obj.walk("/", func=lambda arg, top, names: None, arg=None)
