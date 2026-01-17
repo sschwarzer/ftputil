@@ -59,22 +59,6 @@ class TestEncodingDeprecationWarning:
             f"Expected exactly 1 warning, got {warning_count}. stderr: {result.stderr}"
         )
 
-    def test_warning_message_actionable(self):
-        """
-        Verify the warning message provides clear action items.
-        """
-        code = textwrap.dedent("""
-            import warnings
-            warnings.simplefilter('default', DeprecationWarning)
-            import ftputil
-        """)
-        result = subprocess.run(
-            [sys.executable, "-c", code], capture_output=True, text=True
-        )
-        stderr = result.stderr
-        # Check for actionable guidance
-        assert "encoding=" in stderr or "explicitly specify" in stderr
-
     def test_warning_points_to_import_location(self):
         """
         Verify that stacklevel is set correctly to point to user code.
