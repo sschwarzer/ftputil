@@ -43,20 +43,21 @@ class TestEncodingDeprecationWarning:
         assert "UTF-8" in result.stderr
         assert 'encoding="latin-1"' in result.stderr
 
-    def test_warning_points_to_import_location(self):
+    def test_warning_points_to_import_location(self, tmp_path):
         """
         Verify that stacklevel is set correctly to point to user code.
         """
+        file_path = tmp_path / "test.py"
+        file_path.write_text("import ftputil")
         result = subprocess.run(
-            [sys.executable, "-c", "import ftputil"], capture_output=True, text=True
+            [sys.executable, "-W", "default::DeprecationWarning", file_path],
+            capture_output=True,
+            text=True,
         )
-        # The warning should reference the import line, not ftputil internals.
-        # We can't check exact line numbers in `-c` mode, but we can verify it
-        # doesn't point to `ftputil/__init__.py` in the first line of `stderr`.
-        first_line = result.stderr.split("\n")[0] if result.stderr else ""
-        assert "ftputil/__init__.py" not in first_line, (
-            "Warning should point to user code, not ftputil internals"
-        )
+        # Expect the name of our test file, not of a file in the ftputil package.
+        assert "test.py:1: DeprecationWarning:" in result.stderr
+        # Don't test for just "ftputil" since it's part of the deprecation message.
+        assert "ftputil/" not in result.stderr
 
     def test_warning_emitted_only_once_per_process(self):
         """
