@@ -25,7 +25,15 @@ class TestEncodingDeprecationWarning:
         """
         # Run Python in subprocess to test import-time warning.
         result = subprocess.run(
-            [sys.executable, "-c", "import ftputil"], capture_output=True, text=True
+            [
+                sys.executable,
+                "-W",
+                "default::DeprecationWarning",
+                "-c",
+                "import ftputil",
+            ],
+            capture_output=True,
+            text=True,
         )
         # Check that the warning was emitted.
         assert result.returncode == 0, f"Subprocess failed: {result.stderr}"
@@ -55,7 +63,13 @@ class TestEncodingDeprecationWarning:
         Verify that the warning is emitted only once, even with multiple imports.
         """
         result = subprocess.run(
-            [sys.executable, "-c", "import ftputil\nimport ftputil"],
+            [
+                sys.executable,
+                "-W",
+                "defaul::DeprecationWarning",
+                "-c",
+                "import ftputil\nimport ftputil",
+            ],
             capture_output=True,
             text=True,
         )
