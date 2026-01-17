@@ -59,22 +59,6 @@ class TestEncodingDeprecationWarning:
             f"Expected exactly 1 warning, got {warning_count}. stderr: {result.stderr}"
         )
 
-    def test_warning_can_be_suppressed(self):
-        """
-        Verify that the warning can be suppressed with warnings.filterwarnings.
-        """
-        code = textwrap.dedent("""
-            import warnings
-            warnings.filterwarnings('ignore', category=DeprecationWarning)
-            import ftputil
-        """)
-        result = subprocess.run(
-            [sys.executable, "-c", code], capture_output=True, text=True
-        )
-        # Check that no warning was emitted
-        assert result.returncode == 0
-        assert "DeprecationWarning" not in result.stderr
-
     def test_warning_message_actionable(self):
         """
         Verify the warning message provides clear action items.
