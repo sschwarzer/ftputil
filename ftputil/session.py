@@ -1,4 +1,4 @@
-# Copyright (C) 2014-2024, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2014-2026, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -26,13 +26,18 @@ def _maybe_send_opts_utf8_on(session, encoding):
         encoding in ["UTF-8", "UTF8", "utf-8", "utf8"]
     ):
         feat_output = session.sendcmd("FEAT")
-        server_supports_opts_utf8_on = False
+        server_supports_utf8 = False
         for line in feat_output.splitlines():
             # The leading space is important. See RFC 2640.
             if line.upper().rstrip() == " UTF8":
-                server_supports_opts_utf8_on = True
-        if server_supports_opts_utf8_on:
-            session.sendcmd("OPTS UTF8 ON")
+                server_supports_utf8 = True
+        if server_supports_utf8:
+            # Even though the server has "UTF8" in its announced features, the
+            # command "OPTS UTF8 ON" might still fail.
+            try:
+                session.sendcmd("OPTS UTF8 ON")
+            except (ftplib.error_perm, ftplib.error_temp):
+                pass
 
 
 # In a way, it would be appropriate to call this function

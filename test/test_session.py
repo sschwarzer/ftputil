@@ -30,6 +30,7 @@ class MockSession(ftplib.FTP):
     encoding = ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING
 
     _feat_command_output = ""
+    _raise_for_opts_utf8_on = False
 
     def __init__(self, encoding=None):
         self.calls = []
@@ -49,6 +50,8 @@ class MockSession(ftplib.FTP):
         self.add_call("sendcmd", command)
         if command == "FEAT":
             return self._feat_command_output
+        elif (command == "OPTS UTF8 ON") and self._raise_for_opts_utf8_on:
+            raise ftplib.error_perm
         else:
             # Dummy
             return ""
@@ -224,6 +227,32 @@ class TestSessionFactory:
         )
         assert session.calls == expected_session_calls
         assert session.encoding == expected_encoding
+
+    def test_catch_error_for_opts_utf8_on(self):
+        """
+        If the server raises a permanent error for `OPTS UTF8 ON` despite
+        including " UTF8" in the `FEAT` output, the error should be ignored.
+        """
+        encoding = "UTF-8"
+
+        # Special handling for default encoding.
+        class CustomMockSession(MockSession):
+            _feat_command_output = UTF8_FEAT_STRING
+            _raise_for_opts_utf8_on = True
+
+        factory = ftputil.session.session_factory(
+            base_class=CustomMockSession,
+            encoding=encoding,
+        )
+        session = factory("host", "user", "password")
+        expected_session_calls = [
+            ("connect", "host", 21),
+            ("login", "user", "password"),
+        ] + self._expected_session_calls_for_encoding_handling(
+            encoding, UTF8_FEAT_STRING
+        )
+        assert session.calls == expected_session_calls
+        assert session.encoding == encoding
 
     def test_debug_level(self):
         """
