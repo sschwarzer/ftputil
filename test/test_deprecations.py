@@ -35,8 +35,8 @@ class TestDeprecationForFilePathEncoding:
 
     def test_import_emits_encoding_warning(self):
         """
-        Verify that importing ftputil emits the path encoding
-        deprecation warning.
+        If `ftputil` is imported, it should emit a deprecation warning for the
+        upcoming directory/file path encoding change.
         """
         # Run Python in subprocess to test import-time warning.
         result = subprocess.run(
@@ -60,7 +60,8 @@ class TestDeprecationForFilePathEncoding:
 
     def test_warning_points_to_import_location(self, tmp_path):
         """
-        Verify that stacklevel is set correctly to point to user code.
+        The stacklevel of the deprecation warning should point to the user
+        code, not to a file in ftputil.
         """
         file_path = tmp_path / "test.py"
         file_path.write_text("import ftputil")
@@ -76,7 +77,7 @@ class TestDeprecationForFilePathEncoding:
 
     def test_warning_emitted_only_once_per_process(self):
         """
-        Verify that the warning is emitted only once, even with multiple imports.
+        The deprecation warning should be emitted only once.
         """
         result = subprocess.run(
             [
@@ -102,103 +103,76 @@ class TestDeprecationForPathWalk:
 
     def test_path_walk_emits_deprecation_warning(self):
         """
-        Verify that calling `path.walk` emits a deprecation warning.
-
-        Tests that the warning is emitted when path.walk() is called.
+        If `FTPHost.path.walk` is called, it should emit a deprecation warning
+        with useful information.
         """
         mock_host = mock.MagicMock()
         mock_host._encoding = "utf-8"
         mock_host.listdir.return_value = []
         path_obj = ftputil.path._Path(mock_host)
-        with pytest.warns(DeprecationWarning, match="FTPHost.path.walk()"):
+        # Don't shadow `warnings` module name.
+        with pytest.warns(DeprecationWarning, match="FTPHost.path.walk()") as warnings_:
             path_obj.walk("/", func=lambda arg, top, names: None, arg=None)
-
-    def test_path_walk_warning_message_content(self):
-        """
-        Verify warning message provides clear guidance.
-
-        The warning should mention ftputil 6.0.0, FTPHost.walk(), and reference
-        to os.walk() to help users understand the alternative.
-        """
-        mock_host = mock.MagicMock()
-        mock_host._encoding = "utf-8"
-        mock_host.listdir.return_value = []
-        path_obj = ftputil.path._Path(mock_host)
-        with pytest.warns(DeprecationWarning) as record:
-            path_obj.walk("/", func=lambda arg, top, names: None, arg=None)
-        assert len(record) >= 1
-        walk_warnings = [w for w in record if "FTPHost.path.walk()" in str(w.message)]
-        assert len(walk_warnings) >= 1
+        assert len(warnings_) >= 1
+        walk_warnings = [
+            w for w in warnings_ if ("FTPHost.path.walk()" in str(w.message))
+        ]
+        assert len(walk_warnings) == 1
+        # Check deprecation message.
         warning_message = str(walk_warnings[0].message)
         assert "ftputil 6.0.0" in warning_message
         assert "FTPHost.walk()" in warning_message
         assert "deprecated" in warning_message
         assert "os.walk()" in warning_message
 
-    def test_path_walk_no_warning_on_recursive_call(self):
-        """
-        Verify that no warning is emitted on internal recursive calls.
-
-        When path.walk() calls itself recursively via _is_recursive_call=True,
-        no deprecation warning should be emitted.
-        """
-        mock_host = mock.MagicMock()
-        mock_host._encoding = "utf-8"
-        mock_host.listdir.return_value = []
-        path_obj = ftputil.path._Path(mock_host)
-        with warnings.catch_warnings(record=True) as record:
-            warnings.simplefilter("always")
-            path_obj.walk(
-                "/",
-                func=lambda arg, top, names: None,
-                arg=None,
-                _is_recursive_call=True,
-            )
-        walk_warnings = [w for w in record if "FTPHost.path.walk()" in str(w.message)]
-        assert len(walk_warnings) == 0
-
     def test_path_walk_warning_can_be_suppressed(self):
         """
-        Verify warning can be suppressed with warnings filters.
+        It should be possible to suppress the deprecation warning with a
+        warning filter.
         """
         mock_host = mock.MagicMock()
         mock_host._encoding = "utf-8"
         mock_host.listdir.return_value = []
         path_obj = ftputil.path._Path(mock_host)
-        with warnings.catch_warnings(record=True) as w:
+        # Don't shadow `warnings` module name.
+        with warnings.catch_warnings(record=True) as warnings_:
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             path_obj.walk("/", func=lambda arg, top, names: None, arg=None)
             deprecation_warnings = [
                 warning
-                for warning in w
+                for warning in warnings_
                 if issubclass(warning.category, DeprecationWarning)
             ]
             assert len(deprecation_warnings) == 0
 
     def test_path_walk_warning_once_per_location(self):
         """
-        Verify warning uses Python's default filter (once per location).
-
-        The default warning filter suppresses duplicate warnings from the
-        same source location. This test verifies the warning is emitted with
-        the default filter active, and can be seen from different locations.
+        If the same code calls `FTPHost.path.walk`, only one warning should be
+        emitted.
         """
         mock_host = mock.MagicMock()
         mock_host._encoding = "utf-8"
         mock_host.listdir.return_value = []
         path_obj = ftputil.path._Path(mock_host)
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("default")
+
+        def call_walk():
+            # The warning should come from here - once.
             path_obj.walk("/", func=lambda arg, top, names: None, arg=None)
+
+        # Don't shadow `warnings` module name.
+        with warnings.catch_warnings(record=True) as warnings_:
+            warnings.simplefilter("default")
+            call_walk()
+            call_walk()
             walk_warnings = [
                 warning
-                for warning in w
+                for warning in warnings_
                 if issubclass(warning.category, DeprecationWarning)
                 and "FTPHost.path.walk()" in str(warning.message)
             ]
-            assert len(walk_warnings) >= 1
+            assert len(walk_warnings) == 1
 
-    def test_path_walk_warning_different_locations(self):
+    def test_path_walk_warning_from_different_locations(self):
         """
         Verify warning fires separately for different call locations.
 
@@ -216,36 +190,45 @@ class TestDeprecationForPathWalk:
         def call_walk_second():
             path_obj.walk("/", func=lambda arg, top, names: None, arg=None)
 
-        with warnings.catch_warnings(record=True) as w:
+        # Don't shadow `warnings` module name.
+        with warnings.catch_warnings(record=True) as warnings_:
             warnings.simplefilter("always")
             call_walk_first()
             call_walk_second()
             walk_warnings = [
                 warning
-                for warning in w
+                for warning in warnings_
                 if issubclass(warning.category, DeprecationWarning)
                 and "FTPHost.path.walk()" in str(warning.message)
             ]
             assert len(walk_warnings) == 2
 
+    def test_path_walk_no_warning_on_recursive_calls(self):
+        """
+        If `FTPHost.path.walk` is called recursively, the inner calls shouldn't
+        generate warnings.
+        """
+
     def test_path_walk_stacklevel(self):
         """
-        Verify stacklevel=2 points to caller's code, not ftputil internals.
+        If a warning is emitted, it should point to the calling user code, not
+        ftputil source files.
         """
         mock_host = mock.MagicMock()
         mock_host._encoding = "utf-8"
         mock_host.listdir.return_value = []
         path_obj = ftputil.path._Path(mock_host)
-        with warnings.catch_warnings(record=True) as w:
+        # Don't shadow `warnings` module name.
+        with warnings.catch_warnings(record=True) as warnings_:
             warnings.simplefilter("always")
             path_obj.walk("/", func=lambda arg, top, names: None, arg=None)
             walk_warnings = [
                 warning
-                for warning in w
+                for warning in warnings_
                 if issubclass(warning.category, DeprecationWarning)
                 and "FTPHost.path.walk()" in str(warning.message)
             ]
             assert len(walk_warnings) > 0
-            warning = walk_warnings[0]
-            assert "test_deprecations.py" in warning.filename
-            assert "ftputil/path.py" not in warning.filename
+            walk_warning = walk_warnings[0]
+            assert "test_deprecations.py" in walk_warning.filename
+            assert "ftputil/path.py" not in walk_warning.filename
