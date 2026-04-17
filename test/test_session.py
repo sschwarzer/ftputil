@@ -175,7 +175,7 @@ class TestSessionFactory:
             # Python version and are determined in the code below.
             #
             # For the `FEAT` command output we consider only wether the " UTF8"
-            # string is present. A real `FEAT` response from a server would be
+            # string is present. A real `FEAT` response from a server could be
             # more complicated.
             (None, "", ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING, None),
             (
