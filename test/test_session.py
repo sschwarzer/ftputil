@@ -1,4 +1,4 @@
-# Copyright (C) 2014-2024, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2014-2026, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -29,11 +29,12 @@ class MockSession(ftplib.FTP):
 
     encoding = ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING
 
-    def __init__(self, encoding=None, feat_command_output=""):
+    _feat_command_output = ""
+
+    def __init__(self, encoding=None):
         self.calls = []
         if encoding is not None:
             self.encoding = encoding
-        self._feat_command_output = feat_command_output
 
     def add_call(self, *args):
         self.calls.append(args)
@@ -205,12 +206,13 @@ class TestSessionFactory:
         If `encoding` has the given values, the result should be the same as
         documented.
         """
+
         # Special handling for default encoding.
-        base_class = functools.partial(
-            MockSession, feat_command_output=feat_command_output
-        )
+        class CustomMockSession(MockSession):
+            _feat_command_output = feat_command_output
+
         factory = ftputil.session.session_factory(
-            base_class=MockSession,
+            base_class=CustomMockSession,
             encoding=encoding,
         )
         session = factory("host", "user", "password")
@@ -220,6 +222,7 @@ class TestSessionFactory:
         ] + self._expected_session_calls_for_encoding_handling(
             encoding, feat_command_output
         )
+        assert session.calls == expected_session_calls
         assert session.encoding == expected_encoding
 
     def test_debug_level(self):
