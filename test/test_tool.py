@@ -29,17 +29,6 @@ same_string_type_as = ftputil.tool.same_string_type_as
 
 
 class TestSameStringTypeAs:
-    @staticmethod
-    def _test_string(type_source, string, expected_result):
-        """
-        Check if the result from `tool.same_string_type_as(type_source,
-        string)` is the same as `expected_result`.
-
-        `type_source` must be a `bytes` or `str` object.
-        """
-        result = ftputil.tool.same_string_type_as(type_source, path)
-        assert result == expected_result
-
     def test_to_bytes(self):
         assert same_string_type_as(b"abc", "def", encoding=DEFAULT_ENCODING) == b"def"
 
