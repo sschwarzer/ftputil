@@ -1,6 +1,9 @@
 # ftputil 5.2.0
 
 Add deprecation warnings for backward-incompatible changes in ftputil 6.0.0.
+- [x] Raise a `DeprecationWarning` once when ftputil is imported:
+      "in ftputil 6.0.0, the default file path encoding will become UTF-8
+      instead of Latin-1"
 
 - [ ] For changing file system APIs (see below), print a
       `DeprecationWarning` in each API function/method that is going to
@@ -15,8 +18,6 @@ Add deprecation warnings for backward-incompatible changes in ftputil 6.0.0.
       Print the warnings unless we can be sure that the behavior for
       the call would be the same in ftputil 5.2.0 and 6.0.0.
 
-- [ ] Raise a `DeprecationWarning` once when ftputil is imported:
-      "in ftputil 6.0.0, the default file path encoding will become UTF-8 instead of Latin-1"
 
 - [ ] Add the new constant `UNSET_TIME_SHIFT = object()` in
       `ftputil.host`. If ftputil accesses the time shift, print a
