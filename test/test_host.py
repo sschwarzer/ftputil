@@ -14,7 +14,6 @@ import random
 import time
 import unittest
 import unittest.mock
-import warnings
 
 import pytest
 
@@ -84,7 +83,7 @@ class TestDefaultSessionFactory:
         with unittest.mock.patch("ftplib.FTP.__init__") as ftp_mock:
             # Prevent `TypeError` when Python checks the `__init__` result.
             ftp_mock.return_value = None
-            session = ftputil.host.default_session_factory(
+            _session = ftputil.host.default_session_factory(
                 "localhost", "ftptest", "dummy", *args, **kwargs
             )
             assert len(ftp_mock.call_args_list) == 1
@@ -619,11 +618,11 @@ class TestUploadAndDownload:
         local_source = tmp_path / "test_source"
         file_content = b"dummy_content"
         local_source.write_bytes(file_content)
-        remote_file_name = "dummy_name"
+        remote_file_name = "older"
         dir_result = test_base.dir_line(
             mode_string="-rw-r--r--",
             date_=datetime.date.today() - datetime.timedelta(days=1),
-            name="older",
+            name=remote_file_name,
         )
         host_script = [
             Call("__init__"),
@@ -641,7 +640,7 @@ class TestUploadAndDownload:
             Call("voidcmd", args=("TYPE I",)),
             Call(
                 "transfercmd",
-                args=("STOR older", None),
+                args=(f"STOR {remote_file_name}", None),
                 result=test_base.MockableBytesIO(),
             ),
             Call("voidresp"),
@@ -651,7 +650,7 @@ class TestUploadAndDownload:
         multisession_factory = scripted_session.factory(host_script, file_script)
         with unittest.mock.patch("test.test_base.MockableBytesIO.write") as write_mock:
             with test_base.ftp_host_factory(multisession_factory) as host:
-                flag = host.upload_if_newer(str(local_source), "/older")
+                flag = host.upload_if_newer(str(local_source), f"/{remote_file_name}")
             write_mock.assert_called_with(file_content)
         assert flag is True
         # Target doesn't exist, so upload.
@@ -1215,11 +1214,11 @@ class TestAcceptEitherUnicodeOrBytes:
         # Unicode
         session_factory = scripted_session.factory(script)
         with test_base.ftp_host_factory(session_factory) as host:
-            result = list(host.walk("/ä"))
+            _result = list(host.walk("/ä"))
         # Bytes
         session_factory = scripted_session.factory(script)
         with test_base.ftp_host_factory(session_factory) as host:
-            result = list(
+            _result = list(
                 host.walk(as_bytes("/ä", ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING))
             )
 

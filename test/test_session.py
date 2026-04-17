@@ -7,8 +7,6 @@ Unit tests for session factory helpers.
 """
 
 import ftplib
-import functools
-import sys
 
 import pytest
 

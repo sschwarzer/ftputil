@@ -5,7 +5,6 @@
 import datetime
 import ftplib
 import functools
-import time
 
 import pytest
 
@@ -565,7 +564,7 @@ class TestAcceptEitherBytesOrStr:
         # We don't care about the _exact_ time, so don't bother with timezone
         # differences. Instead, do a simple sanity check.
         day = 24 * 60 * 60  # seconds
-        mtime_makes_sense = (
+        mtime_makes_sense = (  # noqa: E731
             lambda mtime: expected_mtime - day <= mtime <= expected_mtime + day
         )
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:

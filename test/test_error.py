@@ -18,13 +18,13 @@ class TestFTPErrorArguments:
 
     def test_bytestring_argument(self):
         # An umlaut as latin-1 character
-        io_error = ftputil.error.FTPIOError(b"\xe4")
-        os_error = ftputil.error.FTPOSError(b"\xe4")
+        _io_error = ftputil.error.FTPIOError(b"\xe4")
+        _os_error = ftputil.error.FTPOSError(b"\xe4")
 
     def test_unicode_argument(self):
         # An umlaut as unicode character
-        io_error = ftputil.error.FTPIOError("\xe4")
-        os_error = ftputil.error.FTPOSError("\xe4")
+        _io_error = ftputil.error.FTPIOError("\xe4")
+        _os_error = ftputil.error.FTPOSError("\xe4")
 
 
 class TestErrorConversion:
@@ -61,7 +61,7 @@ class TestErrorConversion:
         # See ticket #76.
         with pytest.raises(ftputil.error.FTPOSError) as exc_info:
             # Format "host:port" doesn't work. The use here is intentional.
-            host = ftputil.FTPHost("localhost:21", "", "")
+            _host = ftputil.FTPHost("localhost:21", "", "")
         exc = exc_info.value
         assert isinstance(exc.__cause__, socket.gaierror)
         assert exc.__cause__.errno == socket.EAI_NONAME

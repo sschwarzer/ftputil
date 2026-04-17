@@ -6,7 +6,6 @@
 Tests for deprecation warnings in ftputil 5.2.0.
 """
 
-import datetime
 import stat
 import subprocess
 import sys
@@ -16,14 +15,13 @@ from unittest import mock
 import pytest
 
 # Ignore warning from following `ftputil` import.
-warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", category=DeprecationWarning)  # noqa: E402
 
-import ftputil
-import ftputil.path
-import ftputil.stat
+import ftputil  # noqa: E402
+import ftputil.path  # noqa: E402
+import ftputil.stat  # noqa: E402
 
-from test import test_base
-from test import scripted_session
+from test import scripted_session  # noqa: E402
 
 
 Call = scripted_session.Call

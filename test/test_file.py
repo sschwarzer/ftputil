@@ -173,7 +173,7 @@ class TestFileOperations:
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:
             with pytest.raises(TypeError):
-                with host.open("some_file", None) as fobj:
+                with host.open("some_file", None) as _fobj:
                     pass
 
     def test_binary_read(self):
@@ -507,7 +507,7 @@ class TestFileOperations:
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:
             with pytest.raises(ftputil.error.FTPIOError):
-                with host.open("notthere", "r") as input_:
+                with host.open("notthere", "r") as _input:
                     pass
 
 

@@ -971,7 +971,7 @@ class TestLstatAndStat:
             assert host._stat._allow_parser_switching is True
             assert host._stat._allow_parser_switching is True
             assert isinstance(host._stat._parser, ftputil.stat.UnixParser)
-            stat_result = host.lstat("some_file")
+            _stat_result = host.lstat("some_file")
             # The Unix parser worked, so keep it.
             assert isinstance(host._stat._parser, ftputil.stat.UnixParser)
             assert host._stat._allow_parser_switching is False

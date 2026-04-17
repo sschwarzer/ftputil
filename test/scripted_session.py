@@ -2,7 +2,6 @@
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
-import sys
 import unittest.mock
 
 import ftputil.path_encoding

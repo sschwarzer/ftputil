@@ -27,8 +27,6 @@ import ftputil.path_encoding
 import ftputil.session
 import ftputil.stat_cache
 
-import test
-
 
 def expected_time_shift():
     """
@@ -150,7 +148,7 @@ class TestMkdir(RealFTPTest):
         """
         host = self.host
         dir_name = "_testdir_"
-        file_name = host.path.join(dir_name, "_nonempty_")
+        _file_name = host.path.join(dir_name, "_nonempty_")
         self.cleaner.add_dir(dir_name)
         # Make dir and check if the directory is there.
         host.mkdir(dir_name)
@@ -600,7 +598,7 @@ class TestRename(RealFTPTest):
         self.cleaner.add_file("_testfile2_")
         # Case 1: Target file doesn't exist yet.
         self.make_remote_file("_testfile1_")
-        file1_stat = host.stat("_testfile1_")
+        _file1_stat = host.stat("_testfile1_")
         host.rename(pathlib.Path("_testfile1_"), "_testfile2_")
         assert not host.path.exists("_testfile1_")
         assert host.path.exists(pathlib.Path("_testfile2_"))
@@ -611,7 +609,7 @@ class TestRename(RealFTPTest):
         with host.open("_testfile1_", "w") as fobj:
             fobj.write("abcdef\n")
         self.make_remote_file("_testfile2_")
-        file1_stat = host.stat("_testfile1_")
+        _file1_stat = host.stat("_testfile1_")
         file2_stat = host.stat("_testfile2_")
         host.rename(pathlib.Path("_testfile1_"), "_testfile2_")
         assert not host.path.exists("_testfile1_")
@@ -637,7 +635,7 @@ class TestRename(RealFTPTest):
         with host.open("_testfile1_", "w") as fobj:
             fobj.write("abcdef\n")
         self.make_remote_file("_testfile2_")
-        file1_stat = host.stat("_testfile1_")
+        _file1_stat = host.stat("_testfile1_")
         file2_stat = host.stat("_testfile2_")
         # Monkey-patch session `rename` call.
         old_rename = host._session.rename
@@ -777,7 +775,7 @@ class TestStat(RealFTPTest):
         host = self.host
         cache = host.stat_cache._cache
         # Make sure the cache size isn't adjusted towards smaller values.
-        unused_entries = host.listdir("walk_test")
+        _entries = host.listdir("walk_test")
         assert cache.size == ftputil.stat_cache.StatCache._DEFAULT_CACHE_SIZE
         # Make the cache very small initially and see if it gets resized.
         cache.size = 2
@@ -850,7 +848,7 @@ class TestUploadAndDownload(RealFTPTest):
             # "touch" the local file.
             time.sleep(65)
             # Create empty file.
-            with open(local_file, "w") as fobj:
+            with open(local_file, "w") as _fobj:
                 pass
             # Local file is present and newer, so shouldn't download.
             downloaded = host.download_if_newer(remote_file, local_file)
@@ -909,9 +907,9 @@ class TestFTPFiles(RealFTPTest):
         """
         REMOTE_FILE_NAME = "CONTENTS"
         host = self.host
-        with host.open(REMOTE_FILE_NAME, "rb") as file_obj1:
+        with host.open(REMOTE_FILE_NAME, "rb") as _file_obj1:
             # Create empty file and close it.
-            with host.open(REMOTE_FILE_NAME, "rb") as file_obj2:
+            with host.open(REMOTE_FILE_NAME, "rb") as _file_obj2:
                 pass
             # This should re-use the second child because the first isn't
             # closed but the second is.
@@ -1048,7 +1046,7 @@ class TestChmod(RealFTPTest):
         host.mkdir("_test dir_")
         self.cleaner.add_dir("_test dir_")
         # Make sure the mode is in the cache.
-        unused_stat_result = host.stat("_test dir_")
+        _stat_result = host.stat("_test dir_")
         # Set/get mode of the directory.
         host.chmod("_test dir_", 0o757)
         self.assert_mode("_test dir_", 0o757)
@@ -1056,7 +1054,7 @@ class TestChmod(RealFTPTest):
         file_name = host.path.join("_test dir_", "_testfile_")
         self.make_remote_file(file_name)
         # Make sure the mode is in the cache.
-        unused_stat_result = host.stat(file_name)
+        _stat_result = host.stat(file_name)
         host.chmod(file_name, 0o646)
         self.assert_mode(file_name, 0o646)
 
@@ -1261,9 +1259,9 @@ class TestOther(RealFTPTest):
                 *self.login_data, session_factory=DEFAULT_SESSION_FACTORY
             ) as host:
                 for _ in range(10):
-                    unused_stat_result = host.stat("CONTENTS")
+                    _stat_result = host.stat("CONTENTS")
                     with host.open("CONTENTS") as fobj:
-                        unused_data = fobj.read()
+                        _data = fobj.read()
 
     def test_garbage_collection(self):
         """
