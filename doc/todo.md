@@ -1,9 +1,23 @@
 # ftputil 5.2.0
 
-Add deprecation warnings for backward-incompatible changes in ftputil 6.0.0.
+Add deprecation warnings for backward-incompatible changes coming in ftputil
+6.0.0.
+
 - [x] Raise a `DeprecationWarning` once when ftputil is imported:
       "in ftputil 6.0.0, the default file path encoding will become UTF-8
       instead of Latin-1"
+
+- [ ] Add the new constant `UNSET_TIME_SHIFT = object()` in
+      `ftputil.host`. If ftputil accesses the time shift, print a
+      `DeprecationWarning` once and set the time shift to 0.0 (the
+      default value in ftputil 5.1.0). See [ticket #160][160].
+
+      Deprecation message: "in ftputil 6.0.0, the time shift must be set
+      with `set_time_shift` or `synchronize_times` to get timestamp stat
+      data or to use `upload_if_newer` or `download_if_newer`"
+
+- [ ] Raise a `DeprecationWarning` for the removal of `FTPHost.path.walk`.
+      In the future, `FTPHost.walk` should be used.
 
 - [ ] For changing file system APIs (see below), print a
       `DeprecationWarning` in each API function/method that is going to
@@ -18,15 +32,6 @@ Add deprecation warnings for backward-incompatible changes in ftputil 6.0.0.
       Print the warnings unless we can be sure that the behavior for
       the call would be the same in ftputil 5.2.0 and 6.0.0.
 
-
-- [ ] Add the new constant `UNSET_TIME_SHIFT = object()` in
-      `ftputil.host`. If ftputil accesses the time shift, print a
-      `DeprecationWarning` once and set the time shift to 0.0 (the
-      default value in ftputil 5.1.0). See [ticket #160][160].
-
-      Deprecation message: "in ftputil 6.0.0, the time shift must be set
-      with `set_time_shift` or `synchronize_times` to get timestamp stat
-      data or to use `upload_if_newer` or `download_if_newer`"
 
 
 # ftputil 6.0.0
