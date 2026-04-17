@@ -7,6 +7,9 @@ Add deprecation warnings for backward-incompatible changes coming in ftputil
       "in ftputil 6.0.0, the default file path encoding will become UTF-8
       instead of Latin-1"
 
+- [ ] Raise a `DeprecationWarning` for the removal of `FTPHost.path.walk`.
+      In the future, `FTPHost.walk` should be used.
+
 - [ ] Add the new constant `UNSET_TIME_SHIFT = object()` in
       `ftputil.host`. If ftputil accesses the time shift, print a
       `DeprecationWarning` once and set the time shift to 0.0 (the
@@ -15,9 +18,6 @@ Add deprecation warnings for backward-incompatible changes coming in ftputil
       Deprecation message: "in ftputil 6.0.0, the time shift must be set
       with `set_time_shift` or `synchronize_times` to get timestamp stat
       data or to use `upload_if_newer` or `download_if_newer`"
-
-- [ ] Raise a `DeprecationWarning` for the removal of `FTPHost.path.walk`.
-      In the future, `FTPHost.walk` should be used.
 
 - [ ] For changing file system APIs (see below), print a
       `DeprecationWarning` in each API function/method that is going to
