@@ -3,6 +3,8 @@
 Add deprecation warnings for backward-incompatible changes coming in ftputil
 6.0.0.
 
+- [x] Catch `ftplib` errors for failing `OPTS UTF8 ON`
+
 - [x] Raise a `DeprecationWarning` once when ftputil is imported:
       "in ftputil 6.0.0, the default file path encoding will become UTF-8
       instead of Latin-1"
