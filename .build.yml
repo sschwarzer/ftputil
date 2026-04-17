@@ -24,7 +24,11 @@ tasks:
     python3.13 -m venv ~/ftputil_env
     source ~/ftputil_env/bin/activate
     pip install --no-color --progress-bar=off --upgrade pip
-    pip install --no-color --progress-bar=off freezegun pytest tox
+    pip install --no-color --progress-bar=off freezegun pytest ruff tox
+- lint: |
+    cd ftputil
+    source ~/ftputil_env/bin/activate
+    ruff check ftputil test
 - test: |
     cd ftputil
     source ~/ftputil_env/bin/activate
