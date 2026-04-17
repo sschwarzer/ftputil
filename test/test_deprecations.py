@@ -7,6 +7,7 @@ Tests for deprecation warnings in ftputil 5.2.0.
 """
 
 import datetime
+import stat
 import subprocess
 import sys
 import warnings
@@ -19,6 +20,7 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 import ftputil
 import ftputil.path
+import ftputil.stat
 
 from test import test_base
 from test import scripted_session
@@ -208,6 +210,36 @@ class TestDeprecationForPathWalk:
         If `FTPHost.path.walk` is called recursively, the inner calls shouldn't
         generate warnings.
         """
+        mock_host = mock.MagicMock()
+        mock_host._encoding = "utf-8"
+        mock_host.listdir.side_effect = lambda path: ["subdir"] if path == "/" else []
+        # fmt: off
+        dir_stat_result = ftputil.stat.StatResult(
+            [
+                stat.S_IFDIR | stat.S_IRUSR | stat.S_IXUSR, None, None, None, None,
+                None, None, None, None, None,
+            ]
+        )
+        # fmt: on
+        mock_host.lstat.return_value = dir_stat_result
+        path_obj = ftputil.path._Path(mock_host)
+
+        def visitor(arg, top, names):
+            pass
+
+        # Don't shadow `warnings` module name.
+        with warnings.catch_warnings(record=True) as warnings_:
+            warnings.simplefilter("always")
+            path_obj.walk("/", func=visitor, arg=None)
+            walk_warnings = [
+                warning
+                for warning in warnings_
+                if issubclass(warning.category, DeprecationWarning)
+                and "FTPHost.path.walk()" in str(warning.message)
+            ]
+            assert len(walk_warnings) == 1
+            walk_warning = walk_warnings[0]
+            assert "test_deprecations.py" in walk_warning.filename
 
     def test_path_walk_stacklevel(self):
         """
