@@ -10,7 +10,7 @@ remote file-like objects.
 
 ## Build/test commands
 
-- **Run fast tests**: `make test` or `python -m pytest -m "not slow_test" test`
+- **Run fast tests**: `make test` or `python -m pytest -m "not slow" test`
 - **Run all tests**: `make all_tests` or `python -m pytest test`
 - **Run single test**: `python -m pytest test/test_<module>.py::<TestClass>::<test_method>`
 - **Run with coverage**: `py.test --cov ftputil --cov-report html test`
@@ -33,7 +33,7 @@ remote file-like objects.
 
 ## Testing
 
-- Uses pytest framework with custom markers (`slow_test` for long-running tests)
+- Uses pytest framework with custom markers (`slow` for long-running tests)
 - Test files follow `test_<module>.py` naming pattern in `test/` directory
 - Test docstrings should use style from behavior-driven testing, but without
   explicit Given/When distinction. See `test_host.py` for examples.

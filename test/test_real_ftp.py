@@ -796,7 +796,7 @@ class TestUploadAndDownload(RealFTPTest):
         self.host.synchronize_times()
         assert self.host.time_shift() == EXPECTED_TIME_SHIFT
 
-    @pytest.mark.slow_test
+    @pytest.mark.slow
     def test_upload(self):
         """
         `upload_if_newer` should respect the time difference between client and
@@ -826,7 +826,7 @@ class TestUploadAndDownload(RealFTPTest):
             # Clean up
             os.unlink(local_file)
 
-    @pytest.mark.slow_test
+    @pytest.mark.slow
     def test_download(self):
         """
         `download_if_newer` should respect the time difference between client

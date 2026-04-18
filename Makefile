@@ -67,7 +67,7 @@ upload_website: website
 .PHONY: test
 test:
 	@echo -e "=== Running fast tests for ftputil ${VERSION} ===\n"
-	${PYTEST} -m "not slow_test" test
+	${PYTEST} -m "not slow" test
 
 # Alternative for symmetry with target `all_tests`
 .PHONY: tests

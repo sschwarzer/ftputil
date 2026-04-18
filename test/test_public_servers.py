@@ -169,7 +169,7 @@ class TestPublicServers:
         finally:
             host.close()
 
-    @pytest.mark.slow_test
+    @pytest.mark.slow
     def test_servers(self):
         """
         Test all servers in `self.servers`.
