@@ -82,13 +82,13 @@ def dir_line(
     """
     # Date or datetime. We must have exactly one of `date_` and `datetime_`
     # set. The other value must be `None`.
-    assert [date_, datetime_].count(
-        None
-    ) == 1, "specify exactly one of `date_` and `datetime_`"
+    assert [date_, datetime_].count(None) == 1, (
+        "specify exactly one of `date_` and `datetime_`"
+    )
     if date_:
         datetime_string = date_.strftime("%b %d %Y")
     else:
-        datetime_string = datetime_.strftime("%b %d %H:%M")
+        datetime_string = datetime_.strftime("%b %d %H:%M")  # ty: ignore[unresolved-attribute]
     # Name, possibly with link target
     if not link_target:
         name_string = name

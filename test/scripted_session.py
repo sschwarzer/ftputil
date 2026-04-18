@@ -78,7 +78,7 @@ class Call:
         Simulate call, returning the result or raising the exception.
         """
         if isinstance(self.result, Exception) or self._is_exception_class(self.result):
-            raise self.result
+            raise self.result  # ty: ignore[invalid-raise]
         else:
             return self.result
 

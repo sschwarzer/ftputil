@@ -9,6 +9,7 @@ Session factory factory (the two "factory" are intentional :-) ) for ftputil.
 import ftplib
 
 import ftputil.error
+import ftputil.path_encoding
 import ftputil.tool
 
 
@@ -109,7 +110,7 @@ def session_factory(
             f"but base class is {base_class!r}"
         )
 
-    class Session(base_class):
+    class Session(base_class):  # ty: ignore[unsupported-base]
         """
         Session factory class created by `session_factory`.
         """

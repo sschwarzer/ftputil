@@ -160,12 +160,14 @@ class FTPFile:
         # Python raises an `UnboundLocalError`.
         old_timeout = self._session.sock.gettimeout()
         try:
-            self._fobj.close()
+            # `self._fobj` is set in `open`.
+            self._fobj.close()  # ty: ignore[unresolved-attribute]
             self._fobj = None
             with ftputil.error.ftplib_error_to_ftp_io_error:
                 if (SSLSocket is not None) and isinstance(self._conn, SSLSocket):
                     self._conn.unwrap()
-                self._conn.close()
+                # `self._conn` is set in `open`.
+                self._conn.close()  # ty: ignore[unresolved-attribute]
             # Set a timeout to prevent waiting until server timeout if we have
             # a server blocking here like in ticket #51.
             self._session.sock.settimeout(self._close_timeout)

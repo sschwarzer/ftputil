@@ -113,7 +113,9 @@ class TestDefaultSessionFactory:
         """
         kwargs = {"timeout": 1.0, "source_address": None}
         expected_kwargs = kwargs.copy()
-        expected_kwargs["encoding"] = ftputil.path_encoding.DEFAULT_ENCODING
+        expected_kwargs["encoding"] = (
+            ftputil.path_encoding.DEFAULT_ENCODING  # ty: ignore[invalid-assignment]
+        )
         self._test_extra_arguments(kwargs=kwargs, expected_kwargs=expected_kwargs)
 
     def test_custom_encoding(self):
