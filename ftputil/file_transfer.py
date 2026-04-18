@@ -48,9 +48,6 @@ class LocalFile:
         """
         Return the precision of the last modification time in seconds.
         """
-        # Derived classes might want to use `self`.
-        # pylint: disable=no-self-use
-        #
         # Assume modification timestamps for local file systems are at least
         # precise up to a second.
         return 1.0

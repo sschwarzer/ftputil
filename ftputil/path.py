@@ -28,16 +28,12 @@ class _Path:
     Hint: substitute `os` with the `FTPHost` object.
     """
 
-    # `_Path` needs to provide all methods of `os.path`.
-    # pylint: disable=too-many-instance-attributes
-
     def __init__(self, host):
         self._host = host
         self._encoding = host._encoding
         # Delegate these methods to the `posixpath` module because they don't
         # need file system access but work on the path strings (possibly
         # extracted from `PathLike` objects).
-        # pylint: disable=invalid-name
         pp = posixpath
         self.basename = pp.basename
         self.commonprefix = pp.commonprefix

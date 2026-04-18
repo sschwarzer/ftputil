@@ -6,8 +6,6 @@
 ftputil.error - exception classes and wrappers
 """
 
-# pylint: disable=too-many-ancestors
-
 import ftplib
 
 import ftputil.path_encoding

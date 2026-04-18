@@ -48,10 +48,6 @@ class StatResult(tuple):
     def __init__(self, sequence):
         # Don't call `__init__` via `super`. Construction from a sequence is
         # implicitly handled by `tuple.__new__`, not `tuple.__init__`.
-        # pylint: disable=super-init-not-called
-        #
-        # Use `sequence` parameter to remain compatible to `__new__` interface.
-        # pylint: disable=unused-argument
         #
         # These may be overwritten in a `Parser.parse_line` method.
         self._st_name = ""
@@ -145,8 +141,6 @@ class Parser:
         If the mode string can't be parsed, raise an
         `ftputil.error.ParserError`.
         """
-        # Allow derived classes to make use of `self`.
-        # pylint: disable=no-self-use
         if len(mode_string) != 10:
             raise ftputil.error.ParserError(
                 "invalid mode string '{}'".format(mode_string)
@@ -181,7 +175,6 @@ class Parser:
             )
         return st_mode
 
-    # pylint: disable=no-self-use
     def _as_int(self, int_string, int_description):
         """
         Return `int_string` converted to an integer.
@@ -352,12 +345,6 @@ class Parser:
         If this method can't make sense of the given arguments, it raises an
         `ftputil.error.ParserError`.
         """
-        # Derived classes might want to use `self`.
-        # pylint: disable=no-self-use
-        #
-        # Derived classes may need access to `time_shift`.
-        # pylint: disable=unused-argument
-        #
         # For the time being, I don't add a `with_precision` parameter as in
         # the MS parser because the precision for the DOS format is always a
         # minute and can be set in `MSParser.parse_line`. Should you find
@@ -439,8 +426,6 @@ class UnixParser(Parser):
 
         If the line can't be parsed, raise a `ParserError`.
         """
-        # The local variables are rather simple.
-        # pylint: disable=too-many-locals
         try:
             (
                 mode_string,
@@ -501,7 +486,6 @@ class UnixParser(Parser):
         )
         # These attributes are kind of "half-official". I'm not sure whether
         # they should be used by ftputil client code.
-        # pylint: disable=protected-access
         stat_result._st_mtime_precision = st_mtime_precision
         stat_result._st_name = st_name
         stat_result._st_target = st_target
@@ -523,8 +507,6 @@ class MSParser(Parser):
         The parameter `time_shift` isn't used in this method but is listed for
         compatibility with the base class.
         """
-        # The local variables are rather simple.
-        # pylint: disable=too-many-locals
         try:
             date, time_, dir_or_size, name = line.split(None, 3)
         except ValueError:
@@ -575,7 +557,6 @@ class MSParser(Parser):
         )
         # These attributes are kind of "half-official". I'm not sure whether
         # they should be used by ftputil client code.
-        # pylint: disable=protected-access
         # _st_name and _st_target
         stat_result._st_name = name
         stat_result._st_target = None
@@ -591,8 +572,6 @@ class _Stat:
     """
     Methods for stat'ing directories, links and regular files.
     """
-
-    # pylint: disable=protected-access
 
     def __init__(self, host):
         self._host = host

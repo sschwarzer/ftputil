@@ -33,7 +33,6 @@ class FTPFile:
     def __init__(self, host):
         """Construct the file(-like) object."""
         self._host = host
-        # pylint: disable=protected-access
         self._session = host._session
         # The file is still closed.
         self.closed = True
@@ -57,10 +56,6 @@ class FTPFile:
         Contrary to the `open` builtin, this method returns `None`, instead
         this file object is modified in-place.
         """
-        # We use the same arguments as in `open`.
-        # pylint: disable=unused-argument
-        # pylint: disable=too-many-arguments
-        #
         # Check mode.
         if mode is None:
             # This is Python's behavior for local files.
@@ -125,8 +120,6 @@ class FTPFile:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        # We don't need the `exc_*` arguments here
-        # pylint: disable=unused-argument
         self.close()
         # Be explicit
         return False

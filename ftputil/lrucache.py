@@ -123,7 +123,6 @@ class LRUCache:
             # Seems to be preferred over `__cmp__`, at least in newer
             # Python versions. Uses only around 60 % of the time
             # with respect to `__cmp__`.
-            # pylint: disable=protected-access
             return self._sort_key < other._sort_key
 
         def __repr__(self):
@@ -150,7 +149,6 @@ class LRUCache:
 
         The `size` attribute of the cache isn't modified.
         """
-        # pylint: disable=attribute-defined-outside-init
         self.__heap = []
         self.__dict = {}
         self.__counter = 0
@@ -194,7 +192,6 @@ class LRUCache:
             node.obj = obj
             node.atime = time.time()
             node.mtime = node.atime
-            # pylint: disable=protected-access
             node._sort_key = self._sort_key()
         else:
             # The size of the heap can be at most the value of
@@ -221,7 +218,6 @@ class LRUCache:
             node = self.__dict[key]
             # Update node object in-place.
             node.atime = time.time()
-            # pylint: disable=protected-access
             node._sort_key = self._sort_key()
             return node.obj
 

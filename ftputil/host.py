@@ -28,12 +28,6 @@ import ftputil.tool
 __all__ = ["FTPHost"]
 
 
-# The "protected" attributes PyLint talks about aren't intended for clients of
-# the library. `FTPHost` objects need to use some of these library-internal
-# attributes though.
-# pylint: disable=protected-access
-
-
 # For Python versions 3.8 and below, ftputil has implicitly defaulted to
 # latin-1 encoding. Prefer that behavior for Python 3.9 and up as well instead
 # of using the encoding that is the default for `ftplib.FTP` in the Python
@@ -251,7 +245,6 @@ class FTPHost:
         is available.
         """
         # Support the same arguments as `open`.
-        # pylint: disable=too-many-arguments
         path = ftputil.tool.as_str_path(path, encoding=self._encoding)
         host = self._available_child()
         if host is None:
@@ -686,8 +679,6 @@ class FTPHost:
             self.path.join(self._cached_current_dir, path)
         )
 
-    # Ignore unused argument `mode`
-    # pylint: disable=unused-argument
     def mkdir(self, path, mode=None):
         """
         Make the directory path on the remote host. The argument `mode` is
@@ -707,9 +698,6 @@ class FTPHost:
     # the mocking most likely would be quite complicated. The tests should be
     # added when mainly the `mock` library is used instead of the mock code in
     # `test.mock_ftplib`.
-    #
-    # Ignore unused argument `mode`
-    # pylint: disable=unused-argument
     def makedirs(self, path, mode=None, exist_ok=False):
         """
         Make the directory `path`, but also make not yet existing intermediate
@@ -860,14 +848,12 @@ class FTPHost:
 
             def new_onerror(*args):
                 """Do nothing."""
-                # pylint: disable=unused-argument
                 pass
 
         elif onerror is None:
 
             def new_onerror(*args):
                 """Re-raise exception."""
-                # pylint: disable=misplaced-bare-raise, unused-argument
                 raise
 
         else:
@@ -1088,8 +1074,6 @@ class FTPHost:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        # We don't need the `exc_*` arguments here.
-        # pylint: disable=unused-argument
         self.close()
         # Be explicit.
         return False
