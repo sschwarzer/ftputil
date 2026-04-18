@@ -8,5 +8,6 @@ prompt-toolkit
 pytest
 pytest-mypy
 ruff
+ty
 tox
 virtualenv

@@ -86,14 +86,15 @@ tox_test:
 coverage:
 	py.test --cov ftputil --cov-report html test
 
-.PHONY: pylint
-pylint:
-	pylint --rcfile=pylintrc ${PYLINT_OPTS} ${SOURCE_DIR}/*.py | \
-		less --quit-if-one-screen
+.PHONY: lint
+lint:
+	ruff check ftputil test
+	ty check ftputil
+	ty check --ignore invalid-method-override test
 
 # Make a distribution tarball.
 .PHONY: dist
-dist: clean patch pylint
+dist: clean patch lint
 	# Delete contents of `.tox`, but keep the directory.
 	rm -rf .tox/*
 	${PYTHON_BINARY} setup.py sdist
