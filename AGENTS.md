@@ -14,13 +14,13 @@ remote file-like objects.
 - **Run all tests**: `make all_tests` or `python -m pytest test`
 - **Run single test**: `python -m pytest test/test_<module>.py::<TestClass>::<test_method>`
 - **Run with coverage**: `py.test --cov ftputil --cov-report html test`
-- **Lint code**: `make pylint` or `pylint --rcfile=pylintrc ftputil/*.py`
+- **Lint code**: `make lint`
 - **Build distribution**: `make dist`
 - **Run tox (multi-version testing)**: `tox`
 
 ## Code style guidelines
 
-- **Max line length**: 88 characters (follows pylintrc config)
+- **Max line length**: 88 characters (default for `ruff format`)
 - **Empty lines in functions/methods:** Avoid empty lines, except around
   function/method-internal `def` or `class` statements
 - **Indentation**: 4 spaces (no tabs)
