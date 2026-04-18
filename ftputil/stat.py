@@ -611,8 +611,11 @@ class _Stat:
                 continue
             # Although for a `listdir` call we're only interested in the names,
             # use the `time_shift` parameter to store the correct timestamp
-            # values in the cache.
-            stat_result = self._parser.parse_line(line, self._host.time_shift())
+            # values in the cache. Use `_time_shift_or_default()` to avoid
+            # triggering the deprecation warning for internal operations.
+            stat_result = self._parser.parse_line(
+                line, self._host._time_shift_or_default()
+            )
             # Skip entries "." and "..".
             if stat_result._st_name in [self._host.curdir, self._host.pardir]:
                 continue

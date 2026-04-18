@@ -12,9 +12,9 @@ Add deprecation warnings for backward-incompatible changes coming in ftputil
 - [x] Raise a `DeprecationWarning` for the removal of `FTPHost.path.walk`.
       In the future, `FTPHost.walk` should be used.
 
-- [ ] Add the new constant `UNSET_TIME_SHIFT = object()` in
-      `ftputil.host`. If ftputil accesses the time shift, print a
-      `DeprecationWarning` once and set the time shift to 0.0 (the
+- [x] If ftputil accesses the time shift via public API methods (`stat`,
+      `lstat`, `path.getmtime`, `upload_if_newer`, `download_if_newer`),
+      print a `DeprecationWarning` once and set the time shift to 0.0 (the
       default value in ftputil 5.1.0). See [ticket #160][160].
 
       Deprecation message: "in ftputil 6.0.0, the time shift must be set
