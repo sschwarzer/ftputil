@@ -21,6 +21,8 @@ Add deprecation warnings for backward-incompatible changes coming in ftputil
       with `set_time_shift` or `synchronize_times` to get timestamp stat
       data or to use `upload_if_newer` or `download_if_newer`"
 
+- [ ] Use `details` sections in the documentation where it makes sense.
+
 - [ ] For changing file system APIs (see below), print a
       `DeprecationWarning` in each API function/method that is going to
       change with a change in the semantics.
