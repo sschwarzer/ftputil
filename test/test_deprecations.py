@@ -6,6 +6,8 @@
 Tests for deprecation warnings in ftputil 5.2.0.
 """
 
+import datetime
+import io
 import stat
 import subprocess
 import sys
@@ -14,13 +16,11 @@ from unittest import mock
 
 import pytest
 
-# Ignore warning from following `ftputil` import.
-warnings.filterwarnings("ignore", category=DeprecationWarning)  # noqa: E402
-
-import datetime  # noqa: E402
-import io  # noqa: E402
 
 import freezegun  # noqa: E402
+
+# Ignore warning from following `ftputil` import.
+warnings.filterwarnings("ignore", category=DeprecationWarning)  # noqa: E402
 
 import ftputil  # noqa: E402
 import ftputil.path  # noqa: E402
@@ -275,9 +275,11 @@ class TestDeprecationForTimeShift:
     Test the deprecation warning for time shift in ftputil 5.2.0.
     """
 
-    def _stat_script(self, name="file"):
+    @staticmethod
+    def _stat_script(name="file"):
         """
-        Return a script for testing stat/lstat/getmtime operations.
+        Return a session script for testing `stat`/`lstat`/`getmtime`
+        operations.
         """
         dir_line = test_base.dir_line(
             mode_string="-rw-r--r--",
@@ -294,68 +296,59 @@ class TestDeprecationForTimeShift:
             Call("close"),
         ]
 
+    @staticmethod
+    def _time_shift_warnings(warnings_):
+        """
+        Return time shift-related warnings from `warnings_`.
+        """
+        return [
+            warning
+            for warning in warnings_
+            if issubclass(warning.category, DeprecationWarning)
+            and "time shift" in str(warning.message)
+        ]
+
+    def _test_stat_like_call_emits_time_shift_warning(self, host_method_name):
+        """
+        Call the host method `host_method_name` and check that it raised a
+        single deprecation warning on setting the time shift explicitly.
+        """
+        script = self._stat_script("file")
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            with warnings.catch_warnings(record=True) as warnings_:
+                warnings.simplefilter("default")
+                host_method = {
+                    "stat": host.stat,
+                    "lstat": host.lstat,
+                    "path.getmtime": host.path.getmtime,
+                }
+                host_method[host_method_name]("/file")
+                time_shift_warnings = self._time_shift_warnings(warnings_)
+                assert len(time_shift_warnings) == 1
+                warning = time_shift_warnings[0]
+                assert "test_deprecations.py" in warning.filename
+                assert "ftputil/host.py" not in warning.filename
+
     def test_stat_emits_time_shift_warning(self):
         """
         If `FTPHost.stat` is called and the time shift is unset, it should
         emit a deprecation warning with the time shift message.
         """
-        script = self._stat_script("file")
-        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
-            with warnings.catch_warnings(record=True) as warnings_:
-                warnings.simplefilter("always")
-                host.stat("/file")
-                time_shift_warnings = [
-                    warning
-                    for warning in warnings_
-                    if issubclass(warning.category, DeprecationWarning)
-                    and "time shift" in str(warning.message)
-                ]
-                assert len(time_shift_warnings) == 1
-                warning = time_shift_warnings[0]
-                assert "test_deprecations.py" in warning.filename
-                assert "ftputil/host.py" not in warning.filename
+        self._test_stat_like_call_emits_time_shift_warning("stat")
 
     def test_lstat_emits_time_shift_warning(self):
         """
         If `FTPHost.lstat` is called and the time shift is unset, it should
         emit a deprecation warning with the time shift message.
         """
-        script = self._stat_script("file")
-        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
-            with warnings.catch_warnings(record=True) as warnings_:
-                warnings.simplefilter("always")
-                host.lstat("/file")
-                time_shift_warnings = [
-                    warning
-                    for warning in warnings_
-                    if issubclass(warning.category, DeprecationWarning)
-                    and "time shift" in str(warning.message)
-                ]
-                assert len(time_shift_warnings) == 1
-                warning = time_shift_warnings[0]
-                assert "test_deprecations.py" in warning.filename
-                assert "ftputil/host.py" not in warning.filename
+        self._test_stat_like_call_emits_time_shift_warning("lstat")
 
     def test_getmtime_emits_time_shift_warning(self):
         """
         If `FTPHost.path.getmtime` is called and the time shift is unset,
         it should emit a deprecation warning with the time shift message.
         """
-        script = self._stat_script("file")
-        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
-            with warnings.catch_warnings(record=True) as warnings_:
-                warnings.simplefilter("always")
-                host.path.getmtime("/file")
-                time_shift_warnings = [
-                    warning
-                    for warning in warnings_
-                    if issubclass(warning.category, DeprecationWarning)
-                    and "time shift" in str(warning.message)
-                ]
-                assert len(time_shift_warnings) == 1
-                warning = time_shift_warnings[0]
-                assert "test_deprecations.py" in warning.filename
-                assert "ftputil/path.py" not in warning.filename
+        self._test_stat_like_call_emits_time_shift_warning("path.getmtime")
 
     def test_upload_if_newer_emits_time_shift_warning(self, tmp_path):
         """
@@ -382,14 +375,9 @@ class TestDeprecationForTimeShift:
         multisession_factory = scripted_session.factory(script)
         with test_base.ftp_host_factory(multisession_factory) as host:
             with warnings.catch_warnings(record=True) as warnings_:
-                warnings.simplefilter("always")
+                warnings.simplefilter("default")
                 host.upload_if_newer(str(local_source), "/newer")
-                time_shift_warnings = [
-                    warning
-                    for warning in warnings_
-                    if issubclass(warning.category, DeprecationWarning)
-                    and "time shift" in str(warning.message)
-                ]
+                time_shift_warnings = self._time_shift_warnings(warnings_)
                 assert len(time_shift_warnings) == 1
                 warning = time_shift_warnings[0]
                 assert "test_deprecations.py" in warning.filename
@@ -429,14 +417,9 @@ class TestDeprecationForTimeShift:
         multisession_factory = scripted_session.factory(host_script, file_script)
         with test_base.ftp_host_factory(multisession_factory) as host:
             with warnings.catch_warnings(record=True) as warnings_:
-                warnings.simplefilter("always")
+                warnings.simplefilter("default")
                 host.download_if_newer("/newer", str(local_target))
-                time_shift_warnings = [
-                    warning
-                    for warning in warnings_
-                    if issubclass(warning.category, DeprecationWarning)
-                    and "time shift" in str(warning.message)
-                ]
+                time_shift_warnings = self._time_shift_warnings(warnings_)
                 assert len(time_shift_warnings) == 1
                 warning = time_shift_warnings[0]
                 assert "test_deprecations.py" in warning.filename
@@ -454,39 +437,30 @@ class TestDeprecationForTimeShift:
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             with warnings.catch_warnings(record=True) as warnings_:
-                warnings.simplefilter("always")
+                warnings.simplefilter("default")
                 host.time_shift()
-                time_shift_warnings = [
-                    warning
-                    for warning in warnings_
-                    if issubclass(warning.category, DeprecationWarning)
-                    and "time shift" in str(warning.message)
-                ]
+                time_shift_warnings = self._time_shift_warnings(warnings_)
                 assert len(time_shift_warnings) == 1
                 warning = time_shift_warnings[0]
                 assert "test_deprecations.py" in warning.filename
+                assert "ftputil/host.py" not in warning.filename
 
     def test_listdir_does_not_emit_time_shift_warning(self):
         """
-        `FTPHost.listdir` should NOT emit a time shift deprecation warning
+        `FTPHost.listdir` should _not_ emit a time shift deprecation warning
         because it doesn't return timestamps.
         """
         script = self._stat_script("file")
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             with warnings.catch_warnings(record=True) as warnings_:
-                warnings.simplefilter("always")
+                warnings.simplefilter("default")
                 host.listdir("/")
-                time_shift_warnings = [
-                    warning
-                    for warning in warnings_
-                    if issubclass(warning.category, DeprecationWarning)
-                    and "time shift" in str(warning.message)
-                ]
+                time_shift_warnings = self._time_shift_warnings(warnings_)
                 assert len(time_shift_warnings) == 0
 
     def test_set_time_shift_does_not_emit_warning(self):
         """
-        `FTPHost.set_time_shift` should NOT emit a time shift deprecation
+        `FTPHost.set_time_shift` should _not_ emit a time shift deprecation
         warning because it's the method to set the time shift.
         """
         script = [
@@ -496,21 +470,21 @@ class TestDeprecationForTimeShift:
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             with warnings.catch_warnings(record=True) as warnings_:
-                warnings.simplefilter("always")
+                warnings.simplefilter("default")
                 host.set_time_shift(3600)
-                time_shift_warnings = [
-                    warning
-                    for warning in warnings_
-                    if issubclass(warning.category, DeprecationWarning)
-                    and "time shift" in str(warning.message)
-                ]
+                time_shift_warnings = self._time_shift_warnings(warnings_)
                 assert len(time_shift_warnings) == 0
 
     def test_set_time_shift_zero_suppresses_subsequent_warning(self):
         """
-        Calling `set_time_shift(0.0)` on an unset host should behave the same
-        as setting any other value: subsequent stat-like operations must not
-        emit the deprecation warning.
+        Calling `set_time_shift(0.0)` on an `FTPHost` without a prior
+        `set_time_shift` call should behave the same as setting any other
+        value: subsequent stat-like operations must not emit the deprecation
+        warning.
+
+        This test was added because of a bug in a former implementation that
+        emitted the warning again after a previous call of
+        `host.set_time_shift(0.0)`.
         """
         script = self._stat_script("file")
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
@@ -518,21 +492,19 @@ class TestDeprecationForTimeShift:
             # Explicit setting must flip `_time_shift` away from the sentinel.
             assert host._time_shift == 0.0
             with warnings.catch_warnings(record=True) as warnings_:
-                warnings.simplefilter("always")
+                warnings.simplefilter("default")
                 host.stat("/file")
-                time_shift_warnings = [
-                    warning
-                    for warning in warnings_
-                    if issubclass(warning.category, DeprecationWarning)
-                    and "time shift" in str(warning.message)
-                ]
+                time_shift_warnings = self._time_shift_warnings(warnings_)
                 assert len(time_shift_warnings) == 0
 
     def test_synchronize_times_does_not_emit_warning(self):
         """
-        `FTPHost.synchronize_times` should NOT emit a time shift deprecation
+        `FTPHost.synchronize_times` should _not_ emit a time shift deprecation
         warning even though it internally calls `getmtime` (which would
         normally warn on an unset time shift).
+
+        `synchronize_times` behaves like `set_time_shift` in the sense that it
+        _sets_ a time shift.
         """
         # Freeze both client and server clocks at the same instant so the
         # measured time shift is 0.0 and set_time_shift(0.0) is valid.
@@ -574,14 +546,9 @@ class TestDeprecationForTimeShift:
         with freezegun.freeze_time(frozen):
             with test_base.ftp_host_factory(multisession_factory) as host:
                 with warnings.catch_warnings(record=True) as warnings_:
-                    warnings.simplefilter("always")
+                    warnings.simplefilter("default")
                     host.synchronize_times()
-                    time_shift_warnings = [
-                        warning
-                        for warning in warnings_
-                        if issubclass(warning.category, DeprecationWarning)
-                        and "time shift" in str(warning.message)
-                    ]
+                    time_shift_warnings = self._time_shift_warnings(warnings_)
                     assert len(time_shift_warnings) == 0
 
     def test_warning_emitted_only_once_per_host(self):
@@ -592,16 +559,56 @@ class TestDeprecationForTimeShift:
         script = self._stat_script("file")
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             with warnings.catch_warnings(record=True) as warnings_:
-                warnings.simplefilter("always")
+                warnings.simplefilter("default")
                 host.stat("/file")
                 host.lstat("/file")
                 host.time_shift()
-                time_shift_warnings = [
-                    warning
-                    for warning in warnings_
-                    if issubclass(warning.category, DeprecationWarning)
-                    and "time shift" in str(warning.message)
-                ]
+                time_shift_warnings = self._time_shift_warnings(warnings_)
+                assert len(time_shift_warnings) == 1
+
+    def test_different_hosts_each_warn_once_for_different_client_calls(self):
+        """
+        Each host instance should emit its own warning, since the sentinel
+        is per-instance. The `"always"` filter is used (rather than the
+        `"default"` used elsewhere in this class) so that Python's
+        per-location deduplication doesn't mask the per-host emissions we want
+        to verify.
+        """
+        script = self._stat_script("file")
+        with (
+            test_base.ftp_host_factory(scripted_session.factory(script)) as host1,
+            test_base.ftp_host_factory(scripted_session.factory(script)) as host2,
+        ):
+            with warnings.catch_warnings(record=True) as warnings_:
+                warnings.simplefilter("always")
+                host1.stat("/file")
+                host2.stat("/file")
+                time_shift_warnings = self._time_shift_warnings(warnings_)
+                assert len(time_shift_warnings) == 2
+
+    # This is extracted as its own method, so that it counts as the same
+    # location in the source code calling into the same ftputil method.
+    @staticmethod
+    def _call_host_stat(host):
+        host.stat("/file")
+
+    def test_warning_emitted_only_once_per_same_client_call_for_different_hosts(self):
+        """
+        The time shift warning should be emitted only once per location in
+        client code, even when the two calls operate on different `FTPHost`
+        instances. Relies on Python's default deduplication for
+        `DeprecationWarning` by `(message, category, module, lineno)`.
+        """
+        script = self._stat_script("file")
+        with (
+            test_base.ftp_host_factory(scripted_session.factory(script)) as host1,
+            test_base.ftp_host_factory(scripted_session.factory(script)) as host2,
+        ):
+            with warnings.catch_warnings(record=True) as warnings_:
+                warnings.simplefilter("default")
+                self._call_host_stat(host1)
+                self._call_host_stat(host2)
+                time_shift_warnings = self._time_shift_warnings(warnings_)
                 assert len(time_shift_warnings) == 1
 
     def test_time_shift_value_is_zero_after_warning(self):
@@ -611,27 +618,9 @@ class TestDeprecationForTimeShift:
         """
         script = self._stat_script("file")
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
-            with warnings.catch_warnings(record=True):
-                warnings.simplefilter("always")
+            with warnings.catch_warnings(record=True) as warnings_:
+                warnings.simplefilter("default")
                 host.stat("/file")
                 assert host.time_shift() == 0.0
-
-    def test_different_hosts_each_warn_once(self):
-        """
-        Each host instance should emit its own warning, since the sentinel
-        is per-instance.
-        """
-        script = self._stat_script("file")
-        with test_base.ftp_host_factory(scripted_session.factory(script)) as host1:
-            with test_base.ftp_host_factory(scripted_session.factory(script)) as host2:
-                with warnings.catch_warnings(record=True) as warnings_:
-                    warnings.simplefilter("always")
-                    host1.stat("/file")
-                    host2.stat("/file")
-                    time_shift_warnings = [
-                        warning
-                        for warning in warnings_
-                        if issubclass(warning.category, DeprecationWarning)
-                        and "time shift" in str(warning.message)
-                    ]
-                    assert len(time_shift_warnings) == 2
+                time_shift_warnings = self._time_shift_warnings(warnings_)
+                assert len(time_shift_warnings) == 1
