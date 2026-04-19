@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2002-2026, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -205,8 +205,7 @@ class Parser:
             )
         except ValueError:
             invalid_datetime = (
-                f"{year:04d}-{month:02d}-{day:02d} "
-                f"{hour:02d}:{minute:02d}:{second:02d}"
+                f"{year:04d}-{month:02d}-{day:02d} {hour:02d}:{minute:02d}:{second:02d}"
             )
             raise ftputil.error.ParserError(
                 "invalid datetime {0!r}".format(invalid_datetime)
@@ -606,16 +605,16 @@ class _Stat:
             new_size = int(math.ceil(1.1 * len(lines)))
             cache.resize(new_size)
         # Yield stat results from lines.
+        #
+        # Although for a `listdir` call we're only interested in the names, use
+        # the `time_shift` parameter to store the correct timestamp values in
+        # the cache. Use `_ftputil_internal_call` to avoid triggering the
+        # deprecation warning for internal operations.
+        time_shift = self._host.time_shift(_ftputil_internal_call=True)
         for line in lines:
             if self._parser.ignores_line(line):
                 continue
-            # Although for a `listdir` call we're only interested in the names,
-            # use the `time_shift` parameter to store the correct timestamp
-            # values in the cache. Use `_time_shift_or_default()` to avoid
-            # triggering the deprecation warning for internal operations.
-            stat_result = self._parser.parse_line(
-                line, self._host._time_shift_or_default()
-            )
+            stat_result = self._parser.parse_line(line, time_shift)
             # Skip entries "." and "..".
             if stat_result._st_name in [self._host.curdir, self._host.pardir]:
                 continue

@@ -33,6 +33,10 @@ __all__ = ["FTPHost"]
 # instances when needed. See also ticket #160.
 _UNKNOWN_TIME_SHIFT = object()
 
+# Default time shift until ftputil 5.2.0. In version 6.0.0, there won't be a
+# default; the time shift will need to be set explicitly.
+_DEFAULT_TIME_SHIFT = 0.0
+
 
 # For Python versions 3.8 and below, ftputil has implicitly defaulted to
 # latin-1 encoding. Prefer that behavior for Python 3.9 and up as well instead
@@ -389,16 +393,10 @@ class FTPHost:
                 "from 15-minute units".format(time_shift, int(maximum_deviation))
             )
 
-    def _warn_if_time_shift_unset(self, stacklevel):
+    def _warn_if_time_shift_unset_and_set_default(self):
         """
         Emit a deprecation warning if the time shift has not been explicitly
-        set, and set it to 0.0 (the pre-5.2 default).
-
-        `stacklevel` follows the convention of `warnings.warn`, but counted
-        from the frame of this method's caller. I. e. `stacklevel=1` refers
-        to the caller itself, `stacklevel=2` to the caller's caller, and so
-        on. The extra frame introduced by this helper is peeled off
-        internally.
+        set, and set it to 0.0 (the pre-6.0.0 default).
         """
         if self._time_shift is _UNKNOWN_TIME_SHIFT:
             warnings.warn(
@@ -406,9 +404,14 @@ class FTPHost:
                 "`set_time_shift` or `synchronize_times` to get timestamp "
                 "stat data or to use `upload_if_newer` or `download_if_newer`",
                 DeprecationWarning,
-                stacklevel=stacklevel + 1,
+                # Use level 3 because
+                # `_warn_if_time_shift_unset_and_set_default` is always called
+                # directly from public ftputil APIs, so we need one stack level
+                # for the ftputil function/method and one level for
+                # `_warn_if_time_shift_unset_and_set_default` itself.
+                stacklevel=3,
             )
-            self._time_shift = 0.0
+            self._time_shift = _DEFAULT_TIME_SHIFT
 
     def set_time_shift(self, time_shift):
         """
@@ -424,37 +427,28 @@ class FTPHost:
         The time shift is measured in seconds.
         """
         self.__assert_valid_time_shift(time_shift)
-        # Read `self._time_shift` directly to avoid triggering the deprecation
-        # warning from `time_shift()`. If the time shift has never been set
-        # explicitly, treat this call as a state change even when the new
-        # value is 0.0; otherwise `set_time_shift(0.0)` would leave the
-        # sentinel in place and subsequent stat calls would still warn.
-        was_unset = self._time_shift is _UNKNOWN_TIME_SHIFT
-        old_time_shift = 0.0 if was_unset else self._time_shift
-        if was_unset or time_shift != old_time_shift:
+        if self._time_shift is _UNKNOWN_TIME_SHIFT:
+            self._time_shift = _DEFAULT_TIME_SHIFT
+        if time_shift != self._time_shift:
             # If the time shift changed, all entries in the cache will have
             # wrong times with respect to the updated time shift, therefore
             # clear the cache.
             self.stat_cache.clear()
             self._time_shift = self.__rounded_time_shift(time_shift)
 
-    def time_shift(self):
+    def time_shift(self, _ftputil_internal_call=False):
         """
-        Return the time shift between FTP server and client. See the
-        docstring of `set_time_shift` for more on this value.
+        Return the time shift between FTP server and UTC. See the docstring of
+        `set_time_shift` for more on this value.
         """
-        self._warn_if_time_shift_unset(stacklevel=2)
-        return self._time_shift
-
-    def _time_shift_or_default(self):
-        """
-        Return the time shift value without triggering a deprecation warning.
-        If the time shift hasn't been set, return 0.0 (the pre-5.2 default).
-        This is for internal use only.
-        """
-        if self._time_shift is _UNKNOWN_TIME_SHIFT:
-            return 0.0
-        return self._time_shift
+        if _ftputil_internal_call:
+            if self._time_shift is _UNKNOWN_TIME_SHIFT:
+                return _DEFAULT_TIME_SHIFT
+            else:
+                return self._time_shift
+        else:
+            self._warn_if_time_shift_unset_and_set_default()
+            return self._time_shift
 
     def synchronize_times(self):
         """
@@ -480,7 +474,7 @@ class FTPHost:
         # call doesn't trigger a deprecation warning. The measured value
         # will be set via set_time_shift at the end.
         if self._time_shift is _UNKNOWN_TIME_SHIFT:
-            self._time_shift = 0.0
+            self._time_shift = _DEFAULT_TIME_SHIFT
             self.stat_cache.clear()
         helper_file_name = "_ftputil_sync_"
         # Open a dummy file for writing in the current directory on the FTP
@@ -590,7 +584,7 @@ class FTPHost:
         `file_transfer`. The callback will be called with a single argument,
         the data chunk that was transferred before the callback was called.
         """
-        self._warn_if_time_shift_unset(stacklevel=2)
+        self._warn_if_time_shift_unset_and_set_default()
         ftputil.tool.raise_for_empty_path(source, path_argument_name="source")
         if target in ["", b""]:
             raise IOError("path argument `target` is empty")
@@ -644,7 +638,7 @@ class FTPHost:
         `file_transfer`. The callback will be called with a single argument,
         the data chunk that was transferred before the callback was called.
         """
-        self._warn_if_time_shift_unset(stacklevel=2)
+        self._warn_if_time_shift_unset_and_set_default()
         if source in ["", b""]:
             raise IOError("path argument `source` is empty")
         ftputil.tool.raise_for_empty_path(target, path_argument_name="target")
@@ -1040,7 +1034,7 @@ class FTPHost:
         (`_exception_for_missing_path` is an implementation aid and _not_
         intended for use by ftputil clients.)
         """
-        self._warn_if_time_shift_unset(stacklevel=2)
+        self._warn_if_time_shift_unset_and_set_default()
         ftputil.tool.raise_for_empty_path(path)
         path = ftputil.tool.as_str_path(path, encoding=self._encoding)
         return self._stat._lstat(path, _exception_for_missing_path)
@@ -1058,7 +1052,7 @@ class FTPHost:
         (`_exception_for_missing_path` is an implementation aid and _not_
         intended for use by ftputil clients.)
         """
-        self._warn_if_time_shift_unset(stacklevel=2)
+        self._warn_if_time_shift_unset_and_set_default()
         ftputil.tool.raise_for_empty_path(path)
         path = ftputil.tool.as_str_path(path, encoding=self._encoding)
         return self._stat._stat(path, _exception_for_missing_path)

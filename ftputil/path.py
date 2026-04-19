@@ -79,7 +79,7 @@ class _Path:
         This will raise `PermanentError` if the path doesn't exist, but maybe
         other exceptions depending on the state of the server (e. g. timeout).
         """
-        self._host._warn_if_time_shift_unset(stacklevel=2)
+        self._host._warn_if_time_shift_unset_and_set_default()
         ftputil.tool.raise_for_empty_path(path)
         return self._host.stat(path).st_mtime
 
