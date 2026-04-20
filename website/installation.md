@@ -31,4 +31,5 @@ conda install -c conda-forge ftputil
 
 ## Linux / BSD distributions
 
-Some Linux or BSD distributions may offer an ftputil package.
+Some Linux or BSD distributions may offer an ftputil package, but it may be
+very outdated.
