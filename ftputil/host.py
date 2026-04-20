@@ -1136,6 +1136,12 @@ class FTPHost:
                 else:
                     nondirs.append(name)
             if topdown:
+                # Save and restore the time shift warning suppression level.
+                # The idea here is that even if `walk` itself doesn't rely on
+                # timestamp data, the loop body in the client code may call
+                # methods like `stat`. However, if we didn't temporarily set
+                # the suppression level to 0, we'd also suppress the warnings
+                # for client code in `walk`'s loop.
                 old_level = self._time_shift_warnings_suppression_level
                 self._time_shift_warnings_suppression_level = 0
                 try:
@@ -1145,8 +1151,12 @@ class FTPHost:
             for name in dirs:
                 path = self.path.join(top, name)
                 if followlinks or not self.path.islink(path):
+                    # No suppression level reset here since this recursively
+                    # calls into the regular `yield` (without `from`) which
+                    # _does_ reset the warning suppression level.
                     yield from self.walk(path, topdown, onerror, followlinks)
             if not topdown:
+                # See comment above.
                 old_level = self._time_shift_warnings_suppression_level
                 self._time_shift_warnings_suppression_level = 0
                 try:
