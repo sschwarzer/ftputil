@@ -17,7 +17,7 @@ from unittest import mock
 import freezegun
 import pytest
 
-with warnings.catch_warnings(category=DeprecationWarning):
+with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=DeprecationWarning)
     import ftputil
     import ftputil.path

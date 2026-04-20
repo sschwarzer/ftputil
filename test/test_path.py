@@ -684,7 +684,7 @@ class TestAcceptEitherBytesOrStr:
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             host.set_time_shift(0.0)
             host.stat_cache.disable()
-            with warnings.catch_warnings(category=DeprecationWarning):
+            with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=DeprecationWarning)
                 host.path.walk(path_converter("ä"), func=noop, arg=None)
                 host.path.walk(
