@@ -5,6 +5,7 @@
 import datetime
 import ftplib
 import functools
+import warnings
 
 import pytest
 
@@ -683,14 +684,16 @@ class TestAcceptEitherBytesOrStr:
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             host.set_time_shift(0.0)
             host.stat_cache.disable()
-            host.path.walk(path_converter("ä"), func=noop, arg=None)
-            host.path.walk(
-                path_converter(
-                    as_bytes("ä", ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING)
-                ),
-                func=noop,
-                arg=None,
-            )
+            with warnings.catch_warnings(category=DeprecationWarning):
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
+                host.path.walk(path_converter("ä"), func=noop, arg=None)
+                host.path.walk(
+                    path_converter(
+                        as_bytes("ä", ftputil.path_encoding.FTPLIB_DEFAULT_ENCODING)
+                    ),
+                    func=noop,
+                    arg=None,
+                )
 
 
 class Path:
