@@ -147,9 +147,13 @@ class _Path:
         A non-existing path does _not_ cause a `PermanentError`, instead return
         `False`.
         """
-        if path in ["", b""]:
-            return False
-        return self._is_file_system_entity(path, "dir")
+        try:
+            self._host._time_shift_warnings_suppress_level += 1
+            if path in ["", b""]:
+                return False
+            return self._is_file_system_entity(path, "dir")
+        finally:
+            self._host._time_shift_warnings_suppress_level -= 1
 
     def isfile(self, path):
         """
@@ -159,9 +163,13 @@ class _Path:
         A non-existing path does _not_ cause a `PermanentError`, instead return
         `False`.
         """
-        if path in ["", b""]:
-            return False
-        return self._is_file_system_entity(path, "file")
+        try:
+            self._host._time_shift_warnings_suppress_level += 1
+            if path in ["", b""]:
+                return False
+            return self._is_file_system_entity(path, "file")
+        finally:
+            self._host._time_shift_warnings_suppress_level -= 1
 
     def islink(self, path):
         """
@@ -170,19 +178,23 @@ class _Path:
         A non-existing path does _not_ cause a `PermanentError`, instead return
         `False`.
         """
-        path = ftputil.tool.as_str_path(path, encoding=self._encoding)
-        if path == "":
-            return False
         try:
-            lstat_result = self._host.lstat(path, _exception_for_missing_path=False)
-        except ftputil.error.RootDirError:
-            return False
-        else:
-            if lstat_result is None:
-                # Non-existent path
+            self._host._time_shift_warnings_suppress_level += 1
+            path = ftputil.tool.as_str_path(path, encoding=self._encoding)
+            if path == "":
+                return False
+            try:
+                lstat_result = self._host.lstat(path, _exception_for_missing_path=False)
+            except ftputil.error.RootDirError:
                 return False
             else:
-                return stat.S_ISLNK(lstat_result.st_mode)
+                if lstat_result is None:
+                    # Non-existent path
+                    return False
+                else:
+                    return stat.S_ISLNK(lstat_result.st_mode)
+        finally:
+            self._host._time_shift_warnings_suppress_level -= 1
 
     def walk(self, top, func, arg, _is_recursive_call=False):
         """

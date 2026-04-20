@@ -134,6 +134,24 @@ class FTPHost:
         # understand the `-a` option and interprets it as a path, the results
         # can be surprising. See ticket #110.
         self.use_list_a_option = False
+        # Control when time shift warnings should be allowed. For example,
+        # methods like `FTPHost.listdir` and `FTPHost.path.isdir` get stat
+        # information internally, but from the point of view of a user calling
+        # these methods, these methods aren't concerned with timestamp
+        # information.
+        #
+        # The value of level attribute is increased by 1 everytime we call a
+        # method that shouldn't warn and is decreased by 1 when we leave the
+        # method. For example, `isdir` increases the level, so when `stat` is
+        # called from `isdir`, `stat` sees that warnings should be suppressed.
+        # If the level is larger than 0, the `time_shift` method returns the
+        # default time shift but leaves the actual `_time_shift` value at
+        # `_UNKNOWN_TIME_SHIFT`.
+        #
+        # Methods which are called internally, namely `stat`, only emit a
+        # warning if they're called with the level is 0, i.e. when not called
+        # internally.
+        self._time_shift_warnings_suppress_level = 0
 
     def keep_alive(self):
         """
@@ -398,7 +416,9 @@ class FTPHost:
         Emit a deprecation warning if the time shift has not been explicitly
         set, and set it to 0.0 (the pre-6.0.0 default).
         """
-        if self._time_shift is _UNKNOWN_TIME_SHIFT:
+        if (self._time_shift_warnings_suppress_level == 0) and (
+            self._time_shift is _UNKNOWN_TIME_SHIFT
+        ):
             warnings.warn(
                 "in ftputil 6.0.0, the time shift must be set with "
                 "`set_time_shift` or `synchronize_times` to get timestamp "
@@ -436,19 +456,19 @@ class FTPHost:
             self.stat_cache.clear()
             self._time_shift = self.__rounded_time_shift(time_shift)
 
-    def time_shift(self, _ftputil_internal_call=False):
+    def time_shift(self):
         """
         Return the time shift between FTP server and UTC. See the docstring of
         `set_time_shift` for more on this value.
         """
-        if _ftputil_internal_call:
+        if self._time_shift_warnings_suppress_level == 0:
+            self._warn_if_time_shift_unset_and_set_default()
+            return self._time_shift
+        else:
             if self._time_shift is _UNKNOWN_TIME_SHIFT:
                 return _DEFAULT_TIME_SHIFT
             else:
                 return self._time_shift
-        else:
-            self._warn_if_time_shift_unset_and_set_default()
-            return self._time_shift
 
     def synchronize_times(self):
         """
@@ -1017,14 +1037,18 @@ class FTPHost:
         If the directory listing from the server can't be parsed with any of
         the available parsers raise a `ParserError`.
         """
-        ftputil.tool.raise_for_empty_path(path)
-        original_path = path
-        path = ftputil.tool.as_str_path(path, encoding=self._encoding)
-        items = self._stat._listdir(path)
-        return [
-            ftputil.tool.same_string_type_as(original_path, item, self._encoding)
-            for item in items
-        ]
+        try:
+            self._time_shift_warnings_suppress_level += 1
+            ftputil.tool.raise_for_empty_path(path)
+            original_path = path
+            path = ftputil.tool.as_str_path(path, encoding=self._encoding)
+            items = self._stat._listdir(path)
+            return [
+                ftputil.tool.same_string_type_as(original_path, item, self._encoding)
+                for item in items
+            ]
+        finally:
+            self._time_shift_warnings_suppress_level -= 1
 
     def lstat(self, path, _exception_for_missing_path=True):
         """

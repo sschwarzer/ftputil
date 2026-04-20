@@ -610,7 +610,7 @@ class _Stat:
         # the `time_shift` parameter to store the correct timestamp values in
         # the cache. Use `_ftputil_internal_call` to avoid triggering the
         # deprecation warning for internal operations.
-        time_shift = self._host.time_shift(_ftputil_internal_call=True)
+        time_shift = self._host.time_shift()
         for line in lines:
             if self._parser.ignores_line(line):
                 continue

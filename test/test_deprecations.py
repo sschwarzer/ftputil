@@ -14,6 +14,7 @@ import sys
 import warnings
 from unittest import mock
 
+import freezegun
 import pytest
 
 with warnings.catch_warnings(category=DeprecationWarning):
@@ -313,12 +314,11 @@ class TestDeprecationForTimeShift:
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
             with warnings.catch_warnings(record=True) as warnings_:
                 warnings.simplefilter("default")
-                host_method = {
-                    "stat": host.stat,
-                    "lstat": host.lstat,
-                    "path.getmtime": host.path.getmtime,
-                }
-                host_method[host_method_name]("/file")
+                if host_method_name.startswith("path."):
+                    host_method = getattr(host.path, host_method_name.split(".")[1])
+                else:
+                    host_method = getattr(host, host_method_name)
+                host_method("/file")
                 time_shift_warnings = self._time_shift_warnings(warnings_)
                 assert len(time_shift_warnings) == 1
                 warning = time_shift_warnings[0]
@@ -345,6 +345,30 @@ class TestDeprecationForTimeShift:
         it should emit a deprecation warning with the time shift message.
         """
         self._test_stat_like_call_emits_time_shift_warning("path.getmtime")
+
+    def test_isdir_and_stat_emits_time_shift_warning(self):
+        """
+        If `FTPHost.path.isdir` is called and the time shift is unset,
+        it should emit a deprecation warning with the time shift message.
+        """
+        script = self._stat_script("file")
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            with warnings.catch_warnings(record=True) as warnings_:
+                warnings.simplefilter("default")
+                # This implicitly reads and stats the directory entries, the
+                # subsequent `stat` call doesn't actually fetch stat data from
+                # the host.
+                _flag = host.path.isdir("file")
+                _stat_result = host.stat("file")
+                time_shift_warnings = self._time_shift_warnings(warnings_)
+                # We know that the warning comes from the `stat` call because
+                # we have the test
+                # `test_listdir_does_not_emit_time_shift_warning` above that
+                # shows that `listdir` alone doesn't emit a warning.
+                assert len(time_shift_warnings) == 1
+                warning = time_shift_warnings[0]
+                assert "test_deprecations.py" in warning.filename
+                assert "ftputil/host.py" not in warning.filename
 
     def test_listdir_does_not_emit_time_shift_warning(self):
         """
