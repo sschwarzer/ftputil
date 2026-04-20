@@ -1,10 +1,13 @@
-# Copyright (C) 2003-2019, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2026, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
 import io
+import warnings
 
-import ftputil
+with warnings.catch_warnings(category=DeprecationWarning):
+    warnings.filterwarnings("ignore", category=DeprecationWarning)
+    import ftputil
 
 
 # Since `io.BytesIO` and `io.StringIO` are built-in, they can't be patched with

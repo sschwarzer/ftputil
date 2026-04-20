@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2019, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2026, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -588,6 +588,7 @@ class TestLstatAndStat:
             Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.set_time_shift(0.0)
             host.stat_cache.disable()
             stat_result = host.stat("/foo")
             expected_result = (
@@ -616,6 +617,7 @@ class TestLstatAndStat:
             Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.set_time_shift(0.0)
             host.stat_cache.disable()
             with pytest.raises(ftputil.error.PermanentError):
                 host.lstat("/notthere/irrelevant")
@@ -642,6 +644,7 @@ class TestLstatAndStat:
             Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.set_time_shift(0.0)
             host.stat_cache.disable()
             with pytest.raises(ftputil.error.PermanentError):
                 host.lstat("/some_dir/notthere")
@@ -656,6 +659,7 @@ class TestLstatAndStat:
         """
         script = [Call("__init__"), Call("pwd", result="/"), Call("close")]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.set_time_shift(0.0)
             host.stat_cache.disable()
             with pytest.raises(ftputil.error.RootDirError) as exc_info:
                 host.lstat("/")
@@ -681,6 +685,7 @@ class TestLstatAndStat:
             Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.set_time_shift(0.0)
             host.stat_cache.disable()
             stat_result = host.lstat("/some_file")
         assert oct(stat_result.st_mode) == "0o100644"
@@ -716,6 +721,7 @@ class TestLstatAndStat:
             Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.set_time_shift(0.0)
             host.stat_cache.disable()
             stat_result = host.lstat("/some_file")
         assert stat_result._st_name == "some_file"
@@ -739,6 +745,7 @@ class TestLstatAndStat:
             Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.set_time_shift(0.0)
             host.stat_cache.disable()
             stat_result = host.lstat("/some_dir")
         assert oct(stat_result.st_mode) == "0o42755"
@@ -794,6 +801,7 @@ class TestLstatAndStat:
             Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.set_time_shift(0.0)
             host.stat_cache.disable()
             stat_result = host.lstat("/some_dir")
         assert stat_result._st_mtime_precision == 60
@@ -816,6 +824,7 @@ class TestLstatAndStat:
             Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.set_time_shift(0.0)
             host.stat_cache.disable()
             stat_result = host.lstat("/some_dir")
         assert stat.S_ISDIR(stat_result.st_mode)
@@ -847,6 +856,7 @@ class TestLstatAndStat:
             Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.set_time_shift(0.0)
             host.stat_cache.disable()
             stat_result = host.stat("/link")
         assert stat_result.st_size == 4604
@@ -879,6 +889,7 @@ class TestLstatAndStat:
             Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.set_time_shift(0.0)
             host.stat_cache.disable()
             stat_result = host.stat("/link_link")
         assert stat_result.st_size == 4604
@@ -911,6 +922,7 @@ class TestLstatAndStat:
             Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.set_time_shift(0.0)
             host.stat_cache.disable()
             with pytest.raises(ftputil.error.PermanentError):
                 host.stat("bad_link1")
@@ -940,6 +952,7 @@ class TestLstatAndStat:
             Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.set_time_shift(0.0)
             host.stat_cache.disable()
             assert host._stat._allow_parser_switching is True
             # With these directory contents, we get a `ParserError` for the
@@ -967,6 +980,7 @@ class TestLstatAndStat:
             Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.set_time_shift(0.0)
             host.stat_cache.disable()
             assert host._stat._allow_parser_switching is True
             assert host._stat._allow_parser_switching is True
@@ -1002,6 +1016,7 @@ class TestLstatAndStat:
             Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.set_time_shift(0.0)
             host.stat_cache.disable()
             assert host._stat._allow_parser_switching is True
             assert isinstance(host._stat._parser, ftputil.stat.UnixParser)
@@ -1055,6 +1070,7 @@ class TestListdir:
             Call("close"),
         ]
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            host.set_time_shift(0.0)
             host.stat_cache.disable()
             with pytest.raises(ftputil.error.PermanentError):
                 host.listdir("notthere")

@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2022, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2026, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # and ftputil contributors (see `doc/contributors.txt`)
 # See the file LICENSE for licensing terms.
 
@@ -116,6 +116,7 @@ class RealFTPTest:
         self.host = ftputil.FTPHost(
             *self.login_data, session_factory=DEFAULT_SESSION_FACTORY
         )
+        self.host.set_time_shift(0.0)
         self.cleaner = Cleaner(self.host)
 
     def teardown_method(self, method):
@@ -746,27 +747,31 @@ class TestStat(RealFTPTest):
         entries of the other `FTPHost` instance.
         """
         self.make_remote_file("_testfile_")
-        with ftputil.FTPHost(
-            *self.login_data, session_factory=DEFAULT_SESSION_FACTORY
-        ) as host1:
-            with ftputil.FTPHost(
+        with (
+            ftputil.FTPHost(
                 *self.login_data, session_factory=DEFAULT_SESSION_FACTORY
-            ) as host2:
-                stat_result1 = host1.stat("_testfile_")
-                stat_result2 = host2.stat("_testfile_")
-                assert stat_result1 == stat_result2
-                host2.remove("_testfile_")
-                # Can still get the result via `host1`
-                stat_result1 = host1.stat("_testfile_")
-                assert stat_result1 == stat_result2
-                # Stat'ing on `host2` gives an exception.
-                with pytest.raises(ftputil.error.PermanentError):
-                    host2.stat("_testfile_")
-                # Stat'ing on `host1` after invalidation
-                absolute_path = host1.path.join(host1.getcwd(), "_testfile_")
-                host1.stat_cache.invalidate(absolute_path)
-                with pytest.raises(ftputil.error.PermanentError):
-                    host1.stat("_testfile_")
+            ) as host1,
+            ftputil.FTPHost(
+                *self.login_data, session_factory=DEFAULT_SESSION_FACTORY
+            ) as host2,
+        ):
+            host1.set_time_shift(0.0)
+            host2.set_time_shift(0.0)
+            stat_result1 = host1.stat("_testfile_")
+            stat_result2 = host2.stat("_testfile_")
+            assert stat_result1 == stat_result2
+            host2.remove("_testfile_")
+            # Can still get the result via `host1`
+            stat_result1 = host1.stat("_testfile_")
+            assert stat_result1 == stat_result2
+            # Stat'ing on `host2` gives an exception.
+            with pytest.raises(ftputil.error.PermanentError):
+                host2.stat("_testfile_")
+            # Stat'ing on `host1` after invalidation
+            absolute_path = host1.path.join(host1.getcwd(), "_testfile_")
+            host1.stat_cache.invalidate(absolute_path)
+            with pytest.raises(ftputil.error.PermanentError):
+                host1.stat("_testfile_")
 
     def test_cache_auto_resizing(self):
         """
@@ -1258,6 +1263,7 @@ class TestOther(RealFTPTest):
             with ftputil.FTPHost(
                 *self.login_data, session_factory=DEFAULT_SESSION_FACTORY
             ) as host:
+                host.set_time_shift(0.0)
                 for _ in range(10):
                     _stat_result = host.stat("CONTENTS")
                     with host.open("CONTENTS") as fobj:
