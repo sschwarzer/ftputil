@@ -141,7 +141,7 @@ class FTPHost:
         # these methods, these methods aren't concerned with timestamp
         # information.
         #
-        # The value of level attribute is increased by 1 everytime we call a
+        # The value of level attribute is increased by 1 every time we call a
         # method that shouldn't warn and is decreased by 1 when we leave the
         # method. For example, `isdir` increases the level, so when `stat` is
         # called from `isdir`, `stat` sees that warnings should be suppressed.
