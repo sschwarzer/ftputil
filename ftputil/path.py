@@ -50,27 +50,29 @@ class _Path:
         """
         Return an absolute path.
         """
-        # Don't use `raise_for_empty_path` here since Python itself doesn't
-        # raise an exception and just returns the current directory.
-        original_path = path
-        path = ftputil.tool.as_str_path(path, encoding=self._encoding)
-        if not self.isabs(path):
-            path = self.join(self._host.getcwd(), path)
-        return ftputil.tool.same_string_type_as(
-            os.fspath(original_path), self.normpath(path), self._encoding
-        )
+        with self._host._time_shift_warning_suppression():
+            # Don't use `raise_for_empty_path` here since Python itself doesn't
+            # raise an exception and just returns the current directory.
+            original_path = path
+            path = ftputil.tool.as_str_path(path, encoding=self._encoding)
+            if not self.isabs(path):
+                path = self.join(self._host.getcwd(), path)
+            return ftputil.tool.same_string_type_as(
+                os.fspath(original_path), self.normpath(path), self._encoding
+            )
 
     def exists(self, path):
         """
         Return true if the path exists.
         """
-        if path in ["", b""]:
-            return False
-        try:
-            lstat_result = self._host.lstat(path, _exception_for_missing_path=False)
-            return lstat_result is not None
-        except ftputil.error.RootDirError:
-            return True
+        with self._host._time_shift_warning_suppression():
+            if path in ["", b""]:
+                return False
+            try:
+                lstat_result = self._host.lstat(path, _exception_for_missing_path=False)
+                return lstat_result is not None
+            except ftputil.error.RootDirError:
+                return True
 
     def getmtime(self, path):
         """
@@ -91,8 +93,9 @@ class _Path:
         raise other exceptions depending on the state of the server (e. g.
         timeout).
         """
-        ftputil.tool.raise_for_empty_path(path)
-        return self._host.stat(path).st_size
+        with self._host._time_shift_warning_suppression():
+            ftputil.tool.raise_for_empty_path(path)
+            return self._host.stat(path).st_size
 
     # Check whether a path is a regular file/dir/link. For the first two cases
     # follow links (like in `os.path`).
