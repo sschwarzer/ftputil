@@ -905,7 +905,11 @@ For this reason, `ftputil` by default saves the results from directory
 listings locally and reuses those results. This reduces network accesses
 and so speeds up the software a lot. However, since data is more rarely
 fetched from the server, the risk of obsolete data also increases. This
-will be discussed below.
+is discussed in the following details section.
+
+<details markdown="1">
+
+<summary>Caching details</summary>
 
 Caching can be controlled -- if necessary at all -- via the `stat_cache`
 object in an `FTPHost`'s namespace. For example, after calling
@@ -1043,6 +1047,8 @@ with ftputil.FTPHost(server, user, password) as ftp_host:
 ```
 In that case, the file `some_file` may have been removed by another
 process between the calls to `exists` and `getmtime`!
+
+</details>
 
 #### Iteration over directories
 
@@ -1386,8 +1392,12 @@ However, if your server uses a format which is different from the two
 provided by `ftputil`, you can plug in a custom parser with a single
 method call and have `ftputil` use this parser.
 
-For this, you need to write a parser class by inheriting from the class
-`Parser` in the `ftputil.stat` module. Here's an example:
+<details markdown="1">
+
+<summary>Details on custom parsers</summary>
+
+To write a custom parser class, inherit it from the class `Parser` in the
+`ftputil.stat` module. Here's an example:
 ```python
 import ftputil.error
 import ftputil.stat
@@ -1505,6 +1515,8 @@ If you can't write a parser or don't want to, please ask on the [ftputil
 mailing list](https://ftputil.sschwarzer.net/mailinglist). Possibly
 someone has already written a parser for your server or can help with
 it.
+
+</details>
 
 ## Bugs and limitations
 
