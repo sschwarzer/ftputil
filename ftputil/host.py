@@ -8,6 +8,7 @@
 See `__init__.py` for an example.
 """
 
+import contextlib
 import datetime
 import errno
 import ftplib
@@ -151,7 +152,7 @@ class FTPHost:
         # Methods which are called internally, namely `stat`, only emit a
         # warning if they're called with the level is 0, i.e. when not called
         # internally.
-        self._time_shift_warnings_suppress_level = 0
+        self._time_shift_warnings_suppression_level = 0
 
     def keep_alive(self):
         """
@@ -416,7 +417,7 @@ class FTPHost:
         Emit a deprecation warning if the time shift has not been explicitly
         set, and set it to 0.0 (the pre-6.0.0 default).
         """
-        if (self._time_shift_warnings_suppress_level == 0) and (
+        if (self._time_shift_warnings_suppression_level == 0) and (
             self._time_shift is _UNKNOWN_TIME_SHIFT
         ):
             warnings.warn(
@@ -432,6 +433,19 @@ class FTPHost:
                 stacklevel=3,
             )
             self._time_shift = _DEFAULT_TIME_SHIFT
+
+    @contextlib.contextmanager
+    def _time_shift_warning_suppression(self):
+        """
+        Temporarily deactivate triggering time shift warnings.
+        """
+        # We _don't_ use a simple flag in order to distinguish when a method is
+        # called from client code versus internally in ftputil during another call.
+        self._time_shift_warnings_suppression_level += 1
+        try:
+            yield
+        finally:
+            self._time_shift_warnings_suppression_level -= 1
 
     def set_time_shift(self, time_shift):
         """
@@ -461,7 +475,7 @@ class FTPHost:
         Return the time shift between FTP server and UTC. See the docstring of
         `set_time_shift` for more on this value.
         """
-        if self._time_shift_warnings_suppress_level == 0:
+        if self._time_shift_warnings_suppression_level == 0:
             self._warn_if_time_shift_unset_and_set_default()
             return self._time_shift
         else:
@@ -1037,8 +1051,7 @@ class FTPHost:
         If the directory listing from the server can't be parsed with any of
         the available parsers raise a `ParserError`.
         """
-        try:
-            self._time_shift_warnings_suppress_level += 1
+        with self._time_shift_warning_suppression():
             ftputil.tool.raise_for_empty_path(path)
             original_path = path
             path = ftputil.tool.as_str_path(path, encoding=self._encoding)
@@ -1047,8 +1060,6 @@ class FTPHost:
                 ftputil.tool.same_string_type_as(original_path, item, self._encoding)
                 for item in items
             ]
-        finally:
-            self._time_shift_warnings_suppress_level -= 1
 
     def lstat(self, path, _exception_for_missing_path=True):
         """

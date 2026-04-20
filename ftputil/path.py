@@ -147,13 +147,10 @@ class _Path:
         A non-existing path does _not_ cause a `PermanentError`, instead return
         `False`.
         """
-        try:
-            self._host._time_shift_warnings_suppress_level += 1
+        with self._host._time_shift_warning_suppression():
             if path in ["", b""]:
                 return False
             return self._is_file_system_entity(path, "dir")
-        finally:
-            self._host._time_shift_warnings_suppress_level -= 1
 
     def isfile(self, path):
         """
@@ -163,13 +160,10 @@ class _Path:
         A non-existing path does _not_ cause a `PermanentError`, instead return
         `False`.
         """
-        try:
-            self._host._time_shift_warnings_suppress_level += 1
+        with self._host._time_shift_warning_suppression():
             if path in ["", b""]:
                 return False
             return self._is_file_system_entity(path, "file")
-        finally:
-            self._host._time_shift_warnings_suppress_level -= 1
 
     def islink(self, path):
         """
@@ -178,8 +172,7 @@ class _Path:
         A non-existing path does _not_ cause a `PermanentError`, instead return
         `False`.
         """
-        try:
-            self._host._time_shift_warnings_suppress_level += 1
+        with self._host._time_shift_warning_suppression():
             path = ftputil.tool.as_str_path(path, encoding=self._encoding)
             if path == "":
                 return False
@@ -193,8 +186,6 @@ class _Path:
                     return False
                 else:
                     return stat.S_ISLNK(lstat_result.st_mode)
-        finally:
-            self._host._time_shift_warnings_suppress_level -= 1
 
     def walk(self, top, func, arg, _is_recursive_call=False):
         """
