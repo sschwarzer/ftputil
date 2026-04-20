@@ -359,6 +359,31 @@ class TestDeprecationForTimeShift:
                 time_shift_warnings = self._time_shift_warnings(warnings_)
                 assert len(time_shift_warnings) == 0
 
+    def test_listdir_and_stat_emits_time_shift_warning(self):
+        """
+        If `listdir` alone is used, it shouldn't emit a time shift warning, see
+        above. But a following `stat` (or other function that actually exposes
+        time data) should warn then.
+        """
+        script = self._stat_script("file")
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            with warnings.catch_warnings(record=True) as warnings_:
+                warnings.simplefilter("default")
+                # This implicitly reads and stats the directory entries, the
+                # subsequent `stat` call doesn't actually fetch stat data from
+                # the host.
+                _items = host.listdir("/")
+                _stat_result = host.stat("file")
+                time_shift_warnings = self._time_shift_warnings(warnings_)
+                # We know that the warning comes from the `stat` call because
+                # we have the test
+                # `test_listdir_does_not_emit_time_shift_warning` above that
+                # shows that `listdir` alone doesn't emit a warning.
+                assert len(time_shift_warnings) == 1
+                warning = time_shift_warnings[0]
+                assert "test_deprecations.py" in warning.filename
+                assert "ftputil/host.py" not in warning.filename
+
     def test_upload_if_newer_emits_time_shift_warning(self, tmp_path):
         """
         If `FTPHost.upload_if_newer` is called and the time shift is unset,
