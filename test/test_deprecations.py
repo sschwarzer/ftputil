@@ -346,6 +346,19 @@ class TestDeprecationForTimeShift:
         """
         self._test_stat_like_call_emits_time_shift_warning("path.getmtime")
 
+    def test_listdir_does_not_emit_time_shift_warning(self):
+        """
+        `FTPHost.listdir` should _not_ emit a time shift deprecation warning
+        because it doesn't return timestamps.
+        """
+        script = self._stat_script("file")
+        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
+            with warnings.catch_warnings(record=True) as warnings_:
+                warnings.simplefilter("default")
+                _items = host.listdir("/")
+                time_shift_warnings = self._time_shift_warnings(warnings_)
+                assert len(time_shift_warnings) == 0
+
     def test_upload_if_newer_emits_time_shift_warning(self, tmp_path):
         """
         If `FTPHost.upload_if_newer` is called and the time shift is unset,
@@ -440,19 +453,6 @@ class TestDeprecationForTimeShift:
                 warning = time_shift_warnings[0]
                 assert "test_deprecations.py" in warning.filename
                 assert "ftputil/host.py" not in warning.filename
-
-    def test_listdir_does_not_emit_time_shift_warning(self):
-        """
-        `FTPHost.listdir` should _not_ emit a time shift deprecation warning
-        because it doesn't return timestamps.
-        """
-        script = self._stat_script("file")
-        with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
-            with warnings.catch_warnings(record=True) as warnings_:
-                warnings.simplefilter("default")
-                host.listdir("/")
-                time_shift_warnings = self._time_shift_warnings(warnings_)
-                assert len(time_shift_warnings) == 0
 
     def test_set_time_shift_does_not_emit_warning(self):
         """
