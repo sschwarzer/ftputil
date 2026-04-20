@@ -16,18 +16,14 @@ from unittest import mock
 
 import pytest
 
+with warnings.catch_warnings(category=DeprecationWarning):
+    warnings.filterwarnings("ignore", category=DeprecationWarning)
+    import ftputil
+    import ftputil.path
+    import ftputil.stat
 
-import freezegun  # noqa: E402
-
-# Ignore warning from following `ftputil` import.
-warnings.filterwarnings("ignore", category=DeprecationWarning)  # noqa: E402
-
-import ftputil  # noqa: E402
-import ftputil.path  # noqa: E402
-import ftputil.stat  # noqa: E402
-
-from test import scripted_session  # noqa: E402
-from test import test_base  # noqa: E402
+from test import scripted_session
+from test import test_base
 
 
 Call = scripted_session.Call
