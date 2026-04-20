@@ -53,15 +53,15 @@ patch:
 # Website maintenance
 .PHONY: serve_website
 serve_website:
-	(cd website && bundler exec jekyll serve)
+	(cd "${WEBSITE_DIR}" && bundler exec jekyll serve)
 
 .PHONY: website
 website:
-	(cd website && bundler exec jekyll build)
+	(cd "${WEBSITE_DIR}" && bundler exec jekyll build)
 
 .PHONY: upload_website
 upload_website: website
-	hetzner-sync website/_site ftputil
+	hetzner-sync "${WEBSITE_DIR}/_site" ftputil
 
 # Quality assurance
 .PHONY: test
