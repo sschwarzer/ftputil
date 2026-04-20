@@ -47,8 +47,6 @@ patch:
 	${SED} "1,15s/^\*\*Date:\*\* .*\\\\/**Date:** `date +"%Y-%m-%d"`\\\\/" \
 		${WEBSITE_DIR}/documentation.md
 	${SED} "s/^Version: .*/Version: ${VERSION}/" PKG-INFO
-	${SED} "s/(\/wiki\/Download\/ftputil-).*(\.tar\.gz)/\1${VERSION}\2/" \
-		PKG-INFO
 
 # Website maintenance
 .PHONY: serve_website
