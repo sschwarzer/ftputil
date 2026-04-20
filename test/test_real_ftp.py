@@ -265,7 +265,6 @@ class TestMkdir(RealFTPTest):
 
 
 class TestRemoval(RealFTPTest):
-
     # Tests for `remove`
 
     def test_remove_existing_file(self):
@@ -931,6 +930,7 @@ class TestFTPFiles(RealFTPTest):
         # Implicitly create child host object.
         with host.open(REMOTE_FILE_NAME, "rb") as file_obj1:
             pass
+
         # Monkey-patch file to simulate an FTP server timeout below.
         def timed_out_pwd():
             raise ftplib.error_temp("simulated timeout")
@@ -954,6 +954,7 @@ class TestFTPFiles(RealFTPTest):
         # Implicitly create child host object.
         with host.open(REMOTE_FILE_NAME, "rb") as file_obj1:
             pass
+
         # Monkey-patch file to simulate an FTP server timeout below.
         def timed_out_pwd():
             raise ftplib.error_reply("delayed 226 reply")
@@ -1065,7 +1066,6 @@ class TestChmod(RealFTPTest):
 
 
 class TestRestArgument(RealFTPTest):
-
     TEST_FILE_NAME = "rest_test"
 
     def setup_method(self, method):

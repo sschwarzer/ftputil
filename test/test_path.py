@@ -402,7 +402,6 @@ class TestPath:
 
 
 class TestAcceptEitherBytesOrStr:
-
     # Use path arguments directly
     path_converter = staticmethod(lambda path: path)
 
@@ -703,6 +702,5 @@ class Path:
 
 
 class TestAcceptEitherBytesOrStrFromPath(TestAcceptEitherBytesOrStr):
-
     # Take path arguments from `Path(...)` objects
     path_converter = Path

@@ -41,7 +41,6 @@ def stat_tuple_to_seconds(t):
 
 
 class TestParsers:
-
     #
     # Helper methods
     #
@@ -94,7 +93,7 @@ class TestParsers:
             "-rw-r--r--   1 45854    200          4604 Dec 19 23:11 index.html",
             "drwxr-sr-x   2 45854    200           512 Jan 01  2000 os2",
             "----------   2 45854    200           512 May 29  2000 some_file",
-            "lrwxrwxrwx   2 45854    200           512 May 29  2000 osup -> " "../os2",
+            "lrwxrwxrwx   2 45854    200           512 May 29  2000 osup -> ../os2",
         ]
         # Note that the time shift is also subtracted from the datetimes that
         # have only day precision, i. e. a year but no time.
@@ -313,8 +312,7 @@ class TestParsers:
             # Is this `os1 -> os2` pointing to `os3`, or `os1` pointing to
             # `os2 -> os3` or the plain name `os1 -> os2 -> os3`? We don't
             # know, so we consider the line invalid.
-            "drwxr-sr-x   2 45854    200           512 May 29  2000 "
-            "os1 -> os2 -> os3",
+            "drwxr-sr-x   2 45854    200           512 May 29  2000 os1 -> os2 -> os3",
             # Missing name
             "-rwxr-sr-x   2 45854    200           51x May  4  2000 ",
         ]

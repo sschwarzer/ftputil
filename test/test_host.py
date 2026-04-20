@@ -53,6 +53,7 @@ def as_bytes(string, encoding=ftputil.path_encoding.DEFAULT_ENCODING):
 # Test cases
 #
 
+
 # For Python < 3.9, the `default_session_factory` is just `ftplib.FTP`. It's
 # not worth it to test the factory then.
 @pytest.mark.skipif(
@@ -90,8 +91,7 @@ class TestDefaultSessionFactory:
             assert (
                 # Don't compare the `self` argument. It changes for every test
                 # run.
-                ftp_mock.call_args.args
-                == ("localhost", "ftptest", "dummy") + args
+                ftp_mock.call_args.args == ("localhost", "ftptest", "dummy") + args
             )
             assert ftp_mock.call_args.kwargs == expected_kwargs
 
@@ -113,9 +113,7 @@ class TestDefaultSessionFactory:
         """
         kwargs = {"timeout": 1.0, "source_address": None}
         expected_kwargs = kwargs.copy()
-        expected_kwargs["encoding"] = (
-            ftputil.path_encoding.DEFAULT_ENCODING  # ty: ignore[invalid-assignment]
-        )
+        expected_kwargs["encoding"] = ftputil.path_encoding.DEFAULT_ENCODING  # ty: ignore[invalid-assignment]
         self._test_extra_arguments(kwargs=kwargs, expected_kwargs=expected_kwargs)
 
     def test_custom_encoding(self):
@@ -348,7 +346,6 @@ class TestRecursiveListingForDotAsPath:
 
 
 class TestTimeShift:
-
     # Helper mock class that frees us from setting up complicated session
     # scripts for the remote calls.
     class _Path:

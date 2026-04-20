@@ -813,6 +813,7 @@ class FTPHost:
         path = self.path.abspath(path)
         if self.listdir(path):
             raise ftputil.error.PermanentError("directory '{}' not empty".format(path))
+
         # XXX: How does `rmd` work with links?
         def command(self, path):
             """Callback function."""
@@ -860,7 +861,7 @@ class FTPHost:
                 self.stat_cache.invalidate(path)
         else:
             raise ftputil.error.PermanentError(
-                "remove/unlink can only delete files and links, " "not directories"
+                "remove/unlink can only delete files and links, not directories"
             )
 
     unlink = remove
@@ -937,6 +938,7 @@ class FTPHost:
         target = ftputil.tool.as_str_path(target, encoding=self._encoding)
         source_head, source_tail = self.path.split(source)
         target_head, target_tail = self.path.split(target)
+
         # Avoid code duplication below.
         #
         # Use `source_arg` and `target_arg` instead of `source` and `target` to
@@ -980,6 +982,7 @@ class FTPHost:
         Return a directory listing as made by FTP's `LIST` command as a list of
         strings.
         """
+
         # Don't use `self.path.isdir` in this method because that would cause a
         # call of `(l)stat` and thus a call to `_dir`, so we would end up with
         # an infinite recursion.
