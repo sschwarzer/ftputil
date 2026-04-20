@@ -348,8 +348,11 @@ class TestDeprecationForTimeShift:
 
     def test_isdir_and_stat_emits_time_shift_warning(self):
         """
-        If `FTPHost.path.isdir` is called and the time shift is unset,
-        it should emit a deprecation warning with the time shift message.
+        If `FTPHost.path.isdir` is called and the time shift is unset, it
+        shouldn't emit a deprecation warning with the time shift message.
+
+        This test stands for several others, but I don't want to repeat the
+        test for all kinds of methods, e.g. `isfile` and `exists`.
         """
         script = self._stat_script("file")
         with test_base.ftp_host_factory(scripted_session.factory(script)) as host:
