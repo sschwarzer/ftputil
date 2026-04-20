@@ -425,11 +425,16 @@ class FTPHost:
                 "`set_time_shift` or `synchronize_times` to get timestamp "
                 "stat data or to use `upload_if_newer` or `download_if_newer`",
                 DeprecationWarning,
-                # Use level 3 because
-                # `_warn_if_time_shift_unset_and_set_default` is always called
-                # directly from public ftputil APIs, so we need one stack level
-                # for the ftputil function/method and one level for
-                # `_warn_if_time_shift_unset_and_set_default` itself.
+                # When `_warn_if_time_shift_unset_and_set_default` is called
+                # _and_ the above warning condition holds, it's always for a
+                # client calling a public ftputil method.
+                #
+                # For example, if some client code calls `stat` directly, the
+                # stack level from the
+                # `_warn_if_time_shift_unset_and_set_default` call in `stat`
+                # will be correct. On the other hand, if `stat` is called
+                # internally, e.g. from `listdir` the warning isn't emitted to
+                # begin with.
                 stacklevel=3,
             )
             self._time_shift = _DEFAULT_TIME_SHIFT
