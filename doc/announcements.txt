@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------
-ftputil 5.2.0 is now available on the Python Package Index.
+ftputil 5.2.0 is now available from the Python Package Index.
 
 
 Changes since the last stable release 5.1.0
