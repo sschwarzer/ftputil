@@ -35,7 +35,7 @@ Only for non-alpha/beta releases:
 
   _Before_ sending announcement to mailing list ...
 
-  - Update website
+  - Update website (documentation and versions)
 
   - Upload new version to PyPI (`make upload`)
 
