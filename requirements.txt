@@ -1,3 +1,4 @@
+build
 freezegun
 ipdb
 ipython
@@ -8,6 +9,7 @@ prompt-toolkit
 pytest
 pytest-mypy
 ruff
+setuptools
 ty
 tox
 virtualenv
