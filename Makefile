@@ -95,6 +95,8 @@ lint:
 dist: clean patch lint
 	# Delete contents of `.tox`, but keep the directory.
 	rm -rf .tox/*
+	# Remove old packages, otherwise `twine` uploads them, too!
+	rm -rf dist/*
 	${PYTHON_BINARY} -m build
 
 .PHONY: extdist
