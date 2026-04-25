@@ -80,7 +80,7 @@ Changes since the last stable release 5.1.0
     `FTPHost.stat` or `FTPHost.lstat`.
 
     ftputil 5.2.0 will - unless you set the time shift with
-    `FTPHost.set_time_shift` or `FTPHost.synchronize_times` - raise
+    `FTPHost.set_time_shift` or `FTPHost.synchronize_times` - emit
     deprecation warnings when one of the following methods is called:
     `FTPHost.stat`, `FTPHost.lstat`, `FTPHost.path.getmtime`,
     `FTPHost.upload_if_newer` and `FTPHost.download_if_newer`. Note
