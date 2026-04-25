@@ -24,7 +24,8 @@ If you're unsure how a new version might affect you, please ask on the
 
 | Version | Status | Release date | Main changes to previous version |
 |---------|--------|--------------|----------------------------------|
-| 5.1.0 | **Current stable release** | 2024-01-06 | Send `OPTS UTF8 ON` for UTF-8 path encoding ([#157](https://todo.sr.ht/~sschwarzer/ftputil/157)) |
+| 5.2.0 | **Current stable release** | 2026-04-25 | Ignore errors when sending `OPTS UTF8 ON`, add deprecation warnings for future ftputil 6.0.0 |
+| 5.1.0 |  | 2024-01-06 | Send `OPTS UTF8 ON` for UTF-8 path encoding ([#157](https://todo.sr.ht/~sschwarzer/ftputil/157)) |
 | 5.0.4 |  | 2022-05-11 | Improve stat cache invalidation ([#150](https://todo.sr.ht/~sschwarzer/ftputil/150)) |
 | 5.0.3 |  | 2022-01-26 | Fix potential data loss for FTPS ([#149](https://todo.sr.ht/~sschwarzer/ftputil/149)) |
 | 5.0.2 |  | 2021-11-13 | Fix handling of empty paths ([#148](https://todo.sr.ht/~sschwarzer/ftputil/148)) |
