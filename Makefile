@@ -107,7 +107,8 @@ extdist: all_tests dist upload
 .PHONY: upload
 upload:
 	@echo "Uploading new version to PyPI"
-	${PYTHON_BINARY} -m twine upload dist/ftputil-${VERSION}.tar.gz
+	${PYTHON_BINARY} -m twine upload \
+		dist/ftputil-${VERSION}.tar.gz dist/ftputil-${VERSION}-py3-none-any.whl
 
 # Remove files with `orig` suffix (caused by `hg revert`).
 .PHONY: cleanorig
