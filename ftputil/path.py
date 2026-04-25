@@ -190,7 +190,29 @@ class _Path:
                 else:
                     return stat.S_ISLNK(lstat_result.st_mode)
 
-    def walk(self, top, func, arg, _is_recursive_call=False):
+    def _walk(self, top, func, arg):
+        """
+        This is like `walk`, just without the deprecation warning.
+        """
+        ftputil.tool.raise_for_empty_path(top, path_argument_name="top")
+        top = ftputil.tool.as_str_path(top, encoding=self._encoding)
+        # This code (and the above documentation) is taken from `posixpath.py`,
+        # with slight modifications.
+        try:
+            names = self._host.listdir(top)
+        except OSError:
+            return
+        func(arg, top, names)
+        for name in names:
+            name = self.join(top, name)
+            try:
+                stat_result = self._host.lstat(name)
+            except OSError:
+                continue
+            if stat.S_ISDIR(stat_result[stat.ST_MODE]):
+                self._walk(name, func, arg)
+
+    def walk(self, top, func, arg):
         """
         Directory tree walk with callback function.
 
@@ -212,28 +234,11 @@ class _Path:
         e.g., to pass a filename pattern, or a mutable object designed
         to accumulate statistics.  Passing None for arg is common.
         """
-        if not _is_recursive_call:
-            warnings.warn(
-                "FTPHost.path.walk() is deprecated and will be removed in ftputil "
-                "6.0.0. Use FTPHost.walk() instead, which provides the modern "
-                "Python 3 generator-based API similar to os.walk().",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        ftputil.tool.raise_for_empty_path(top, path_argument_name="top")
-        top = ftputil.tool.as_str_path(top, encoding=self._encoding)
-        # This code (and the above documentation) is taken from `posixpath.py`,
-        # with slight modifications.
-        try:
-            names = self._host.listdir(top)
-        except OSError:
-            return
-        func(arg, top, names)
-        for name in names:
-            name = self.join(top, name)
-            try:
-                stat_result = self._host.lstat(name)
-            except OSError:
-                continue
-            if stat.S_ISDIR(stat_result[stat.ST_MODE]):
-                self.walk(name, func, arg, _is_recursive_call=True)
+        warnings.warn(
+            "FTPHost.path.walk() is deprecated and will be removed in ftputil "
+            "6.0.0. Use FTPHost.walk() instead, which provides the modern "
+            "Python 3 generator-based API similar to os.walk().",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self._walk(top, func, arg)
