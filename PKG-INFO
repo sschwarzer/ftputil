@@ -5,7 +5,7 @@ Summary: High-level FTP client library (virtual filesystem and more)
 Home-page: http://ftputil.sschwarzer.net/
 Author: Stefan Schwarzer
 Author-email: sschwarzer@sschwarzer.net
-License: Open source (revised BSD license)
+License: BSD-3-Clause
 Description: ftputil is a high-level FTP client library for the Python programming
         language. ftputil implements a virtual file system for accessing FTP servers,
         that is, it can generate file-like objects for remote files. The library
@@ -17,7 +17,6 @@ Classifier: Development Status :: 5 - Production/Stable
 Classifier: Environment :: Other Environment
 Classifier: Intended Audience :: Developers
 Classifier: Intended Audience :: System Administrators
-Classifier: License :: OSI Approved :: BSD License
 Classifier: Operating System :: OS Independent
 Classifier: Programming Language :: Python
 Classifier: Programming Language :: Python :: 3
