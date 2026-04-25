@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-# Copyright (C) 2003-2022, Stefan Schwarzer <sschwarzer@sschwarzer.net>
+# Copyright (C) 2003-2026, Stefan Schwarzer <sschwarzer@sschwarzer.net>
 # See the file LICENSE for licensing terms.
 
 """
@@ -16,12 +16,6 @@ _name = "ftputil"
 _package = "ftputil"
 _version = open("VERSION").read().strip()
 
-# Unfortunately, there doesn't seem to be a straightforward way to determine
-# the download URL automatically, therefore use a hardcoded mapping from
-# version to download URL.
-_download_urls = {
-    "5.1.0": "https://files.pythonhosted.org/packages/73/dc/83f3fa78a9c8a8fe119a70d040df67799094821d3cad511ee0987d544a10/ftputil-5.1.0.tar.gz",
-}
 
 core.setup(
     # Installation data
@@ -46,7 +40,6 @@ that is, it can generate file-like objects for remote files. The library
 supports many functions similar to those in the os, os.path and
 shutil modules. ftputil has convenience functions for conditional uploads
 and downloads, and handles FTP clients and servers in different timezones.""",
-    download_url=_download_urls[_version],
     classifiers=[
         # Commented-out for beta release
         "Development Status :: 5 - Production/Stable",
