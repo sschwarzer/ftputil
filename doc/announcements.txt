@@ -1,11 +1,123 @@
-TODO:
+----------------------------------------------------------------------
+ftputil 5.2.0 is now available on the Python Package Index.
 
-Packages can no longer be downloaded from the website. PyPI is the way
-to go! :-)
 
-Also update the link for the documentation to
-https://ftputil.sschwarzer.net/documentation .
+Changes since the last stable release 5.1.0
+-------------------------------------------
 
+- Catch errors from sending `OPTS UTF8 ON`. Some servers announce
+  their UTF-8 support in the response of the `FEAT` command, but
+  still cause a 5xx error when sending `OPTS UTF8 ON`.
+
+  Sending `OPTS UTF8 ON` happens implicitly if you specify UTF-8
+  encoding for directory and file paths. Note that if you only use
+  ASCII paths, this change isn't relevant for you.
+
+- Add several deprecation warnings in light of the _future_ version
+  ftputil 6.0.0.
+
+  For each of the following areas, I'd like to give you some
+  background about the future changes in ftputil so that you
+  understand the warnings better.
+
+  - `FTPHost.path.walk`
+
+    In ftputil 6.0.0 (future version) the `FTPHost.path.walk` method
+    will be removed. This corresponds to the removal of `os.path.walk`
+    already in Python 3.0. Note that `FTPHost.walk` (corresponding to
+    `os.walk`) will stay.
+
+    In ftputil 5.2.0 (this version) you get a deprecation warning when
+    you use `FTPHost.path.walk`.
+
+  - Default path encoding
+
+    In ftputil 6.0.0 (future version) the default _path_ encoding
+    changes to UTF-8. This means that if you don't specify a path
+    encoding in the `FTPHost` constructor or the
+    `session.session_factory` function, ftputil will assume that the
+    directory, file and link paths are UTF-8-encoded (as usual
+    regardless of what the server actually uses).
+
+    In ftputil 5.2.0 (this version) the situation is a bit messy (no
+    change here to the previous 5.x versions). The current state is
+    described in the [documentation][1].
+
+    ftputil 5.2.0 will emit a deprecation warning about the changing
+    default encoding when the `ftputil` module or any submodule is
+    imported for the first time in a running process.
+
+  - Default time shift
+
+    The "time shift" in ftputil is essentially the offset in seconds
+    for the time zone the server uses. For example, _if the server is
+    configured to use local time_ and uses the time zone Europe/Berlin,
+    the time shift will be 7200 (two hours) during DST and 3600 (one
+    hour) otherwise.
+
+    In ftputil 6.0.0 (future version) there will be no default time
+    shift; you have to set the time shift explicitly with
+    `FTPHost.set_time_shift` or implicitly with
+    `FTPHost.synchronize_times` to use functionality that depends on
+    the time shift. In detail: _Without a set time shift_,
+    - `FTPHost.path.getmtime` will raise an exception.
+    - The result from `FTPHost.stat` and `FTPHost.lstat` will have
+      `None` or a special constant in place of the modification time.
+    - Using `FTPHost.upload_if_newer` or `FTPHost.download_if_newer`
+      will raise an exception.
+    With this behavior, you can still use most of ftputil if you don't
+    know the time zone used by the server.
+
+    In ftputil 5.2.0 (this version) the default time shift is 0.0;
+    this implicitly assumes the server returns timestamp information
+    as UTC timestamps. This is fine if the server _actually_ uses UTC
+    time, but it's a footgun if the server time zone is different. One
+    noticeable example for this footgun is [ticket 160][2], but I
+    suspect most situations where a user didn't set the time shift
+    will result in wrong upload/download decisions in
+    `FTPHost.upload_if_newer` and `FTPHost.download_if_newer` or bugs
+    in client code that relies on modification times from
+    `FTPHost.stat` or `FTPHost.lstat`.
+
+    ftputil 5.2.0 will - unless you set the time shift with
+    `FTPHost.set_time_shift` or `FTPHost.synchronize_times` - raise
+    deprecation warnings when one of the following methods is called:
+    `FTPHost.stat`, `FTPHost.lstat`, `FTPHost.path.getmtime`,
+    `FTPHost.upload_if_newer` and `FTPHost.download_if_newer`. Note
+    that for an `FTPHost` instance, if you already got a warning for
+    one of these methods, you won't get a warning for the other
+    methods. (The `FTPHost` instance has internal state about whether
+    the warning has been emitted.)
+
+
+What is ftputil?
+----------------
+
+ftputil is a high-level FTP client library for the Python programming
+language. ftputil implements a virtual file system for accessing FTP
+servers; that is, it can generate file-like objects for remote files.
+The library supports many functions similar to those in the `os`,
+`os.path` and `shutil` modules. ftputil has convenience functions for
+conditional uploads and downloads, and handles FTP clients and servers
+in different time zones.
+
+See the documentation for details:
+https://ftputil.sschwarzer.net/documentation
+
+
+License
+-------
+
+ftputil is open source software, released under the 3-clause BSD
+license (see https://opensource.org/licenses/BSD-3-Clause ).
+
+
+[1] https://ftputil.sschwarzer.net/documentation#directory-and-file-names
+[2] https://todo.sr.ht/~sschwarzer/ftputil/160
+
+
+Best regards,
+Stefan
 
 ----------------------------------------------------------------------
 ftputil 5.1.0 is now available from
